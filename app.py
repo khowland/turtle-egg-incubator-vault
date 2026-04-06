@@ -87,9 +87,9 @@ if menu == "📊 DASHBOARD":
         c1, c2, c3 = st.columns(3)
         with c1: st.markdown(f'<div class="glass-card"><b>ACTIVE specimens</b><br><span style="font-size:3rem; font-weight:bold;">{active}</span></div>', unsafe_allow_html=True)
         with c2: st.markdown(f'<div class="glass-card"><b>PIPPING PHASE</b><br><span style="font-size:3rem; font-weight:bold;">{pip}</span></div>', unsafe_allow_html=True)
-        with c3: st.markdown(f'<div class="glass-card"><b>SYNC STATUS</b><br><span style="font-size:3rem; font-weight:bold;">100%</span></div>', unsafe_allow_html=True)
+        with c3: st.markdown(f'<div class="glass-card"><b>NEURAL SYNC</b><br><span style="font-size:3rem; font-weight:bold;">100%</span></div>', unsafe_allow_html=True)
 
-        st.subheader("🚨 Biological Watchlist")
+        st.subheader("🚨 Biological Guardrails")
         limit = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
         res = supabase.table("egg").select("egg_id, bin(mother(mother_name), harvest_date)").eq("current_stage", "Mature").execute().data
         
