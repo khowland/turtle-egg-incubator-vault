@@ -11,7 +11,7 @@ from streamlit_lottie import st_lottie
 load_dotenv('.env')
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-VERSION = "v5.1 - OBSERVATIONS"
+VERSION = "v5.2 - TITANIUM STABLE"
 
 st.set_page_config(
     page_title=f"Vault Elite {VERSION}",
@@ -20,7 +20,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. TITANIUM CSS OVERRIDES (v5.1) ---
+# --- 2. TITANIUM CSS OVERRIDES (v5.2) ---
 st.markdown("""
 <style>
     /* Global Force */
@@ -95,14 +95,15 @@ if 'session_id' not in st.session_state:
 
 # --- 4. NAVIGATION ---
 with st.sidebar:
-    st.markdown(f"<div style='color:#10B981; font-weight:bold; font-size:1rem; text-align:center; padding:8px; border:2px solid #10B981; border-radius:10px;'>BUILD: {VERSION}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='color:#10B981; font-weight:bold; font-size:0.9rem; text-align:center; padding:8px; border:2px solid #10B981; border-radius:10px;'>BUILD: {VERSION}</div>", unsafe_allow_html=True)
     st.markdown("<h1 style='color:white; font-size:3rem; margin-bottom:0;'>VAULT</h1><p style='color:#10B981; font-weight:bold; letter-spacing:4px;'>ELITE PRO</p>", unsafe_allow_html=True)
     anim = load_lottie("https://lottie.host/880a6c0c-7b0f-48d5-94f4-500b41050682/L3zS0XvU7Y.json")
     if anim: st_lottie(anim, height=120, key="nav")
     
-    # UPDATED: Renamed Field Log to Observations
     menu = st.radio("SYSTEM ACCESS", ["📊 DASHBOARD", "🐣 NEW INTAKE", "🔍 OBSERVATIONS", "🛠️ REGISTRY"])
-    st.v_spacer(height=100)
+    
+    # FIXED: Replaced non-existent st.v_spacer with standard markdown
+    st.markdown("<div style='height: 100px;'></div>", unsafe_allow_html=True)
     st.caption(f"Session: {st.session_state.session_id}")
 
 # --- 5. VIEWS ---
@@ -136,7 +137,7 @@ if menu == "📊 DASHBOARD":
 elif menu == "🐣 NEW INTAKE":
     st.markdown("<h1>New Intake</h1>", unsafe_allow_html=True)
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    with st.form("intake_v51", clear_on_submit=True):
+    with st.form("intake_v52", clear_on_submit=True):
         species_data = supabase.table("species").select("species_id, common_name").execute().data
         spec_map = {s['common_name']: s['species_id'] for s in species_data}
         
@@ -162,11 +163,8 @@ elif menu == "🔍 OBSERVATIONS":
     st.markdown('<div class="glass-card">Viewing all active specimens in the primary vault chamber.</div>', unsafe_allow_html=True)
     
     try:
-        # FETCH EGGS WITH JOINED DATA
         raw_data = supabase.table("egg").select("egg_id, current_stage, bin(harvest_date, mother(mother_name))").order("egg_id", desc=True).execute().data
-        
         if raw_data:
-            # FLATTEN DATA FOR DISPLAY
             flat_data = []
             for row in raw_data:
                 flat_data.append({
