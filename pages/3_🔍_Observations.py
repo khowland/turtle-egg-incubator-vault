@@ -30,17 +30,14 @@ render_sidebar()
 
 def load_active_data(supabase):
     """Fetches all active mothers and bins for cascading filters."""
-    # Join mother and bin to get a full tree
-    # Filtering by is_deleted=FALSE is mandatory per §9.3
     try:
         res = supabase.table("bin").select("bin_id, bin_label, mother:mother_id(mother_id, mother_name, species:species_id(common_name))").eq("is_deleted", False).execute()
         return res.data
     except:
         return []
 
-def load_eggs(supabase, bin_id=None, mother_id=None):
+def load_eggs(supabase, bin_id=None):
     """Fetches eggs with their latest biological observations."""
-    # Build query with mandatory soft-delete filter
     query = supabase.table("egg").select(
         "egg_id, current_stage, status, bin:bin_id(bin_id, bin_label, harvest_date)"
     ).eq("is_deleted", False).eq("status", "Active")
@@ -50,12 +47,10 @@ def load_eggs(supabase, bin_id=None, mother_id=None):
     res = query.execute()
     eggs = res.data
     
-    # Enrich with latest observation (chalk, vasc, health)
     for egg in eggs:
         obs = supabase.table("EggObservation").select("*").eq("egg_id", egg['egg_id']).order("timestamp", desc=True).limit(1).execute()
         egg['latest_obs'] = obs.data[0] if obs.data else {}
         
-        # Calculate age
         harvest_date = datetime.fromisoformat(egg['bin']['harvest_date'])
         egg['age_days'] = (datetime.now().date() - harvest_date.date()).days
         
@@ -74,7 +69,6 @@ if not st.session_state.get("logged_in"):
 supabase = get_supabase_client()
 raw_data = load_active_data(supabase)
 
-# --- FILTER BAR ---
 st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
 c1, c2, c3 = st.columns([2, 2, 1])
 
@@ -89,8 +83,6 @@ sel_bin = c2.selectbox("📦 Filter by Bin", ["All"] + bin_options)
 if c3.button("🔄 REFRESH DATA"): st.rerun()
 st.markdown("</div>", unsafe_allow_html=True)
 
-# --- EGG GRID ---
-# Determine selected bin_id if any
 filter_bin_id = None
 if sel_bin != "All":
     filter_bin_id = next(d['bin_id'] for d in raw_data if (d['bin_label'] or d['bin_id']) == sel_bin)
@@ -102,10 +94,8 @@ if not egg_data:
 else:
     st.markdown(f"### 🥚 Active Eggs ({len(egg_data)})")
     
-    # Multi-Select State
     if 'selected_eggs' not in st.session_state: st.session_state.selected_eggs = set()
     
-    # Render Grid
     cols = st.columns(4)
     for idx, egg in enumerate(egg_data):
         with cols[idx % 4]:
@@ -129,11 +119,28 @@ else:
             else:
                 st.session_state.selected_eggs.discard(egg['egg_id'])
             
+            # --- STEP A.5: OBSERVATION HISTORY ---
+            with st.expander("📋 History"):
+                try:
+                    h_res = supabase.table("EggObservation").select("*, observer:observer_id(display_name)").eq("egg_id", egg['egg_id']).order("timestamp", desc=True).execute()
+                    if h_res.data:
+                        for h in h_res.data:
+                            t = datetime.fromisoformat(h['timestamp']).strftime("%b %d, %I:%M %p")
+                            obs_name = h.get('observer', {}).get('display_name', 'Unknown')
+                            st.caption(f"**{t}** | {obs_name}")
+                            st.markdown(f"Chalk: {h['chalking']}, Vasc: {'YES' if h['vascularity'] else 'NO'}, Stage: {h.get('stage_at_observation', 'N/A')}")
+                            if h['notes']: st.markdown(f"*Notes: {h['notes']}*")
+                            st.divider()
+                    else:
+                        st.caption("No history for this egg.")
+                except:
+                    st.caption("Error loading history.")
+            
             st.markdown("</div>", unsafe_allow_html=True)
 
 # --- BATCH OBSERVATION PANEL ---
 if st.session_state.selected_eggs:
-    st.markdown("--- observer logic ---")
+    st.markdown("--- batch panel ---")
     st.markdown("<div class='glass-card' style='border: 2px solid #10B981;'>", unsafe_allow_html=True)
     st.markdown(f"### 📝 BATCH OBSERVATION ({len(st.session_state.selected_eggs)} selected)")
     
@@ -156,7 +163,6 @@ if st.session_state.selected_eggs:
         f_notes = st.text_area("Observation Notes")
         
         if st.form_submit_button("💾 SAVE OBSERVATION FOR BATCH"):
-            # Construct Payload
             obs_payload = {
                 "chalking": int(f_chalk[0]) if "skip" not in f_chalk else None,
                 "vascularity": True if f_vasc == "YES" else (False if f_vasc == "NO" else None),
@@ -173,7 +179,7 @@ if st.session_state.selected_eggs:
                     payload = obs_payload.copy()
                     payload['egg_id'] = eid
                     payload['session_id'] = st.session_state.session_id
-                    # Requirement: also update egg table if stage/status changed
+                    payload['stage_at_observation'] = next(e['current_stage'] for e in egg_data if e['egg_id'] == eid)
                     supabase.table("EggObservation").insert(payload).execute()
                     
                     egg_update = {}
