@@ -10,8 +10,9 @@ services:
       - WORKSPACE_DIR=/workspace
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
     stdin_open: true # Equivalent to -i
-    tty: true        # Equivalent to -t
+    tty: true # Equivalent to -t
     restart: always
