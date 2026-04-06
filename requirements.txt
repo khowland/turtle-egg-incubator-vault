@@ -1,0 +1,1 @@
+streamlit\nsupabase\npython-dotenv\nrequests\npandas

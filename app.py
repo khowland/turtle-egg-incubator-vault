@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 
 # --- 1. INITIALIZATION & SECRETS ---
-load_dotenv('/workspace/.env')
+load_dotenv('.env')
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
