@@ -1,60 +1,67 @@
-# Operator Manual: AppSheet Interface Setup
+# Operator Manual: AppSheet Interface Setup (v2.0 Revision)
 
-Follow these steps to initialize the **AppSheet Mobile UI** and connect it to your **Supabase "Vault"**.
+Follow these steps to initialize the **AppSheet Mobile UI** from scratch and connect it to your **Supabase "Vault"**.
 
 ---
 
-## 🏗️ 1. Signup & Login
+## 🏗️ 1. Signup & Account-Level API Key
+*You can do this safely before creating any apps.*
+
 1.  **Go to AppSheet**: [https://www.appsheet.com](https://www.appsheet.com).
 2.  **Login**: Select **"Login with Google."** 
-    *   *Note*: Use the same Google account that will manage the Wildlife In Need Center's Drive/Sheets for the best integration.
-3.  **Permissions**: Grant AppSheet permission to access your Google Drive (required for offline syncing and file storage).
+    *   *Note*: Use a dedicated Google account if possible for long-term non-profit handover.
+3.  **Enable API**: Click your user icon (top-right) -> **"My Account"** -> **"Settings."**
+4.  **Integrations Tab**: Click the **"Integrations"** tab at the top.
+5.  **Generate Access Key**: Scroll to **AppSheet API**. Toggle it **ON**, then click **"Show Access Key."**
+    *   *Save as*: **`APPSHEET_ACCESS_KEY`**.
+    *   *Paste into `.env`*: (Line 62).
 
 ---
 
-## 🔑 2. Enable AppSheet API & Generate Key
-This is required for **Agent Zero** to automate data syncs and advanced logic.
-1.  **Account Settings**: Click your user icon (top-right) -> **"My Account"** -> **"Settings."**
-2.  **Integrations Tab**: Click the **"Integrations"** tab at the top.
-3.  **Enable API**: Scroll down to the **AppSheet API** section. Ensure the toggle is **ON**.
-4.  **Show Access Key**: Click **"Show Access Key."** 
-    *   *Save as*: **`APPSHEET_ACCESS_KEY`**.
-5.  **Copy to `.env`**: Paste this value into your `C:\dev\projects\turtle-db\.env` exactly like this:
-    `APPSHEET_ACCESS_KEY=[Your_Long_Key]`
+## 🏗️ 2. Create the "Incubator Vault" App (From Scratch)
+*Since you have no app yet, we will use Gemini to "build the shell" for us.*
+
+1.  **AppSheet Home**: Go to the AppSheet dashboard.
+2.  **Create App**: Click **"Create" (+) -> "App" -> "Start with AI."**
+3.  **The Prompt**: Paste this exact sentence into the Gemini box:
+    > "Create a mobile app for a turtle egg incubator called 'Incubator Vault'. It needs tables for Mothers, Bins, Eggs, and Observations with photos."
+4.  **Wait for Build**: Gemini will create the initial data structure and some basic mobile views. Click **"Customize my app"** when it's done.
 
 ---
 
 ## 🆔 3. Identify your App ID
-If you have already created a "Blank" app or a shell:
-1.  **Open Editor**: Open your app in the AppSheet editor.
+*Now that your app exists, you can get its unique ID.*
+
+1.  **Open Editor**: Open the "Incubator Vault" app you just created.
 2.  **Settings**: Left sidebar -> **Settings (⚙️)** -> **Information**.
-3.  **App Properties**: Look for the **App ID**. It will be a string like `888-222-333e-444-555...`.
+3.  **App Properties**: Look for the **App ID**. It looks like `bb9911-3344-555...`.
     *   *Save as*: **`APPSHEET_APP_ID`**.
-4.  **Copy to `.env`**: Paste this value into your `.env` file.
+    *   *Paste into `.env`*: (Line 61).
 
 ---
 
-## 🔌 4. Connect AppSheet to Supabase (Database Connector)
-To make your "Incubator Vault" work, you must link the two systems.
+## 🔌 4. Connect AppSheet to Supabase (The Cloud Pivot)
+*Currently, your app is likely linked to a Google Sheet. We want it linked to your Supabase Vault.*
+
 1.  **Add Data**: In the AppSheet editor, click **"Data" (📊) -> "Add New Data."**
 2.  **Select Source**: Click **"Cloud Database."**
 3.  **Connection Settings**:
     *   **Type**: Select **PostgreSQL**.
-    *   **Server**: Use your **`SUPABASE_URL`** (remove the `https://` and `.supabase.co` parts; use the Hostname if prompted, otherwise paste the full URL).
-    *   **Database**: `postgres` (unless you renamed it).
+    *   **Server**: Your Supabase URL (`kxfkfeuhkdopgmkpdimo.supabase.co`).
+    *   **Database**: `postgres`.
     *   **User**: `postgres`.
-    *   **Password**: Your **`SUPABASE_DB_PASSWORD`**.
-    *   **SSL**: Ensure it is enabled.
-4.  **Authorize**: Click **"Test"** and then **"Authorize."**
+    *   **Password**: Your **`SUPABASE_DB_PASSWORD`** from the `.env`.
+4.  **Authorize**: Click **"Test"** and then **"Authorize."** 
+    *   *Note*: Agent Zero will now be able to sync data directly to your mobile phone!
 
 ---
 
 ## 🏁 5. Handover Mission to Agent Zero (A0)
 Once the connection is live, tell A0:
 
-> "Agent Zero, the **AppSheet UI shell** is connected to the **Incubator Vault**. The `APPSHEET_ACCESS_KEY` and `APPSHEET_APP_ID` are now in the `.env`. 
+> "Agent Zero, the **AppSheet UI shell** is connected to the **Incubator Vault**. All keys for both systems are now in the `.env`. 
 > 
-> **Instructions:** 
-> 1. Design the **AppSheet UX Expressions** for 'Quick Edit' on Vascularity and Stage. 
-> 2. Create the **Automation Bots** for 'New Intake' notifications. 
-> 3. Verify the sync logic and report back."
+> **Build Instructions:** 
+> 1. Harmonize the **AppSheet UX** with the **Supabase schema** you just built. 
+> 2. Implement the **Mobile Field Logic** for vascularity and chalking from the `turtle_expert.md` skill. 
+> 3. Verify the sync engine and report back."
