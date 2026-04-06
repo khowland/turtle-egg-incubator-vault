@@ -8,7 +8,7 @@
 -- 1. CREATE OBSERVER REGISTRY
 CREATE TABLE IF NOT EXISTS public.observer (
     observer_id TEXT PRIMARY KEY, -- Slug: "elisa", "kevin"
-    display_name TEXT NOT NULL,
+    display_name TEXT NOT NULL UNIQUE, -- Requirement §2.F: unique display names
     role TEXT NOT NULL, -- Lead, Staff, Volunteer
     email TEXT,
     phone TEXT,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS public.observer (
 -- 2. CREATE INCUBATOR REGISTRY
 CREATE TABLE IF NOT EXISTS public.incubator (
     incubator_id TEXT PRIMARY KEY, -- "INC-01"
-    label TEXT NOT NULL,
+    label TEXT NOT NULL UNIQUE, -- Requirement §2.G: unique incubator names
     location TEXT,
     target_temp NUMERIC,
     target_humidity NUMERIC,

@@ -43,7 +43,9 @@ st.markdown("### 📝 Log New Reading")
 try:
     inc_res = supabase.table("incubator").select("incubator_id, label, target_temp, target_humidity").eq("is_active", True).execute()
     incubators = inc_res.data
-except:
+except Exception as e:
+    # Fallback if incubator table doesn't exist yet
+    print(f"Incubator query failed, using fallback: {e}")
     incubators = [{"incubator_id": "INC-01", "label": "Incubator Alpha", "target_temp": 82.0, "target_humidity": 80.0}]
 
 inc_map = {i['label']: i for i in incubators}
@@ -63,7 +65,7 @@ with st.form("env_form"):
         def save_reading():
             payload = {
                 "incubator_id": target['incubator_id'],
-                "temperature": temp,
+                "ambient_temp": temp,
                 "humidity": hum,
                 "notes": notes,
                 "observer_id": st.session_state.observer_id,
@@ -102,5 +104,5 @@ try:
                      use_container_width=True, hide_index=True)
     else:
         st.info("No telemetry data logged in the last 24 hours.")
-except:
-    st.error("Neural Stream Interrupted: Could not load recent readings.")
+except Exception as e:
+    st.error(f"⚠️ Could not load recent readings: {e}")

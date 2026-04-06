@@ -20,7 +20,7 @@ from utils.db import get_supabase_client
 # =============================================================================
 
 def init_session(observer_id: str, display_name: str):
-    """Generates a new session ID and stores observer state.
+    """Generates a new session ID, stores observer state, and logs to SessionLog.
     
     Args:
         observer_id: Slug for the observer.
@@ -32,6 +32,17 @@ def init_session(observer_id: str, display_name: str):
     st.session_state["observer_id"] = observer_id
     st.session_state["observer_name"] = display_name
     st.session_state["logged_in"] = True
+    
+    # Requirement §6: Insert SessionLog row for audit trail
+    try:
+        supabase = get_supabase_client()
+        supabase.table("SessionLog").insert({
+            "session_id": session_id,
+            "user_name": display_name,
+        }).execute()
+    except Exception as e:
+        # Non-blocking — don't prevent observer selection if log fails
+        print(f"SessionLog insert failed: {e}")
 
 def get_active_session():
     return st.session_state.get("session_id")
@@ -44,7 +55,8 @@ def load_lottieurl(url: str):
     try:
         r = requests.get(url)
         return r.json() if r.status_code == 200 else None
-    except:
+    except Exception:
+        # Lottie animation is cosmetic — fail silently if network unavailable
         return None
 
 def render_sidebar():
@@ -67,8 +79,9 @@ def render_sidebar():
         try:
             res = supabase.table("observer").select("*").eq("is_active", True).execute()
             observers = res.data
-        except:
-            # Fallback for early build stages
+        except Exception as e:
+            # Fallback for early build stages before observer table exists
+            print(f"Observer table query failed, using fallback: {e}")
             observers = [
                 {"observer_id": "elisa", "display_name": "Elisa Rodriguez"},
                 {"observer_id": "kevin", "display_name": "Kevin Howland"}

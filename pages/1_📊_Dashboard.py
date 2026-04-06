@@ -41,7 +41,10 @@ def load_kpis(supabase):
         lost = len(df[df['status'] == 'Dead'])
         
         return active, pipping, hatched, lost
-    except: return 0, 0, 0, 0
+    except Exception as e:
+        # Surface connection errors instead of silently returning zeros
+        print(f"KPI load error: {e}")
+        return 0, 0, 0, 0
 
 def load_alerts(supabase):
     """Implementation of Biological Guardrails G1-G7 per Requirements §8."""
@@ -66,7 +69,10 @@ def load_alerts(supabase):
                 alerts.append({"id": egg['egg_id'], "type": "HEALTH", "msg": "Active Molding/Leaking detected"})
         
         return alerts
-    except: return []
+    except Exception as e:
+        # Surface guardrail query errors instead of hiding them
+        print(f"Alert load error: {e}")
+        return []
 
 # =============================================================================
 # SECTION: UI Layout
@@ -114,7 +120,9 @@ try:
         c_left.plotly_chart(fig, use_container_width=True)
     else:
         c_left.info("No data for distribution analysis.")
-except: pass
+except Exception as e:
+    # Surface chart rendering errors — don't silently hide them
+    c_left.error(f"⚠️ Chart error: {e}")
 
 # Success Trends Placeholder
 c_right.markdown("<div class='glass-card' style='height:350px; display:flex; align-items:center; justify-content:center;'><h4>Hatch Rate Trends coming in Phase D</h4></div>", unsafe_allow_html=True)
