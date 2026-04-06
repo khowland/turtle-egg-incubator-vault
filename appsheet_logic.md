@@ -1,48 +1,28 @@
-# AppSheet UX & Automation Logic (Incubator Vault v2.0)
+# DEPRECATED: AppSheet UX & Automation Logic
 
-## 1. Health Indicator Expressions (Format Rules / Display)
+> **This file is DEPRECATED.** The project no longer uses AppSheet.
+> All UI logic has been migrated to the web application (see `Requirements.md` and `app.py`).
+> This file is retained for historical reference only.
+
+---
+
+_Original content below (for reference):_
+
+## 1. Health Indicator Expressions (Now implemented in UI guardrails)
 
 ### Chalking Level
-- **Color Code:** 
-  - `[chalking] = 0`: Gray/Neutral
-  - `[chalking] = 1`: Light Blue (Developing)
-  - `[chalking] = 2`: Bright White (Established)
-- **Warning Icon:** 
-  - Expression: `AND(HOUR(TODAY() - [egg_id].[created_at]) > 240, [chalking] = 0)`
-  - Description: Flag if egg is > 10 days old with no chalking.
+- `chalking = 0` + age > 10 days → Warning flag
+- `chalking = 1` → Developing indicator
+- `chalking = 2` → Established indicator
 
 ### Vascularity
-- **Icon:** 
-  - `[vascularity] = TRUE`: ❤️ (Strong Health)
-  - `[vascularity] = FALSE`: ⚪ (Pending/Infertility Risk)
-- **Infertility Risk Rule:** 
-  - Expression: `AND(HOUR(TODAY() - [egg_id].[created_at]) > 360, [vascularity] = FALSE)`
-  - Description: Risk flag if > 15 days with no vascularity.
+- `vascularity = TRUE` → ❤️ Strong Health
+- `vascularity = FALSE` + age > 15 days → Infertility Risk flag
 
-### Critical Health (Molding/Leaking)
-- **Molding:** 
-  - `[molding] = TRUE`: 🍄 (Warning, isolation recommended)
-- **Leaking:** 
-  - `[leaking] = TRUE`: 💧 (Critical Alert)
+### Critical Health
+- `molding = TRUE` → 🍄 Isolation alert
+- `leaking = TRUE` → 💧 Critical alert
 
----
-
-## 2. Automation Bots & Workflows
-
-### A. SystemLog Entry (Session Initiation)
-- **Trigger:** On `SessionLog` [INSERT].
-- **Action:** Add a row to `SystemLog` with:
-  - `event_type`: 'SESSION_START'
-  - `event_message`: 'User ' & [user_name] & ' initiated a new incubation session.'
-  - `session_id`: [_THISROW].[session_id]
-
-### B. Stage Alert (Mature Pipping Watch)
-- **Trigger:** Every 24 hours (Scheduled Bot).
-- **Filter:** `AND([current_stage] = 'Mature', HOUR(TODAY() - [updated_at]) > 1440)`
-- **Action:** Send a notification to the observer: "Egg [egg_id] has been in the Mature stage for over 60 days. Switch to Pipping Watch!"
-
----
-
-## 3. Quick Edit Toggles (UX Optimization)
-- **Columns:** `vascularity`, `molding`, `leaking`, `current_stage`
-- **Implementation:** Enable 'Quick Edit' on these columns in the Detail view of the `egg` table for rapid field entry.
+## 2. Automation Logic (Now implemented in SystemLog)
+- Session initiation → SystemLog entry
+- Mature stage watch → Dashboard guardrail alert

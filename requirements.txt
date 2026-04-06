@@ -4,3 +4,4 @@ python-dotenv
 requests
 pandas
 streamlit-lottie
+streamlit-aggrid

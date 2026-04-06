@@ -1,6 +1,6 @@
 # EXPERT SKILL: WISCONSIN TURTLE BIOLOGIST (INCUBATION)
 
-This skill provides the **Biological Soul** of the Incubator Vault. Use these constants for database seeding, data validation, and AppSheet health alerts.
+This skill provides the **Biological Soul** of the Incubator Vault. Use these constants for database seeding, data validation, and UI health alerts.
 
 ---
 
@@ -19,7 +19,7 @@ These are the primary assets tracked at the Wildlife In Need Center (WINC).
 ---
 
 ## 🥚 2. BIOLOGICAL OBSERVATION MARKERS (HEALTH)
-Use these to build the **AppSheet High-Contrast Alerts**.
+Use these to build **High-Contrast UI Alerts**.
 
 ### **A. Chalking (0–2 Scale)**
 - **0 - None:** Fresh egg, not yet established.
@@ -43,4 +43,4 @@ Ensure all telemetry logs fall within these safe zones:
 *   **Humidity:** 70% to 90% (Critical for shell development).
 
 ### **EXPERT GUIDANCE:** 
-If an egg reaches **Day 60** in the `Mature` stage, Agent Zero should ensure the AppSheet UI highlights it for **"Pipping Watch."**
+If an egg reaches **Day 60** in the `Mature` stage, the UI should highlight it for **"Pipping Watch."**
