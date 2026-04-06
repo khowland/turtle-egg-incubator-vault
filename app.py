@@ -94,8 +94,7 @@ with st.sidebar:
     anim = load_lottie("https://lottie.host/880a6c0c-7b0f-48d5-94f4-500b41050682/L3zS0XvU7Y.json")
     if anim: st_lottie(anim, height=120, key="nav")
     menu = st.radio("SYSTEM ACCESS", ["📊 DASHBOARD", "🐣 NEW INTAKE", "🔍 FIELD LOG", "🛠️ REGISTRY"])
-    st.v_spacer(height=100)
-    st.markdown(f"<div style='color:#10B981; font-weight:bold;'>VERSION: {VERSION}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin-top:100px; color:#10B981; font-weight:bold; font-size:0.8rem;'>CORE VERSION: {VERSION}</div>", unsafe_allow_html=True)
     st.caption(f"Session: {st.session_state.session_id}")
 
 # --- 5. VIEWS ---
@@ -112,7 +111,7 @@ if menu == "📊 DASHBOARD":
 
         st.subheader("🚨 Biological Guardrails")
         limit = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
-        # FIXED: Removed reference to egg.created_at, using bin.harvest_date
+        # FIXED: Using bin.harvest_date as egg.created_at is missing from schema
         res = supabase.table("egg").select("egg_id, bin(mother(mother_name), harvest_date)").eq("current_stage", "Mature").execute().data
         
         alerts = 0
