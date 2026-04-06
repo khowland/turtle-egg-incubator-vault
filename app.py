@@ -178,7 +178,7 @@ if menu == "📊 DASHBOARD":
         # BIOLOGICAL GUARDRAILS
         st.subheader("🚨 Biological Alerts")
         threshold_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%dT%H:%M:%S')
-        late_eggs = supabase.table("egg").select("egg_id, mother(mother_name)").eq("current_stage", "Mature").lt("created_at", threshold_date).execute().data
+        late_eggs = supabase.table("egg").select("egg_id, bin(mother(mother_name))").eq("current_stage", "Mature").lt("created_at", threshold_date).execute().data
         
         if late_eggs:
             for egg in late_eggs:
