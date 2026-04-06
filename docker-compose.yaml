@@ -16,6 +16,12 @@ services:
       - GOOGLE_API_KEY=${GEMINI_API_KEY}
       - CHAT_MODEL=${CHAT_MODEL}
       - MODEL=${CHAT_MODEL}
+      - A0_SET_CHAT_MODEL_PROVIDER=google
+      - A0_SET_CHAT_MODEL_NAME=gemini-3-flash-preview
+      - A0_SET_UTIL_MODEL_PROVIDER=google
+      - A0_SET_UTIL_MODEL_NAME=gemini-3-flash-preview
+      - A0_SET_BROWSER_MODEL_PROVIDER=google
+      - A0_SET_BROWSER_MODEL_NAME=gemini-3-flash-preview
       - MAX_TOKENS=${MAX_TOKENS}
       - LITELLM_LOGGING=DEBUG
       - SAMBANOVA_API_KEY=${SAMBANOVA_API_KEY}
@@ -35,7 +41,8 @@ services:
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      - SUPABASE_ACCESS_TOKEN=${SUPABASE_MANAGEMENT_API_TOKEN}
     command: >
-      sh -c "npx -y @supabase/mcp-server-supabase"
+      sh -c "npx -y @supabase/mcp-server-supabase@latest --access-token ${SUPABASE_MANAGEMENT_API_TOKEN}"
+    stdin_open: true
+    tty: true
     restart: always
