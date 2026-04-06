@@ -63,5 +63,5 @@ Once the connection is live, tell A0:
 > 
 > **Build Instructions:** 
 > 1. Harmonize the **AppSheet UX** with the **Supabase schema** you just built. 
-> 2. Implement the **Mobile Field Logic** for vascularity and chalking from the `turtle_expert.md` skill. 
+> 2. Implement the **Mobile Field Logic** for vascularity and chalking from the `expert.md` skill. 
 > 3. Verify the sync engine and report back."

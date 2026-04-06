@@ -1,18 +1,41 @@
-version: '3.8'
-
 services:
   agent-zero:
-    image: frdel/agent-zero:latest # Ensure this matches your specific image
-    container_name: TurtleEggTracker_Agent
+    image: agent0ai/agent-zero:latest
+    container_name: TurtleDB_Development_Agent
     volumes:
-      - .:/workspace # Mounts the current directory to /workspace
+      - .:/workspace
+      - ./expert.md:/a0/expert.md
+    ports:
+      - 50081:80
     environment:
       - WORKSPACE_DIR=/workspace
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_API_KEY=${GEMINI_API_KEY}
+      - CHAT_MODEL=${CHAT_MODEL}
+      - MODEL=${CHAT_MODEL}
+      - MAX_TOKENS=${MAX_TOKENS}
+      - LITELLM_LOGGING=DEBUG
+      - SAMBANOVA_API_KEY=${SAMBANOVA_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-    stdin_open: true # Equivalent to -i
-    tty: true # Equivalent to -t
+    depends_on:
+      - mcp-supabase
+    stdin_open: true
+    tty: true
+    restart: always
+
+  mcp-supabase:
+    image: node:18-slim
+    container_name: IncubatorVault_MCP
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SUPABASE_ACCESS_TOKEN=${SUPABASE_MANAGEMENT_API_TOKEN}
+    command: >
+      sh -c "npx -y @supabase/mcp-server-supabase"
     restart: always
