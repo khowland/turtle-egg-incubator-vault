@@ -61,6 +61,6 @@ Once the connection is live, tell A0:
 > 
 > **Instructions:** 
 > 1. Read `/workspace/Requirements.md`. 
-> 2. Generate the **Supabase SQL Migration** file in `/supabase/migrations/`. 
+> 2. Generate the **Supabase SQL Migration** file in `/supabase_db/migrations/`. 
 > 3. Commit the changes and **push to GitHub**. 
 > 4. Verify that the migrations are 'Deployed' in the Supabase Dashboard and report back."
