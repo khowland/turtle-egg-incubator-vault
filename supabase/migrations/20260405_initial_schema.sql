@@ -112,6 +112,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS tr_generate_mother_id ON public.mother;
 CREATE TRIGGER tr_generate_mother_id
 BEFORE INSERT ON public.mother
 FOR EACH ROW EXECUTE FUNCTION generate_mother_id();
@@ -133,6 +134,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS tr_generate_bin_id ON public.bin;
 CREATE TRIGGER tr_generate_bin_id
 BEFORE INSERT ON public.bin
 FOR EACH ROW EXECUTE FUNCTION generate_bin_id();
@@ -154,6 +156,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS tr_generate_egg_id ON public.egg;
 CREATE TRIGGER tr_generate_egg_id
 BEFORE INSERT ON public.egg
 FOR EACH ROW EXECUTE FUNCTION generate_egg_id();
@@ -169,6 +172,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS tr_generate_obs_id ON public.IncubatorObservation;
 CREATE TRIGGER tr_generate_obs_id
 BEFORE INSERT ON public.IncubatorObservation
 FOR EACH ROW EXECUTE FUNCTION generate_obs_id();
