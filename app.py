@@ -10,6 +10,8 @@ Created:    2026-04-06
 import streamlit as st
 from utils.session import render_sidebar
 from utils.css import BASE_CSS
+from utils.logger import logger
+logger.info("🚀 Vault Elite v6.1 - System Ignition Success.")
 
 st.set_page_config(page_title="Vault Elite Pro", page_icon="🐢", layout="wide")
 st.markdown(BASE_CSS, unsafe_allow_html=True)

@@ -832,6 +832,12 @@ App Loads → Observer Selected?
 
 ---
 
+## 6.5 APPLICATION LOGGING (DIAGNOSTICS)
+In addition to the database Audit Trail, the system must use Python standard `logging` for runtime diagnostics:
+- **Level INFO:** App startup, successful connections, session transitions.
+- **Level WARNING:** Cache clears, missing optional data, connectivity retries.
+- **Level ERROR:** Database crashes, unhandled exceptions, schema mismatches.
+
 ## 7. CROSS-CUTTING: AUDIT LOGGING PATTERN
 
 Every write operation must be wrapped in a logging helper:
