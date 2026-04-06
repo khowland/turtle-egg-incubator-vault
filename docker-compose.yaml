@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  agent-zero:
+    image: frdel/agent-zero:latest # Ensure this matches your specific image
+    container_name: TurtleEggTracker_Agent
+    volumes:
+      - .:/workspace # Mounts the current directory to /workspace
+    environment:
+      - WORKSPACE_DIR=/workspace
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    stdin_open: true # Equivalent to -i
+    tty: true        # Equivalent to -t
+    restart: always
