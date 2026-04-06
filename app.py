@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 from streamlit_lottie import st_lottie
 
-# --- 1. CONFIGURATION ---
+# --- 1. CORE CONFIGURATION ---
 load_dotenv('.env')
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
@@ -21,10 +21,10 @@ st.set_page_config(
 )
 
 # --- 2. NUCLEAR TITANIUM CSS (v5.0) ---
-# This CSS uses extreme specificity to force visibility regardless of the theme engine.
+# Using extreme specificity to override Streamlit's Emotion engine.
 st.markdown("""
 <style>
-    /* 1. Global Reset */
+    /* 1. Global Baseline */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #020617 !important;
         color: #FFFFFF !important;
@@ -35,11 +35,11 @@ st.markdown("""
         background-color: #050810 !important;
         border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
-    /* Force ALL nested text in sidebar to be pure white */
+    /* Force ALL text in sidebar to be pure white */
     [data-testid="stSidebar"] * {
         color: #FFFFFF !important;
     }
-    /* Specific targets for radio buttons and navigation */
+    /* Navigation and Widget Labels specifically */
     [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stSidebar"] span,
@@ -51,7 +51,6 @@ st.markdown("""
     }
 
     /* 3. PRIMARY BUTTON - FORCED EMERALD (FIXES WHITE-ON-WHITE) */
-    /* We target the button and every possible nested element */
     div.stButton > button {
         background-color: #10B981 !important;
         color: #FFFFFF !important;
@@ -62,6 +61,7 @@ st.markdown("""
         width: 100% !important;
         box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4) !important;
     }
+    /* Force nested button text to be white and bold */
     div.stButton > button p, div.stButton > button span, div.stButton > button div {
         color: #FFFFFF !important;
         font-size: 1.3rem !important;
@@ -71,15 +71,15 @@ st.markdown("""
     div.stButton > button:hover {
         background-color: #059669 !important;
         border-color: #FFFFFF !important;
+        transform: scale(1.01);
     }
 
-    /* 4. FORM FIELD LABELS */
+    /* 4. FORM FIELD LABELS & INPUTS */
     [data-testid="stWidgetLabel"] p {
         color: #FFFFFF !important;
         font-size: 1.1rem !important;
         font-weight: 700 !important;
     }
-    /* Inputs */
     .stTextInput input, .stNumberInput input, div[data-baseweb="select"] > div {
         background-color: #0F172A !important;
         color: #FFFFFF !important;
@@ -137,9 +137,9 @@ if menu == "📊 DASHBOARD":
         with c2: st.markdown(f'<div class="glass-card"><b>PIPPING PHASE</b><br><span style="font-size:3rem; font-weight:bold;">{pip}</span></div>', unsafe_allow_html=True)
         with c3: st.markdown(f'<div class="glass-card"><b>NEURAL SYNC</b><br><span style="font-size:3rem; font-weight:bold;">100%</span></div>', unsafe_allow_html=True)
 
-        st.subheader("🚨 Biological Watchlist")
+        st.subheader("🚨 Biological Guardrails")
         limit = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
-        # FIXED: Removed reference to egg.created_at, using bin.harvest_date via join
+        # FIXED: Using bin.harvest_date as egg.created_at is missing from schema
         res = supabase.table("egg").select("egg_id, bin(mother(mother_name), harvest_date)").eq("current_stage", "Mature").execute().data
         
         alerts = 0
