@@ -12,7 +12,6 @@ load_dotenv('.env')
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-# Force Wide Layout and high-contrast icon
 st.set_page_config(
     page_title="Vault Elite 2026",
     page_icon="🐢",
@@ -20,76 +19,90 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. TITANIUM CSS OVERRIDES (FIXES ALL VISIBILITY ISSUES) ---
-# This CSS uses extreme specificity to force colors regardless of Streamlit's theme.
+# --- 2. TITANIUM UI OVERRIDES (ELITE v4.3) ---
+# This CSS uses extreme specificity to force visibility regardless of native theme.
 st.markdown("""
 <style>
-    /* 1. GLOBAL BACKGROUND & TEXT */
+    /* 1. GLOBAL TEXT & BACKGROUND */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #020617 !important;
         color: #FFFFFF !important;
     }
 
-    /* 2. SIDEBAR - FORCED WHITE TEXT (FIXES DARK-ON-DARK) */
-    /* We target every possible text container inside the sidebar */
-    [data-testid="stSidebar"], [data-testid="stSidebar"] * {
-        background-color: #0F172A !important; 
+    /* 2. SIDEBAR - FORCED HIGH CONTRAST */
+    /* Targets every text element in the sidebar to ensure it is PURE WHITE */
+    [data-testid="stSidebar"] {
+        background-color: #050810 !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    [data-testid="stSidebar"] * {
         color: #FFFFFF !important;
     }
-    /* Specifically target radio button labels and navigation links */
-    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p, 
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p, 
-    [data-testid="stSidebar"] span, 
+    /* Specific Radio Button & Label Force */
+    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+    [data-testid="stSidebar"] span,
     [data-testid="stSidebar"] label {
         color: #FFFFFF !important;
         font-weight: 700 !important;
+        font-size: 1.1rem !important;
         opacity: 1 !important;
     }
 
-    /* 3. BUTTON - FORCED EMERALD (FIXES WHITE-ON-WHITE) */
-    /* Targeting the button and its nested paragraph tag */
+    /* 3. PRIMARY BUTTON - FORCED EMERALD (FIXES WHITE-ON-WHITE) */
+    /* We target the button and the internal paragraph tag */
     div.stButton > button {
         background-color: #10B981 !important;
         color: #FFFFFF !important;
-        border: 2px solid #059669 !important;
-        border-radius: 12px !important;
+        border: 2px solid #34d399 !important;
+        border-radius: 14px !important;
         font-weight: 800 !important;
-        height: 70px !important;
+        height: 75px !important;
         width: 100% !important;
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4) !important;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3) !important;
+        transition: all 0.3s ease !important;
     }
     div.stButton > button p {
         color: #FFFFFF !important;
-        font-size: 1.2rem !important;
+        font-size: 1.25rem !important;
+        margin: 0 !important;
     }
     div.stButton > button:hover {
         background-color: #059669 !important;
-        border-color: #FFFFFF !important;
+        transform: translateY(-4px);
+        box-shadow: 0 15px 40px rgba(16, 185, 129, 0.5) !important;
     }
 
-    /* 4. FORM FIELD LABELS */
+    /* 4. FORM FIELDS & LABELS */
     [data-testid="stWidgetLabel"] p {
         color: #FFFFFF !important;
+        font-size: 1.05rem !important;
         font-weight: 600 !important;
     }
-
-    /* 5. SELECTBOX/DROPDOWN FIX */
-    /* Fix text inside the selected box and the dropdown menu */
+    .stTextInput input, .stNumberInput input {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 12px !important;
+    }
+    /* Selectbox specific fix */
     div[data-baseweb="select"] > div {
-        background-color: #1E293B !important;
-        color: #FFFFFF !important;
-    }
-    div[data-baseweb="popover"] {
-        background-color: #1E293B !important;
-    }
-    div[data-baseweb="popover"] * {
-        color: #FFFFFF !important;
+        background-color: #0f172a !important;
+        color: #ffffff !important;
     }
 
-    /* Hide default UI clutter */
-    #MainMenu, footer, header { visibility: hidden; }
-    /* But show header for the toggle button if needed */
-    [data-testid="stHeader"] { visibility: visible !important; background: transparent !important; }
+    /* 5. GLASS CARDS (2026 SAAS LOOK) */
+    .glass-card {
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    /* Hide default header/footer but keep toggle button */
+    #MainMenu, footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -109,73 +122,71 @@ if 'session_id' not in st.session_state:
 
 # --- 4. SIDEBAR NAVIGATION ---
 with st.sidebar:
-    st.markdown("<h1 style='color:white; font-size:3rem; margin-bottom:0;'>VAULT</h1><p style='color:#10B981; font-weight:bold; letter-spacing:3px;'>ELITE PRO</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color:white; font-size:3.5rem; margin-bottom:0;'>VAULT</h1><p style='color:#10B981; font-weight:bold; letter-spacing:4px; margin-top:-10px;'>ELITE PRO</p>", unsafe_allow_html=True)
     anim_data = load_lottieurl("https://lottie.host/880a6c0c-7b0f-48d5-94f4-500b41050682/L3zS0XvU7Y.json")
-    if anim_data: st_lottie(anim_data, height=140, key="nav_anim")
+    if anim_data: st_lottie(anim_data, height=130, key="nav_anim")
     
-    menu = st.radio("SYSTEM ACCESS", ["📈 DASHBOARD", "🐣 NEW INTAKE", "🔍 FIELD LOG", "🛠️ REGISTRY"])
+    menu = st.radio("SYSTEM ACCESS", ["📊 DASHBOARD", "🐣 NEW INTAKE", "🔍 FIELD LOG", "🛠️ REGISTRY"])
 
-# --- 5. APPLICATION VIEWS ---
-if menu == "📈 DASHBOARD":
+# --- 5. VIEWS ---
+if menu == "📊 DASHBOARD":
     st.markdown("<h1>System Insights</h1>", unsafe_allow_html=True)
     try:
-        # Metrics
         active = supabase.table("egg").select("egg_id", count="exact").eq("status", "Active").execute().count or 0
         pip = supabase.table("egg").select("egg_id", count="exact").eq("current_stage", "Pipping").execute().count or 0
         
         c1, c2, c3 = st.columns(3)
-        with c1: st.metric("Active Eggs", active)
-        with c2: st.metric("Pipping Now", pip)
-        with c3: st.metric("System Sync", "100%")
+        with c1: st.markdown(f'<div class="glass-card"><b>ACTIVE EGGS</b><br><span style="font-size:3rem; font-weight:bold;">{active}</span></div>', unsafe_allow_html=True)
+        with c2: st.markdown(f'<div class="glass-card"><b>PIPPING PHASE</b><br><span style="font-size:3rem; font-weight:bold;">{pip}</span></div>', unsafe_allow_html=True)
+        with c3: st.markdown(f'<div class="glass-card"><b>NEURAL SYNC</b><br><span style="font-size:3rem; font-weight:bold;">100%</span></div>', unsafe_allow_html=True)
 
-        # ALERTS (Corrected Schema: Use bin.harvest_date as egg.created_at is missing)
+        # ALERTS: Using bin.harvest_date (correcting missing created_at schema error)
         st.subheader("🚨 Biological Guardrails")
-        limit_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
-        late_eggs = supabase.table("egg").select("egg_id, bin(mother(mother_name), harvest_date)").eq("current_stage", "Mature").execute().data
+        limit = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
+        res = supabase.table("egg").select("egg_id, bin(mother(mother_name), harvest_date)").eq("current_stage", "Mature").execute().data
         
-        alerts = 0
-        if late_eggs:
-            for egg in late_eggs:
+        alert_count = 0
+        if res:
+            for egg in res:
                 h_date = egg['bin']['harvest_date'] if egg.get('bin') else None
-                if h_date and h_date < limit_date:
-                    m_name = egg['bin']['mother']['mother_name'] if egg['bin'].get('mother') else "Unk"
-                    st.warning(f"⚠️ OVERDUE: Egg {egg['egg_id']} ({m_name}) - Harvested: {h_date}")
-                    alerts += 1
+                if h_date and h_date < limit:
+                    m_name = egg['bin']['mother']['mother_name'] if egg['bin'].get('mother') else "Unknown"
+                    st.warning(f"⚠️ OVERDUE: Egg {egg['egg_id']} ({m_name}) - Harvest Date: {h_date}")
+                    alert_count += 1
         
-        if alerts == 0: st.success("✓ All biological markers within safe zones.")
+        if alert_count == 0: st.success("✓ All biological markers stable.")
 
-    except Exception as e: st.error(f"Neural Link Error: {e}")
+    except Exception as e: st.error(f"Database Error: {e}")
 
 elif menu == "🐣 NEW INTAKE":
     st.markdown("<h1>New Intake</h1>", unsafe_allow_html=True)
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     
-    with st.form("new_intake_form", clear_on_submit=True):
-        species_list = [s['common_name'] for s in supabase.table("species").select("common_name").execute().data]
-        spec_map = {s['common_name']: s['species_id'] for s in supabase.table("species").select("species_id, common_name").execute().data}
+    with st.form("intake_form", clear_on_submit=True):
+        species_data = supabase.table("species").select("species_id, common_name").execute().data
+        spec_map = {s['common_name']: s['species_id'] for s in species_data}
         
         c1, c2 = st.columns(2)
-        mother_name = c1.text_input("Origin Identifier (Mother Name)", placeholder="e.g., Shelly")
-        species_name = c2.selectbox("Biological Class (Species)", species_list)
+        m_name = c1.text_input("Origin Identifier (Mother Name)", placeholder="Shelly")
+        m_spec = c2.selectbox("Biological Class (Species)", list(spec_map.keys()))
         quantity = st.number_input("Egg Quantity", 1, 100, 10)
         
-        # SUBMIT BUTTON (Fixed Visibility: Forced Emerald Green with White Text)
+        # FORCED HIGH-CONTRAST BUTTON
         if st.form_submit_button("SAVE INTAKE & REGISTER EGGS"):
             try:
-                # 1. Mother logic
-                m_res = supabase.table("mother").select("mother_id").eq("mother_name", mother_name).execute()
+                m_res = supabase.table("mother").select("mother_id").eq("mother_name", m_name).execute()
                 m_id = m_res.data[0]['mother_id'] if m_res.data else \
-                       supabase.table("mother").insert({"mother_name": mother_name, "species_id": spec_map[species_name]}).execute().data[0]['mother_id']
+                       supabase.table("mother").insert({"mother_name": m_name, "species_id": spec_map[m_spec]}).execute().data[0]['mother_id']
                 
-                # 2. Bin logic
                 b_id = supabase.table("bin").insert({"mother_id": m_id, "total_eggs": quantity, "harvest_date": datetime.now().strftime('%Y-%m-%d')}).execute().data[0]['bin_id']
                 
-                # 3. Eggs logic
-                eggs = [{"bin_id": b_id, "current_stage": "Incubating", "status": "Active"} for _ in range(int(quantity))]
-                supabase.table("egg").insert(eggs).execute()
+                batch = [{"bin_id": b_id, "current_stage": "Incubating", "status": "Active"} for _ in range(int(quantity))]
+                supabase.table("egg").insert(batch).execute()
                 
                 st.balloons()
-                st.success(f"Successfully saved {quantity} eggs for {mother_name}!")
+                st.success(f"Vault Updated: {quantity} eggs saved for {m_name}.")
             except Exception as e: st.error(f"Intake Failed: {e}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 elif menu == "🔍 FIELD LOG":
     st.markdown("<h1>Field Analysis</h1>", unsafe_allow_html=True)
