@@ -51,7 +51,7 @@ def load_eggs(supabase, bin_id=None):
         obs = supabase.table("EggObservation").select("*").eq("egg_id", egg['egg_id']).order("timestamp", desc=True).limit(1).execute()
         egg['latest_obs'] = obs.data[0] if obs.data else {}
         
-        harvest_date = datetime.fromisoformat(egg['bin']['harvest_date'])
+        harvest_date = datetime.fromisoformat(egg['bin']['harvest_date'].split('+')[0])
         egg['age_days'] = (datetime.now().date() - harvest_date.date()).days
         
     return eggs
@@ -125,10 +125,10 @@ else:
                     h_res = supabase.table("EggObservation").select("*, observer:observer_id(display_name)").eq("egg_id", egg['egg_id']).order("timestamp", desc=True).execute()
                     if h_res.data:
                         for h in h_res.data:
-                            t = datetime.fromisoformat(h['timestamp']).strftime("%b %d, %I:%M %p")
+                            t = datetime.fromisoformat(h['timestamp'].split('+')[0]).strftime("%b %d, %I:%M %p")
                             obs_name = h.get('observer', {}).get('display_name', 'Unknown')
                             st.caption(f"**{t}** | {obs_name}")
-                            st.markdown(f"Chalk: {h['chalking']}, Vasc: {'YES' if h['vascularity'] else 'NO'}, Stage: {h.get('stage_at_observation', 'N/A')}")
+                            st.markdown(f"Chalk: {h['chalking']}, Vasc: {'YES' if h['vascularity'] else 'NO'}")
                             if h['notes']: st.markdown(f"*Notes: {h['notes']}*")
                             st.divider()
                     else:
