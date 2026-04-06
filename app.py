@@ -49,6 +49,11 @@ if 'session_id' not in st.session_state:
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     st.session_state.session_id = f"{user_name}_{timestamp}"
     st.session_state.user_name = user_name
+    # Mandatory SessionLog insert to satisfy FK constraints
+    try:
+        supabase.table("sessionlog").insert({"session_id": st.session_state.session_id, "user_name": user_name, "user_agent": "Streamlit-Field-App"}).execute()
+    except Exception as e:
+        st.error(f"Session initialization failed: {e}")
 
 supabase = get_supabase()
 
