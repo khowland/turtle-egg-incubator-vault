@@ -101,7 +101,8 @@ supabase = get_supabase()
 st.sidebar.title("🐢 Incubator Vault")
 lottie_turtle = load_lottieurl("https://assets10.lottiefiles.com/packages/lf20_m6vsmq.json")
 with st.sidebar:
-    st_lottie(lottie_turtle, height=150, key="sidebar_lottie")
+    if lottie_turtle:
+            st_lottie(lottie_turtle, height=150, key="sidebar_lottie")
     st.write(f"**Session:** `{st.session_state.session_id}`")
     st.write(f"**Observer:** {st.session_state.user_name}")
 
