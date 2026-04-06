@@ -1,1 +1,5 @@
-streamlit\nsupabase\npython-dotenv\nrequests\npandas
+streamlit
+supabase
+python-dotenv
+requests
+pandas
