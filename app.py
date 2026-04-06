@@ -19,11 +19,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. NUCLEAR CSS OVERRIDES (ELITE v4.5) ---
-# Specificity is key to overriding Streamlit's Emotion engine.
+# --- 2. ATOMIC CSS OVERRIDES (v4.5) ---
+# This CSS uses extreme specificity to force visibility regardless of theme engine.
 st.markdown("""
 <style>
-    /* 1. GLOBAL BACKGROUND & TEXT */
+    /* 1. GLOBAL BACKGROUND */
     .stApp, [data-testid="stAppViewContainer"] {
         background-color: #020617 !important;
         color: #FFFFFF !important;
@@ -61,7 +61,7 @@ st.markdown("""
         width: 100% !important;
         box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3) !important;
     }
-    /* Force the text INSIDE the button (Streamlit wraps it in a p tag) */
+    /* Force the text INSIDE the button (Streamlit wraps it in p or div) */
     div.stButton > button p, div.stButton > button * {
         color: #FFFFFF !important;
         font-size: 1.25rem !important;
@@ -157,7 +157,7 @@ elif menu == "🐣 NEW INTAKE":
     st.markdown("<h1>New Intake</h1>", unsafe_allow_html=True)
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     
-    with st.form("intake_form_v4", clear_on_submit=True):
+    with st.form("intake_form_v5", clear_on_submit=True):
         species_data = supabase.table("species").select("species_id, common_name").execute().data
         spec_map = {s['common_name']: s['species_id'] for s in species_data}
         
@@ -182,12 +182,4 @@ elif menu == "🐣 NEW INTAKE":
                 st.success(f"Vault Updated: {quantity} eggs saved for {mother_name}.")
             except Exception as e: st.error(f"Intake Failed: {e}")
     st.markdown('</div>', unsafe_allow_html=True)
-
-elif menu == "🔍 FIELD LOG":
-    st.markdown("<h1>Field Analysis</h1>", unsafe_allow_html=True)
-
-elif menu == "🛠️ REGISTRY":
-    st.markdown("<h1>Registry View</h1>", unsafe_allow_html=True)
-    df = pd.DataFrame(supabase.table("species").select("*").execute().data)
-    st.dataframe(df, use_container_width=True)
 
