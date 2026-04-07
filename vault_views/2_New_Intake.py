@@ -1,11 +1,13 @@
 import streamlit as st
-st.title("🐣 New Intake Wizard")
-# Page Header
-if st.button("Log Out", key="logout_btn"): 
+st.set_page_config(page_title="New Intake | WINC", page_icon="🐣", layout="wide")
+
+# User Header
+if st.sidebar.button("🚪 Log Out", use_container_width=True): 
     st.session_state.observer_id = None
     st.rerun()
-st.caption(f"👤 Observer: {st.session_state.get('observer_name', 'Staff')}")
-st.divider()
+st.sidebar.divider()
+
+st.title("🐣 New Intake Wizard")
 
 if 'intake_step' not in st.session_state: st.session_state.intake_step = 1
 if 'intake_data' not in st.session_state: st.session_state.intake_data = {}

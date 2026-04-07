@@ -1,21 +1,21 @@
 import streamlit as st
-from utils.session import init_session, show_splash_screen
-from utils.css import BASE_CSS
+from utils.session import init_session
 
-st.set_page_config(page_title="WINC Vault", page_icon="🐢", layout="wide")
-st.markdown(BASE_CSS, unsafe_allow_html=True)
 init_session()
 
+# Navigation definition
 if not st.session_state.get('observer_id'):
-    show_splash_screen()
+    # ONLY Login page visible when not logged in
+    pages = [st.Page("vault_views/0_Login.py", title="Vault Login", icon="🐢")]
 else:
-    # Using a flat list for max compatibility on Windows
+    # Full menu visible when logged in
     pages = [
-        st.Page("views/dashboard.py", title="Dashboard", icon="📊", default=True),
-        st.Page("views/intake.py", title="New Intake", icon="🐣"),
-        st.Page("views/observations.py", title="Observations", icon="🔍"),
-        st.Page("views/settings.py", title="Settings", icon="⚙️"),
-        st.Page("views/reports.py", title="Reports", icon="📈")
+        st.Page("vault_views/1_Dashboard.py", title="Dashboard", icon="📊"),
+        st.Page("vault_views/2_New_Intake.py", title="New Intake", icon="🐣"),
+        st.Page("vault_views/3_Observations.py", title="Observations", icon="🔍"),
+        st.Page("vault_views/5_Settings.py", title="Settings", icon="⚙️"),
+        st.Page("vault_views/6_Reports.py", title="Reports", icon="📈")
     ]
-    pg = st.navigation(pages)
-    pg.run()
+
+pg = st.navigation(pages)
+pg.run()

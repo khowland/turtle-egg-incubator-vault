@@ -1,11 +1,11 @@
 import streamlit as st
-st.title("🔍 Observation Engine")
-if st.button("Log Out", key="logout_obs"): 
+st.set_page_config(page_title="Observations | WINC", page_icon="🔍", layout="wide")
+
+if st.sidebar.button("🚪 Log Out", use_container_width=True): 
     st.session_state.observer_id = None
     st.rerun()
-st.caption(f"👤 Observer: {st.session_state.get('observer_name', 'Staff')}")
-st.divider()
 
+st.title("🔍 Observation Engine")
 if 'env_synced' not in st.session_state: st.session_state.env_synced = False
 if not st.session_state.env_synced:
     st.info("🌡️ Environment Check-In Required")
