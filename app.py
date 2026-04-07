@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Inject CSS
+# Inject Surgical Aero-Shield CSS
 st.markdown(BASE_CSS, unsafe_allow_html=True)
 
 init_session()
@@ -17,16 +17,18 @@ init_session()
 if not st.session_state.get('observer_id'):
     show_splash_screen()
 else:
-    # Explicitly using st.Page objects for navigation
+    # Define authorized pages with standard paths for Windows stability
     pages = {
-        "WINC INCUBATOR VAULT": [st.Page("src/1_📊_Dashboard.py", title="Dashboard", icon="📊")],
+        "WINC INCUBATOR VAULT": [
+            st.Page("src/1_Dashboard.py", title="Dashboard", icon="📊")
+        ],
         "Field Operations": [
-            st.Page("src/2_🐣_New_Intake.py", title="New Intake", icon="🐣"),
-            st.Page("src/3_🔍_Observations.py", title="Observations", icon="🔍")
+            st.Page("src/2_New_Intake.py", title="New Intake", icon="🐣"),
+            st.Page("src/3_Observations.py", title="Observations", icon="🔍")
         ],
         "System": [
-            st.Page("src/5_⚙️_Settings.py", title="Settings", icon="⚙️"),
-            st.Page("src/6_📈_Reports.py", title="Reports", icon="📈")
+            st.Page("src/5_Settings.py", title="Settings", icon="⚙️"),
+            st.Page("src/6_Reports.py", title="Reports", icon="📈")
         ]
     }
     
