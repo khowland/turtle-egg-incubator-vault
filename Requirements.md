@@ -1,5 +1,5 @@
 # WINC Incubator Vault - Requirements & Specifications
-Version: 6.3.7 - Enterprise Edition
+Version: 6.4.2 - Enterprise Edition
 Lead Biologist: Elisa Fosco
 
 ## 1. Session Architecture
