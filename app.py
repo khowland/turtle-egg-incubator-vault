@@ -11,11 +11,10 @@ st.set_page_config(
 st.markdown(BASE_CSS, unsafe_allow_html=True)
 init_session()
 
-# Check Login State
 if not st.session_state.get('observer_id'):
     show_splash_screen()
 else:
-    # Define pages
+    # Define pages with clean, emoji-free paths
     pages = [
         st.Page("src/1_Dashboard.py", title="Dashboard", icon="📊", default=True),
         st.Page("src/2_New_Intake.py", title="New Intake", icon="🐣"),
@@ -24,16 +23,6 @@ else:
         st.Page("src/6_Reports.py", title="Reports", icon="📈")
     ]
     
-    # Initialize Navigation
+    # Launch Navigation - let Streamlit handle the sidebar menu entirely
     pg = st.navigation(pages)
-    
-    # Sidebar - Observer Info
-    with st.sidebar:
-        st.markdown(f"### 👤 {st.session_state.get('observer_name', 'User')}")
-        if st.button("Log Out"):
-            st.session_state.observer_id = None
-            st.rerun()
-        st.divider()
-
-    # Run Navigation
     pg.run()
