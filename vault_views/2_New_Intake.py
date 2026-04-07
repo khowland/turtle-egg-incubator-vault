@@ -2,7 +2,7 @@ import streamlit as st
 st.set_page_config(page_title="New Intake | WINC", page_icon="🐣", layout="wide")
 
 # User Header
-if st.sidebar.button("🚪 Log Out", use_container_width=True): 
+if st.sidebar.button("🚪 Log Out", width='stretch'): 
     st.session_state.observer_id = None
     st.rerun()
 st.sidebar.divider()
@@ -19,7 +19,7 @@ if step == 1:
     st.subheader("🐢 Step 1: Mother Identity")
     name = st.text_input("Mother Name", value=st.session_state.intake_data.get('name', ''))
     species = st.selectbox("Species", ["Blanding's", "Wood", "Ornate Box", "Snapping", "Painted"])
-    if st.button("Next Step ➡️", use_container_width=True):
+    if st.button("Next Step ➡️", width='stretch'):
         if name: 
             st.session_state.intake_data.update({'name': name, 'species': species})
             st.session_state.intake_step = 2; st.rerun()
@@ -44,5 +44,5 @@ elif step == 3:
 elif step == 4:
     st.subheader("✅ Step 4: Final Review")
     st.json(st.session_state.intake_data)
-    if st.button("🚀 COMMIT TO VAULT", use_container_width=True):
+    if st.button("🚀 COMMIT TO VAULT", width='stretch'):
         st.balloons(); st.success("Biological records committed.")

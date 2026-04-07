@@ -14,7 +14,7 @@ def show_splash_screen():
         with st.form("login_form"):
             options = {f"{o['display_name']} ({o['role']})": o['id'] for o in observers}
             selected = st.selectbox("Observer Identity", options=list(options.keys()))
-            if st.form_submit_button("Launch Vault", use_container_width=True):
+            if st.form_submit_button("Launch Vault", width='stretch'):
                 st.session_state.observer_id = options[selected]
                 st.session_state.observer_name = selected.split(' (')[0]
                 st.rerun()

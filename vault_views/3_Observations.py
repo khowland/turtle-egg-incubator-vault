@@ -1,7 +1,7 @@
 import streamlit as st
 st.set_page_config(page_title="Observations | WINC", page_icon="🔍", layout="wide")
 
-if st.sidebar.button("🚪 Log Out", use_container_width=True): 
+if st.sidebar.button("🚪 Log Out", width='stretch'): 
     st.session_state.observer_id = None
     st.rerun()
 
@@ -11,7 +11,7 @@ if not st.session_state.env_synced:
     st.info("🌡️ Environment Check-In Required")
     temp = st.number_input("Temp (°F)", value=84.5)
     hum = st.number_input("Humidity (%)", value=80.0)
-    if st.button("✅ Sync & Unlock", use_container_width=True):
+    if st.button("✅ Sync & Unlock", width='stretch'):
         st.session_state.env_synced = True; st.rerun()
 else:
     st.success("✅ Environment Synced")
