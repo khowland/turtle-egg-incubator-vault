@@ -1,7 +1,9 @@
 import streamlit as st
+
+# User Header
 col1, col2 = st.columns([4, 1])
 col1.title("🔍 Observation Engine")
-if col2.button("Log Out", use_container_width=True): 
+if col2.button("Log Out", key="logout_obs", use_container_width=True): 
     st.session_state.observer_id = None
     st.rerun()
 st.caption(f"👤 Observer: {st.session_state.get('observer_name', 'Staff')}")
@@ -16,7 +18,7 @@ if not st.session_state.env_synced:
     if st.button("✅ Sync & Unlock", use_container_width=True):
         st.session_state.env_synced = True; st.rerun()
 else:
-    st.success("✅ Environment Synced")
+    st.success("✅ Session Active | Environment Synced")
     if st.button("Edit Metrics"): st.session_state.env_synced = False; st.rerun()
     st.divider()
     st.write("Multi-Select Egg Grid active...")

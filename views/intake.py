@@ -1,10 +1,9 @@
 import streamlit as st
-from datetime import date
 
-# User Header (In main area to protect sidebar nav)
+# User Header
 col1, col2 = st.columns([4, 1])
 col1.title("🐣 New Intake Wizard")
-if col2.button("Log Out", use_container_width=True): 
+if col2.button("Log Out", key="logout_intake", use_container_width=True): 
     st.session_state.observer_id = None
     st.rerun()
 st.caption(f"👤 Observer: {st.session_state.get('observer_name', 'Staff')}")
@@ -50,6 +49,5 @@ elif step == 4:
     st.json(st.session_state.intake_data)
     col1, col2 = st.columns(2)
     if col1.button("⬅️ Back"): st.session_state.intake_step = 3; st.rerun()
-    if col2.button("🚀 COMMIT TO VAULT", use_container_width=True):
-        st.balloons(); st.success("Biological records committed.")
-        if st.button("New Intake"): st.session_state.intake_step = 1; st.session_state.intake_data = {}; st.rerun()
+    if st.button("🚀 COMMIT TO VAULT", use_container_width=True):
+        st.balloons(); st.success("Biological records committed to Supabase.")
