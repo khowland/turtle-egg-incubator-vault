@@ -12,7 +12,7 @@ def show_splash_screen():
     cols = st.columns([1, 2, 1])
     with cols[1]:
         with st.form("login_form"):
-            options = {f"{o['display_name']} ({o['role']})": o['id'] for o in observers}
+            options = {f\"{o['display_name']} ({o['role']})\": o['id'] for o in observers}
             selected = st.selectbox("Observer Identity", options=list(options.keys()))
             if st.form_submit_button("Launch Vault", use_container_width=True):
                 st.session_state.observer_id = options[selected]
@@ -20,9 +20,9 @@ def show_splash_screen():
                 st.rerun()
 
 def render_custom_sidebar():
-    """Helper to show user info and logout at the top of the sidebar without breaking nav."""
-    st.sidebar.markdown(f"### 👤 {st.session_state.get('observer_name', 'User')}")
-    if st.sidebar.button("Log Out"):
+    \"\"\"Displays observer info at the top of the sidebar without breaking navigation.\"\"\"
+    st.sidebar.markdown(f\"### 👤 {st.session_state.get('observer_name', 'User')}\")
+    if st.sidebar.button("Log Out", key=\"global_logout_btn\"): 
         st.session_state.observer_id = None
         st.rerun()
     st.sidebar.divider()

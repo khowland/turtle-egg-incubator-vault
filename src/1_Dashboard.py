@@ -1,3 +1,5 @@
+from utils.session import render_custom_sidebar
+render_custom_sidebar()
 """
 =============================================================================
 Module:     src/1_📊_Dashboard.py

@@ -1,3 +1,5 @@
+from utils.session import render_custom_sidebar
+render_custom_sidebar()
 """
 =============================================================================
 Module:     src/3_🔍_Observations.py
