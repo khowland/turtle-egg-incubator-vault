@@ -75,20 +75,6 @@ Each observation is a snapshot in time. Never overwritten — new rows are appen
 | `notes` | TEXT | ❌ | Free text |
 | `is_deleted` | BOOLEAN | Auto | Default FALSE |
 
-### **E. Incubator Observation (Environment Telemetry)**
-| Column | Type | Required | Notes |
-|---|---|---|---|
-| `obs_id` | TEXT PK | Auto | `[SessionID]_ENV_[HHMMSS]` |
-| `session_id` | TEXT FK | Auto | |
-| `bin_id` | TEXT FK | ❌ | Optional specific bin |
-| `observer_id` | TEXT FK | Auto | |
-| `timestamp` | TIMESTAMPTZ | Auto | Default: NOW() |
-| `ambient_temp` | NUMERIC | ✅ | Temperature in °F |
-| `humidity` | NUMERIC | ✅ | Humidity in % |
-| `notes` | TEXT | ❌ | |
-| `is_deleted` | BOOLEAN | Auto | Default FALSE |
-
-### **F. Observer Registry (Lookup Table)**
 | Column | Type | Required | Notes |
 |---|---|---|---|
 | `observer_id` | TEXT PK | Manual | Short slug: "elisa", "kevin" |
@@ -136,7 +122,6 @@ Each observation is a snapshot in time. Never overwritten — new rows are appen
 | `SESSION_START` | Observer selected in sidebar | `{observer_id, user_agent}` |
 | `INTAKE_COMPLETE` | Burst intake saved | `{mother_id, bin_id, egg_count}` |
 | `OBSERVATION_BATCH` | Batch observation saved | `{egg_ids: [...], changes: {...}}` |
-| `ENV_LOG` | Environment reading saved | `{incubator_label, temp, humidity}` |
 | `STAGE_CHANGE` | Egg stage transition | `{egg_id, from_stage, to_stage}` |
 | `CRUD_CREATE` | Lookup record created | `{table, record_id}` |
 | `CRUD_UPDATE` | Lookup record updated | `{table, record_id, changes}` |
@@ -431,7 +416,6 @@ No user input. The system shows what will be created:
 st.session_state['intake_step'] = 1       # 1, 2, 3, or 4
 st.session_state['intake_mother'] = {}     # name, species, condition, location, notes
 st.session_state['intake_existing_mother_id'] = None  # set if using existing mother
-st.session_state['intake_bin'] = {}        # harvest_date, incubator_label, substrate, egg_count
 ```
 
 #### Edge Cases
@@ -623,7 +607,7 @@ Apr 01, 9:00 AM  │ Elisa  │ Chalk: 0, Vasc: NO, Stage: Intake (initial)
 │  ──────────────────────────────────────────────────────────────│
 │                                                                │
 │  ┌─ QUICK LOG FORM (glass card) ────────────────────────────│
-│  │  Incubator: [Internal Unit]                   │
+│  │  Incubator: [Main]                   │
 │  │                                                            │
 │  │  Temperature (°F)          Humidity (%)                    │
 │  │  ┌─────────────────┐       ┌─────────────────┐            │
