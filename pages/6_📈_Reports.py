@@ -1,6 +1,6 @@
 """
 =============================================================================
-Module:     pages/6_analytics.py
+Module:     pages/6_reports.py
 Project:    Incubator Vault v6.0 — Wildlife In Need Center (WINC)
 Purpose:    Historical analysis of hatching success, failure causes, and 
             data export for longitudinal research.
@@ -16,9 +16,10 @@ from datetime import datetime
 from utils.db import get_supabase_client
 from utils.session import render_sidebar
 from utils.css import BASE_CSS
+from utils.logger import logger
 
 # Configure Page
-st.set_page_config(page_title="Analytics | Vault Pro", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Reports | Incubator Vault", page_icon="📈", layout="wide")
 st.markdown(BASE_CSS, unsafe_allow_html=True)
 
 # Persistent Sidebar
@@ -41,19 +42,21 @@ def load_analytics_data(supabase):
         df['Harvest_Date'] = df['bin'].apply(lambda x: x['harvest_date'] if x else None)
         
         return df
-    except: return None
+    except Exception as e:
+        logger.error(f"Analytics data load error: {e}")
+        return None
 
 # =============================================================================
 # SECTION: UI Components
 # =============================================================================
 
-st.markdown("<h1>Neural Analytics Engine</h1>", unsafe_allow_html=True)
+st.markdown("## 📈 Season Reports")
 
 supabase = get_supabase_client()
 df = load_analytics_data(supabase)
 
 if df is None or df.empty:
-    st.info("📭 No data available for season analysis. Complete an intake to populate the neural stream.")
+    st.info("📭 No data yet. Complete an intake first to see season reports.")
 else:
     # --- SUMMARY METRICS ---
     total = len(df)
@@ -74,18 +77,18 @@ else:
         fail_by_spec = lost_df['Species'].value_counts().reset_index()
         st.bar_chart(fail_by_spec, x='Species', y='count', color='#EF4444')
     else:
-        st.success("🎉 Perfect Season: Zero losses recorded in the current stream.")
+        st.success("🎉 Perfect season so far — zero losses!")
 
     # --- EXPORT CENTER ---
     st.markdown("### 📥 Export System Data")
     st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-    st.write("Download the full historical ledger in CSV format for institutional reporting.")
+    st.write("Download a spreadsheet of all egg data for your records.")
     
     # Convert DF to CSV
     csv_buffer = io.StringIO()
     df.to_csv(csv_buffer, index=False)
     st.download_button(
-        label="💾 DOWNLOAD FULL SEASON LEDGER (.CSV)",
+        label="💾 Download Season Data (.CSV)",
         data=csv_buffer.getvalue(),
         file_name=f"WINC_Vault_Export_{datetime.now().strftime('%Y%m%d')}.csv",
         mime="text/csv"
@@ -93,4 +96,4 @@ else:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # Build Complete Signal
-st.caption(f"System: Vault Elite v6.0 | Build Hash: {datetime.now().strftime('%H%M%S')}")
+st.caption(f"Incubator Vault v6.1 | WINC")

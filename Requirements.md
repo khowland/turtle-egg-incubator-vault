@@ -32,7 +32,6 @@ One mother may have **multiple bins** (eggs laid on different days, or overflow 
 |---|---|---|---|
 | `bin_id` | TEXT PK | Auto | Clue Chain: `[MotherID]_B[N]` |
 | `mother_id` | TEXT FK | ✅ | References `mother` |
-| `incubator_id` | TEXT FK | ✅ | Which physical incubator unit |
 | `harvest_date` | DATE | ✅ | Default: today |
 | `total_eggs` | INTEGER | ✅ | Max 300 |
 | `substrate` | TEXT | ❌ | `Vermiculite`, `Perlite`, `Sphagnum Moss`, `Sand Mix` |
@@ -81,7 +80,6 @@ Each observation is a snapshot in time. Never overwritten — new rows are appen
 |---|---|---|---|
 | `obs_id` | TEXT PK | Auto | `[SessionID]_ENV_[HHMMSS]` |
 | `session_id` | TEXT FK | Auto | |
-| `incubator_id` | TEXT FK | ✅ | Which incubator |
 | `bin_id` | TEXT FK | ❌ | Optional specific bin |
 | `observer_id` | TEXT FK | Auto | |
 | `timestamp` | TIMESTAMPTZ | Auto | Default: NOW() |
@@ -102,20 +100,6 @@ Each observation is a snapshot in time. Never overwritten — new rows are appen
 | `is_deleted` | BOOLEAN | Auto | Default FALSE |
 | `created_at` | TIMESTAMPTZ | Auto | Default NOW() |
 
-### **G. Incubator Registry (Lookup Table)**
-| Column | Type | Required | Notes |
-|---|---|---|---|
-| `incubator_id` | TEXT PK | Manual | "INC-01", "INC-02" |
-| `label` | TEXT | ✅ | "Incubator Alpha" |
-| `location` | TEXT | ❌ | "Lab Room A, Shelf 2" |
-| `target_temp` | NUMERIC | ❌ | Target temperature °F |
-| `target_humidity` | NUMERIC | ❌ | Target humidity % |
-| `is_active` | BOOLEAN | Auto | Default TRUE |
-| `is_deleted` | BOOLEAN | Auto | Default FALSE |
-| `notes` | TEXT | ❌ | |
-| `created_at` | TIMESTAMPTZ | Auto | Default NOW() |
-
-### **H. Species Registry (Lookup Table)**
 | Column | Type | Required | Notes |
 |---|---|---|---|
 | `species_id` | TEXT PK | Manual | "Blandings", "Wood", "Ornate" |
@@ -152,7 +136,7 @@ Each observation is a snapshot in time. Never overwritten — new rows are appen
 | `SESSION_START` | Observer selected in sidebar | `{observer_id, user_agent}` |
 | `INTAKE_COMPLETE` | Burst intake saved | `{mother_id, bin_id, egg_count}` |
 | `OBSERVATION_BATCH` | Batch observation saved | `{egg_ids: [...], changes: {...}}` |
-| `ENV_LOG` | Environment reading saved | `{incubator_id, temp, humidity}` |
+| `ENV_LOG` | Environment reading saved | `{incubator_label, temp, humidity}` |
 | `STAGE_CHANGE` | Egg stage transition | `{egg_id, from_stage, to_stage}` |
 | `CRUD_CREATE` | Lookup record created | `{table, record_id}` |
 | `CRUD_UPDATE` | Lookup record updated | `{table, record_id, changes}` |
@@ -352,7 +336,7 @@ If found:
   If "Create New" → continue (trigger generates unique ID via date)
 ```
 
-#### Step 2 — Bin & Incubator Assignment
+#### Step 2 — Bin Assignment
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -364,7 +348,7 @@ If found:
 │  │  Clue Chain Preview: Shelly_Blandings_20260406             │
 │  │  ─────────────────────────────────────────────            │
 │  │                                                            │
-│  │  Harvest Date              Incubator Unit                  │
+│  │  Harvest Date              Incubator                  │
 │  │  ┌─────────────────────┐   ┌──────────────────────────┐  │
 │  │  │ 📅 2026-04-06       │   │ ▼ INC-01: Incubator Alpha│  │
 │  │  └─────────────────────┘   └──────────────────────────┘  │
@@ -421,7 +405,7 @@ No user input. The system shows what will be created:
 │  │  🐢 Mother:      Shelly (Blanding's Turtle)               │
 │  │  📍 Location:    Hwy 12 & Cty P                           │
 │  │  🩺 Condition:   DOA                                      │
-│  │  📦 Incubator:   INC-01: Incubator Alpha                  │
+│  │  📦 Incubator:   Main Unit                  │
 │  │  🧪 Substrate:   Vermiculite                              │
 │  │  🥚 Eggs:        15                                       │
 │  │  🔗 Bin ID:      Shelly_Blandings_20260406_B1             │
@@ -447,7 +431,7 @@ No user input. The system shows what will be created:
 st.session_state['intake_step'] = 1       # 1, 2, 3, or 4
 st.session_state['intake_mother'] = {}     # name, species, condition, location, notes
 st.session_state['intake_existing_mother_id'] = None  # set if using existing mother
-st.session_state['intake_bin'] = {}        # harvest_date, incubator_id, substrate, egg_count
+st.session_state['intake_bin'] = {}        # harvest_date, incubator_label, substrate, egg_count
 ```
 
 #### Edge Cases
@@ -630,7 +614,7 @@ Apr 01, 9:00 AM  │ Elisa  │ Chalk: 0, Vasc: NO, Stage: Intake (initial)
 ### W3: ENVIRONMENT TELEMETRY LOGGING
 
 #### User Story
-> _"Morning check — I need to record temp and humidity for both incubators in under 30 seconds each."_
+> _"Morning check — I need to record temp and humidity for the incubator in under 30 seconds each."_
 
 #### UI Layout
 ```
@@ -639,7 +623,7 @@ Apr 01, 9:00 AM  │ Elisa  │ Chalk: 0, Vasc: NO, Stage: Intake (initial)
 │  ──────────────────────────────────────────────────────────────│
 │                                                                │
 │  ┌─ QUICK LOG FORM (glass card) ────────────────────────────│
-│  │  Incubator: [▼ INC-01: Incubator Alpha]                   │
+│  │  Incubator: [Internal Unit]                   │
 │  │                                                            │
 │  │  Temperature (°F)          Humidity (%)                    │
 │  │  ┌─────────────────┐       ┌─────────────────┐            │
@@ -729,13 +713,6 @@ Each table gets an expandable section with:
 │  │  [➕ ADD]   [✏️ EDIT]   [🗑️ DEACTIVATE]                   │
 │  └────────────────────────────────────────────────────────── │
 │                                                                │
-│  ┌─ 🏠 INCUBATORS ─────────────────────────── [▼ expand] ──│
-│  │  | ID     | Label           | Location    | Target        │
-│  │  |--------|-----------------|-------------|---------------│
-│  │  | INC-01 | Incubator Alpha | Lab A, Sh 2 | 82°F / 80%   │
-│  │                                                            │
-│  │  [➕ ADD]   [✏️ EDIT]   [🗑️ DEACTIVATE]                   │
-│  └────────────────────────────────────────────────────────── │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -777,7 +754,7 @@ Each table gets an expandable section with:
 #### Charts
 - **Hatch Rate by Species** — horizontal bar chart
 - **Stage Distribution** — stacked bar: how many eggs at each stage
-- **24-Hour Environment** — line chart of temp/humidity per incubator with threshold bands
+- **24-Hour Environment** — line chart of temp/humidity for the incubator with threshold bands
 
 #### Biological Guardrail Rules Engine
 These rules run on **every dashboard load** and surface alerts:

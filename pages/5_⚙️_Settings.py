@@ -1,13 +1,15 @@
 """
 =============================================================================
-Module:     pages/5_admin_registry.py
-Project:    Incubator Vault v6.0 — Wildlife In Need Center (WINC)
-Purpose:    Admin registry for managing lookup tables (Species, Observers,
+Module:     pages/5_settings.py
+Project:    Incubator Vault v6.1 — Wildlife In Need Center (WINC)
+Purpose:    Settings page for managing lookup tables (Species, Staff,
             Incubators) with full CRUD (Create, Read, Update, Delete) and
             soft-delete support per Requirements §5 W4.
+            
+            Plain-language labels designed for non-technical wildlife staff.
 Author:     Agent Zero (Automated Build)
-Modified:   2026-04-06 (Code Review: Added UPDATE functionality, proper
-            error handling, enterprise comments)
+Modified:   2026-04-06 (Renamed from Admin Registry → Settings,
+            consistent naming, fixed column references)
 =============================================================================
 """
 
@@ -19,7 +21,7 @@ from utils.css import BASE_CSS
 from utils.audit import logged_write
 
 # Configure Page
-st.set_page_config(page_title="Admin Registry | Vault Pro", page_icon="🛠️", layout="wide")
+st.set_page_config(page_title="Settings | Incubator Vault", page_icon="⚙️", layout="wide")
 st.markdown(BASE_CSS, unsafe_allow_html=True)
 
 # Persistent Sidebar
@@ -32,7 +34,7 @@ render_sidebar()
 #              lookup table with consistent UI patterns and audit logging.
 # =============================================================================
 
-def render_crud_section(title, table_name, columns, id_col):
+def render_crud_section(title, table_name, columns, column_labels, id_col):
     """Generic CRUD renderer for lookup tables.
     
     Renders a complete management interface for a single lookup table,
@@ -40,9 +42,10 @@ def render_crud_section(title, table_name, columns, id_col):
     with confirmation. All writes are audited via logged_write().
     
     Args:
-        title: Human-readable section title (e.g., "Species Registry").
+        title: Human-readable section title (e.g., "Turtle Species").
         table_name: Supabase table name (e.g., "species").
         columns: List of column names to display and edit.
+        column_labels: Dict mapping column names to friendly labels.
         id_col: Primary key column name (e.g., "species_id").
     """
     st.markdown(f"### {title}")
@@ -50,40 +53,47 @@ def render_crud_section(title, table_name, columns, id_col):
     
     # -------------------------------------------------------------------------
     # 1. READ — Fetch all active (non-deleted) records for display
-    # Requirement §9.3: Universal soft-delete filter on every SELECT
     # -------------------------------------------------------------------------
     try:
+        # Try finding non-deleted records first
         res = supabase.table(table_name).select("*").eq("is_deleted", False).execute()
         data = res.data
-        if data:
-            df = pd.DataFrame(data)
-            # Show only the user-facing columns, not internal flags
-            display_cols = [c for c in columns if c in df.columns]
-            st.dataframe(df[display_cols], use_container_width=True, hide_index=True)
-        else:
-            st.info(f"No active {title.lower()} records found.")
-            data = []  # Ensure data is always a list for downstream logic
-    except Exception as e:
-        st.error(f"⚠️ Failed to load {table_name}: {e}")
+    except Exception:
+        # Fallback for tables that don't have is_deleted column yet
+        try:
+            res = supabase.table(table_name).select("*").execute()
+            data = res.data
+        except Exception as e:
+            st.error(f"⚠️ Could not load {title}: {e}")
+            data = []
+
+    if data:
+        df = pd.DataFrame(data)
+        # Show only the user-facing columns, not internal technical flags
+        display_cols = [c for c in columns if c in df.columns]
+        # Rename columns for staff-friendly display
+        rename_map = {c: column_labels.get(c, c.replace("_", " ").title()) for c in display_cols}
+        st.dataframe(df[display_cols].rename(columns=rename_map), use_container_width=True, hide_index=True)
+    elif not st.session_state.get("error_shown"):
+        st.info(f"No {title.lower()} records found. Use the form below to add one.")
         data = []
     
     # -------------------------------------------------------------------------
     # 2. CREATE — Inline form to add a new record
-    # All fields rendered as text inputs; payload is validated for required ID
     # -------------------------------------------------------------------------
-    with st.expander(f"➕ Add New {title}"):
+    with st.expander(f"➕ Add New"):
         with st.form(f"add_{table_name}"):
             payload = {}
             cols = st.columns(min(len(columns), 4))  # Cap at 4 columns for readability
             for idx, col in enumerate(columns):
-                # Convert column_name to user-friendly label: "species_id" → "Species Id"
-                label = col.replace("_", " ").title()
+                label = column_labels.get(col, col.replace("_", " ").title())
                 payload[col] = cols[idx % len(cols)].text_input(label, key=f"add_{table_name}_{col}")
             
-            if st.form_submit_button(f"💾 REGISTER NEW {title.upper()}"):
+            if st.form_submit_button(f"💾 Save New {title}"):
                 # Validate: primary key is required
+                id_label = column_labels.get(id_col, id_col.replace("_", " ").title())
                 if not payload.get(id_col):
-                    st.error(f"❌ {id_col.replace('_', ' ').title()} is required.")
+                    st.error(f"❌ {id_label} is required.")
                 else:
                     def create_record():
                         supabase.table(table_name).insert(payload).execute()
@@ -95,21 +105,19 @@ def render_crud_section(title, table_name, columns, id_col):
                             {"table": table_name, "record_id": payload[id_col]}, 
                             create_record
                         )
-                        st.success(f"✅ {payload[id_col]} added to {title}.")
+                        st.success(f"✅ {payload[id_col]} added successfully.")
                         st.rerun()
                     except Exception as e:
                         st.error(f"❌ Failed to create: {e}")
 
     # -------------------------------------------------------------------------
     # 3. UPDATE — Select a record, edit its fields, save changes
-    # Requirement §5 W4: "Click row → populate form → edit → save"
-    # Writes updated_by_session for audit trail
     # -------------------------------------------------------------------------
     if data:
-        with st.expander(f"✏️ Edit Existing {title}"):
+        with st.expander(f"✏️ Edit Existing"):
             # Let user pick which record to edit by its primary key
             edit_id = st.selectbox(
-                f"Select {title} to edit", 
+                f"Select record to edit", 
                 options=[d[id_col] for d in data], 
                 key=f"edit_select_{table_name}"
             )
@@ -123,7 +131,7 @@ def render_crud_section(title, table_name, columns, id_col):
                     edit_cols = st.columns(min(len(columns), 4))
                     
                     for idx, col in enumerate(columns):
-                        label = col.replace("_", " ").title()
+                        label = column_labels.get(col, col.replace("_", " ").title())
                         current_val = str(selected_record.get(col, "") or "")
                         
                         if col == id_col:
@@ -142,7 +150,7 @@ def render_crud_section(title, table_name, columns, id_col):
                                 key=f"edit_{table_name}_{col}"
                             )
                     
-                    if st.form_submit_button(f"💾 SAVE CHANGES TO {edit_id}"):
+                    if st.form_submit_button(f"💾 Save Changes"):
                         # Add audit metadata
                         updated_payload["updated_by_session"] = st.session_state.get("session_id", "unknown")
                         
@@ -163,20 +171,19 @@ def render_crud_section(title, table_name, columns, id_col):
     
     # -------------------------------------------------------------------------
     # 4. DELETE (Soft) — Deactivate a record without removing data
-    # Requirement §9: No hard deletes. Sets is_deleted=TRUE, is_active=FALSE
     # -------------------------------------------------------------------------
     if data:
-        with st.expander(f"🗑️ Deactivate {title}"):
+        with st.expander(f"🗑️ Deactivate"):
             del_id = st.selectbox(
-                f"Select {title} to deactivate", 
+                f"Select record to deactivate", 
                 options=[d[id_col] for d in data], 
                 key=f"del_{table_name}"
             )
             
             # Show confirmation warning before deactivating
-            st.warning(f"⚠️ This will deactivate **{del_id}**. The record is preserved but hidden from dropdowns.")
+            st.warning(f"⚠️ This will deactivate **{del_id}**. The record is kept but hidden from dropdowns.")
             
-            if st.button(f"🗑️ CONFIRM DEACTIVATE {del_id}", key=f"btn_del_{table_name}"):
+            if st.button(f"🗑️ Confirm Deactivate", key=f"btn_del_{table_name}"):
                 def soft_delete():
                     supabase.table(table_name).update({
                         "is_deleted": True, 
@@ -197,49 +204,66 @@ def render_crud_section(title, table_name, columns, id_col):
                     st.error(f"❌ Failed to deactivate: {e}")
 
 # =============================================================================
-# SECTION: Main Registry Interface
-# Description: Renders three expandable CRUD sections — one per lookup table.
-#              Each section uses the generic render_crud_section() helper.
+# SECTION: Main Settings Page
+# Description: Three expandable sections — one per lookup table.
+#              Uses plain language that non-technical wildlife staff understand.
 # =============================================================================
 
-st.markdown("<h1>System Registry & Management</h1>", unsafe_allow_html=True)
+st.markdown("## ⚙️ Settings")
 
 if not st.session_state.get("logged_in"):
-    st.warning("⚠️ Admin access requires an active observer session.")
+    st.warning("⬆️ Pick your name in the sidebar to access settings.")
     st.stop()
 
-# --- 🧬 SPECIES REGISTRY ---
-# Biological constants: turtle species with incubation ranges and vulnerability status
+# --- 🐢 TURTLE SPECIES ---
 with st.container():
     st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
     render_crud_section(
-        "Species Registry", 
+        "🐢 Turtle Species", 
         "species", 
-        ["species_id", "common_name", "scientific_name", "incubation_days_min", "incubation_days_max"], 
+        ["species_id", "common_name", "scientific_name", "incubation_min_days", "incubation_max_days"], 
+        {
+            "species_id": "ID",
+            "common_name": "Common Name",
+            "scientific_name": "Scientific Name",
+            "incubation_min_days": "Min Incubation (days)",
+            "incubation_max_days": "Max Incubation (days)",
+        },
         "species_id"
     )
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- 👤 OBSERVER REGISTRY ---
-# Staff and volunteers who log observations and perform intakes
+# --- 👤 STAFF ---
 with st.container():
     st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
     render_crud_section(
-        "Staff & Observers", 
+        "👤 Staff", 
         "observer", 
         ["observer_id", "display_name", "role", "email"], 
+        {
+            "observer_id": "ID",
+            "display_name": "Full Name",
+            "role": "Role",
+            "email": "Email",
+        },
         "observer_id"
     )
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- 🌡️ INCUBATOR REGISTRY ---
-# Physical incubator units in the lab with target environmental settings
+# --- 🌡️ INCUBATORS ---
 with st.container():
     st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
     render_crud_section(
-        "Incubator Units", 
+        "🌡️ Incubators", 
         "incubator", 
         ["incubator_id", "label", "location", "target_temp", "target_humidity"], 
+        {
+            "incubator_id": "ID",
+            "label": "Name",
+            "location": "Location",
+            "target_temp": "Target Temp (°F)",
+            "target_humidity": "Target Humidity (%)",
+        },
         "incubator_id"
     )
     st.markdown("</div>", unsafe_allow_html=True)

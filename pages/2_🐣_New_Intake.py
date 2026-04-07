@@ -16,9 +16,10 @@ from utils.db import get_supabase_client
 from utils.session import render_sidebar
 from utils.css import BASE_CSS
 from utils.audit import logged_write
+from utils.logger import logger
 
 # Configure Page
-st.set_page_config(page_title="New Intake | Vault Pro", page_icon="🐣", layout="wide")
+st.set_page_config(page_title="New Intake | Incubator Vault", page_icon="🐣", layout="wide")
 st.markdown(BASE_CSS, unsafe_allow_html=True)
 
 # Persistent Sidebar
@@ -79,25 +80,30 @@ def generate_preview_ids():
 # =============================================================================
 
 def show_step_1():
-    st.markdown("<h1>New Intake — Step 1: Mother</h1>", unsafe_allow_html=True)
+    st.markdown("## 🐣 New Intake — Step 1: Mother")
     supabase = get_supabase_client()
     
     # Fetch Species
     try:
+        # Try non-deleted filter first
         res = supabase.table("species").select("species_id, common_name").eq("is_deleted", False).execute()
         species_data = res.data
-    except Exception as e:
-        # Fallback if species table doesn't exist yet or query fails
-        print(f"Species query failed, using fallback: {e}")
-        species_data = [{"species_id": "Blandings", "common_name": "Blanding's Turtle"}]
+    except Exception:
+        # Fallback for tables without soft-delete columns
+        try:
+            res = supabase.table("species").select("species_id, common_name").execute()
+            species_data = res.data
+        except Exception as e:
+            logger.warning(f"Species query failed: {e}")
+            species_data = []
     
     species_map = {s['common_name']: s['species_id'] for s in species_data}
 
     st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
     with st.form("mother_form"):
         c1, c2 = st.columns(2)
-        m_name = c1.text_input("Mother Name (Origin ID)", value=st.session_state.intake_mother.get('name', ''), placeholder="e.g. Shelly")
-        m_species_name = c2.selectbox("Species Class", options=list(species_map.keys()), 
+        m_name = c1.text_input("Mother Name", value=st.session_state.intake_mother.get('name', ''), placeholder="e.g. Shelly")
+        m_species_name = c2.selectbox("Species", options=list(species_map.keys()), 
                                       index=list(species_map.keys()).index(st.session_state.intake_mother.get('species_name')) if st.session_state.intake_mother.get('species_name') in species_map else 0)
         
         c3, c4 = st.columns(2)
@@ -108,7 +114,7 @@ def show_step_1():
         m_loc = st.text_input("Harvest Location (GPS or Description)", value=st.session_state.intake_mother.get('location', ''))
         m_notes = st.text_area("Clinical Notes", value=st.session_state.intake_mother.get('notes', ''))
         
-        if st.form_submit_button("NEXT: ASSIGN BIN & INCUBATOR"):
+        if st.form_submit_button("Next: Bin & Incubator ▶"):
             if not m_name:
                 st.error("❌ Name is required.")
             else:
@@ -124,7 +130,7 @@ def show_step_1():
                         next_step(); st.rerun()
                 except Exception as e:
                     # If identity check query fails, proceed with new mother
-                    print(f"Identity check failed, proceeding as new: {e}")
+                    logger.warning(f"Identity check failed, proceeding as new: {e}")
                     next_step(); st.rerun()
 
     if st.session_state.get('duplicate_found'):
@@ -142,7 +148,7 @@ def show_step_1():
     st.markdown("</div>", unsafe_allow_html=True)
 
 def show_step_2():
-    st.markdown("<h1>New Intake — Step 2: Bin Setup</h1>", unsafe_allow_html=True)
+    st.markdown("## 🐣 New Intake — Step 2: Bin Setup")
     supabase = get_supabase_client()
     
     # Incubators
@@ -152,7 +158,7 @@ def show_step_2():
         inc_data = res.data
     except Exception as e:
         # Fallback if incubator table doesn't exist yet
-        print(f"Incubator query failed, using fallback: {e}")
+        logger.warning(f"Incubator query failed, using fallback: {e}")
         inc_data = [{"incubator_id": "INC-01", "label": "Incubator Alpha"}]
     inc_map = {i['label']: i['incubator_id'] for i in inc_data}
 
@@ -160,7 +166,7 @@ def show_step_2():
     with st.form("bin_form"):
         c1, c2 = st.columns(2)
         b_date = c1.date_input("Harvest Date", value=st.session_state.intake_bin.get('date', datetime.now()))
-        b_inc_label = c2.selectbox("Incubator Unit", options=list(inc_map.keys()), 
+        b_inc_label = c2.selectbox("Incubator", options=list(inc_map.keys()), 
                                     index=list(inc_map.keys()).index(st.session_state.intake_bin.get('inc_label')) if st.session_state.intake_bin.get('inc_label') in inc_map else 0)
         c3, c4 = st.columns(2)
         b_subs = c3.selectbox("Substrate", ["Vermiculite", "Perlite", "Moss", "Sand Mix"], index=0)
@@ -175,7 +181,7 @@ def show_step_2():
     st.markdown("</div>", unsafe_allow_html=True)
 
 def show_step_3_4():
-    st.markdown("<h1>New Intake — Review & Confirm</h1>", unsafe_allow_html=True)
+    st.markdown("## 🐣 New Intake — Review & Confirm")
     supabase = get_supabase_client()
     
     m_id_preview, b_id_preview, egg_preview, egg_count = generate_preview_ids()
@@ -188,7 +194,7 @@ def show_step_3_4():
 
     c1, c2 = st.columns(2)
     if c1.button("◀ BACK TO BIN"): prev_step(); st.rerun()
-    if c2.button("💾 SAVE INTAKE & REGISTER EGGS"):
+    if c2.button("💾 Save Intake"):
         def db_transaction():
             m = st.session_state.intake_mother
             b = st.session_state.intake_bin
@@ -240,7 +246,7 @@ def show_step_3_4():
     st.markdown("</div>", unsafe_allow_html=True)
 
 # --- Router ---
-if not st.session_state.get("logged_in"): st.warning("⚠️ Select an observer to continue."); st.stop()
+if not st.session_state.get("logged_in"): st.warning("⬆️ Pick your name in the sidebar first."); st.stop()
 if st.session_state.intake_step == 1: show_step_1()
 elif st.session_state.intake_step == 2: show_step_2()
 else: show_step_3_4()

@@ -16,9 +16,10 @@ from datetime import datetime, timedelta
 from utils.db import get_supabase_client
 from utils.session import render_sidebar
 from utils.css import BASE_CSS
+from utils.logger import logger
 
 # Configure Page
-st.set_page_config(page_title="Dashboard | Vault Pro", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Dashboard | Incubator Vault", page_icon="📊", layout="wide")
 st.markdown(BASE_CSS, unsafe_allow_html=True)
 
 # Persistent Sidebar
@@ -43,7 +44,7 @@ def load_kpis(supabase):
         return active, pipping, hatched, lost
     except Exception as e:
         # Surface connection errors instead of silently returning zeros
-        print(f"KPI load error: {e}")
+        logger.error(f"KPI load error: {e}")
         return 0, 0, 0, 0
 
 def load_alerts(supabase):
@@ -71,14 +72,14 @@ def load_alerts(supabase):
         return alerts
     except Exception as e:
         # Surface guardrail query errors instead of hiding them
-        print(f"Alert load error: {e}")
+        logger.error(f"Alert load error: {e}")
         return []
 
 # =============================================================================
 # SECTION: UI Layout
 # =============================================================================
 
-st.markdown("<h1>Hatchery Command Center</h1>", unsafe_allow_html=True)
+st.markdown("## 📊 Dashboard")
 
 supabase = get_supabase_client()
 active, pipping, hatched, lost = load_kpis(supabase)
@@ -91,7 +92,7 @@ with c3: st.markdown(f"<div class='glass-card'><div style='color:#F59E0B; font-w
 with c4: st.markdown(f"<div class='glass-card'><div style='color:#EF4444; font-weight:800;'>LOST</div><div style='font-size:3rem; font-weight:800;'>{lost}</div></div>", unsafe_allow_html=True)
 
 # --- ALERT CENTER ---
-st.markdown("### 🚨 Biological Guardrails")
+st.markdown("### 🚨 Alerts")
 alerts = load_alerts(supabase)
 if alerts:
     for a in alerts:
@@ -103,7 +104,7 @@ if alerts:
         </div>
         """, unsafe_allow_html=True)
 else:
-    st.success("✅ All systems nominal. No biological anomalies detected.")
+    st.success("✅ No alerts — everything looks good.")
 
 # --- ANALYTICS ROW ---
 st.markdown("### 📈 Season Analytics")

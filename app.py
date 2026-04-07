@@ -2,30 +2,40 @@
 =============================================================================
 Module:     app.py
 Project:    Incubator Vault v6.1 — Wildlife In Need Center (WINC)
-Purpose:    Main entry point with automated cache management and sidebar.
+Purpose:    Main entry point. Shows a simple welcome screen with quick
+            navigation guidance for non-technical staff.
 Author:     Agent Zero (Automated Build)
-Created:    2026-04-06
+Modified:   2026-04-06 (Simplified for non-technical staff)
 =============================================================================
 """
+
 import streamlit as st
 from utils.session import render_sidebar
 from utils.css import BASE_CSS
 from utils.logger import logger
-logger.info("🚀 Vault Elite v6.1 - System Ignition Success.")
 
-st.set_page_config(page_title="Vault Elite Pro", page_icon="🐢", layout="wide")
+logger.info("🚀 Incubator Vault started.")
+
+st.set_page_config(page_title="Incubator Vault | WINC", page_icon="🐢", layout="wide")
 st.markdown(BASE_CSS, unsafe_allow_html=True)
-
-# The sidebar now handles observer selection and auto-syncing
 render_sidebar()
 
-st.markdown("<h1>Vault Elite: Neural Nexus</h1>", unsafe_allow_html=True)
+# --- HOME SCREEN ---
+st.markdown("## 🐢 Incubator Vault")
 st.markdown("""
 <div class='glass-card'>
-    <h3>System Operational</h3>
-    <p>Welcome to the <b>WINC Incubator Vault</b>. Use the sidebar to navigate 
-    between Intake, Observations, and System Analytics.</p>
-    <p><i>Note: The system now uses <b>Autonomous Syncing</b>. Data refreshes 
-    automatically after every save.</i></p>
+    <h3>Welcome!</h3>
+    <p>Use the <b>sidebar menu</b> (☰ on mobile) to navigate:</p>
+    <ul>
+        <li>📊 <b>Dashboard</b> — see how the eggs are doing</li>
+        <li>🐣 <b>New Intake</b> — register a new mother and eggs</li>
+        <li>🔍 <b>Observations</b> — log what you see at the incubator</li>
+        <li>🌡️ <b>Environment</b> — record temperature and humidity</li>
+        <li>⚙️ <b>Settings</b> — manage species, staff, and incubators</li>
+        <li>📈 <b>Reports</b> — season stats and data export</li>
+    </ul>
+    <p style='color: #94A3B8; font-size: 0.9rem;'>
+        Tip: Pick your name in the sidebar before logging anything.
+    </p>
 </div>
 """, unsafe_allow_html=True)

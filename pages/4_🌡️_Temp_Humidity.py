@@ -1,6 +1,6 @@
 """
 =============================================================================
-Module:     pages/4_environment.py
+Module:     pages/4_temp_humidity.py
 Project:    Incubator Vault v6.0 — Wildlife In Need Center (WINC)
 Purpose:    Environment telemetry logging for tracking incubator temp/humidity.
 Author:     Agent Zero (Automated Build)
@@ -15,9 +15,10 @@ from utils.db import get_supabase_client
 from utils.session import render_sidebar
 from utils.css import BASE_CSS
 from utils.audit import logged_write
+from utils.logger import logger
 
 # Configure Page
-st.set_page_config(page_title="Environment | Vault Pro", page_icon="🌡️", layout="wide")
+st.set_page_config(page_title="Temp & Humidity | Incubator Vault", page_icon="🌡️", layout="wide")
 st.markdown(BASE_CSS, unsafe_allow_html=True)
 
 # Persistent Sidebar
@@ -27,10 +28,10 @@ render_sidebar()
 # SECTION: UI Components
 # =============================================================================
 
-st.markdown("<h1>Environmental Telemetry</h1>", unsafe_allow_html=True)
+st.markdown("## 🌡️ Temp & Humidity")
 
 if not st.session_state.get("logged_in"):
-    st.warning("⚠️ Please select an observer in the sidebar to enable telemetry logging.")
+    st.warning("⬆️ Pick your name in the sidebar first.")
     st.stop()
 
 supabase = get_supabase_client()
@@ -45,7 +46,7 @@ try:
     incubators = inc_res.data
 except Exception as e:
     # Fallback if incubator table doesn't exist yet
-    print(f"Incubator query failed, using fallback: {e}")
+    logger.warning(f"Incubator query failed, using fallback: {e}")
     incubators = [{"incubator_id": "INC-01", "label": "Incubator Alpha", "target_temp": 82.0, "target_humidity": 80.0}]
 
 inc_map = {i['label']: i for i in incubators}
@@ -61,7 +62,7 @@ with st.form("env_form"):
     
     notes = st.text_area("Observations / Maintenance Notes", placeholder="e.g. Water reservoir refilled.")
     
-    if st.form_submit_button("💾 SAVE TELEMETRY DATA"):
+    if st.form_submit_button("💾 Save Reading"):
         def save_reading():
             payload = {
                 "incubator_id": target['incubator_id'],
@@ -100,7 +101,7 @@ try:
         df['Observer'] = df['observer'].apply(lambda x: x['display_name'] if x else 'Unknown')
         df['Time'] = pd.to_datetime(df['timestamp']).dt.strftime('%m/%d %I:%M %p')
         
-        st.dataframe(df[['Time', 'Unit', 'temperature', 'humidity', 'Observer', 'notes']], 
+        st.dataframe(df[['Time', 'Unit', 'ambient_temp', 'humidity', 'Observer', 'notes']], 
                      use_container_width=True, hide_index=True)
     else:
         st.info("No telemetry data logged in the last 24 hours.")
