@@ -33,7 +33,7 @@ def show_splash_screen():
 def render_custom_sidebar():
     """Render the global sidebar with branding and observer info."""
     with st.sidebar:
-        st.markdown("### 🐢 WINC VAULT")
+        
         st.info(f"👤 **Observer:** {st.session_state.get('observer_name', 'None')}")
         if st.button("Log Out / Change User"):
             st.session_state.observer_id = None

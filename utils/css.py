@@ -11,7 +11,8 @@ BASE_CSS = """
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    [data-testid="stSidebarNav"] {display: none;}
+    
+    /* Removed [data-testid="stSidebarNav"] {display: none;} to allow st.navigation to show */
 
     /* Aero-Shield: Wipe out Ask AI buttons and Tracebacks */
     [data-testid="stException"] button, 
@@ -27,6 +28,10 @@ BASE_CSS = """
     }
 
     .main { background-color: #0F172A; color: #F8FAFC; }
-    .stButton > button { height: 60px !important; border-radius: 12px !important; }
+    .stButton > button { 
+        height: 60px !important; 
+        border-radius: 12px !important; 
+        font-weight: 600 !important;
+    }
 </style>
 """
