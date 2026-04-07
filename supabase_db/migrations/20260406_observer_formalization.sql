@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.observer (
 );
 
 ALTER TABLE IF EXISTS public.bin DROP COLUMN IF EXISTS incubator_id;
+ALTER TABLE IF EXISTS public.incubatorobservation DROP COLUMN IF EXISTS incubator_id;
 DROP TABLE IF EXISTS public.incubator CASCADE;
 
 INSERT INTO public.observer (observer_id, display_name, role)
