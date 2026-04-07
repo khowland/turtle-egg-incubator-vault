@@ -10,10 +10,11 @@ if not st.session_state.get('observer_id'):
     show_splash_screen()
 else:
     pages = [
-        st.Page(\"src/1_Dashboard.py\", title=\"Dashboard\", icon=\"📊\", default=True),
-        st.Page(\"src/2_New_Intake.py\", title=\"New Intake\", icon=\"🐣\"),
-        st.Page(\"src/3_Observations.py\", title=\"Observations\", icon=\"🔍\"),
-        st.Page(\"src/5_Settings.py\", title=\"Settings\", icon=\"⚙️\"),
-        st.Page(\"src/6_Reports.py\", title=\"Reports\", icon=\"📈\")
+        st.Page("src/1_Dashboard.py", title="Dashboard", icon="📊", default=True),
+        st.Page("src/2_New_Intake.py", title="New Intake", icon="🐣"),
+        st.Page("src/3_Observations.py", title="Observations", icon="🔍"),
+        st.Page("src/5_Settings.py", title="Settings", icon="⚙️"),
+        st.Page("src/6_Reports.py", title="Reports", icon="📈")
     ]
-    st.navigation(pages).run()
+    pg = st.navigation(pages)
+    pg.run()
