@@ -1,4 +1,4 @@
-# 🐢 VAULT ELITE: Master Requirements (v6.0 — The Biologist's Edition)
+# 🐢 WINC INCUBATOR VAULT: Master Requirements (v6.3.2 — The Session Edition)
 
 ## 1. MISSION & PERSONA
 **The Biologist:** Expert Wisconsin Turtle Biologist managing a salvage-to-hatch program for at-risk species (Blanding's, Wood, Ornate Box).  
@@ -78,7 +78,7 @@ Each observation is a snapshot in time. Never overwritten — new rows are appen
 | Column | Type | Required | Notes |
 |---|---|---|---|
 | `observer_id` | TEXT PK | Manual | Short slug: "elisa", "kevin" |
-| `display_name` | TEXT | ✅ | "Elisa Rodriguez" |
+| `display_name` | TEXT | ✅ | "Elisa Fosco" |
 | `role` | TEXT | ✅ | `Lead`, `Staff`, `Volunteer` |
 | `email` | TEXT | ❌ | |
 | `phone` | TEXT | ❌ | |
@@ -394,7 +394,7 @@ No user input. The system shows what will be created:
 │  │  🥚 Eggs:        15                                       │
 │  │  🔗 Bin ID:      Shelly_Blandings_20260406_B1             │
 │  │  📅 Harvested:   2026-04-06                               │
-│  │  👤 Logged by:   Elisa Rodriguez                          │
+│  │  👤 Logged by:   Elisa Fosco                          │
 │  └────────────────────────────────────────────────────────── │
 │                                                                │
 │  ┌────────────────────────────────────────────────────────── │
@@ -688,7 +688,7 @@ Each table gets an expandable section with:
 │  ┌─ 👤 OBSERVERS ───────────────────────────── [▼ expand] ──│
 │  │  | ID    | Name            | Role      | Active           │
 │  │  |-------|-----------------|-----------|------------------│
-│  │  | elisa | Elisa Rodriguez | Lead      | ✅               │
+│  │  | elisa | Elisa Fosco | Lead      | ✅               │
 │  │  | kevin | Kevin Howland   | Staff     | ✅               │
 │  │                                                            │
 │  │  [➕ ADD]   [✏️ EDIT]   [🗑️ DEACTIVATE]                   │

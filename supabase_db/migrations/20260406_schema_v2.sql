@@ -62,7 +62,7 @@ ADD COLUMN IF NOT EXISTS observer_id TEXT REFERENCES public.observer(observer_id
 -- 8. SEED INITIAL DATA
 INSERT INTO public.observer (observer_id, display_name, role)
 VALUES 
-('elisa', 'Elisa Rodriguez', 'Lead'),
+('elisa', 'Elisa Fosco', 'Lead'),
 ('kevin', 'Kevin Howland', 'Staff')
 ON CONFLICT (observer_id) DO NOTHING;
 

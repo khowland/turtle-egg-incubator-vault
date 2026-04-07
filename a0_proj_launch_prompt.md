@@ -162,7 +162,7 @@ git push origin main
   5. ALTER `egg` — add `mark_description`
   6. ALTER `EggObservation` — add `dented`, `discolored`, `observer_id`, `stage_at_observation`
   7. ALTER `IncubatorObservation` — add `incubator_id`, `observer_id`
-  8. INSERT seed data for `observer` table (at least: `elisa/Elisa Rodriguez/Lead`, `kevin/Kevin Howland/Staff`)
+  8. INSERT seed data for `observer` table (at least: `elisa/Elisa Fosco/Lead`, `kevin/Kevin Howland/Staff`)
   9. INSERT seed data for `incubator` table (at least: `INC-01/Incubator Alpha`)
 - Execute this migration against Supabase using the service role key
 - **GIT COMMIT:** `[Schema] Add observer, incubator tables and ALTER existing tables`

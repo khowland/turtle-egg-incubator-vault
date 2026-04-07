@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS public.incubator CASCADE;
 -- 3. Seed Observers (Ensure these exist)
 INSERT INTO public.observer (observer_id, display_name, role)
 VALUES 
-    ('elisa', 'Elisa Rodriguez', 'Lead'),
+    ('elisa', 'Elisa Fosco', 'Lead'),
     ('kevin', 'Kevin Howland', 'Staff')
 ON CONFLICT (observer_id) DO UPDATE SET 
     display_name = EXCLUDED.display_name, 

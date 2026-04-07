@@ -1,7 +1,1 @@
-streamlit
-supabase
-python-dotenv
-pandas
-plotly
-streamlit-aggrid
 plotly
