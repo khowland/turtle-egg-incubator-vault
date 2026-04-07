@@ -11,14 +11,12 @@ import streamlit as st
 import pandas as pd
 from utils.db import get_supabase_client
 from utils.audit import logged_write
-from utils.logger import logger
 
 st.set_page_config(page_title="Environment Log", layout="centered")
 st.title("🌡️ Environment Log")
 
 supabase = get_supabase_client()
 
-# Check session
 if "observer_id" not in st.session_state or not st.session_state.observer_id:
     st.warning("⚠️ Please select an observer in the sidebar to log data.")
     st.stop()
@@ -29,18 +27,18 @@ with st.container(border=True):
     
     col1, col2 = st.columns(2)
     with col1:
-        temp = st.number_input("Temperature (°F)", value=82.0, step=0.1)
+        temp = st.number_input("Temperature (°F)", value=82.0, step=0.1, format="%.1f")
     with col2:
         hum = st.number_input("Humidity (%)", value=80, step=1)
     
-    notes = st.text_area("Observation Notes")
+    notes = st.text_area("Notes")
     
     if st.button("💾 LOG ENVIRONMENT READING", use_container_width=True):
         def save_reading():
             return supabase.table("systemlog").insert({
                 "session_id": st.session_state.session_id,
                 "event_type": "ENV_LOG",
-                "event_message": "Manual environment check",
+                "event_message": "Environment check logged",
                 "payload": {"temp": temp, "humidity": hum, "notes": notes}
             }).execute()
             
@@ -48,8 +46,8 @@ with st.container(border=True):
         st.success("Reading logged successfully!")
         st.rerun()
 
-st.subheader("Recent History")
-hist = supabase.table("systemlog").select("*").eq("event_type", "ENV_LOG").order("timestamp", desc=True).limit(20).execute()
+st.subheader("Recent Readings")
+hist = supabase.table("systemlog").select("*").eq("event_type", "ENV_LOG").order("timestamp", desc=True).limit(10).execute()
 if hist.data:
     df = pd.DataFrame([{"Time": r['timestamp'], "Temp": r['payload']['temp'], "Hum": r['payload']['humidity'], "Notes": r['payload'].get('notes', '')} for r in hist.data])
     st.dataframe(df, hide_index=True, use_container_width=True)

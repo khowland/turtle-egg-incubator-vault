@@ -176,7 +176,7 @@ def show_step_2():
         bc1, bc2 = st.columns(2)
         if bc1.form_submit_button("◀ BACK"): prev_step(); st.rerun()
         if bc2.form_submit_button("▶ NEXT"): 
-            st.session_state.intake_bin = {'date': b_date, 'incubator_id': inc_map[b_inc_label], 'inc_label': b_inc_label, 'substrate': b_subs, 'label': b_label, 'count': b_count}
+            st.session_state.intake_bin = {'date': b_date, 'substrate': b_subs, 'label': b_label, 'count': b_count}
             next_step(); st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
