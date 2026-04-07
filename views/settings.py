@@ -1,1 +1,2 @@
-import streamlit as st\nst.title('⚙️ Settings')
+import streamlit as st
+st.title('⚙️ Settings')

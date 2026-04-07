@@ -9,18 +9,13 @@ init_session()
 if not st.session_state.get('observer_id'):
     show_splash_screen()
 else:
-    # Using dictionary-based navigation for cleaner categorical headers
-    pg = st.navigation({
-        "WINC VAULT": [
-            st.Page("views/dashboard.py", title="Dashboard", icon="📊", default=True)
-        ],
-        "FIELD OPERATIONS": [
-            st.Page("views/intake.py", title="New Intake", icon="🐣"),
-            st.Page("views/observations.py", title="Observations", icon="🔍")
-        ],
-        "ADMINISTRATION": [
-            st.Page("views/settings.py", title="Settings", icon="⚙️"),
-            st.Page("views/reports.py", title="Reports", icon="📈")
-        ]
-    })
+    # Using a flat list for max compatibility on Windows
+    pages = [
+        st.Page("views/dashboard.py", title="Dashboard", icon="📊", default=True),
+        st.Page("views/intake.py", title="New Intake", icon="🐣"),
+        st.Page("views/observations.py", title="Observations", icon="🔍"),
+        st.Page("views/settings.py", title="Settings", icon="⚙️"),
+        st.Page("views/reports.py", title="Reports", icon="📈")
+    ]
+    pg = st.navigation(pages)
     pg.run()
