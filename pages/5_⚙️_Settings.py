@@ -255,8 +255,6 @@ with st.container():
     st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
     render_crud_section(
         "🌡️ Incubators", 
-        "incubator", 
-        ["incubator_id", "label", "location", "target_temp", "target_humidity"], 
         {
             "incubator_id": "ID",
             "label": "Name",
