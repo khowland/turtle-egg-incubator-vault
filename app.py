@@ -1,41 +1,41 @@
 """
 =============================================================================
 Module:     app.py
-Project:    Incubator Vault v6.1 — Wildlife In Need Center (WINC)
-Purpose:    Main entry point. Shows a simple welcome screen with quick
-            navigation guidance for non-technical staff.
+Project:    WINC Incubator Vault v6.3
+Purpose:    Main entry & Splash Login Screen. Manages persistent observer 
+            sessions and global navigation.
 Author:     Agent Zero (Automated Build)
-Modified:   2026-04-06 (Simplified for non-technical staff)
 =============================================================================
 """
 
 import streamlit as st
-from utils.session import render_sidebar
+from utils.session import init_session, render_sidebar, show_splash_screen
 from utils.css import BASE_CSS
 from utils.logger import logger
 
-logger.info("🚀 Incubator Vault started.")
-
-st.set_page_config(page_title="Incubator Vault | WINC", page_icon="🐢", layout="wide")
+st.set_page_config(page_title="WINC Incubator Vault", page_icon="🐢", layout="wide")
 st.markdown(BASE_CSS, unsafe_allow_html=True)
+
+# Initialize session state variables
+init_session()
+
+# Check if observer is selected (Splash Screen Logic)
+if not st.session_state.get('observer_id'):
+    show_splash_screen()
+    st.stop() # Halt execution until user "logs in"
+
+# Main App Content (once logged in)
 render_sidebar()
 
-# --- HOME SCREEN ---
-st.markdown("## 🐢 Incubator Vault")
+st.markdown("## 🐢 WINC Incubator Vault")
 st.markdown("""
 <div class='glass-card'>
-    <h3>Welcome!</h3>
-    <p>Use the <b>sidebar menu</b> (☰ on mobile) to navigate:</p>
+    <h3>Welcome back, """ + st.session_state.get('observer_name', 'User') + """!</h3>
+    <p>Your session is active. Navigate using the sidebar:</p>
     <ul>
-        <li>📊 <b>Dashboard</b> — see how the eggs are doing</li>
-        <li>🐣 <b>New Intake</b> — register a new mother and eggs</li>
-        <li>🔍 <b>Observations</b> — log what you see at the incubator</li>
-        <li>🌡️ <b>Environment</b> — record temperature and humidity</li>
-        <li>⚙️ <b>Settings</b> — manage species, staff, and incubators</li>
-        <li>📈 <b>Reports</b> — season stats and data export</li>
+        <li>📊 <b>Dashboard</b> — Real-time biological KPIs</li>
+        <li>🐣 <b>New Intake</b> — 4-Step Registration Wizard</li>
+        <li>🔍 <b>Observations</b> — Batch Health Logging (Requires Environment Sync)</li>
     </ul>
-    <p style='color: #94A3B8; font-size: 0.9rem;'>
-        Tip: Pick your name in the sidebar before logging anything.
-    </p>
 </div>
 """, unsafe_allow_html=True)

@@ -1,0 +1,47 @@
+I would like to see some kind of meaningful name instead of just "app" at top of left menu.
+I would like to see a meaningfulversion number displayed somewhere on screen so change requests can reference the right build.
+
+I clicked on Settings menu and got:
+SyntaxError: File "C:\dev\projects\turtle-db\pages\5_⚙️_Settings.py", line 1
+  """
+  ^
+SyntaxError: unterminated triple-quoted string literal (detected at line 5)
+
+File "C:\Python313\Lib\site-packages\streamlit\runtime\scriptrunner\exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+File "C:\Python313\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 687, in code_to_exec
+    _mpa_v1(self._main_script_path)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Python313\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 166, in _mpa_v1
+    page.run()
+    ~~~~~~~~^^
+File "C:\Python313\Lib\site-packages\streamlit\navigation\page.py", line 376, in run
+    code = ctx.pages_manager.get_page_script_byte_code(str(self._page))
+File "C:\Python313\Lib\site-packages\streamlit\runtime\pages_manager.py", line 160, in get_page_script_byte_code
+    return self._script_cache.get_bytecode(script_path)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+File "C:\Python313\Lib\site-packages\streamlit\runtime\scriptrunner\script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+File "C:\Python313\Lib\site-packages\streamlit\runtime\scriptrunner\magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+File "C:\Python313\Lib\ast.py", line 54, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+				   
+I would prefer it if there were no references to Ask Google or Ask ChatGPT as displayed on error dialogue. 
+
+I clicked on Dashboard menu item and got:
+ModuleNotFoundError: No module named 'plotly'
+Traceback:
+File "C:\dev\projects\turtle-db\pages\1_📊_Dashboard.py", line 14, in <module>
+    import plotly.express as px
+Copy
+Ask Google
+Ask ChatGPT
+
+Think about the Temp Humidity as a seperate menu item and screen. Is it necessary? They only enter those numbers at the beginning of an observation session. 
+At one point we discussed generating a sessionID for each time a user opens and uses the app. It would be propagated to all tables where inserts are made.
+The Observation page would only ask for the Incubator temp/humidity (or any other incubator metrics the turtle expert thinks are relevant) once in a session , but I ask for your opinion 
+
+I would like to see consistent enterprise standard comment headers at the top of every script.
+I want to ensure where it's appropriate that each table should have a Created_datetime and Modified_datetime, but I ask your profgessional opiniono on best current practices.

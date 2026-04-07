@@ -153,7 +153,7 @@ Primary Hover:    #34D399   (Light Emerald)
 Danger:           #EF4444   (Red)
 Warning:          #F59E0B   (Amber)
 Info:             #3B82F6   (Blue)
-Text Primary:     #FFFFFF   (Titanium White)
+Text Primary:     #FFFFFF   (WINC White)
 Text Muted:       #94A3B8   (Slate 400)
 
 TYPOGRAPHY
