@@ -1,5 +1,5 @@
 # WINC Incubator Vault - Requirements & Specifications
-Version: 6.4.2 - Enterprise Edition
+Version: 6.5.0 - Enterprise Edition
 Lead Biologist: Elisa Fosco
 
 ## 1. Session Architecture
@@ -22,3 +22,9 @@ Lead Biologist: Elisa Fosco
 - Frontend: Streamlit (v1.31+ Navigation API).
 - Charts: Plotly Express.
 =============================================================================
+
+
+## v6.5.0 - Admin Registry Update
+- Implemented full CRU(soft)D for Observer table in Settings.
+- Added System Log viewer to Settings tab.
+- Transitioned to st.data_editor for rapid registry management.
