@@ -1,10 +1,12 @@
 import streamlit as st
-from utils.session import render_custom_sidebar
-from utils.css import BASE_CSS
-
-st.set_page_config(page_title="Dashboard | WINC", page_icon="📊", layout="wide")
-st.markdown(BASE_CSS, unsafe_allow_html=True)
-render_custom_sidebar()
+import plotly.express as px
+import pandas as pd
 
 st.title("📊 Biological Dashboard")
-st.info("Welcome to the WINC Incubator Vault Dashboard.")
+st.subheader("Incubation Progress")
+chart_data = pd.DataFrame({
+    'Stage': ['Intake', 'Developing', 'Vascular', 'Mature', 'Pipping', 'Hatched'],
+    'Count': [12, 45, 30, 8, 2, 55]
+})
+fig = px.bar(chart_data, x='Stage', y='Count', color='Stage')
+st.plotly_chart(fig, use_container_width=True)
