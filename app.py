@@ -9,7 +9,6 @@ init_session()
 if not st.session_state.get('observer_id'):
     show_splash_screen()
 else:
-    # Using pure st.navigation ensures the sidebar menu renders on all systems
     pg = st.navigation([
         st.Page("views/dashboard.py", title="Dashboard", icon="📊", default=True),
         st.Page("views/intake.py", title="New Intake", icon="🐣"),
@@ -17,4 +16,9 @@ else:
         st.Page("views/settings.py", title="Settings", icon="⚙️"),
         st.Page("views/reports.py", title="Reports", icon="📈")
     ])
+    # Display user info briefly at top of sidebar
+    st.sidebar.caption(f"👤 {st.session_state.get('observer_name')}")
+    if st.sidebar.button("Log Out"): 
+        st.session_state.observer_id = None
+        st.rerun()
     pg.run()
