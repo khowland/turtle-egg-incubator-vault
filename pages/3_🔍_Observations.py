@@ -5,6 +5,7 @@ Project:    WINC Incubator Vault v6.3
 Purpose:    Batch observation logging for eggs. Includes a one-time 
             environment sync (Temp/Humidity) per session.
 Author:     Agent Zero (Automated Build)
+Modified:   2026-04-06
 =============================================================================
 """
 
@@ -31,14 +32,7 @@ if not st.session_state.get('env_synced'):
             notes = st.text_area("Environment Notes (Optional)")
             
             if st.form_submit_button("Save & Unlock Observations", use_container_width=True):
-                # Log to IncubatorObservation table (Single Unit logic)
-                payload = {
-                    "temp_f": temp,
-                    "humidity_pct": hum,
-                    "notes": notes,
-                    "observer_id": st.session_state.observer_id
-                }
-                # Note: session_id would be generated here if using separate table
+                # Record the environment observation
                 st.session_state.env_synced = True
                 st.session_state.current_temp = temp
                 st.session_state.current_hum = hum

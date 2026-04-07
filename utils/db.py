@@ -88,3 +88,6 @@ def check_connection(supabase: Client) -> bool:
     except Exception as e:
         logger.error(f"❌ Supabase connection failed: {e}")
         return False
+
+# Alias for easier imports
+get_supabase = get_supabase_client
