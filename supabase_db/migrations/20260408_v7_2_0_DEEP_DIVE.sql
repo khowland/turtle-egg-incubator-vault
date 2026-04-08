@@ -1,8 +1,8 @@
 -- =============================================================================
--- Migration: 20260408_v7_2_0_DEEP_DIVE.sql (MASTER CONSOLIDATED - v2)
+-- Migration: 20260408_v7_2_0_DEEP_DIVE.sql (MASTER CONSOLIDATED - v3 ROBUST)
 -- Project:   Incubator Vault v7.2.0 — Wildlife In Need Center (WINC)
--- Purpose:   One-File Deployment for v7.2.0. Includes Conflict Resolution
---            for Species Registry, Hatchling Ledger, and Metrics.
+-- Purpose:   Robust One-File Deployment that handles multiple UNIQUE 
+--            constaint conflicts for the Species Registry.
 -- =============================================================================
 
 -- 1. INFRASTRUCTURE: Global Audit & Modification Support
@@ -17,24 +17,41 @@ $$ LANGUAGE plpgsql;
 -- 2. BIOLOGICAL REGISTRY: Full Wisconsin Registry (§3.2 / §8)
 ALTER TABLE species ADD COLUMN IF NOT EXISTS species_code CHAR(2);
 
--- Resilient Upsert for Species
-INSERT INTO species (species_id, common_name, scientific_name, species_code, vulnerability_status)
-VALUES 
-('BL', 'Blanding’s Turtle', 'Emydoidea blandingii', 'BL', 'Endangered (WI)'),
-('WT', 'Wood Turtle', 'Glyptemys insculpta', 'WT', 'Threatened (WI)'),
-('OB', 'Ornate Box Turtle', 'Terrapene ornata', 'OB', 'Endangered (WI)'),
-('PA', 'Painted Turtle', 'Chrysemys picta', 'PA', 'Common'),
-('SN', 'Snapping Turtle', 'Chelydra serpentina', 'SN', 'Common'),
-('MT', 'Common Map Turtle', 'Graptemys geographica', 'MT', 'Common'),
-('FM', 'False Map Turtle', 'Graptemys pseudogeographica', 'FM', 'Common'),
-('OM', 'Ouachita Map Turtle', 'Graptemys ouachitensis', 'OM', 'Common'),
-('SS', 'Spiny Softshell', 'Apalone spinifera', 'SS', 'Common'),
-('SM', 'Smooth Softshell', 'Apalone mutica', 'SM', 'Special Concern'),
-('MK', 'Musk Turtle', 'Sternotherus odoratus', 'MK', 'Common')
-ON CONFLICT (common_name) DO UPDATE SET 
-    species_code = EXCLUDED.species_code,
-    scientific_name = EXCLUDED.scientific_name,
-    vulnerability_status = EXCLUDED.vulnerability_status;
+-- Robust Merge Logic using a DO block to bypass constraint collisions
+DO $$
+DECLARE
+    s RECORD;
+BEGIN
+    FOR s IN SELECT * FROM (VALUES 
+        ('BL', 'Blanding’s Turtle', 'Emydoidea blandingii', 'BL', 'Endangered (WI)'),
+        ('WT', 'Wood Turtle', 'Glyptemys insculpta', 'WT', 'Threatened (WI)'),
+        ('OB', 'Ornate Box Turtle', 'Terrapene ornata', 'OB', 'Endangered (WI)'),
+        ('PA', 'Painted Turtle', 'Chrysemys picta', 'PA', 'Common'),
+        ('SN', 'Snapping Turtle', 'Chelydra serpentina', 'SN', 'Common'),
+        ('MT', 'Common Map Turtle', 'Graptemys geographica', 'MT', 'Common'),
+        ('FM', 'False Map Turtle', 'Graptemys pseudogeographica', 'FM', 'Common'),
+        ('OM', 'Ouachita Map Turtle', 'Graptemys ouachitensis', 'OM', 'Common'),
+        ('SS', 'Spiny Softshell', 'Apalone spinifera', 'SS', 'Common'),
+        ('SM', 'Smooth Softshell', 'Apalone mutica', 'SM', 'Special Concern'),
+        ('MK', 'Musk Turtle', 'Sternotherus odoratus', 'MK', 'Common')
+    ) AS t(id, common, scientific, code, status)
+    LOOP
+        -- Update existing species that matches either ID, Common Name, or Scientific Name
+        UPDATE species 
+        SET species_code = s.code, 
+            scientific_name = s.scientific,
+            vulnerability_status = s.status
+        WHERE species_id = s.id 
+           OR common_name = s.common 
+           OR scientific_name = s.scientific;
+
+        -- Insert if it truly doesn't exist
+        IF NOT FOUND THEN
+            INSERT INTO species (species_id, common_name, scientific_name, species_code, vulnerability_status)
+            VALUES (s.id, s.common, s.scientific, s.code, s.status);
+        END IF;
+    END LOOP;
+END $$;
 
 -- 3. LOOKUP ENTITIES: Stages & Properties (§4.42)
 CREATE TABLE IF NOT EXISTS development_stage (
@@ -84,7 +101,6 @@ ALTER TABLE bin ADD COLUMN IF NOT EXISTS total_water_added_season_ml DECIMAL(10,
 ALTER TABLE bin ADD COLUMN IF NOT EXISTS last_moisture_deficit_g DECIMAL(10,2);
 
 -- Standardizing Observation Tables
--- Note: Check your exact table casing in Supabase (e.g. "EggObservation" vs eggobservation)
 DO $$ BEGIN
     ALTER TABLE "IncubatorObservation" ADD COLUMN IF NOT EXISTS bin_weight_g DECIMAL(10,2);
     ALTER TABLE "IncubatorObservation" ADD COLUMN IF NOT EXISTS water_added_ml DECIMAL(10,2);
