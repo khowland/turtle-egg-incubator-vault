@@ -1,1 +1,7 @@
+streamlit
+supabase
+python-dotenv
+pandas
 plotly
+streamlit-aggrid
+psycopg2-binary
