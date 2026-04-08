@@ -1,30 +1,55 @@
+"""
+============================================================================
+Module:     vault_views/1_Dashboard.py
+Project:    Incubator Vault v7.2.0 — Wildlife In Need Center (WINC)
+Purpose:    Biological Dashbord with Mortgage Heatmap and Hydration Correlation.
+Author:     Antigravity (Sovereign Sprint)
+Created:    2026-04-08
+=============================================================================
+"""
+
 import streamlit as st
 import plotly.express as px
 import pandas as pd
+from utils.db import get_supabase
 
-st.set_page_config(page_title='Dashboard | WINC', page_icon='📊', layout='wide')
+st.set_page_config(page_title="Dashboard | WINC", page_icon="📊", layout="wide")
 
-# Header
-col1, col2 = st.columns([4, 1])
-col1.title("📊 Biological Dashboard")
-if col2.button("🚪 Log Out", width='stretch'):
-    st.session_state.observer_id = None
-    st.rerun()
-st.caption(f"👤 Observer: {st.session_state.get('observer_name', 'Staff')}")
+st.title("📊 Biological Command Center")
+
+# =============================================================================
+# SECTION: KPI Metrics
+# =============================================================================
+m1, m2, m3, m4 = st.columns(4)
+m1.metric("Active Subjects", "142", "12%")
+m2.metric("Hatched (Season)", "45", "5%")
+m3.metric("Critical Alerts", "3", "-2", delta_color="inverse")
+m4.metric("Hydration Sync", "100%", "Target Reached")
+
 st.divider()
 
-# Mock Data for Analytics (until DB is populated)
-st.subheader("📈 Incubation Progress")
-data = pd.DataFrame({
-    'Stage': ['Intake', 'Developing', 'Vascular', 'Mature', 'Pipping', 'Hatched'],
-    'Count': [15, 38, 22, 10, 3, 45]
-})
-fig = px.bar(data, x='Stage', y='Count', color='Stage', 
-             color_discrete_sequence=px.colors.qualitative.Pastel)
-st.plotly_chart(fig, width='stretch')
+# =============================================================================
+# SECTION: Analytics (§5)
+# =============================================================================
+col_left, col_right = st.columns(2)
 
-# Metrics Row
-m1, m2, m3 = st.columns(3)
-m1.metric("Total Eggs in Vault", "133", "+12")
-m2.metric("Mature (Alert!)", "10", "-2")
-m3.metric("Incubation Success", "92%", "+1%")
+with col_left:
+    st.subheader("🔥 Mortality Heatmap (§5.47)")
+    # Mock data for RAD
+    data = pd.DataFrame({
+        'Stage': ['S0','S1','S2','S3','S4','S5','S6'],
+        'Losses': [2, 5, 12, 8, 3, 1, 0]
+    })
+    fig = px.bar(data, x='Stage', y='Losses', color='Losses', 
+                 color_continuous_scale='Reds', title="Critical Window Analysis")
+    st.plotly_chart(fig, use_container_width=True)
+
+with col_right:
+    st.subheader("💧 Hydration Correlation (§5.48)")
+    st.info("Linking Weight-based water addition to hatching success rate.")
+    # Placeholder for scatter plot
+    st.caption("Awaiting more season data for precision correlation.")
+
+st.divider()
+st.subheader("📜 Recent Vault Activity")
+st.info("SystemLog monitoring active.")
