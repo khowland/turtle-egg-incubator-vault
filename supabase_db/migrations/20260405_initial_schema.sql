@@ -23,14 +23,16 @@ CREATE TABLE IF NOT EXISTS public.SystemLog (
 
 -- 2. BIOLOGICAL ASSETS
 CREATE TABLE IF NOT EXISTS public.species (
-    species_id TEXT PRIMARY KEY, /* "Blandings", "Wood", "Ornate", etc. */
+    species_id TEXT PRIMARY KEY, /* "Blandings", "Wood", "Ornate", etc. (Internal PK) */
+    species_code CHAR(2) UNIQUE, /* "BL", "WD", "OR" (User Facing) */
     common_name TEXT NOT NULL UNIQUE,
     scientific_name TEXT NOT NULL UNIQUE,
     incubation_min_days INTEGER,
     incubation_max_days INTEGER,
     optimal_temp_low NUMERIC,
     optimal_temp_high NUMERIC,
-    vulnerability_status TEXT
+    vulnerability_status TEXT,
+    intake_count INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS public.mother (
@@ -178,12 +180,12 @@ BEFORE INSERT ON public.IncubatorObservation
 FOR EACH ROW EXECUTE FUNCTION generate_obs_id();
 
 -- 5. BIOLOGIST SEEDING (WISCONSIN SPECIES)
-INSERT INTO public.species (species_id, common_name, scientific_name, incubation_min_days, incubation_max_days, optimal_temp_low, optimal_temp_high, vulnerability_status)
+INSERT INTO public.species (species_id, common_name, scientific_name, species_code, incubation_min_days, incubation_max_days, optimal_temp_low, optimal_temp_high, vulnerability_status)
 VALUES 
-('Blandings', 'Blanding’s Turtle', 'Emydoidea blandingii', 65, 90, 80, 84, 'Endangered (WI)'),
-('Wood', 'Wood Turtle', 'Glyptemys insculpta', 60, 80, 78, 82, 'Threatened (WI)'),
-('Ornate', 'Ornate Box Turtle', 'Terrapene ornata', 60, 75, 80, 85, 'Endangered (WI)'),
-('Painted', 'Painted Turtle', 'Chrysemys picta', 50, 80, 75, 82, 'Common'),
-('Snapping', 'Snapping Turtle', 'Chelydra serpentina', 80, 90, 75, 82, 'Common'),
-('Map', 'Grape Turtle', 'Graptemys geographica', 55, 75, 80, 83, 'Common')
+('Blandings', 'Blanding’s Turtle', 'Emydoidea blandingii', 'BL', 65, 90, 80, 84, 'Endangered (WI)'),
+('Wood', 'Wood Turtle', 'Glyptemys insculpta', 'WT', 60, 80, 78, 82, 'Threatened (WI)'),
+('Ornate', 'Ornate Box Turtle', 'Terrapene ornata', 'OB', 60, 75, 80, 85, 'Endangered (WI)'),
+('Painted', 'Painted Turtle', 'Chrysemys picta', 'PT', 50, 80, 75, 82, 'Common'),
+('Snapping', 'Snapping Turtle', 'Chelydra serpentina', 'SN', 80, 90, 75, 82, 'Common'),
+('Map', 'Grape Turtle', 'Graptemys geographica', 'MT', 55, 75, 80, 83, 'Common')
 ON CONFLICT (species_id) DO NOTHING;

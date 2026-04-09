@@ -27,7 +27,11 @@ Lead Biologist: Elisa Fosco
 ## 3. [St] Storage & Biological Entities
 - **3.1 Maternal Entities (The "Source")**
   - **Identifiers:** GUID + WormD Case # + Finder/Turtle Name.
-  - **Attributes:** Species, Initial Weight, Intake Date, Clinical Status, Finder_Turtle_Name.
+- **3.1 Species Registry (The "Biological Assets")**
+  - **Internal ID (`species_id`):** Primary Key within the database. Hidden from end-user UI to prevent clinical confusion.
+  - **Clinical Code (`species_code`):** Unique 2-character user-facing code (e.g., 'BL' for Blanding's). Editable by administrators and utilized in automated Bin ID generation.
+  - **Attributes:** Common Name, Scientific Name, Vulnerability Status, Intake Counter.
+  - **Clinical Coding:** `{SpeciesCode}{IntakeCount}-{FinderName}-{Bin#}`.
 - **3.2 Bin Logic (The "Container")**
   - **Clinical Coding:** `{SpeciesCode}{IntakeCount}-{FinderName}-{Bin#}`.
   - **Metric Logic:** Uses "Target Total Weight" as the primary proxy for incubation hydration.

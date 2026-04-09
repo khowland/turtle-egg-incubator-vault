@@ -96,10 +96,20 @@ with tabs[1]:
     df = pd.DataFrame(res.data)
     
     # Use st.data_editor with strict disable logic
+    # REQ: Hide species_id (internal PK) and emphasize species_code (user-facing)
     edited_df = st.data_editor(
         df,
-        disabled=list(df.columns) if is_locked else ["species_id"],
+        column_config={
+            "species_id": None, # Physically hides the PK from the end user
+            "species_code": st.column_config.TextColumn("Code", max_chars=2, help="Unique 2-character ID (e.g., BL for Blandings)"),
+            "common_name": "Common Name",
+            "scientific_name": "Scientific Name",
+            "vulnerability_status": "Status"
+        },
+        disabled=list(df.columns) if is_locked else ["species_id", "intake_count", "created_at", "modified_at"],
         num_rows="dynamic" if not is_locked else "fixed",
+        hide_index=True,
+        use_container_width=True,
         key="species_editor"
     )
     
@@ -111,12 +121,18 @@ with tabs[1]:
             # Using data_editor automatically captures changes. We iterate over the dataframe.
             # In Streamlit, data_editor returns the FULL edited dataframe.
             for idx, row in edited_df.iterrows():
+                # Generate a clean internal ID if adding a new row
+                sid = row.get("species_id")
+                if pd.isna(sid) or str(sid).strip() == "":
+                    sid = str(row["species_code"]).upper() or "UNK"
+                
                 to_upsert.append({
-                    "species_id": row["species_id"],
+                    "species_id": sid,
+                    "species_code": str(row["species_code"]).upper(),
                     "common_name": row["common_name"],
                     "scientific_name": row["scientific_name"],
-                    "species_code": row["species_code"],
-                    "vulnerability_status": row["vulnerability_status"]
+                    "vulnerability_status": row["vulnerability_status"],
+                    "intake_count": row.get("intake_count", 0)
                 })
             
             if to_upsert:

@@ -23,27 +23,34 @@ sb = create_client(url, key)
 print("🧹 Initiating Production Clean-Slate Protocol...")
 
 tables_to_purge = [
-    'systemlog',
-    'SessionLog',
+    'eggobservation',
+    'incubatorobservation',
     'hatchling_ledger',
-    'EggObservation',
-    'IncubatorObservation',
     'egg',
     'bin',
-    'mother'
+    'mother',
+    'systemlog',
+    'sessionlog'
 ]
 
 for table in tables_to_purge:
     try:
-        # Supabase Python natively requires a filter to delete all rows.
-        # A simple string match that evaluates to True (like != 'WIPE_ALL') works flawlessly.
-        if table in ['SessionLog', 'systemlog']: filter_col = 'session_id'
-        elif table == 'EggObservation': filter_col = 'detail_id'
-        elif table == 'IncubatorObservation': filter_col = 'obs_id'
-        elif table == 'hatchling_ledger': filter_col = 'ledger_id'
+        if table in ['sessionlog', 'systemlog']: 
+            filter_col = 'session_id' if table == 'sessionlog' else 'log_id'
+        elif table == 'eggobservation': filter_col = 'detail_id'
+        elif table == 'incubatorobservation': filter_col = 'obs_id'
+        elif table == 'hatchling_ledger': filter_col = 'id'
         else: filter_col = f"{table}_id"
 
-        sb.table(table).delete().neq(filter_col, 'WIPE_ALL').execute()
+        # Determine if ID column is Integer, UUID, or String
+        if filter_col in ['detail_id', 'log_id', 'ledger_id']:
+            sb.table(table).delete().gt(filter_col, -1).execute()
+        elif table == 'hatchling_ledger':
+            # Use a dummy UUID that won't exist
+            sb.table(table).delete().not_.eq('id', '00000000-0000-0000-0000-000000000000').execute()
+        else:
+            sb.table(table).delete().neq(filter_col, 'WIPE_ALL').execute()
+            
         print(f"✅ Purged {table}")
     except Exception as e:
         print(f"⚠️ Could not purge {table}: {str(e)}")
