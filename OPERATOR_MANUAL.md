@@ -46,5 +46,6 @@ You are not just logging data; you can visualize it in real-time.
 - **The Reports Hub**: Click `Reports` to use the **Expert Filter Carpentry**. On the left sidebar, you can filter the entire clinical history by specific Date Windows or Species (e.g., viewing trends exclusively for Blanding's Turtles). 
 
 ## 7. Pro-Tips for Success
+- **In-App Help**: If you ever forget how a specific screen works, look for the **ℹ️ Screen Help** expander on the sidebar. It contains a rapid, step-by-step guide tailored specifically for that exact screen.
 - **Look for the 🔒**: If you see a lock in Settings, it means we have active eggs. You cannot change biological lists (like species names) until the season is over.
 - **Font Size**: If you are using a tablet in the field and the text is too small, go to **Settings** and use the **"Global Font Scale"** slider on the sidebar to make it bigger.

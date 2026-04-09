@@ -15,6 +15,16 @@ supabase = bootstrap_page("Observations", "🔍")
 
 st.title("🔍 Observation Engine")
 
+with st.sidebar.expander("ℹ️ Screen Help - Step-by-Step"):
+    st.markdown("""
+    **How to use this screen:**
+    1. Select the **Active Bin** you are observing.
+    2. **Hydration Gate:** Weigh the physical box and enter the Current Weight (g). The system calculates the moisture deficit and tells you exactly how much Water (ml) to add. Click Unlock.
+    3. Multi-Select the identical eggs in the grid.
+    4. Rapidly apply their new **Stage** and **Properties** in the Action Tray.
+    *(Tip: Pivoting an egg to S6 automatically transfers it to the Hatchling Ledger!).*
+    """)
+
 # --- 1. BIN SELECTION & CONTEXT ---
 res_bins = supabase.table('bin').select('bin_id, target_total_weight_g').eq('is_deleted', False).execute()
 bin_list = [b['bin_id'] for b in res_bins.data]

@@ -14,6 +14,16 @@ supabase = bootstrap_page("New Intake", "🐣")
 
 st.title("New Intake")
 
+with st.sidebar.expander("ℹ️ Screen Help - Step-by-Step"):
+    st.markdown("""
+    **How to use this screen:**
+    1. Pick your **Species**.
+    2. Add the **Finder Name** (This dynamically generates your physical Bin Labels).
+    3. Type the **Egg Count** for the bin (1-99). Use the direct keyboard.
+    4. Need multiple bins for one mother? Click **➕ Add Bin**.
+    5. Hit **🚀 Finalize Intake** to instantly drop the eggs into our Ledger and automatically navigate to the Observation phase!
+    """)
+
 # Strip +/- spinner controls from number inputs to force direct keyboard entry
 st.markdown("""
 <style>
