@@ -14,6 +14,20 @@ supabase = bootstrap_page("New Intake", "🐣")
 
 st.title("New Intake")
 
+# Strip +/- spinner controls from number inputs to force direct keyboard entry
+st.markdown("""
+<style>
+    input[type="number"]::-webkit-inner-spin-button, 
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # --- DATA FETCHING ---
 res = supabase.table('species').select("species_id, species_code, common_name, intake_count").execute()
 species_data = {f"{s['species_code']} - {s['common_name']}" + (" (Stinkpot)" if s['species_code'] == 'MK' else ""): s for s in res.data}

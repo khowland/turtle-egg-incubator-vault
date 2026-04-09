@@ -14,7 +14,7 @@ Lead Biologist: Elisa Fosco
   - **Dynamic Bin Table:** 
     - Cardinality 1:N (Mother to 1-9 Bins).
     - Bin Code Calculation: `{SpeciesCode}{IntakeCount+1}-{FinderName}-{Bin#}` (Must dynamically update to reflect the new Species Code, corresponding IntakeCount, and Finder Name in real-time if the user alters them on the intake form).
-    - Mutability & UI: Egg Count is editable until first observation is recorded. The input must solely be a numeric spinner (`st.number_input`, range 1-99) to support both manual keyboard entry and UI arrow tap controls, reducing friction on mobile/laptops.
+    - Mutability & UI: Egg Count is editable until first observation is recorded. The input must strictly be a numeric entry field (range 1-99) with NO +/- step controls. Users must directly type the number via keyboard for maximum data-entry efficiency.
 - **Auto-Commit Trigger:** Upon Next/Submit, `Species.IntakeCount` increments by 1.
 - **The "Daily Loop" (Observation Engine):**
   - **Step A: Restorative Hydration.** User logs `Current_Bin_Weight`. System calculates `Moisture_Deficit` (Target - Current). User logs `Water_Added`.
