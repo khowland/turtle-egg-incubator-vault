@@ -4,7 +4,7 @@ Lead Biologist: Elisa Fosco
 
 ## 1. [Se] Session & Identity Architecture
 - **Session Gate:** Splash screen forcing identity selection before app access (Vault Login).
-- **Persistence:** Observer identity sticks for the duration of the browser session.
+- **Persistence:** Observer identity sticks for the duration of the browser session. Furthermore, the UI must physically read/write the last authenticated user to disk (`last_user.txt`) to dynamically pre-sort the dropdown list, accelerating shared-tablet workflows between shifts.
 - **Environment Gate:** Observations require a mandatory **Restorative Hydration Check** once per session. Atmospheric humidity sensors are deprecated in favor of precision bin-weight tracking.
 - **Auditing:** Every session must generate a unique `SessionID` propagated to all transaction tables for accountability.
 

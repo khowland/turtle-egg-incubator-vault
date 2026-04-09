@@ -26,7 +26,7 @@ def fetch_kpis():
     
     # Calculate critical alerts (molding/leaking observations in last 48 hours for active eggs)
     # Simplified here to count historical warnings
-    alerts = supabase.table('EggObservation').select('detail_id', count='exact').or_('molding.eq.true,leaking.eq.true').execute()
+    alerts = supabase.table('eggobservation').select('detail_id', count='exact').or_('molding.eq.true,leaking.eq.true').execute()
     return active.count or 0, hatched.count or 0, alerts.count or 0
 
 active_ct, hatched_ct, alert_ct = fetch_kpis()

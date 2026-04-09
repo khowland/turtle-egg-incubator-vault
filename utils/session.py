@@ -47,10 +47,38 @@ def show_splash_screen():
         with cols[1]:
             with st.form("login_form"):
                 options = {f"{o['display_name']} ({o['role']})": o['id'] for o in observers}
-                selected = st.selectbox("Observer Identity", options=list(options.keys()))
+                
+                # REQ: Auto-default to last user from previous session (Field-Friendly)
+                last_user = ""
+                try:
+                    import os
+                    if os.path.exists('tmp/last_user.txt'):
+                        with open('tmp/last_user.txt', 'r') as f:
+                            last_user = f.read().strip()
+                except:
+                    pass
+                
+                ordered_keys = list(options.keys())
+                default_idx = 0
+                for i, k in enumerate(ordered_keys):
+                    if last_user in k:
+                        default_idx = i
+                        break
+                        
+                selected = st.selectbox("Observer Identity", options=ordered_keys, index=default_idx)
+                
                 if st.form_submit_button("Launch Vault", width='stretch'):
                     st.session_state.observer_id = options[selected]
                     st.session_state.observer_name = selected.split(' (')[0]
+                    
+                    # Physically save selection for the next session/browser load
+                    try:
+                        import os
+                        os.makedirs('tmp', exist_ok=True)
+                        with open('tmp/last_user.txt', 'w') as f:
+                            f.write(selected)
+                    except:
+                        pass
                     
                     # 🚨 TELEMETRY FIX: Register SessionLog first to satisfy Supabase Foreign Key constraints!
                     try:
