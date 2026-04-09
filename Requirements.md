@@ -54,6 +54,8 @@ Lead Biologist: Elisa Fosco
 - **Frontend:** Streamlit (v1.31+ Navigation API).
 - **Audit:** Consistent enterprise headers and mandatory `Created_datetime` / `Modified_datetime` for all tables.
 - **User Assistance:** Context-aware Help dialogues (fast, hard-coded components to avoid DB/CMS payload latency) will be available on all major interactive screens.
+- **Accessibility:** The default system font size must be boosted (18px+) to accommodate mobile field tablets. The scale must be globally persistent and configurable via the Settings screen.
+- **Telemetry:** All atomic transactions must be wrapped inside `safe_db_execute()`. This securely catches exceptions, notifies the UI safely, and silently commits stack traces to the `SystemLog` table for centralized troubleshooting.
 - **Routing & State Lock:** Application must prioritize maintainability. Navigation "locks" rely purely on native Streamlit UI warnings (`st.warning` / `st.info`) indicating pending transactions. Brittle CSS injections targeting internal Streamlit React components (`data-testid`) are strictly prohibited to ensure long-term codebase stability across version upgrades.
 - **Change Management:** Change Requests (CR) are tracked via independent text files (`ChangeRequest_MMDD_HHMM.txt`). Agents must treat existing CRs as immutable and only execute their requirements upon explicit user command.
 

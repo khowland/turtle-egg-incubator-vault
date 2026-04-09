@@ -28,6 +28,19 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
              st.warning("⚠️ Session expired or not started. Redirecting...")
              st.stop()
              
+    # 3. Global Mobile Font Scaling
+    if 'global_font_size' not in st.session_state:
+        st.session_state.global_font_size = 18 # Default boosted to 18px for mobile readability
+        
+    st.markdown(f"""
+    <style>
+        /* Force upscale on all major Streamlit text components */
+        p, div, label, span, .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] {{
+            font-size: {st.session_state.global_font_size}px !important;
+        }}
+    </style>
+    """, unsafe_allow_html=True)
+             
     return get_supabase()
 
 def safe_db_execute(operation_name, func, *args, **kwargs):
@@ -38,6 +51,16 @@ def safe_db_execute(operation_name, func, *args, **kwargs):
         result = func(*args, **kwargs)
         return result
     except Exception as e:
-        st.error(f"❌ Biological Ledger Error ({operation_name}): {str(e)}")
-        # Log to SystemLog would go here
+        st.error(f"❌ Biological Ledger Error ({operation_name}): Defaulting to Safe-State. Please contact Administrator.")
+        
+        # 🚨 TELEMETRY: Record error to SystemLog for debugging
+        try:
+            get_supabase().table('SystemLog').insert({
+                "session_id": st.session_state.get('session_id', 'UNKNOWN_SESSION'),
+                "event_type": "ERROR",
+                "event_message": f"[{operation_name}] CRASH: {str(e)}"
+            }).execute()
+        except:
+            pass # Failsafe if DB itself is unresponsive
+            
         return None

@@ -27,11 +27,14 @@ else:
     st.success("🔓 **MAINTENANCE MODE**: Lookups are editable (Draft Stage).")
 
 # =============================================================================
-# REQ 1725: Mobile Accessibility (Persistent)
+# REQ 1725: Mobile Accessibility (Persistent Global Styling)
 # =============================================================================
-st.sidebar.header("Accessibility")
-font_size = st.sidebar.slider("Global Font Scale", 12, 24, 16)
-st.markdown(f"<style>body, .stText {{ font-size: {font_size}px; }}</style>", unsafe_allow_html=True)
+st.sidebar.header("Accessibility Settings")
+current_font = st.session_state.get('global_font_size', 18)
+new_font = st.sidebar.slider("Global Font Scale (px)", 14, 28, current_font)
+if new_font != current_font:
+    st.session_state.global_font_size = new_font
+    st.rerun()
 
 # =============================================================================
 # DATA OPERATIONS: Hardened CRUD Matrix
