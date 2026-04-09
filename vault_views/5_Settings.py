@@ -39,22 +39,53 @@ if new_font != current_font:
 # =============================================================================
 # DATA OPERATIONS: Hardened CRUD Matrix
 # =============================================================================
-tabs = st.tabs(["👥 Biologists (Users)", "🛡️ Species Registry", "🌡️ Development Stages", "📜 Audit Log"])
+tabs = st.tabs(["👥 Users", "🛡️ Species Registry", "🌡️ Development Stages", "📜 Audit Log"])
 
 with tabs[0]:
-    st.subheader("Biologist Registry")
+    st.subheader("User Management")
     if not is_locked:
-        st.info("💡 **How to manage users:** You cannot delete biologists who have recorded data. Instead, uncheck the `is_active` box to disable their login access.")
+        st.info("💡 **How to manage users:** You cannot delete users who have recorded data. Instead, uncheck `Login Allowed` to disable their app access.")
     res_users = supabase.table('observer').select("id, display_name, role, is_active").execute()
     
-    # We hide the id, but allow editing of names and roles and the active flag
+    # We physically hide the ID from the user UI, but allow editing names/roles
     edited_users = st.data_editor(
         pd.DataFrame(res_users.data), 
-        disabled=["id"] if is_locked else ["id"],
+        column_config={
+            "id": None, # Physically hides the column from rendering
+            "display_name": st.column_config.TextColumn("Display Name", required=True),
+            "role": st.column_config.SelectboxColumn("Role", options=["Biologist", "Admin", "Staff", "Guest"], required=True),
+            "is_active": st.column_config.CheckboxColumn("Login Allowed", default=True, help="If checked, this user can access the field app.")
+        },
         hide_index=True,
         use_container_width=True,
         num_rows="dynamic" if not is_locked else "fixed"
     )
+    
+    if not is_locked:
+        if st.button("💾 Synchronize Users"):
+            def sync_users():
+                to_upsert = []
+                for idx, row in edited_users.iterrows():
+                    # Generate a new random UUID string if adding a completely new blank user row
+                    uid = row.get("id")
+                    if pd.isna(uid) or str(uid).strip() == "":
+                        import uuid
+                        uid = str(uuid.uuid4())
+                        
+                    to_upsert.append({
+                        "id": uid,
+                        "display_name": row["display_name"],
+                        "role": row["role"],
+                        "is_active": row["is_active"]
+                    })
+                
+                if to_upsert:
+                    supabase.table('observer').upsert(to_upsert).execute()
+                    st.success(f"Synchronized {len(to_upsert)} User profiles with the database.")
+                    st.balloons()
+                else:
+                    st.info("No modifications detected.")
+            safe_db_execute("User Sync", sync_users)
 
 with tabs[1]:
     st.subheader("Species Management")
