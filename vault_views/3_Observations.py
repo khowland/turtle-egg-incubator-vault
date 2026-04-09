@@ -101,7 +101,9 @@ else:
     with st.container(border=True):
         st.write("Select eggs physically present to apply identical properties:")
         egg_ids = [e['egg_id'] for e in eggs]
-        selected_eggs = st.multiselect("Target Eggs", egg_ids, default=[])
+        
+        # Bind to session_state so we can programmatically clear the selection after save
+        selected_eggs = st.multiselect("Target Eggs", egg_ids, default=[], key="obs_multiselect")
 
         if selected_eggs:
             # 🔒 STATE LOCK: Hide navigation to prevent data loss
@@ -187,6 +189,10 @@ else:
                         # Fire Neonate Pivot
                         if hatchlings:
                             supabase.table('hatchling_ledger').insert(hatchlings).execute()
+                        
+                        # RED TEAM FIX: Clear the UI selection so the Navigation Lock is physically lifted.
+                        if "obs_multiselect" in st.session_state:
+                            del st.session_state["obs_multiselect"]
                         
                         st.success(f"Finalized {len(selected_eggs)} entries!")
                     safe_db_execute("Batch Obs", commit_obs)
