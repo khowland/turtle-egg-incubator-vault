@@ -23,7 +23,7 @@ Ensure this is reflected in requirements docs.
 	Cardinality: 1:N (Mother Turtle to Bins).
 	Fields:
 		Bin Code: Non-editable alphanumeric string (User-Facing Identifier).
-		Egg Count: Editable Integer (Conditional mutability). Must be implemented as a numeric spinner or dropdown for values 1-99 to avoid repeated +/- tapping on mobile devices.
+		Egg Count: Editable Integer (Conditional mutability). Must be implemented exclusively as a numeric spinner for values 1-99 to support both direct keyboard entry and UI arrow incrementation.
 	The Bin Code generation must adhere to the following numeric mask:
 	{Species Code}{IntakeCount}-{Finder Name}-{Bin#}
 	Species Code: Two-character species code

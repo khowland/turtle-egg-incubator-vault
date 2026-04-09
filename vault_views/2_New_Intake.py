@@ -20,7 +20,7 @@ species_data = {f"{s['species_code']} - {s['common_name']}" + (" (Stinkpot)" if 
 
 # --- STATE ---
 if 'bin_rows' not in st.session_state:
-    st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 0}]
+    st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
 
 # --- Clinical Origin ---
 with st.container(border=True):
@@ -42,7 +42,7 @@ for i, row in enumerate(st.session_state.bin_rows):
     bin_code = f"{selected_species['species_code']}{next_intake_num}-{finder_turtle_name}-{row['bin_num']}"
     cols = st.columns([3, 2, 1])
     cols[0].text_input("Bin Code", value=bin_code, disabled=True, key=f"code_{i}")
-    row['egg_count'] = cols[1].number_input("Egg Count", 0, 100, row['egg_count'], key=f"egg_{i}")
+    row['egg_count'] = cols[1].number_input("Egg Count", min_value=1, max_value=99, value=row['egg_count'], step=1, key=f"egg_{i}")
     if cols[2].button("🗑️", key=f"del_{i}"):
         st.session_state.bin_rows.pop(i)
         for idx, r in enumerate(st.session_state.bin_rows): r['bin_num'] = idx + 1
@@ -50,7 +50,7 @@ for i, row in enumerate(st.session_state.bin_rows):
 
 if st.button("➕ Add Bin"):
     if len(st.session_state.bin_rows) < 9:
-        st.session_state.bin_rows.append({"bin_num": len(st.session_state.bin_rows) + 1, "egg_count": 0})
+        st.session_state.bin_rows.append({"bin_num": len(st.session_state.bin_rows) + 1, "egg_count": 1})
         st.rerun()
 
 # --- ATOMIC COMMIT ---
@@ -85,6 +85,6 @@ if st.button("🚀 Finalize Intake", type="primary", width="stretch"):
             
             s.update(label="Intake Successful!", state="complete")
             st.balloons()
-            st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 0}]
+            st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
     
     safe_db_execute("Intake", commit_all)
