@@ -26,8 +26,13 @@ Below the origin info, you will see the **Bin Setup** table.
 4. **Deleting Bins**: If you click the trash icon (🗑️), the other bins will automatically "re-number" themselves to stay in order.
 
 ## 4. The Daily Loop (Checking Eggs)
-1. **Multi-Select**: You can click the checkboxes next to several eggs at once in the grid.
-2. **The Action Tray**: Use the "⚡ Batch Update" sidebar to change the Stage (e.g., S2 - Developing) for everything you selected.
+*Note: When you finalize a New Intake, the system will now automatically transition you to this Observation Screen, mapping your newly created first Bin for immediate verification.*
+
+When checking eggs dynamically during the day:
+1. **Hydration Check:** Enter current Bin Weight. The system will suggest exactly how much water to add.
+2. **Top-Level Tracking:** A single progress bar above the egg grid guarantees you visually verify all eggs. Do not rely on individual egg colors, as color codes are explicitly reserved for severe Health Warnings (like Molding/Leaking). 
+3. **Data Logging:** Select multiple eggs to apply the exact same observation properties (Stage, Chalking) at once. Historical traits will appear as highly condensed code strings (e.g., `[D4: S1-C0]`) so you don't scroll infinitely.
+4. **Final Confirmation:** The summary page will always list eggs numerically. Please physically check this numerical list against your physical egg matrix before finalizing to avoid cross-contamination of biological traits.
 
 ## 5. What if an Egg Hatches?
 1. **Select the Egg**: Find the lucky egg in the observation grid.

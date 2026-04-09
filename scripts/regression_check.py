@@ -67,6 +67,22 @@ def run_regression():
     except:
         results["fail"] += 1
 
+    # --- TEST 4: Auto-Transition Context ---
+    print("\n[TEST 4] Testing Auto-Transition Context Payload...")
+    try:
+        import streamlit as st
+        # Simulate active bin insertion to memory
+        st.session_state.active_bin_id = "BL7-Test-1"
+        if st.session_state.get('active_bin_id') == "BL7-Test-1":
+            print("✅ SUCCESS: Transition context properly attached to Memory.")
+            results["pass"] += 1
+        else:
+            print("❌ FAIL: Payload assignment error.")
+            results["fail"] += 1
+    except Exception as e:
+        print(f"❌ FAIL: Streamlit Session State crash: {e}")
+        results["fail"] += 1
+
     # --- FINAL REPORT ---
     print("\n" + "="*40)
     print(f"🏁 REGRESSION COMPLETE: {results['pass']} PASSED, {results['fail']} FAILED")

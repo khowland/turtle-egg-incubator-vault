@@ -57,8 +57,12 @@ Lead Biologist: Elisa Fosco
 
 =============================================================================
 
-### v7.2.0 - Biologist Workflow Optimization
-- **Deprecated Humidity Sensors:** Replaced with Restorative Hydration (Scale-based) logic.
-- **Implemented Neonate Pivot:** Planning for automatic transition from Egg to Hatchling_Ledger.
-- **Added Mid-Season Lock:** Enforcing biological data integrity during active hatching periods.
-- **Standardized Nomenclature:** Integration of S0–S6 staging and immutable egg indexing rules.
+### Observation Workflow Addendum (Phase 2)
+- **Water Logic:** Water constraint is rigorously enforced as >= 0 (Add-Only). A calculated Moisture Deficit acts as the suggestion baseline.
+- **Mandatory Baseline:** S0 (Intake) phase demands an initial verified physical observation: [Stage=S0, Chalking=0, Vascularity=False, Molding/Leaking explicitly False]. 
+- **Visual Completion Cues:** Heavy multi-egg grids utilize a top-level **Bin Header Progress Bar** instead of individual UI egg color coding to prevent confusing "unobserved" with "biological warning".
+- **Density Presentation:** 
+  - Bin Metrics (Temp, Weight) are tightly pinned horizontally at the top workspace.
+  - Historical constraints are simplified on the UI via comma-separated string codes, condensing previous egg audits to simple UI list-box strings (e.g., `Egg 14: [D4: S0-C0-V-]`).
+- **Confirmation Layer:** Pending changes are grouped numerically by Egg ID to map directly to physical rows, avoiding property abstraction grouping.
+- **Auto-Navigation:** Finalizing the New Intake instantly provisions the first array Bin into memory (`active_bin_id`) and transitions seamlessly to the Observation UI for unbroken data entry flow.

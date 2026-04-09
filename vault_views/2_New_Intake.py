@@ -84,11 +84,16 @@ if st.button("🚀 Finalize Intake", type="primary", width="stretch"):
             }).execute()
             m_id = mother_res.data[0]['mother_id']
             
+            first_bin_id = None
             # 3. Insert Bins & Eggs
             for r in st.session_state.bin_rows:
+                bin_id_val = f"{selected_species['species_code']}{next_intake_num}-{finder_turtle_name}-{r['bin_num']}"
+                if first_bin_id is None:
+                    first_bin_id = bin_id_val
+                    
                 bin_res = supabase.table('bin').insert({
                     "mother_id": m_id,
-                    "bin_id": f"{selected_species['species_code']}{next_intake_num}-{finder_turtle_name}-{r['bin_num']}",
+                    "bin_id": bin_id_val,
                     "session_id": st.session_state.session_id
                 }).execute()
                 b_id = bin_res.data[0]['bin_id']
@@ -99,6 +104,7 @@ if st.button("🚀 Finalize Intake", type="primary", width="stretch"):
             
             s.update(label="Intake Successful! Transitioning...", state="complete")
             st.balloons()
+            st.session_state.active_bin_id = first_bin_id
             st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
             st.switch_page("vault_views/3_Observations.py")
     
