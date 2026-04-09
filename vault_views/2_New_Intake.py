@@ -78,7 +78,16 @@ if st.button("➕ Add Bin"):
         st.rerun()
 
 # --- ATOMIC COMMIT ---
-if st.button("🚀 Finalize Intake", type="primary", width="stretch"):
+# 🔒 STATE LOCK: Hide navigation to prevent unrecorded intakes
+st.markdown("""<style>[data-testid="stSidebarNav"] { display: none !important; }</style>""", unsafe_allow_html=True)
+st.warning("🔒 **Navigation Locked**: You are in an active session. Proceed or Cancel.")
+
+c_btn1, c_btn2 = st.columns([1, 4])
+if c_btn1.button("❌ Cancel", use_container_width=True):
+    st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
+    st.switch_page("vault_views/1_Dashboard.py")
+
+if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=True):
     def commit_all():
         with st.status("Writing Clinical Ledger...") as s:
             # 1. Update Species Count

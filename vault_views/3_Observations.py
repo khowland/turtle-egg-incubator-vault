@@ -104,6 +104,10 @@ else:
         selected_eggs = st.multiselect("Target Eggs", egg_ids, default=[])
 
         if selected_eggs:
+            # 🔒 STATE LOCK: Hide navigation to prevent data loss
+            st.markdown("""<style>[data-testid="stSidebarNav"] { display: none !important; }</style>""", unsafe_allow_html=True)
+            st.warning("🔒 **Navigation Locked**: You have an active batch transaction. Save or clear your egg selection to restore the Main Menu.")
+            
             st.write("### Action Tray")
             sc1, sc2, sc3 = st.columns(3)
             stage_labels = {
