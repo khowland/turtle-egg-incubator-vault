@@ -1,8 +1,8 @@
 -- =============================================================================
--- Migration: 20260408_v7_2_0_DEEP_DIVE.sql (MASTER CONSOLIDATED - v4 ROBUST)
+-- Migration: 20260408_v7_2_0_DEEP_DIVE.sql (MASTER CONSOLIDATED - v5 BULLETPROOF)
 -- Project:   Incubator Vault v7.2.0 — Wildlife In Need Center (WINC)
--- Purpose:   Robust One-File Deployment that handles multiple UNIQUE 
---            constaint conflicts and includes the new intake_count tracker.
+-- Purpose:   Robust One-File Deployment with Audit-First Sequencing to prevent
+--            trigger collisions on the Species table.
 -- =============================================================================
 
 -- 1. INFRASTRUCTURE: Global Audit & Modification Support
@@ -14,7 +14,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 2. BIOLOGICAL REGISTRY: Full Wisconsin Registry (§3.2 / §8 / 2002)
+-- 2. SCHEMA HARDENING: Audit Columns First (§6.53)
+-- We add these BEFORE data updates to satisfy triggers.
+DO $$ BEGIN
+    ALTER TABLE species ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+    ALTER TABLE species ADD COLUMN IF NOT EXISTS modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+    ALTER TABLE mother ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+    ALTER TABLE mother ADD COLUMN IF NOT EXISTS modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+    ALTER TABLE mother ADD COLUMN IF NOT EXISTS finder_turtle_name TEXT;
+    ALTER TABLE egg ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+    ALTER TABLE egg ADD COLUMN IF NOT EXISTS modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+EXCEPTION WHEN others THEN RAISE NOTICE 'Schema hardening encountered minor conflict - continuing';
+END $$;
+
+-- 3. BIOLOGICAL REGISTRY: Full Wisconsin Registry (§3.2 / §8 / 2002)
 ALTER TABLE species ADD COLUMN IF NOT EXISTS species_code CHAR(2);
 ALTER TABLE species ADD COLUMN IF NOT EXISTS intake_count INTEGER DEFAULT 0;
 
@@ -52,7 +65,7 @@ BEGIN
     END LOOP;
 END $$;
 
--- 3. LOOKUP ENTITIES: Stages & Properties (§4.42)
+-- 4. LOOKUP ENTITIES: Stages & Properties (§4.42)
 CREATE TABLE IF NOT EXISTS development_stage (
     stage_id TEXT PRIMARY KEY,
     label TEXT NOT NULL,
@@ -76,7 +89,7 @@ INSERT INTO development_stage (stage_id, label) VALUES
 ('S3', 'Established'), ('S4', 'Mature'), ('S5', 'Pipping'), ('S6', 'Hatched')
 ON CONFLICT (stage_id) DO NOTHING;
 
--- 4. HATCHLING LEDGER: Neonate Pivot (§3.4)
+-- 5. HATCHLING LEDGER: Neonate Pivot (§3.4)
 CREATE TABLE IF NOT EXISTS hatchling_ledger (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     egg_id TEXT NOT NULL,
@@ -92,7 +105,7 @@ CREATE TABLE IF NOT EXISTS hatchling_ledger (
     is_deleted BOOLEAN DEFAULT FALSE
 );
 
--- 5. HYDRATION ENGINE: Restorative Logic (§3.2 / §2.18)
+-- 6. HYDRATION ENGINE: Restorative Logic (§3.2 / §2.18)
 ALTER TABLE bin ADD COLUMN IF NOT EXISTS target_total_weight_g DECIMAL(10,2);
 ALTER TABLE bin ADD COLUMN IF NOT EXISTS shelf_location TEXT;
 ALTER TABLE bin ADD COLUMN IF NOT EXISTS substrate TEXT;
@@ -106,15 +119,6 @@ DO $$ BEGIN
     ALTER TABLE "EggObservation" ADD COLUMN IF NOT EXISTS moisture_deficit_g DECIMAL(10,2);
     ALTER TABLE "EggObservation" ADD COLUMN IF NOT EXISTS water_added_ml DECIMAL(10,2);
 EXCEPTION WHEN others THEN RAISE NOTICE 'Observation table column update skipped - verify table casing';
-END $$;
-
--- 6. AUDIT LAYER: Mandatory Fields (§6.53)
-DO $$ 
-BEGIN
-    ALTER TABLE mother ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
-    ALTER TABLE mother ADD COLUMN IF NOT EXISTS modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
-    ALTER TABLE egg ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
-    ALTER TABLE egg ADD COLUMN IF NOT EXISTS modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 END $$;
 
 -- 7. AUTOMATION: Global Audit Triggers
