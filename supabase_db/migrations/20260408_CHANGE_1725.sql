@@ -6,7 +6,7 @@
 -- =============================================================================
 
 -- 1. Maternal Record Update (§3.1)
-ALTER TABLE mother ADD COLUMN IF NOT EXISTS finder_last_name TEXT;
+ALTER TABLE mother ADD COLUMN IF NOT EXISTS finder_turtle_name TEXT;
 
 -- 2. Species Registry Integrity Check (Full 11 native species)
 INSERT INTO species (species_id, common_name, scientific_name, species_code, vulnerability_status)

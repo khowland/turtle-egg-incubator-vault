@@ -22,7 +22,7 @@ Lead Biologist: Elisa Fosco
   - **Step C: Batch Processing.** Slide-up Action Tray for bulk-applying Stage and Property updates.
 - **The "Neonate Pivot" (Hatchling Transition):**
   - Changing an egg to **"Hatched"** status MUST trigger an automatic transition workflow.
-  - Data from the egg record (Parentage, Duration) is flattened and pushed to a **Hatchling_Ledger** for rehab tracking.
+  - **Lifecycle Lock:** The original egg record is automatically marked as **"Transferred"**. It remains in the DB for research but is removed from "Active" intake grids (§3.4).
 
 ## 3. [St] Storage & Biological Entities
 - **3.1 Maternal Entities (The "Source")**
