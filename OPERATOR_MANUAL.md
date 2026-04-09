@@ -34,11 +34,17 @@ When checking eggs dynamically during the day:
 3. **Data Logging:** Select multiple eggs to apply the exact same observation properties (Stage, Chalking) at once. Historical traits will appear as highly condensed code strings (e.g., `[D4: S1-C0]`) so you don't scroll infinitely.
 4. **Final Confirmation:** The summary page will always list eggs numerically. Please physically check this numerical list against your physical egg matrix before finalizing to avoid cross-contamination of biological traits.
 
-## 5. What if an Egg Hatches?
-1. **Select the Egg**: Find the lucky egg in the observation grid.
-2. **Change Status**: Set the status to **"Hatched."**
-3. **Fill the Ledger**: Fill out the hatch weight and vitality on the new screen that pops up.
+## 5. What if an Egg Hatches? (The Neonate Pivot)
+Our system uses automated transitions to handle hatched eggs.
+1. **Change the Stage to S6**: Do not worry about manually changing statuses. Simply multi-select the hatching eggs and change their **Stage** to `S6`.
+2. **Automated Transfer**: The system will warn you that the Neonate Pivot is triggering. Once you hit Save, the egg is locked out of the incubator grid and automatically marked as `Transferred`.
+3. **The Ledger**: The system silently moves the turtle into the `Hatchling_Ledger` database, carrying the original Mother's ID with it.
 
-## 6. Pro-Tips for Success
+## 6. Dashboards & Analytics
+You are not just logging data; you can visualize it in real-time.
+- **The Command Center (Dashboard)**: Click `Dashboard` to see live KPIs (Active Subjects vs Hatched) and the Mortality Heatmap, which automatically highlights which biological stage is suffering the most losses.
+- **The Reports Hub**: Click `Reports` to use the **Expert Filter Carpentry**. On the left sidebar, you can filter the entire clinical history by specific Date Windows or Species (e.g., viewing trends exclusively for Blanding's Turtles). 
+
+## 7. Pro-Tips for Success
 - **Look for the 🔒**: If you see a lock in Settings, it means we have active eggs. You cannot change biological lists (like species names) until the season is over.
-- **Font Size**: If you are using a tablet in the field and the text is too small, go to **Settings** and use the **"Interface Font Size"** slider to make it bigger.
+- **Font Size**: If you are using a tablet in the field and the text is too small, go to **Settings** and use the **"Global Font Scale"** slider on the sidebar to make it bigger.
