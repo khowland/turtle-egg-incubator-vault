@@ -11,9 +11,9 @@ Created:    2026-04-08
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-from utils.db import get_supabase
+from utils.bootstrap import bootstrap_page, safe_db_execute
 
-st.set_page_config(page_title="Dashboard | WINC", page_icon="📊", layout="wide")
+supabase = bootstrap_page("Dashboard", "📊")
 
 st.title("📊 Biological Command Center")
 
