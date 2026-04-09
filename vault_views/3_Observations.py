@@ -98,9 +98,14 @@ else:
     # For a real implementation, count EggObservations today. We will mock the ratio purely functionally here.
     st.progress(0.0, text=f"Observation Pending for {len(eggs)} active eggs.")
 
-    with st.container(border=True):
         st.write("Select eggs physically present to apply identical properties:")
-        egg_ids = [e['egg_id'] for e in eggs]
+        
+        # FIX: Avoid alphabetical string sorting (E10 before E2) by sorting on the appended integer
+        def sort_egg_key(e_id):
+            try: return int(e_id.split('-E')[-1])
+            except: return 0
+            
+        egg_ids = sorted([e['egg_id'] for e in eggs], key=sort_egg_key)
         
         # Bind to session_state so we can programmatically clear the selection after save
         selected_eggs = st.multiselect("Target Eggs", egg_ids, default=[], key="obs_multiselect")
@@ -139,7 +144,7 @@ else:
             
             with st.expander("📝 Review Pending Transaction", expanded=True):
                 st.write(f"You are modifying the following {len(selected_eggs)} eggs:")
-                for e in sorted(selected_eggs):  # Numerically grouped sorting
+                for e in sorted(selected_eggs, key=sort_egg_key):  # Numerically grouped sorting fix
                     st.write(f"- **{e}**")
                 
                 if st.button("🚀 Confirm & Save Observations", type="primary"):
@@ -147,6 +152,12 @@ else:
                         obs_payload = []
                         egg_updates = []
                         hatchlings = []
+                        
+                        # FIX: N+1 Query Bug. Fetch Mother ID once outside the loop.
+                        m_id = "UNKNOWN"
+                        if is_hatching:
+                            bin_res = supabase.table('bin').select('mother_id').eq('bin_id', active_bin_id).execute()
+                            if bin_res.data: m_id = bin_res.data[0]['mother_id']
                         
                         for eg_id in selected_eggs:
                             obs_payload.append({
@@ -166,10 +177,6 @@ else:
                             })
                             
                             if is_hatching:
-                                # Look up mother_id from the eggs to populate the hatchling ledger correctly
-                                # This requires a small lookup, simplified here using the active bin context
-                                bin_res = supabase.table('bin').select('mother_id').eq('bin_id', active_bin_id).execute()
-                                m_id = bin_res.data[0]['mother_id'] if bin_res.data else "UNKNOWN"
                                 hatchlings.append({
                                     "egg_id": eg_id,
                                     "mother_id": m_id,
@@ -216,7 +223,7 @@ for h in hist_data:
         history_strings[h['egg_id']].append(code)
 
 with st.container(height=300):
-    for e in sorted(history_strings.keys()):
+    for e in sorted(history_strings.keys(), key=sort_egg_key):
         h_str = " ".join(history_strings[e])
         if not h_str: h_str = "[No Previous Observations]"
         st.markdown(f"**{e}**: `{h_str}`")
