@@ -9,9 +9,13 @@
    ```
    *(The app is pre-configured to launch on Port 9000 to avoid Windows conflicts)*
 
-## 🛠️ Feedback & Bug Reporting (The "Agile Sweep" Method)
-To request changes or report bugs, please append them to `CHANGELOG_V7.md` in the following format:
-`[TIMESTAMP] [CATEGORY] [DESCRIPTION]`
+## 🛠️ Feedback & Bug Reporting (Change Request Protocol)
+Change Requests are managed via individual text documents for simplicity.
+
+**Agent Directives for Change Requests (CRs):**
+1. **Creation:** AI Agents must use the naming convention: `ChangeRequest_MMDD_HHMM.txt`.
+2. **Immutability:** Existing CR files are historical records. AI Agents MUST NOT edit them after creation.
+3. **Actionability:** AI Agents should only implement a Change Request when explicitly commanded by the user.
 
 Categories: `BUG`, `ENHANCEMENT`, `EXPERT_FEEDBACK`, `SECURITY`.
 

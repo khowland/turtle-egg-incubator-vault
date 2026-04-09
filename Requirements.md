@@ -53,6 +53,7 @@ Lead Biologist: Elisa Fosco
 - **Backend:** Supabase (PostgreSQL). Proper PK/FK enforcement.
 - **Frontend:** Streamlit (v1.31+ Navigation API).
 - **Audit:** Consistent enterprise headers and mandatory `Created_datetime` / `Modified_datetime` for all tables.
+- **Change Management:** Change Requests (CR) are tracked via independent text files (`ChangeRequest_MMDD_HHMM.txt`). Agents must treat existing CRs as immutable and only execute their requirements upon explicit user command.
 
 =============================================================================
 
