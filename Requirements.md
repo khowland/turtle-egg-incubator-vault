@@ -13,7 +13,7 @@ Lead Biologist: Elisa Fosco
   - **Clinical Origin Block:** Species Choice, Case Number, Finder/Turtle Name, Date.
   - **Dynamic Bin Table:** 
     - Cardinality 1:N (Mother to 1-9 Bins).
-    - Bin Code Calculation: `{SpeciesCode}{IntakeCount+1}-{FinderName}-{Bin#}`.
+    - Bin Code Calculation: `{SpeciesCode}{IntakeCount+1}-{FinderName}-{Bin#}` (Must dynamically update to reflect the new Species Code and corresponding IntakeCount if the user changes the Species on the intake form).
     - Mutability: Egg Count is editable until first observation is recorded.
 - **Auto-Commit Trigger:** Upon Next/Submit, `Species.IntakeCount` increments by 1.
 - **The "Daily Loop" (Observation Engine):**

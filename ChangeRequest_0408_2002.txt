@@ -30,6 +30,7 @@ Ensure this is reflected in requirements docs.
 	IntakeCount: Sequential numeric counter retrieved from the Species table IntakeCount column. They all start at zero0.
 	Finder Name: String literal.
 	Bin#: Sequential integer increment restricted to range [1, 9]
+	Dynamic Update: If the user changes the Turtle Species on the intake form, the Bin Code MUST instantly re-calculate to reflect the new Species Code and its corresponding IntakeCount.
 	IntakeCount Persistence Logic
 	To maintain strict data integrity for the single-user incubator environment, the system manages the counter 
 	via the following state logic:

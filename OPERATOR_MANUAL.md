@@ -20,7 +20,7 @@ When a mother turtle arrives, use the **single-page** Intake screen to record ev
 
 ### Step B: The Bin Setup (Dynamic Table)
 Below the origin info, you will see the **Bin Setup** table.
-1. **Automatic Codes**: The "Bin Code" is generated for you (e.g., `BL1-Smith-1`). This is what you should write on the physical bin label.
+1. **Automatic Codes**: The "Bin Code" is generated for you (e.g., `BL1-Smith-1`). This is what you should write on the physical bin label. *Note: If you change the Species selection, the Bin Code will dynamically update to match the new species.*
 2. **Multiple Bins**: If a turtle has so many eggs they won't fit in one bin, click the **"➕ Add Bin"** button. You can have up to 9 bins for one mother.
 3. **Egg Counts**: Enter the exact number of eggs in each physical bin. 
 4. **Deleting Bins**: If you click the trash icon (🗑️), the other bins will automatically "re-number" themselves to stay in order.
