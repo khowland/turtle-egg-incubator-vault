@@ -16,15 +16,15 @@ supabase = bootstrap_page("Settings", "⚙️")
 st.title("⚙️ Vault Administration")
 
 # =============================================================================
-# SECTION: 🔒 Mid-Season Lock Proofing (§4.42)
+# SECTION: 🔒 Administrative Editing Lock
 # =============================================================================
-active_res = supabase.table('egg').select('egg_id', count='exact').eq('status', 'Active').execute()
-is_locked = active_res.count > 0
+st.markdown("### 🔒 Registry Protection")
+is_locked = st.toggle("Engage Mid-Season Lock", value=False, help="Enable this once the season has fully started to prevent accidental edits to foundational lookups.")
 
 if is_locked:
-    st.error(f"🔒 **MID-SEASON LOCK ACTIVE**: {active_res.count} active subjects detected. Lookup tables are READ-ONLY.")
+    st.error("🔒 **LOCKED**: Lookup tables are in exact READ-ONLY mode.")
 else:
-    st.success("🔓 **MAINTENANCE MODE**: Lookups are editable (Draft Stage).")
+    st.success("🔓 **MAINTENANCE MODE**: Lookups are freely editable.")
 
 # =============================================================================
 # REQ 1725: Mobile Accessibility (Persistent Global Styling)
@@ -85,5 +85,5 @@ with tabs[1]:
 
 with tabs[2]:
     st.subheader("System Access Log (Last 50)")
-    logs = supabase.table('SystemLog').select("*").order('timestamp', desc=True).limit(50).execute().data
+    logs = supabase.table('systemlog').select("*").order('timestamp', desc=True).limit(50).execute().data
     st.dataframe(pd.DataFrame(logs), use_container_width=True)

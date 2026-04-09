@@ -55,7 +55,7 @@ def safe_db_execute(operation_name, func, *args, **kwargs):
         
         # 🚨 TELEMETRY: Record error to SystemLog for debugging
         try:
-            get_supabase().table('SystemLog').insert({
+            get_supabase().table('systemlog').insert({
                 "session_id": st.session_state.get('session_id', 'UNKNOWN_SESSION'),
                 "event_type": "ERROR",
                 "event_message": f"[{operation_name}] CRASH: {str(e)}"
