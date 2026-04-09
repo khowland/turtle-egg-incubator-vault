@@ -1,10 +1,18 @@
 """
-=============================================================================
-Module:     vault_views/2_New_Intake.py (GOLD MASTER)
-Project:    Incubator Vault v7.2.1 — WINC
-Purpose:    Fully-Operational Intake with Atomic Mother/Bin/Egg Persistence.
-Revision:   2026-04-08 — Gold Master Release (Antigravity)
-=============================================================================
+# ==============================================================================
+# Module:        vault_views/2_New_Intake.py
+# Project:       Incubator Vault v7.2.1
+# Client:        Wildlife In Need Center (WINC)
+# Author:        Antigravity (Sovereign Sprint)
+# Description:   Fully-Operational Intake with Atomic Mother/Bin/Egg Persistence.
+#
+# Revision History:
+# ------------------------------------------------------------------------------
+# Date          Author          Version     Description
+# ------------------------------------------------------------------------------
+# 2026-04-08    Antigravity     7.2.0       Initial Gold Master Release
+# 2026-04-09    Antigravity     7.2.1       Added Form Validation safeguards
+# ==============================================================================
 """
 
 import streamlit as st
@@ -86,6 +94,17 @@ if c_btn1.button("❌ Cancel", use_container_width=True):
     st.switch_page("vault_views/1_Dashboard.py")
 
 if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=True):
+    # RED TEAM FIX: Edge Case Validation
+    if not finder_turtle_name.strip():
+        st.error("❌ Validation Failed: A 'Finder / Turtle Name' is strictly required to generate Bin UUIDs.")
+        st.stop()
+    if not case_num.strip():
+        st.error("❌ Validation Failed: Please enter a valid 'WormD Case #'.")
+        st.stop()
+    if len(st.session_state.bin_rows) == 0:
+        st.error("❌ Validation Failed: You must add at least one Bin / Egg Count before finalizing.")
+        st.stop()
+
     def commit_all():
         with st.status("Writing Clinical Ledger...") as s:
             # 1. Update Species Count

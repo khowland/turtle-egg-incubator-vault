@@ -1,3 +1,18 @@
+"""
+# ==============================================================================
+# Module:        app.py
+# Project:       Incubator Vault v7.2.1
+# Client:        Wildlife In Need Center (WINC)
+# Author:        Antigravity (Sovereign Sprint)
+# Description:   Core router mapping the session states to Views.
+#
+# Revision History:
+# ------------------------------------------------------------------------------
+# Date          Author          Version     Description
+# ------------------------------------------------------------------------------
+# 2026-04-08    Antigravity     7.2.0       Streamlit Routing Init
+# ==============================================================================
+"""
 import streamlit as st
 from utils.session import init_session
 
