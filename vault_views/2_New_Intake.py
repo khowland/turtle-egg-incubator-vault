@@ -39,8 +39,8 @@ if 'bin_rows' not in st.session_state:
 # --- Clinical Origin ---
 with st.container(border=True):
     c1, c2 = st.columns(2)
-    selected_label = c1.selectbox("Turtle Species", list(species_data.keys()))
-    case_num = c2.text_input("WormD Case #")
+    selected_label = c1.selectbox("Turtle Species", list(species_data.keys()), help="Select the physiological origin species.")
+    case_num = c2.text_input("WormD Case #", help="Enter official Wildlife In Need Center case identifier.")
     
     cc1, cc2 = st.columns(2)
     finder_turtle_name = cc1.text_input("Finder/Turtle Name", help="Required for clinical tracking.")

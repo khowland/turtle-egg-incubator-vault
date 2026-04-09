@@ -96,14 +96,25 @@ else:
         if selected_eggs:
             st.write("### Action Tray")
             sc1, sc2, sc3 = st.columns(3)
-            new_stage = sc1.selectbox("Stage", ["S0", "S1", "S2", "S3", "S4", "S5", "S6"])
-            new_chalking = sc2.selectbox("Chalking (0-2)", [0, 1, 2])
-            new_vascularity = sc3.checkbox("Vascularity Present (+)?")
+            stage_labels = {
+                "S0": "S0 (Intake / Baseline)",
+                "S1": "S1 (Initial Banding)",
+                "S2": "S2 (Developing)",
+                "S3": "S3 (Established)",
+                "S4": "S4 (Mature / Pre-pip)",
+                "S5": "S5 (Pipping / Breaking Shell)",
+                "S6": "S6 (Hatched / Neonate)"
+            }
+            new_stage = sc1.selectbox("Stage", list(stage_labels.keys()), format_func=lambda x: stage_labels[x], help="Select current biological development phase.")
+            
+            chalk_labels = {0: "0 (None)", 1: "1 (Partial/Band)", 2: "2 (Full/Opaque)"}
+            new_chalking = sc2.selectbox("Chalking", [0, 1, 2], format_func=lambda x: chalk_labels[x], help="Determine the calcification opacity of the shell.")
+            new_vascularity = sc3.checkbox("Vascularity (+)", help="Visible red veins under candling? (Indicator of fertility).")
             
             st.write("**Health Flags (WARNING: Critical Markers)**")
             bc1, bc2 = st.columns(2)
-            flag_mold = bc1.checkbox("Molding Detected")
-            flag_leak = bc2.checkbox("Leaking Detected")
+            flag_mold = bc1.checkbox("Molding Detected", help="Fungal growth visible on shell surface.")
+            flag_leak = bc2.checkbox("Leaking Detected", help="Fluid escaping the shell (High Risk).")
             
             new_status = 'Active'
             is_hatching = False
