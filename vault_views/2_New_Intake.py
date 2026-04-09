@@ -71,9 +71,9 @@ with st.container(border=True):
 st.subheader("Bin Setup")
 commit_rows = []
 for i, row in enumerate(st.session_state.bin_rows):
-    bin_code = f"{selected_species['species_code']}{next_intake_num}-{finder_turtle_name}-{row['bin_num']}"
+    bin_code = f"{selected_species['species_code']}{next_intake_num}-{finder_turtle_name.replace(' ', '')}-{row['bin_num']}"
     cols = st.columns([3, 2, 1])
-    cols[0].text_input("Bin Code", value=bin_code, disabled=True, key=f"code_{i}")
+    cols[0].markdown(f"**Bin Code:** `{bin_code}`")
     row['egg_count'] = cols[1].number_input("Egg Count", min_value=1, max_value=99, value=row['egg_count'], step=1, key=f"egg_{i}")
     if cols[2].button("🗑️", key=f"del_{i}"):
         st.session_state.bin_rows.pop(i)
@@ -86,9 +86,6 @@ if st.button("➕ Add Bin"):
         st.rerun()
 
 # --- ATOMIC COMMIT ---
-is_dirty = bool(finder_turtle_name.strip() or case_num.strip() or len(st.session_state.bin_rows) > 1 or st.session_state.bin_rows[0].get('egg_count', 1) > 1)
-if is_dirty:
-    st.warning("⚠️ **Active Session**: You have pending data. Finalize or Cancel before navigating to another view.")
 
 c_btn1, c_btn2 = st.columns([1, 4])
 if c_btn1.button("❌ Cancel", use_container_width=True):
