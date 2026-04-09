@@ -86,7 +86,9 @@ if st.button("➕ Add Bin"):
         st.rerun()
 
 # --- ATOMIC COMMIT ---
-st.warning("⚠️ **Active Session**: You have pending data. Finalize or Cancel before navigating to another view.")
+is_dirty = bool(finder_turtle_name.strip() or case_num.strip() or len(st.session_state.bin_rows) > 1 or st.session_state.bin_rows[0].get('egg_count', 1) > 1)
+if is_dirty:
+    st.warning("⚠️ **Active Session**: You have pending data. Finalize or Cancel before navigating to another view.")
 
 c_btn1, c_btn2 = st.columns([1, 4])
 if c_btn1.button("❌ Cancel", use_container_width=True):

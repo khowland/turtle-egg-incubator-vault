@@ -35,7 +35,7 @@ st.divider()
 # =============================================================================
 def load_analytical_data():
     # 1. Mortality Data
-    eggs = supabase.table('egg').select("current_stage, status, mother_id").execute().data
+    eggs = supabase.table('egg').select("current_stage, status").execute().data
     
     # 2. Hatchling Data
     hatchlings = supabase.table('hatchling_ledger').select("*").execute().data
