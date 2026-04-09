@@ -39,9 +39,24 @@ if new_font != current_font:
 # =============================================================================
 # DATA OPERATIONS: Hardened CRUD Matrix
 # =============================================================================
-tabs = st.tabs(["🛡️ Species Registry", "🌡️ Development Stages", "📜 Audit Log"])
+tabs = st.tabs(["👥 Biologists (Users)", "🛡️ Species Registry", "🌡️ Development Stages", "📜 Audit Log"])
 
 with tabs[0]:
+    st.subheader("Biologist Registry")
+    if not is_locked:
+        st.info("💡 **How to manage users:** You cannot delete biologists who have recorded data. Instead, uncheck the `is_active` box to disable their login access.")
+    res_users = supabase.table('observer').select("id, display_name, role, is_active").execute()
+    
+    # We hide the id, but allow editing of names and roles and the active flag
+    edited_users = st.data_editor(
+        pd.DataFrame(res_users.data), 
+        disabled=["id"] if is_locked else ["id"],
+        hide_index=True,
+        use_container_width=True,
+        num_rows="dynamic" if not is_locked else "fixed"
+    )
+
+with tabs[1]:
     st.subheader("Species Management")
     if not is_locked:
         st.info("💡 **How to edit:** Click any cell to type. To **add a species**, click the gray blank row at the very bottom. To **delete**, select the row number on the left and tap `Delete` on your keyboard.")
@@ -82,11 +97,11 @@ with tabs[0]:
         
         safe_db_execute("Species Audit", sync_species)
 
-with tabs[1]:
+with tabs[2]:
     res_stages = supabase.table('development_stage').select("*").execute()
     st.data_editor(pd.DataFrame(res_stages.data), disabled=True if is_locked else [])
 
-with tabs[2]:
+with tabs[3]:
     st.subheader("Audit Log (Last 50)")
     logs = supabase.table('systemlog').select("*").order('timestamp', desc=True).limit(50).execute().data
     st.dataframe(pd.DataFrame(logs), use_container_width=True)
