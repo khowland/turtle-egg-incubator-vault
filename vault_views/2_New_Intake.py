@@ -78,9 +78,7 @@ if st.button("➕ Add Bin"):
         st.rerun()
 
 # --- ATOMIC COMMIT ---
-# 🔒 STATE LOCK: Hide navigation to prevent unrecorded intakes
-st.markdown("""<style>[data-testid="stSidebarNav"] { display: none !important; }</style>""", unsafe_allow_html=True)
-st.warning("🔒 **Navigation Locked**: You are in an active session. Proceed or Cancel.")
+st.warning("⚠️ **Active Session**: You have pending data. Finalize or Cancel before navigating to another view.")
 
 c_btn1, c_btn2 = st.columns([1, 4])
 if c_btn1.button("❌ Cancel", use_container_width=True):

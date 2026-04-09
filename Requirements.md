@@ -54,7 +54,7 @@ Lead Biologist: Elisa Fosco
 - **Frontend:** Streamlit (v1.31+ Navigation API).
 - **Audit:** Consistent enterprise headers and mandatory `Created_datetime` / `Modified_datetime` for all tables.
 - **User Assistance:** Context-aware Help dialogues (fast, hard-coded components to avoid DB/CMS payload latency) will be available on all major interactive screens.
-- **Routing & State Lock:** The native navigation menu ("MAIN") must implement a "Dirty State" validation. If a user begins an active transaction (e.g., Intake or Batch Observation), the routing menu is dynamically concealed or locked. The user must explicitly "Finalize" or "Cancel" their transaction to restore navigation, geometrically preventing accidental data loss.
+- **Routing & State Lock:** Application must prioritize maintainability. Navigation "locks" rely purely on native Streamlit UI warnings (`st.warning` / `st.info`) indicating pending transactions. Brittle CSS injections targeting internal Streamlit React components (`data-testid`) are strictly prohibited to ensure long-term codebase stability across version upgrades.
 - **Change Management:** Change Requests (CR) are tracked via independent text files (`ChangeRequest_MMDD_HHMM.txt`). Agents must treat existing CRs as immutable and only execute their requirements upon explicit user command.
 
 =============================================================================

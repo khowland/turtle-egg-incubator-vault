@@ -18,21 +18,6 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
     """
     st.set_page_config(page_title=f"{title} | WINC", page_icon=icon, layout="wide")
     
-    st.markdown("""
-    <style>
-        /* Globally rename the >| toggle to MAIN */
-        [data-testid="collapsedControl"]::after {
-            content: "MAIN MENU";
-            margin-left: 6px;
-            font-weight: 900;
-            font-size: 13px;
-        }
-        header[data-testid="stHeader"] {
-            z-index: 99999;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-    
     # 1. Ensure Global Session ID for Audit Trace
     if 'session_id' not in st.session_state:
         st.session_state.session_id = str(uuid.uuid4())[:8]
