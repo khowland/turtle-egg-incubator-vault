@@ -97,8 +97,9 @@ if st.button("🚀 Finalize Intake", type="primary", width="stretch"):
                 eggs = [{"bin_id": b_id, "status": "Active", "current_stage": "S0"} for _ in range(r['egg_count'])]
                 supabase.table('egg').insert(eggs).execute()
             
-            s.update(label="Intake Successful!", state="complete")
+            s.update(label="Intake Successful! Transitioning...", state="complete")
             st.balloons()
             st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
+            st.switch_page("vault_views/3_Observations.py")
     
     safe_db_execute("Intake", commit_all)
