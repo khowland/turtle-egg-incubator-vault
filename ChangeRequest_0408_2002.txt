@@ -23,14 +23,14 @@ Ensure this is reflected in requirements docs.
 	Cardinality: 1:N (Mother Turtle to Bins).
 	Fields:
 		Bin Code: Non-editable alphanumeric string (User-Facing Identifier).
-		Egg Count: Editable Integer (Conditional mutability)
+		Egg Count: Editable Integer (Conditional mutability). Must be implemented as a numeric spinner or dropdown for values 1-99 to avoid repeated +/- tapping on mobile devices.
 	The Bin Code generation must adhere to the following numeric mask:
 	{Species Code}{IntakeCount}-{Finder Name}-{Bin#}
 	Species Code: Two-character species code
 	IntakeCount: Sequential numeric counter retrieved from the Species table IntakeCount column. They all start at zero0.
 	Finder Name: String literal.
 	Bin#: Sequential integer increment restricted to range [1, 9]
-	Dynamic Update: If the user changes the Turtle Species on the intake form, the Bin Code MUST instantly re-calculate to reflect the new Species Code and its corresponding IntakeCount.
+	Dynamic Update: If the user changes the Turtle Species or Finder Name on the intake form, the Bin Code MUST instantly re-calculate to reflect the new Origin inputs.
 	IntakeCount Persistence Logic
 	To maintain strict data integrity for the single-user incubator environment, the system manages the counter 
 	via the following state logic:
