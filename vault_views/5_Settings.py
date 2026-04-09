@@ -87,6 +87,6 @@ with tabs[1]:
     st.data_editor(pd.DataFrame(res_stages.data), disabled=True if is_locked else [])
 
 with tabs[2]:
-    st.subheader("System Access Log (Last 50)")
+    st.subheader("Audit Log (Last 50)")
     logs = supabase.table('systemlog').select("*").order('timestamp', desc=True).limit(50).execute().data
     st.dataframe(pd.DataFrame(logs), use_container_width=True)

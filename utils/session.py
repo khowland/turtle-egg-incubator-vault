@@ -54,7 +54,7 @@ def show_splash_screen():
                     
                     # 🚨 TELEMETRY FIX: Register SessionLog first to satisfy Supabase Foreign Key constraints!
                     try:
-                        supabase.table('SessionLog').upsert({
+                        supabase.table('sessionlog').upsert({
                             "session_id": st.session_state.session_id,
                             "user_name": st.session_state.observer_name,
                             "user_agent": "WINC Field App"
