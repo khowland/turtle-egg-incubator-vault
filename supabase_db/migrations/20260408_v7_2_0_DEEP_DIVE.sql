@@ -1,8 +1,8 @@
 -- =============================================================================
--- Migration: 20260408_v7_2_0_DEEP_DIVE.sql (MASTER CONSOLIDATED - v3 ROBUST)
+-- Migration: 20260408_v7_2_0_DEEP_DIVE.sql (MASTER CONSOLIDATED - v4 ROBUST)
 -- Project:   Incubator Vault v7.2.0 — Wildlife In Need Center (WINC)
 -- Purpose:   Robust One-File Deployment that handles multiple UNIQUE 
---            constaint conflicts for the Species Registry.
+--            constaint conflicts and includes the new intake_count tracker.
 -- =============================================================================
 
 -- 1. INFRASTRUCTURE: Global Audit & Modification Support
@@ -14,10 +14,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 2. BIOLOGICAL REGISTRY: Full Wisconsin Registry (§3.2 / §8)
+-- 2. BIOLOGICAL REGISTRY: Full Wisconsin Registry (§3.2 / §8 / 2002)
 ALTER TABLE species ADD COLUMN IF NOT EXISTS species_code CHAR(2);
+ALTER TABLE species ADD COLUMN IF NOT EXISTS intake_count INTEGER DEFAULT 0;
 
--- Robust Merge Logic using a DO block to bypass constraint collisions
 DO $$
 DECLARE
     s RECORD;
@@ -36,19 +36,18 @@ BEGIN
         ('MK', 'Musk Turtle', 'Sternotherus odoratus', 'MK', 'Common')
     ) AS t(id, common, scientific, code, status)
     LOOP
-        -- Update existing species that matches either ID, Common Name, or Scientific Name
         UPDATE species 
         SET species_code = s.code, 
             scientific_name = s.scientific,
-            vulnerability_status = s.status
+            vulnerability_status = s.status,
+            intake_count = COALESCE(intake_count, 0)
         WHERE species_id = s.id 
            OR common_name = s.common 
            OR scientific_name = s.scientific;
 
-        -- Insert if it truly doesn't exist
         IF NOT FOUND THEN
-            INSERT INTO species (species_id, common_name, scientific_name, species_code, vulnerability_status)
-            VALUES (s.id, s.common, s.scientific, s.code, s.status);
+            INSERT INTO species (species_id, common_name, scientific_name, species_code, vulnerability_status, intake_count)
+            VALUES (s.id, s.common, s.scientific, s.code, s.status, 0);
         END IF;
     END LOOP;
 END $$;

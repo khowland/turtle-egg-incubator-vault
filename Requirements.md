@@ -26,10 +26,10 @@ Lead Biologist: Elisa Fosco
 
 ## 3. [St] Storage & Biological Entities
 - **3.1 Maternal Entities (The "Source")**
-  - **Identifiers:** GUID + WormD Case Number + Finder Surname.
-  - **Attributes:** Species, Initial Weight, Intake Date, Clinical Status, Finder_Last_Name.
+  - **Identifiers:** GUID + WormD Case # + Finder/Turtle Name.
+  - **Attributes:** Species, Initial Weight, Intake Date, Clinical Status, Finder_Turtle_Name.
 - **3.2 Bin Logic (The "Container")**
-  - **Clinical Coding:** `{Last Name}-{WormD Case#} {SpeciesCode}{Occurrence}-{Bin#}`.
+  - **Clinical Coding:** `{SpeciesCode}{IntakeCount}-{FinderName}-{Bin#}`.
   - **Metric Logic:** Uses "Target Total Weight" as the primary proxy for incubation hydration.
 - **3.3 Egg Entity (The "Subject")**
   - **Index:** Immutable Integer (1–N). Re-indexing remaining eggs after terminal losses is strictly prohibited to maintain historical binary integrity.
