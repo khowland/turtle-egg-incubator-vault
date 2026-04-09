@@ -18,7 +18,7 @@ st.title("⚙️ Vault Administration")
 # =============================================================================
 # SECTION: 🔒 Mid-Season Lock Proofing (§4.42)
 # =============================================================================
-active_res = supabase.table('egg').select('id', count='exact').eq('status', 'Active').execute()
+active_res = supabase.table('egg').select('egg_id', count='exact').eq('status', 'Active').execute()
 is_locked = active_res.count > 0
 
 if is_locked:
