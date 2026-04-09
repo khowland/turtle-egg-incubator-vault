@@ -1,0 +1,19 @@
+First, analyze requirements.md and requirements.txt as appropriate and compare against the following change requests. 
+Ensure any changes needed to implement fixes or enhancements listed below are reflected in requirements documents, and any necessary schema changes, or inserts need to be reflected in appropriate SQL docs. Commit, push should proceed all changes, with detailed dchange notes, and comments to code to reflect wheree change was made, and comment headers should reflect enterprise standards and best practices for all code.
+
+New Intake:
+1. Turtle species drop down only includes 5 turtles: BL, WT, OB, PA, and SN. I think these many more species of native turtle species in WI, confirm with turtle expert. Also, the drop down only shows the 2 char code, but should also reflect the actual species name for easy selection. Ensure this is reflected in associated .sql files and in requirements.
+
+2. The intake needs an additional column for finders last name. Ensure this is reflected in associated .sql files and in requirements.
+
+3. When adding eggs to an existing bin, i think it's more likely done in the observation screen because it's there we will find and open a bin for observation, and it seems the logical place to intake more eggs for the related mother. During initial intake, trying to add mjore eggs to bin requires the user to re-enter finder name, tuyrtle species, etc. Ask turtle expert how to deal with an injured turtle who is still laying and how to intek the eggs best and most intuitively in the interface.
+
+4. Target bin weight is an unknown as far as I can tell, because it's dependent on turtle species, number of eggs, and condition. Ask the turtle expert how to properly handle this workflow. Ensure this is reflected in requirements.
+
+5. We will need to determine what information is required, and perhaps a status bar at bottom inidicating  what should go in the field they are editing. but don't over complicate code if this is tedious to implement. Ensure this is reflected in requirements.
+
+6. Use simple labels. "Generate Egg Ledger" is not intuitive to a non-tech user. Use simple easy to understand laymens terms, like add eggs to bin. Ensure this is reflected in requirements.
+
+7. Font size on mobile device is too small. There should be a way to increase font size in settings perhaps? Ensure this is reflected in requirements.
+
+8. The system requires ability to bulk intake numerous eggs into a bin in batch. Refer to requirements, and if this isn't clear, update language in requirements. 

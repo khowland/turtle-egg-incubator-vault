@@ -1,0 +1,59 @@
+First, analyze requirements.md and requirements.txt as appropriate and compare against the following change requests. 
+Ensure any changes needed to implement fixes or enhancements listed below are reflected in requirements documents, and any necessary schema changes, or inserts need to be reflected in appropriate SQL docs. Commit, push should proceed all changes, with detailed dchange notes, and comments to code to reflect wheree change was made, and comment headers should reflect enterprise standards and best practices for all code.
+
+1. New Intake Screen
+Screen title at top should reflect the menu option chosen, so New Inatke menu choice should lead to screen titled New Intake.
+Ensure this is reflected in requirements docs.
+
+2. Field labels
+Finder's Last Name and Turtle Name are synonymous. So corrections are as follows:
+- field labelled "WormD Case # / Mother Name" should only be labelled "WormD Case #" (remove "Mother Name" from that label). 
+- field labelled "Finder's Last Name" should be labelled "Finder/Turtle Name". 
+And the label for WormD Case # should NOT include Mother Name as part of label. Ensure this is reflected in requirements docs.
+Ensure this is reflected in requirements docs.
+
+3. Bin Setup
+- should be on the same screen as prior New Intake in initial step. Hitting next button from initial intake screen is an unecessary extra step.
+- Remove "Target Total Weight(g)" from this screen for now. It's unknown.
+- Bin Setup 
+	Bin Table Definition
+	Implement a dynamic UI table to capture bin-specific metadata. 
+	Database Primary Keys are managed at the persistence layer and remain abstracted from the user interface.
+	Initial State: Default to one (1) row upon initialization.
+	Cardinality: 1:N (Mother Turtle to Bins).
+	Fields:
+		Bin Code: Non-editable alphanumeric string (User-Facing Identifier).
+		Egg Count: Editable Integer (Conditional mutability)
+	The Bin Code generation must adhere to the following numeric mask:
+	{Species Code}{IntakeCount}-{Finder Name}-{Bin#}
+	Species Code: Two-character species code
+	IntakeCount: Sequential numeric counter retrieved from the Species table IntakeCount column. They all start at zero0.
+	Finder Name: String literal.
+	Bin#: Sequential integer increment restricted to range [1, 9]
+	IntakeCount Persistence Logic
+	To maintain strict data integrity for the single-user incubator environment, the system manages the counter 
+	via the following state logic:
+		Fetch and Stage: Upon initializing the intake form, fetch the current Species.IntakeCount. 
+		Display IntakeCount + 1 as part of the on-screen Bin Code.
+		Commit: The database field Species. IntakeCount shall only be updated to the new value ($IntakeCount + 1$) 
+		upon successful validation and final submission of the intake record.
+		Rollback (Cancel): If the user cancels the intake session or exits without saving, no database update occurs; 
+		the Species.IntakeCount remains at its original value for the next session.
+		Interface Operations
+		Add Bin Function:Appends a new record to the UI table if current row count < 9.
+		Boundary Exception: 
+		If a user attempts to add a 10th row, trigger the message: "max 9 bins per turtle!".
+		Delete Bin Function:
+		Confirmation Gate: Any attempt to delete a row must trigger a confirmation dialog.
+		Targeted Warning: If the selected row has an Egg Count > 0, the dialog must explicitly warn that egg data for that bin will be lost.
+		Auto-Reindex Protocol: Upon confirmed deletion, the system automatically re-indexes the final Bin# digit of all remaining rows to maintain a gapless sequence.
+		Mutability Logic (State-Dependent): 
+		Bin Code: Strictly Read-Only at all times.
+		Pre-Observation: Egg Count field is editable for initial entry.
+		Post-Observation: Once an observation is recorded for a bin, the Egg Count becomes Read-Only. 
+		Additional eggs require a new bin row. 
+		Workflow Transition: A Next navigation actuator shall validate all rows (ensuring non-zero egg counts), 
+		commit the state (updating IntakeCount), and transition the user to the Bin Observations screen.
+
+Ensure this is reflected in requirements docs.
+

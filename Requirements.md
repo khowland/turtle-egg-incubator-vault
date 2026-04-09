@@ -9,11 +9,13 @@ Lead Biologist: Elisa Fosco
 - **Auditing:** Every session must generate a unique `SessionID` propagated to all transaction tables for accountability.
 
 ## 2. [Ac] Actuator: Field Operations & Workflows
-- **Directed Intake Wizard (The "Auto-Pivot"):**
-  - **Step 1: Mother Identity** (Species, Name/Case Number, Clinical Status, Intake Date).
-  - **Step 2: Bin Setup** (Substrate, Bin Label, Shelf Location, **Target_Total_Weight**). MUST support selecting an Existing Bin to accept incremental additions (Staggered Intake).
-  - **Step 3: Egg Generation** (Quantity + Intake Source).
-  - **Step 4: Atomic Commit:** Auto-pivot directly to the Initial (T0) Observation screen.
+- **Single-Screen Intake (The "Atomic Entry"):**
+  - **Clinical Origin Block:** Species Choice, Case Number, Finder/Turtle Name, Date.
+  - **Dynamic Bin Table:** 
+    - Cardinality 1:N (Mother to 1-9 Bins).
+    - Bin Code Calculation: `{SpeciesCode}{IntakeCount+1}-{FinderName}-{Bin#}`.
+    - Mutability: Egg Count is editable until first observation is recorded.
+- **Auto-Commit Trigger:** Upon Next/Submit, `Species.IntakeCount` increments by 1.
 - **The "Daily Loop" (Observation Engine):**
   - **Step A: Restorative Hydration.** User logs `Current_Bin_Weight`. System calculates `Moisture_Deficit` (Target - Current). User logs `Water_Added`.
   - **Step B: High-Density Observation.** Tile-based grid for multi-selecting eggs.
@@ -24,8 +26,8 @@ Lead Biologist: Elisa Fosco
 
 ## 3. [St] Storage & Biological Entities
 - **3.1 Maternal Entities (The "Source")**
-  - **Identifiers:** GUID + WormD Case Number (Regex validated).
-  - **Attributes:** Species, Initial Weight, Intake Date, Clinical Status.
+  - **Identifiers:** GUID + WormD Case Number + Finder Surname.
+  - **Attributes:** Species, Initial Weight, Intake Date, Clinical Status, Finder_Last_Name.
 - **3.2 Bin Logic (The "Container")**
   - **Clinical Coding:** `{Last Name}-{WormD Case#} {SpeciesCode}{Occurrence}-{Bin#}`.
   - **Metric Logic:** Uses "Target Total Weight" as the primary proxy for incubation hydration.
