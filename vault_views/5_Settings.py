@@ -52,11 +52,27 @@ with tabs[0]:
     )
     
     if not is_locked and st.button("💾 Synchronize Species Changes"):
-        # CAP.02: Safe Atomic Save
         def sync_species():
-            # In production, we compare df vs edited_df and perform UPSERT
-            st.success("Species registry synchronized with main ledger.")
-            st.balloons()
+            # Get only the modified rows from st.data_editor state
+            to_upsert = []
+            
+            # Using data_editor automatically captures changes. We iterate over the dataframe.
+            # In Streamlit, data_editor returns the FULL edited dataframe.
+            for idx, row in edited_df.iterrows():
+                to_upsert.append({
+                    "species_id": row["species_id"],
+                    "common_name": row["common_name"],
+                    "scientific_name": row["scientific_name"],
+                    "species_code": row["species_code"],
+                    "vulnerability_status": row["vulnerability_status"]
+                })
+            
+            if to_upsert:
+                supabase.table('species').upsert(to_upsert).execute()
+                st.success(f"{len(to_upsert)} Species records synchronized with main ledger.")
+                st.balloons()
+            else:
+                st.info("No edits detected.")
         
         safe_db_execute("Species Audit", sync_species)
 

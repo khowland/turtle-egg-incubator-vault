@@ -106,9 +106,11 @@ else:
             flag_leak = bc2.checkbox("Leaking Detected")
             
             new_status = 'Active'
+            is_hatching = False
             if new_stage == "S6":
-                new_status = 'Hatched'
-                st.warning("Pivoting to S6 will trigger the Neonate Transition Protocol.")
+                new_status = 'Transferred'  # Per Requirement §2: Neonate Pivot Lifecycle Lock
+                is_hatching = True
+                st.warning("Pivoting to S6 will automatically fire the Neonate Transition Protocol (Pushing to Hatchling Ledger).")
             
             with st.expander("📝 Review Pending Transaction", expanded=True):
                 st.write(f"You are modifying the following {len(selected_eggs)} eggs:")
@@ -119,6 +121,8 @@ else:
                     def commit_obs():
                         obs_payload = []
                         egg_updates = []
+                        hatchlings = []
+                        
                         for eg_id in selected_eggs:
                             obs_payload.append({
                                 "session_id": st.session_state.session_id,
@@ -135,13 +139,29 @@ else:
                                 "current_stage": new_stage,
                                 "status": new_status
                             })
+                            
+                            if is_hatching:
+                                # Look up mother_id from the eggs to populate the hatchling ledger correctly
+                                # This requires a small lookup, simplified here using the active bin context
+                                bin_res = supabase.table('bin').select('mother_id').eq('bin_id', active_bin_id).execute()
+                                m_id = bin_res.data[0]['mother_id'] if bin_res.data else "UNKNOWN"
+                                hatchlings.append({
+                                    "egg_id": eg_id,
+                                    "mother_id": m_id,
+                                    "session_id": st.session_state.session_id,
+                                    "notes": "System Auto-Pivot from S6 Transition"
+                                })
 
                         # Batch Insert Observations
                         supabase.table('EggObservation').insert(obs_payload).execute()
                         
-                        # Batch Update Eggs (Supabase requires looping for PK updates or an RPC)
+                        # Batch Update Eggs 
                         for up in egg_updates:
                             supabase.table('egg').update({"current_stage": up["current_stage"], "status": up["status"]}).eq("egg_id", up["egg_id"]).execute()
+                            
+                        # Fire Neonate Pivot
+                        if hatchlings:
+                            supabase.table('hatchling_ledger').insert(hatchlings).execute()
                         
                         st.success(f"Finalized {len(selected_eggs)} entries!")
                     safe_db_execute("Batch Obs", commit_obs)
