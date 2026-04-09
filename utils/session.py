@@ -52,10 +52,20 @@ def show_splash_screen():
                     st.session_state.observer_id = options[selected]
                     st.session_state.observer_name = selected.split(' (')[0]
                     
-                    # 🚨 TELEMETRY: Record Access Log so the Settings Audit page isn't totally empty
+                    # 🚨 TELEMETRY FIX: Register SessionLog first to satisfy Supabase Foreign Key constraints!
+                    try:
+                        supabase.table('SessionLog').upsert({
+                            "session_id": st.session_state.session_id,
+                            "user_name": st.session_state.observer_name,
+                            "user_agent": "WINC Field App"
+                        }).execute()
+                    except:
+                        pass
+                        
+                    # Now the systemlog insert will survive the Foreign Key check!
                     try:
                         supabase.table('systemlog').insert({
-                            "session_id": st.session_state.get('session_id', 'UNKNOWN'),
+                            "session_id": st.session_state.session_id,
                             "event_type": "ACCESS",
                             "event_message": f"Biologist {st.session_state.observer_name} clocked in."
                         }).execute()

@@ -59,8 +59,11 @@ def safe_db_execute(operation_name, func, *args, **kwargs):
         
         # 🚨 TELEMETRY: Record error to SystemLog for debugging
         try:
+            # We use Upsert on SessionLog just in case the app bypassed the login splash screen
+            get_supabase().table('SessionLog').upsert({"session_id": st.session_state.get('session_id', 'UNKNOWN_ERR'), "user_name": "System"}).execute()
+            
             get_supabase().table('systemlog').insert({
-                "session_id": st.session_state.get('session_id', 'UNKNOWN_SESSION'),
+                "session_id": st.session_state.get('session_id', 'UNKNOWN_ERR'),
                 "event_type": "ERROR",
                 "event_message": f"[{operation_name}] CRASH: {str(e)}"
             }).execute()
