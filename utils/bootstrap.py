@@ -38,6 +38,10 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
         p, div, label, span, .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] {{
             font-size: {st.session_state.global_font_size}px !important;
         }}
+        /* Hide confusing Streamlit Developer Toolbar menu */
+        [data-testid="stHeader"] {{
+            visibility: hidden;
+        }}
     </style>
     """, unsafe_allow_html=True)
              

@@ -43,6 +43,9 @@ tabs = st.tabs(["🛡️ Species Registry", "🌡️ Development Stages", "📜 
 
 with tabs[0]:
     st.subheader("Species Management")
+    if not is_locked:
+        st.info("💡 **How to edit:** Click any cell to type. To **add a species**, click the gray blank row at the very bottom. To **delete**, select the row number on the left and tap `Delete` on your keyboard.")
+    
     res = supabase.table('species').select("*").execute()
     df = pd.DataFrame(res.data)
     

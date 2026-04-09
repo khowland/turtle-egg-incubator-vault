@@ -36,7 +36,7 @@ def show_splash_screen():
     # Enforce Global Font Scale on login page specifically
     if 'global_font_size' not in st.session_state:
         st.session_state.global_font_size = 18
-    st.markdown(f"<style>p, div, label, span, .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb='select'] {{ font-size: {st.session_state.global_font_size}px !important; }}</style>", unsafe_allow_html=True)
+    st.markdown(f"<style>p, div, label, span, .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb='select'] {{ font-size: {st.session_state.global_font_size}px !important; }} [data-testid='stHeader'] {{ visibility: hidden; }}</style>", unsafe_allow_html=True)
     
     st.markdown("<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 WINC Incubator Vault</h1><p style='color: #94A3B8;'>Please select your name to begin the session</p></div>", unsafe_allow_html=True)
     supabase = get_supabase()
@@ -56,6 +56,17 @@ def show_splash_screen():
                 if st.form_submit_button("Launch Vault", width='stretch'):
                     st.session_state.observer_id = options[selected]
                     st.session_state.observer_name = selected.split(' (')[0]
+                    
+                    # 🚨 TELEMETRY: Record Access Log so the Settings Audit page isn't totally empty
+                    try:
+                        supabase.table('systemlog').insert({
+                            "session_id": st.session_state.get('session_id', 'UNKNOWN'),
+                            "event_type": "ACCESS",
+                            "event_message": f"Biologist {st.session_state.observer_name} clocked in."
+                        }).execute()
+                    except:
+                        pass
+                        
                     st.rerun()
     except Exception as e:
         st.error(f"Vault Connection Failure: {e}")
