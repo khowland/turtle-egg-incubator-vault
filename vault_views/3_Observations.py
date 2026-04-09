@@ -106,110 +106,110 @@ else:
     # For a real implementation, count EggObservations today. We will mock the ratio purely functionally here.
     st.progress(0.0, text=f"Observation Pending for {len(eggs)} active eggs.")
 
-        st.write("Select eggs physically present to apply identical properties:")
+    st.write("Select eggs physically present to apply identical properties:")
+    
+    # FIX: Avoid alphabetical string sorting (E10 before E2) by sorting on the appended integer
+    def sort_egg_key(e_id):
+        try: return int(e_id.split('-E')[-1])
+        except: return 0
         
-        # FIX: Avoid alphabetical string sorting (E10 before E2) by sorting on the appended integer
-        def sort_egg_key(e_id):
-            try: return int(e_id.split('-E')[-1])
-            except: return 0
-            
-        egg_ids = sorted([e['egg_id'] for e in eggs], key=sort_egg_key)
-        
-        # Bind to session_state so we can programmatically clear the selection after save
-        selected_eggs = st.multiselect("Target Eggs", egg_ids, default=[], key="obs_multiselect")
+    egg_ids = sorted([e['egg_id'] for e in eggs], key=sort_egg_key)
+    
+    # Bind to session_state so we can programmatically clear the selection after save
+    selected_eggs = st.multiselect("Target Eggs", egg_ids, default=[], key="obs_multiselect")
 
-        if selected_eggs:
-            st.info("⚠️ **Active Batch**: You have selected eggs for modification. Ensure you Confirm & Save before leaving this screen.")
+    if selected_eggs:
+        st.info("⚠️ **Active Batch**: You have selected eggs for modification. Ensure you Confirm & Save before leaving this screen.")
+        
+        st.write("### Action Tray")
+        sc1, sc2, sc3 = st.columns(3)
+        stage_labels = {
+            "S0": "S0 (Intake / Baseline)",
+            "S1": "S1 (Initial Banding)",
+            "S2": "S2 (Developing)",
+            "S3": "S3 (Established)",
+            "S4": "S4 (Mature / Pre-pip)",
+            "S5": "S5 (Pipping / Breaking Shell)",
+            "S6": "S6 (Hatched / Neonate)"
+        }
+        new_stage = sc1.selectbox("Stage", list(stage_labels.keys()), format_func=lambda x: stage_labels[x], help="Select current biological development phase.")
+        
+        chalk_labels = {0: "0 (None)", 1: "1 (Partial/Band)", 2: "2 (Full/Opaque)"}
+        new_chalking = sc2.selectbox("Chalking", [0, 1, 2], format_func=lambda x: chalk_labels[x], help="Determine the calcification opacity of the shell.")
+        new_vascularity = sc3.checkbox("Vascularity (+)", help="Visible red veins under candling? (Indicator of fertility).")
+        
+        st.write("**Health Flags (WARNING: Critical Markers)**")
+        bc1, bc2 = st.columns(2)
+        flag_mold = bc1.checkbox("Molding Detected", help="Fungal growth visible on shell surface.")
+        flag_leak = bc2.checkbox("Leaking Detected", help="Fluid escaping the shell (High Risk).")
+        
+        new_status = 'Active'
+        is_hatching = False
+        if new_stage == "S6":
+            new_status = 'Transferred'  # Per Requirement §2: Neonate Pivot Lifecycle Lock
+            is_hatching = True
+            st.warning("Pivoting to S6 will automatically fire the Neonate Transition Protocol (Pushing to Hatchling Ledger).")
+        
+        with st.expander("📝 Review Pending Transaction", expanded=True):
+            st.write(f"You are modifying the following {len(selected_eggs)} eggs:")
+            for e in sorted(selected_eggs, key=sort_egg_key):  # Numerically grouped sorting fix
+                st.write(f"- **{e}**")
             
-            st.write("### Action Tray")
-            sc1, sc2, sc3 = st.columns(3)
-            stage_labels = {
-                "S0": "S0 (Intake / Baseline)",
-                "S1": "S1 (Initial Banding)",
-                "S2": "S2 (Developing)",
-                "S3": "S3 (Established)",
-                "S4": "S4 (Mature / Pre-pip)",
-                "S5": "S5 (Pipping / Breaking Shell)",
-                "S6": "S6 (Hatched / Neonate)"
-            }
-            new_stage = sc1.selectbox("Stage", list(stage_labels.keys()), format_func=lambda x: stage_labels[x], help="Select current biological development phase.")
-            
-            chalk_labels = {0: "0 (None)", 1: "1 (Partial/Band)", 2: "2 (Full/Opaque)"}
-            new_chalking = sc2.selectbox("Chalking", [0, 1, 2], format_func=lambda x: chalk_labels[x], help="Determine the calcification opacity of the shell.")
-            new_vascularity = sc3.checkbox("Vascularity (+)", help="Visible red veins under candling? (Indicator of fertility).")
-            
-            st.write("**Health Flags (WARNING: Critical Markers)**")
-            bc1, bc2 = st.columns(2)
-            flag_mold = bc1.checkbox("Molding Detected", help="Fungal growth visible on shell surface.")
-            flag_leak = bc2.checkbox("Leaking Detected", help="Fluid escaping the shell (High Risk).")
-            
-            new_status = 'Active'
-            is_hatching = False
-            if new_stage == "S6":
-                new_status = 'Transferred'  # Per Requirement §2: Neonate Pivot Lifecycle Lock
-                is_hatching = True
-                st.warning("Pivoting to S6 will automatically fire the Neonate Transition Protocol (Pushing to Hatchling Ledger).")
-            
-            with st.expander("📝 Review Pending Transaction", expanded=True):
-                st.write(f"You are modifying the following {len(selected_eggs)} eggs:")
-                for e in sorted(selected_eggs, key=sort_egg_key):  # Numerically grouped sorting fix
-                    st.write(f"- **{e}**")
-                
-                if st.button("🚀 Confirm & Save Observations", type="primary"):
-                    def commit_obs():
-                        obs_payload = []
-                        egg_updates = []
-                        hatchlings = []
+            if st.button("🚀 Confirm & Save Observations", type="primary"):
+                def commit_obs():
+                    obs_payload = []
+                    egg_updates = []
+                    hatchlings = []
+                    
+                    # FIX: N+1 Query Bug. Fetch Mother ID once outside the loop.
+                    m_id = "UNKNOWN"
+                    if is_hatching:
+                        bin_res = supabase.table('bin').select('mother_id').eq('bin_id', active_bin_id).execute()
+                        if bin_res.data: m_id = bin_res.data[0]['mother_id']
+                    
+                    for eg_id in selected_eggs:
+                        obs_payload.append({
+                            "session_id": st.session_state.session_id,
+                            "egg_id": eg_id,
+                            "chalking": new_chalking,
+                            "vascularity": new_vascularity,
+                            "molding": flag_mold,
+                            "leaking": flag_leak,
+                            "notes": f"Stage: {new_stage}"
+                        })
                         
-                        # FIX: N+1 Query Bug. Fetch Mother ID once outside the loop.
-                        m_id = "UNKNOWN"
+                        egg_updates.append({
+                            "egg_id": eg_id,
+                            "current_stage": new_stage,
+                            "status": new_status
+                        })
+                        
                         if is_hatching:
-                            bin_res = supabase.table('bin').select('mother_id').eq('bin_id', active_bin_id).execute()
-                            if bin_res.data: m_id = bin_res.data[0]['mother_id']
-                        
-                        for eg_id in selected_eggs:
-                            obs_payload.append({
+                            hatchlings.append({
+                                "egg_id": eg_id,
+                                "mother_id": m_id,
                                 "session_id": st.session_state.session_id,
-                                "egg_id": eg_id,
-                                "chalking": new_chalking,
-                                "vascularity": new_vascularity,
-                                "molding": flag_mold,
-                                "leaking": flag_leak,
-                                "notes": f"Stage: {new_stage}"
+                                "notes": "System Auto-Pivot from S6 Transition"
                             })
-                            
-                            egg_updates.append({
-                                "egg_id": eg_id,
-                                "current_stage": new_stage,
-                                "status": new_status
-                            })
-                            
-                            if is_hatching:
-                                hatchlings.append({
-                                    "egg_id": eg_id,
-                                    "mother_id": m_id,
-                                    "session_id": st.session_state.session_id,
-                                    "notes": "System Auto-Pivot from S6 Transition"
-                                })
 
-                        # Batch Insert Observations
-                        supabase.table('EggObservation').insert(obs_payload).execute()
+                    # Batch Insert Observations
+                    supabase.table('EggObservation').insert(obs_payload).execute()
+                    
+                    # Batch Update Eggs 
+                    for up in egg_updates:
+                        supabase.table('egg').update({"current_stage": up["current_stage"], "status": up["status"]}).eq("egg_id", up["egg_id"]).execute()
                         
-                        # Batch Update Eggs 
-                        for up in egg_updates:
-                            supabase.table('egg').update({"current_stage": up["current_stage"], "status": up["status"]}).eq("egg_id", up["egg_id"]).execute()
-                            
-                        # Fire Neonate Pivot
-                        if hatchlings:
-                            supabase.table('hatchling_ledger').insert(hatchlings).execute()
-                        
-                        # RED TEAM FIX: Clear the UI selection so the Navigation Lock is physically lifted.
-                        if "obs_multiselect" in st.session_state:
-                            del st.session_state["obs_multiselect"]
-                        
-                        st.success(f"Finalized {len(selected_eggs)} entries!")
-                    safe_db_execute("Batch Obs", commit_obs)
-                    st.rerun()
+                    # Fire Neonate Pivot
+                    if hatchlings:
+                        supabase.table('hatchling_ledger').insert(hatchlings).execute()
+                    
+                    # RED TEAM FIX: Clear the UI selection so the Navigation Lock is physically lifted.
+                    if "obs_multiselect" in st.session_state:
+                        del st.session_state["obs_multiselect"]
+                    
+                    st.success(f"Finalized {len(selected_eggs)} entries!")
+                safe_db_execute("Batch Obs", commit_obs)
+                st.rerun()
 
 # --- 4. HISTORICAL RESONANCE (LISTBOX) ---
 st.subheader("4. Bin History & Diagnostics")
