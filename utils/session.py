@@ -80,6 +80,25 @@ def show_splash_screen():
                     except:
                         pass
                     
+                    # --- RESUME SESSION LOGIC ---
+                    import uuid
+                    from datetime import datetime, timedelta
+
+                    new_session_id = str(uuid.uuid4())
+                    
+                    try:
+                        # REQ: Within 4 hours? Resume. (>4 Hours? New).
+                        last_session = supabase.table('sessionlog').select('*').eq('user_name', st.session_state.observer_name).order('login_timestamp', desc=True).limit(1).execute()
+                        if last_session.data:
+                            last_ts = datetime.fromisoformat(last_session.data[0]['login_timestamp'].replace('Z', '+00:00'))
+                            if (datetime.now().astimezone() - last_ts.astimezone()) < timedelta(hours=4):
+                                new_session_id = last_session.data[0]['session_id']
+                                logger.warning(f"🔄 Resuming Recent Session: {new_session_id}")
+                    except Exception as e:
+                        logger.error(f"Session recovery failed: {e}")
+
+                    st.session_state.session_id = new_session_id
+
                     # 🚨 TELEMETRY FIX: Register SessionLog first to satisfy Supabase Foreign Key constraints!
                     try:
                         supabase.table('sessionlog').upsert({

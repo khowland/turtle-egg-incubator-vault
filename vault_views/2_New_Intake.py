@@ -115,7 +115,9 @@ if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=Tru
                 "finder_turtle_name": finder_turtle_name,
                 "species_id": selected_species['species_id'],
                 "intake_date": str(intake_date),
-                "session_id": st.session_state.session_id
+                "session_id": st.session_state.session_id,
+                "created_by_id": st.session_state.observer_id,
+                "modified_by_id": st.session_state.observer_id
             }).execute()
             m_id = mother_res.data[0]['mother_id']
             
@@ -129,12 +131,21 @@ if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=Tru
                 bin_res = supabase.table('bin').insert({
                     "mother_id": m_id,
                     "bin_id": bin_id_val,
-                    "session_id": st.session_state.session_id
+                    "session_id": st.session_state.session_id,
+                    "created_by_id": st.session_state.observer_id,
+                    "modified_by_id": st.session_state.observer_id
                 }).execute()
                 b_id = bin_res.data[0]['bin_id']
                 
                 # Batch insert eggs for this bin
-                eggs = [{"bin_id": b_id, "status": "Active", "current_stage": "S0"} for _ in range(r['egg_count'])]
+                eggs = [{
+                    "bin_id": b_id, 
+                    "status": "Active", 
+                    "current_stage": "S0", 
+                    "session_id": st.session_state.session_id,
+                    "created_by_id": st.session_state.observer_id,
+                    "modified_by_id": st.session_state.observer_id
+                } for _ in range(r['egg_count'])]
                 supabase.table('egg').insert(eggs).execute()
             
             s.update(label="Intake Successful! Transitioning...", state="complete")

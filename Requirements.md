@@ -1,12 +1,13 @@
 # WINC Incubator Vault - Requirements & Specifications
-Version: 7.2.0 - Biologist Workflow Optimization
+Version: 7.3.0 - Resilient Audit Architecture & Session Recovery
 Lead Biologist: Elisa Fosco
 
 ## 1. [Se] Session & Identity Architecture
 - **Session Gate:** Splash screen forcing identity selection before app access (Vault Login).
 - **Persistence:** Observer identity sticks for the duration of the browser session. Furthermore, the UI must physically read/write the last authenticated user to disk (`last_user.txt`) to dynamically pre-sort the dropdown list, accelerating shared-tablet workflows between shifts.
 - **Environment Gate:** Observations require a mandatory **Restorative Hydration Check** once per session. Atmospheric humidity sensors are deprecated in favor of precision bin-weight tracking.
-- **Auditing:** Every session must generate a unique `SessionID` propagated to all transaction tables for accountability.
+- **Auditing (§6.59):** Every shift generates a unique `session_id`. To ensure clinical continuity, the system supports **Resilient Session Recovery**: if a user re-authenticates within 4 hours of their last activity, the app automatically resumes the previous `session_id` to maintain a contiguous audit thread.
+- **Audit Columns:** All transactional tables MUST carry the following standard audit header: `session_id`, `created_at`, `created_by_id`, `modified_at`, `modified_by_id`.
 
 ## 2. [Ac] Actuator: Field Operations & Workflows
 - **Single-Screen Intake (The "Atomic Entry"):**
@@ -59,8 +60,7 @@ Lead Biologist: Elisa Fosco
 - **Audit:** Consistent enterprise headers and mandatory `Created_datetime` / `Modified_datetime` for all tables.
 - **User Assistance:** Context-aware Help dialogues (fast, hard-coded components to avoid DB/CMS payload latency) will be available on all major interactive screens.
 - **Accessibility:** The default system font size must be boosted (18px+) to accommodate mobile field tablets. The scale must be globally persistent and configurable via the Settings screen.
-- **Telemetry:** All atomic transactions must be wrapped inside `safe_db_execute()`. This securely catches exceptions, notifies the UI safely, and silently commits stack traces to the `SystemLog` table for centralized troubleshooting.
-- **Routing & State Lock:** Application must prioritize maintainability. Navigation "locks" rely purely on native Streamlit UI warnings (`st.warning` / `st.info`) indicating pending transactions. Brittle CSS injections targeting internal Streamlit React components (`data-testid`) are strictly prohibited to ensure long-term codebase stability across version upgrades.
+- **Audit Integrity (§6.59):** Transactional entity tables (`mother`, `bin`, `egg`) utilize the `created_by_session` column for primary audit linkage, while telemetry logs (`systemlog`, `eggobservation`) associate via the direct `session_id` column.
 - **Change Management:** Change Requests (CR) are tracked via independent text files (`ChangeRequest_MMDD_HHMM.txt`). Agents must treat existing CRs as immutable and only execute their requirements upon explicit user command.
 
 =============================================================================

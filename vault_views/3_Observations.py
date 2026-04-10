@@ -189,6 +189,8 @@ else:
                                 "egg_id": eg_id,
                                 "mother_id": m_id,
                                 "session_id": st.session_state.session_id,
+                                "created_by_id": st.session_state.observer_id,
+                                "modified_by_id": st.session_state.observer_id,
                                 "notes": "System Auto-Pivot from S6 Transition"
                             })
 
@@ -197,7 +199,11 @@ else:
                     
                     # Batch Update Eggs 
                     for up in egg_updates:
-                        supabase.table('egg').update({"current_stage": up["current_stage"], "status": up["status"]}).eq("egg_id", up["egg_id"]).execute()
+                        supabase.table('egg').update({
+                            "current_stage": up["current_stage"], 
+                            "status": up["status"],
+                            "modified_by_id": st.session_state.observer_id
+                        }).eq("egg_id", up["egg_id"]).execute()
                         
                     # Fire Neonate Pivot
                     if hatchlings:

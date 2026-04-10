@@ -1,9 +1,10 @@
-# 🐢 WINC Incubator Vault: Operator's Manual (v7.2.1)
+# 🐢 WINC Incubator Vault: Operator's Manual (v7.3.0)
 Welcome to the Incubator Vault. This guide will help you use the app to track our turtle eggs from intake to hatching.
 
 ## 1. Getting Started (Clocking In)
 1. **Launch the App**: Open the link on your tablet or computer.
 2. **Identify Yourself**: Select your name from the dropdown list on the first screen. The app will remember who you are for the rest of your shift.
+3. **Automatic Session Recovery**: If your browser crashes or you accidentally close the tab, don't worry! If you log back in within **4 hours**, the system will automatically recognize your shift and resume your session exactly where you left off, ensuring your signatures and audit history stay perfectly aligned.
 
 ## 2. The Daily Protocol (The "Weight-First" Rule)
 Every day, we check the health of our turtle bins.

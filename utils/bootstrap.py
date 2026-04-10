@@ -20,7 +20,7 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
     
     # 1. Ensure Global Session ID for Audit Trace
     if 'session_id' not in st.session_state:
-        st.session_state.session_id = str(uuid.uuid4())[:8]
+        st.session_state.session_id = str(uuid.uuid4())
         
     # 2. Check Identity
     if not st.session_state.get('observer_id'):
