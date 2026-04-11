@@ -5,11 +5,12 @@
 ---
 
 ## 1. PROJECT CONTEXT & PERSONA
-You are an **Expert Wisconsin Turtle Biologist & Senior Python Developer**. You are building the **"Incubator Vault"** for the **Wildlife In Need Center (WINC)**.
+You are an **Expert Wisconsin Turtle Biologist & Senior Python Developer**, now also functioning as an **Expert Senior QA Tester & Software Engineer**. You specialize in incubating and hatching native Wisconsin turtle eggs and maintaining high-fidelity clinical software systems.
 
 - **Workspace:** `/workspace`
 - **Master Spec:** `/workspace/Requirements.md` — READ THIS FIRST. It contains everything.
-- **Biological Constants:** `/workspace/expert.md`
+- **Biological Specialist Skill:** `/workspace/expert.md` (Covers ALL 11 native species)
+- **QA & Testing Skill:** `/workspace/qa_expert.md`
 - **Existing Schema:** `/workspace/supabase_db/migrations/20260405_initial_schema.sql`
 - **Existing POC App:** `/workspace/app.py` (v5.4 skeleton — to be replaced)
 - **Backend:** Supabase (PostgreSQL) — credentials in `/workspace/.env`
@@ -64,7 +65,7 @@ def batch_save_observations(supabase, session_id, egg_ids, observation_data):
     """Save a single observation record for each selected egg.
     
     Creates one EggObservation row per egg_id. If stage or status changed,
-    also updates the egg table. Logs to SystemLog on success or failure.
+    also updates the egg table. Logs to system_log on success or failure.
     
     Args:
         supabase: Supabase client instance.
@@ -76,7 +77,7 @@ def batch_save_observations(supabase, session_id, egg_ids, observation_data):
         int: Number of observations successfully saved.
     
     Raises:
-        Exception: If database write fails (logged to SystemLog).
+        Exception: If database write fails (logged to system_log).
     """
 ```
 
@@ -138,8 +139,8 @@ git push origin main
 
 **Step A.1: Core Utilities**
 - `utils/db.py` — Supabase client with `@st.cache_resource`, connection check
-- `utils/session.py` — Observer dropdown logic, `session_id` generation, `SessionLog` insert
-- `utils/audit.py` — The `logged_write()` wrapper from Requirements §7
+- `utils/session.py` — Observer dropdown logic, `session_id` generation, `session_log` insert
+- `utils/audit.py` — The `safe_db_execute()` wrapper from Requirements §35.4
 - `utils/css.py` — Full CSS from Requirements §3 (design tokens, glass cards, pulse animation)
 - **GIT COMMIT:** `[Phase-A][1] Implement core utilities (db, session, audit, css)`
 
@@ -155,13 +156,13 @@ git push origin main
 **Step A.3: Schema Migration v2**
 - Create `/workspace/supabase_db/migrations/20260406_schema_v2.sql`
 - This migration MUST:
-  1. CREATE `observer` table (see Requirements §2.F)
-  2. CREATE `incubator` table (see Requirements §2.G)
-  3. ALTER `mother` — add `harvest_location`, `gps_lat`, `gps_lon`, `clinical_notes`
-  4. ALTER `bin` — add `incubator_id` FK, `substrate`, `bin_label`
-  5. ALTER `egg` — add `mark_description`
-  6. ALTER `EggObservation` — add `dented`, `discolored`, `observer_id`, `stage_at_observation`
-  7. ALTER `IncubatorObservation` — add `incubator_id`, `observer_id`
+  1. CREATE `observer` table (see Requirements §35)
+  2. CREATE `bin` table (see Requirements §35)
+  3. ALTER `mother` — add `created_by_id`, `modified_by_id`, `session_id`, `clinical_notes`
+  4. ALTER `bin` — add `created_by_id`, `modified_by_id`, `session_id`, `substrate`
+  5. ALTER `egg` — add `created_by_id`, `modified_by_id`, `session_id`
+  6. ALTER `egg_observation` — add `dented`, `discolored`, `observer_id`, `stage_at_observation`
+  7. ALTER `bin_observation` — add `bin_id`, `observer_id`
   8. INSERT seed data for `observer` table (at least: `elisa/Elisa Fosco/Lead`, `kevin/Kevin Howland/Staff`)
   9. INSERT seed data for `incubator` table (at least: `INC-01/Incubator Alpha`)
 - Execute this migration against Supabase using the service role key
@@ -214,7 +215,7 @@ Follow Requirements §5 W1 wireframes and field tables exactly.
 
 **Step B.3: Intake Wizard — Steps 3+4 (Eggs + Confirm)**
 - Step 3: Auto-generation preview of egg IDs
-- Step 4: Summary card + Save button → atomic transaction (mother → bin → N eggs → SystemLog)
+- Step 4: Summary card + Save button → atomic transaction (mother → bin → N eggs → system_log)
 - All writes through `logged_write()` wrapper
 - Success: `st.balloons()` + reset wizard state
 - **GIT COMMIT:** `[Phase-B][3] Intake wizard steps 3-4 — egg generation and atomic save`
@@ -260,7 +261,7 @@ After completing each phase, verify:
 - [ ] All section headers use `# ===` / `# ---` dividers
 - [ ] All Supabase queries include `is_deleted = FALSE` filter
 - [ ] Observer dropdown blocks writes when nothing selected
-- [ ] All write operations logged to `SystemLog`
+- [ ] All write operations logged to `system_log`
 - [ ] All changes committed and pushed to GitHub
 - [ ] `.env` is NOT in the git history
 
@@ -271,7 +272,7 @@ After completing each phase, verify:
 - **NEVER** use UUIDs for display. Always use Clue Chain natural keys.
 - **NEVER** hard-delete records. All deletes are soft (`is_deleted = TRUE`).
 - **ALWAYS** filter `WHERE is_deleted = FALSE` in every SELECT query.
-- **ALWAYS** log writes through the `logged_write()` audit wrapper.
+- **ALWAYS** log writes through the `safe_db_execute()` audit wrapper.
 - **ALWAYS** use plain, non-technical English for UI labels (this is for volunteers).
 - **READ `Requirements.md` FIRST** — it has all wireframes, field tables, and edge cases.
 

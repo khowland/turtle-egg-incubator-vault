@@ -10,6 +10,7 @@ import streamlit as st
 import uuid
 from datetime import datetime
 from utils.db import get_supabase
+from utils.bootstrap import get_resilient_table
 from utils.logger import logger
 
 def init_session():
@@ -36,9 +37,8 @@ def show_splash_screen():
     st.markdown("<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 WINC Incubator Vault</h1><p style='color: #94A3B8;'>Please select your name to begin the session</p></div>", unsafe_allow_html=True)
     supabase = get_supabase()
     
-    # Requirement §1.6: Fetch active observers for the gate
     try:
-        observers = supabase.table('observer').select('*').eq('is_active', True).execute().data
+        observers = supabase.table('observer').select('observer_id, display_name, role, is_active').eq('is_active', True).execute().data
         if not observers:
             st.error("No active observers found in registry.")
             st.stop()
@@ -46,7 +46,7 @@ def show_splash_screen():
         cols = st.columns([1, 2, 1])
         with cols[1]:
             with st.form("login_form"):
-                options = {f"{o['display_name']} ({o['role']})": o['id'] for o in observers}
+                options = {f"{o['display_name']} ({o['role']})": o['observer_id'] for o in observers}
                 
                 # REQ: Auto-default to last user from previous session (Field-Friendly)
                 last_user = ""
@@ -67,7 +67,7 @@ def show_splash_screen():
                         
                 selected = st.selectbox("Observer Identity", options=ordered_keys, index=default_idx)
                 
-                if st.form_submit_button("Launch Vault", width='stretch'):
+                if st.form_submit_button("Launch Vault", use_container_width=True):
                     st.session_state.observer_id = options[selected]
                     st.session_state.observer_name = selected.split(' (')[0]
                     
@@ -80,28 +80,33 @@ def show_splash_screen():
                     except:
                         pass
                     
-                    # --- RESUME SESSION LOGIC ---
+                    # --- GLOBAL SESSION RESUME LOGIC §1.8 ---
                     import uuid
                     from datetime import datetime, timedelta
 
                     new_session_id = str(uuid.uuid4())
+                    resume_user = None
                     
                     try:
-                        # REQ: Within 4 hours? Resume. (>4 Hours? New).
-                        last_session = supabase.table('session_log').select('*').eq('user_name', st.session_state.observer_name).order('login_timestamp', desc=True).limit(1).execute()
+                        # Standard §1.8: Within 4 hours? Resume GLOBAL last session.
+                        last_session = supabase.table('session_log').select('*').order('login_timestamp', desc=True).limit(1).execute()
                         if last_session.data:
                             last_ts = datetime.fromisoformat(last_session.data[0]['login_timestamp'].replace('Z', '+00:00'))
                             if (datetime.now().astimezone() - last_ts.astimezone()) < timedelta(hours=4):
                                 new_session_id = last_session.data[0]['session_id']
-                                logger.warning(f"🔄 Resuming Recent Session: {new_session_id}")
+                                resume_user = last_session.data[0]['user_name']
+                                logger.warning(f"🔄 Global Resume: Adopting shift session {new_session_id} from {resume_user}")
                     except Exception as e:
-                        logger.error(f"Session recovery failed: {e}")
+                        logger.error(f"Global recovery failed: {e}")
 
                     st.session_state.session_id = new_session_id
+                    
+                    if resume_user:
+                        st.session_state.resume_notice = f"📍 Resuming active shift started by **{resume_user}**"
 
                     # 🚨 TELEMETRY FIX: Register SessionLog first
                     try:
-                        supabase.table('session_log').upsert({
+                        get_resilient_table(supabase, 'session_log').upsert({
                             "session_id": st.session_state.session_id,
                             "user_name": st.session_state.observer_name,
                             "user_agent": "WINC Field App"
@@ -110,7 +115,7 @@ def show_splash_screen():
                         pass
                         
                     try:
-                        supabase.table('system_log').insert({
+                        get_resilient_table(supabase, 'system_log').insert({
                             "session_id": st.session_state.session_id,
                             "event_type": "ACCESS",
                             "event_message": f"Biologist {st.session_state.observer_name} clocked in."
@@ -126,7 +131,7 @@ def render_custom_sidebar():
     """Displays observer info at the top of the sidebar with SessionID."""
     st.sidebar.markdown(f"### 👤 {st.session_state.get('observer_name', 'User')}")
     st.sidebar.caption(f"SessionID: {st.session_state.get('session_id', 'Unknown')}")
-    if st.sidebar.button("Log Out", key="global_logout_btn", width='stretch'): 
+    if st.sidebar.button("Log Out", key="global_logout_btn", use_container_width=True): 
         st.session_state.observer_id = None
         st.session_state.env_gate_synced = False
         st.rerun()

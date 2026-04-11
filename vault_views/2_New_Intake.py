@@ -17,7 +17,7 @@
 """
 
 import streamlit as st
-from utils.bootstrap import bootstrap_page, safe_db_execute
+from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
 
 supabase = bootstrap_page("New Intake", "🛡️")
 
@@ -165,16 +165,18 @@ if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=Tru
                 } for _ in range(r['egg_count'])]
                 egg_res = supabase.table('egg').insert(new_eggs).execute()
                 
-                # 4. Generate "Day Zero" Baseline Observation for Audit History §6.59
+                # 4. Generate "Day Zero" Baseline Observation for Audit History §35.4
                 baseline_obs = [{
                     "session_id": st.session_state.session_id,
                     "egg_id": e['egg_id'],
                     "bin_id": b_id,
                     "observer_id": st.session_state.observer_id,
+                    "created_by_id": st.session_state.observer_id,
+                    "modified_by_id": st.session_state.observer_id,
                     "stage_at_observation": "S0",
                     "observation_notes": "Clinical Intake Baseline"
                 } for e in egg_res.data]
-                supabase.table('egg_observation').insert(baseline_obs).execute()
+                get_resilient_table(supabase, 'egg_observation').insert(baseline_obs).execute()
             
             s.update(label=f"Intake Successful! Case {case_num} established with {total_eggs} eggs.", state="complete")
             st.balloons()

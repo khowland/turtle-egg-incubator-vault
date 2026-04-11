@@ -3,6 +3,7 @@
 ## 1. Getting Started: The Login Splash
 When you first open the Vault, you must select your name from the **Observer Identity** list.
 *   **Persistent Login**: The system will remember your name for the rest of your shift.
+*   **Global Shift Continuity**: If you or a colleague were active in the last 4 hours, the Vault will automatically resume the current "Shift Session." This ensures all your research notes for the morning are grouped together.
 *   **Session Handshake**: Your entry into the Command Center is logged for research integrity.
 
 ## 2. New Intake: Bringing Eggs into the Vault
@@ -17,13 +18,14 @@ This is your primary tool for clinical monitoring.
 1.  **The Hydration Gate**: You MUST record the bin's weight before you can see the eggs. This ensures our hydration protocols are never skipped.
 2.  **The 4-Column Grid**: Large icons show the status of every egg.
 3.  **Biological Icons**: 
-    *   **Equator Band**: Chalking (1, 2, or 3).
+    *   **Equator Band**: Chalking (0, 1, or 2). [0: None, 1: Partial, 2: Full]
     *   **Red Pulse**: Vascularity detected.
     *   **Star-Crack**: Stage S5 (Pipping).
 4.  **Property Matrix**: Select multiple eggs to update their Stage and Health markers in bulk.
 
 ## 4. 🔄 Lifecycle: Retirement & Resurrection (v7.9.7)
 Data is never truly lost in the Vault; it simply moves between **Active** and **Archive**.
+Note: Archiving a bin "Soft Deletes" it. Dashboard KPI metrics explicitly filter out eggs from archived bins to prevent "Ghost Eggs" data anomalies.
 
 ### 🗺️ The Resilience Flow
 ```mermaid
@@ -43,7 +45,7 @@ When a Bin has 0 active eggs (everything has hatched or been removed):
 1.  Go to the **Dashboard**.
 2.  Locate the **"Workbench Cleanup"** card.
 3.  Select the Bin and move the **"Confirm Retirement"** slider.
-4.  Click **Retire Bin**. (The data is archived and a success event is logged).
+4.  Click **Retire Bin**. (The data is archived and eggs are removed from active dashboard KPIs).
 
 ### ✨ How to Undo a Deletion (Resurrection)
 If you accidentally retire a Bin or Case:
@@ -58,4 +60,6 @@ When an egg reaches **Stage S6 (Hatched)**:
 3.  Physical subject is moved to juvenile enclosures.
 
 ## 6. Accountability & Logs
-At the bottom of the Observation screen, use the **Live Session Audit** to review your actions. This is your personal shift diary to ensure everything was logged correctly before you leave.
+At the bottom of the Observation screen, use the **Live Session Audit** to review your actions. 
+
+**Note on Resumed Shifts**: If you see a banner stating **"📍 Resuming active shift started by..."**, it means your work is being added to the existing shift folder for clinical continuity. You still get full personal credit for your actions via your Observer ID.

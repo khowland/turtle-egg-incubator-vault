@@ -16,6 +16,8 @@
 import streamlit as st
 from utils.session import init_session
 
+st.set_page_config(page_title="Incubator Vault | WINC", page_icon="🐢", layout="wide")
+
 init_session()
 
 # Navigation definition

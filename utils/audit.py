@@ -22,7 +22,7 @@ from utils.logger import logger
 # =============================================================================
 
 def logged_write(supabase, session_id, event_type, payload_dict, db_operations_fn):
-    """Execute a database function and log the result to SystemLog.
+    """Execute a database function and log the result to system_log.
     
     Wrapped in try/except to ensure both successes and failures are
     audited. After a successful write, clears Streamlit's data cache
@@ -46,9 +46,9 @@ def logged_write(supabase, session_id, event_type, payload_dict, db_operations_f
         # Execute the actual database work
         result = db_operations_fn()
         
-        # Requirement §7: Log success to SystemLog
+        # Requirement §35: Log success to system_log
         # Column names MUST match schema: event_type, event_message, payload (JSONB)
-        supabase.table("SystemLog").insert({
+        supabase.table("system_log").insert({
             "session_id": session_id,
             "event_type": event_type,
             "event_message": f"{event_type} completed successfully",
@@ -63,10 +63,10 @@ def logged_write(supabase, session_id, event_type, payload_dict, db_operations_f
         return result
         
     except Exception as e:
-        # Requirement §7: Log all failures to SystemLog with ERROR type
+        # Requirement §35: Log all failures to system_log with ERROR type
         logger.error(f"❌ Audit: {event_type} FAILED: {str(e)}")
         try:
-            supabase.table("SystemLog").insert({
+            supabase.table("system_log").insert({
                 "session_id": session_id,
                 "event_type": "ERROR",
                 "event_message": f"Failure during {event_type}: {str(e)}",
@@ -74,7 +74,7 @@ def logged_write(supabase, session_id, event_type, payload_dict, db_operations_f
             }).execute()
         except Exception as log_err:
             # If even the error log fails, log to console — don't lose the original error
-            logger.error(f"⚠️ Audit: Failed to log error to SystemLog: {log_err}")
+            logger.error(f"⚠️ Audit: Failed to log error to system_log: {log_err}")
         
         # Re-raise for UI-level error handling
         raise e

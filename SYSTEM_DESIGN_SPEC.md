@@ -61,7 +61,14 @@ Every transactional table in the ledger contains the following mandatory columns
 *   `created_at` (TIMESTAMPTZ): Automatic record creation timestamp.
 *   `modified_at` (TIMESTAMPTZ): Automatic last-edit timestamp (Trigger managed).
 *   `created_by_id` (TEXT): FK to `observer.observer_id`.
+*   `created_by_id` (TEXT): FK to `observer.observer_id`.
 *   `modified_by_id` (TEXT): FK to `observer.observer_id`.
+
+### B. Session Continuity Protocol (§36)
+The implementation utilizes a **Global Lookback** mechanism:
+1.  **Persistence**: Browsing sessions are validated against the `session_log`.
+2.  **Resumption**: Any new authentication within 4 hours of the *global* last activity adopts the existing `session_id`.
+3.  **Traceability**: Session adoption unifies the "Shift Folder" in reporting while maintaining separate `observer_id` authorship for each row.
 
 ### B. Table Registry
 | Table Name | Description | Primary Key |
@@ -71,11 +78,11 @@ Every transactional table in the ledger contains the following mandatory columns
 | **`mother`** | The source maternal record (Case # and Finder). | `mother_id` |
 | **`bin`** | The physical incubation container. | `bin_id` |
 | **`egg`** | The individual biological subject. | `egg_id` |
-| **`sessionlog`** | Shift/Login events and user agent tracking. | `session_id` |
-| **`systemlog`** | Global error telemetry and audit trails. | `log_id` |
-| **`eggobservation`** | Physical measurements (Chalking, Vasc, Health). | `detail_id` |
-| **`incubatorobservation`** | Environmental metrics (Weight, Temp, Water). | `obs_id` |
-| **`hatchling_ledger`** | Post-pipping neonate clinical records. | `id` |
+| **`session_log`** | Shift/Login events and user agent tracking. | `session_id` |
+| **`system_log`** | Global error telemetry and audit trails. | `system_log_id` |
+| **`egg_observation`** | Physical measurements (Chalking, Vasc, Health). | `egg_observation_id` |
+| **`bin_observation`** | Environmental metrics (Weight, Temp, Water). | `bin_observation_id` |
+| **`hatchling_ledger`** | Post-pipping neonate clinical records. | `hatchling_ledger_id` |
 | **`development_stage`** | Phases S0 through S6. | `stage_id` |
 | **`biological_property`** | Stage-linked physical markers (Lookup). | `property_id` |
 
@@ -104,7 +111,8 @@ Every transactional table in the ledger contains the following mandatory columns
 ## 5. Maintenance Protocol
 *   **Heartbeat**: `scripts/heartbeat_ping.py` must be executed via Cron every 24 hours to prevent Supabase auto-pausing.
 *   **Schema Updates**: Any structure changes must be reflected first in `v7_3_0_FULL_SCHEMA.sql`.
-*   **Audit Check**: Run `scripts/regression_check.py` periodically to ensure data-integrity triggers are alive.
+*   **Audit Check**: Run `scripts/verify_integrity.py` periodically to ensure data-integrity triggers are alive.
+*   **Session Audit**: Ensure the 4-hour `timedelta` in `utils/session.py` remains aligned with WINC business requirements.
 
 ---
 *Signed, Antigravity (Sovereign Sprint Agent)*

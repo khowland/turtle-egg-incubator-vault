@@ -1,4 +1,5 @@
 # 🛡️ Project Requirements: Incubator Vault v7.9.4
+# (Standard §35 & §36 Enforcement Edition)
 
 ## 🌐 Project Scope & Boundaries
 *   **In-Scope**: Intake of mother turtles, clinical incubation management, real-time biological triage, and hatching outcome recording (S0-S6).
@@ -9,6 +10,7 @@
 *   **Session Gate**: Splash screen forcing identity selection (Vault Login).
 *   **Persistence**: Observer identity sticks for the duration of the browser session.
 *   **Auditing (§6.59)**: Every transactional table carries the standard audit header: `session_id`, `created_at`, `created_by_id`, `modified_at`, `modified_by_id`.
+*   **Global Shift Continuity (§36)**: Any activity on the vault within 4 hours is unified under a single `session_id` to ensure clinical shift legibility.
 
 ## 2. [Ac] Actuator: Field Operations
 *   **Clinical Intake Command**: Single-screen atomic transaction to establish Bins and Eggs.
@@ -32,4 +34,22 @@
 
 ## 6. Technical Stack
 *   **Stack**: Streamlit (UI), Supabase (DB), Python (Logic).
-*   **Convention**: Snake_case namespaces, Singular table names, Enterprise Header metadata.
+
+### **§35. Enterprise Naming Standards (The Measuring Stick)**
+To ensure clinical data integrity and software engineering excellence, the following naming conventions are mandatory across the entire stack (Database, API, and Code):
+
+1.  **Table Naming**: Must be **Singular** and **Snake_case** (e.g., `bin_observation`, `egg_observation`, `session_log`).
+2.  **Primary Key (PK) Convention**: Every table must utilize a contextual identifier following the pattern `{table_name}_id` (e.g., `egg_observation_id`, `mother_id`). Generic labels like `id` or `obs_id` are strictly prohibited.
+3.  **Foreign Key (FK) Convention**: Must match the PK of the referenced table (e.g., `species_id`, `mother_id`). 
+4.  **Authorship Metadata**: Every transactional table must include:
+    *   `created_by_id`: UUID/Text FK to the `observer_id` who created the record.
+    *   `modified_by_id`: UUID/Text FK to the `observer_id` who last edited the record.
+    *   `session_id`: Tracking identifier for the specific field session.
+5.  **Boilerplate Consistency**: Use `snake_case` for all column names and variables. Avoid acronyms; use full descriptive terms (e.g., `bin_weight_g` instead of `bw_g`).
+
+### **§36. Global Shift Continuity Standard**
+To maximize audit legibility for small teams, the Vault implements a shared-session model:
+1.  **Shift Window**: 4 hours from the most recent database transaction.
+2.  **ID Adoption**: New logins within the window adopt the previous `session_id`.
+3.  **Cross-Actor Integrity**: While the `session_id` is shared, individual records maintain forensic accountability via `created_by_id` / `modified_by_id` columns, correctly identifying the specific Biologist who performed the work.
+4.  **Transparency**: Resumed sessions are visually identified in the Command Center.

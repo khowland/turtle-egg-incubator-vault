@@ -58,13 +58,13 @@ with tabs[0]:
     st.subheader("Observer Registry")
     if not is_locked:
         st.info("💡 **How to manage users:** You cannot delete users who have recorded data. Instead, uncheck `Login Allowed` to disable their app access.")
-    res_users = supabase.table('observer').select("id, display_name, role, is_active").execute()
+    res_users = supabase.table('observer').select("observer_id, display_name, role, is_active").execute()
     
     # We physically hide the ID from the user UI, but allow editing names/roles
     edited_users = st.data_editor(
         pd.DataFrame(res_users.data), 
         column_config={
-            "id": None, # Physically hides the column from rendering
+            "observer_id": None, # Physically hides the column from rendering
             "display_name": st.column_config.TextColumn("Display Name", required=True),
             "role": st.column_config.SelectboxColumn("Role", options=["Biologist", "Admin", "Staff", "Guest"], required=True),
             "is_active": st.column_config.CheckboxColumn("Login Allowed", default=True, help="If checked, this user can access the field app.")
@@ -80,13 +80,13 @@ with tabs[0]:
                 to_upsert = []
                 for idx, row in edited_users.iterrows():
                     # Generate a new random UUID string if adding a completely new blank user row
-                    uid = row.get("id")
+                    uid = row.get("observer_id")
                     if pd.isna(uid) or str(uid).strip() == "":
                         import uuid
                         uid = str(uuid.uuid4())
                         
                     to_upsert.append({
-                        "id": uid,
+                        "observer_id": uid,
                         "display_name": row["display_name"],
                         "role": row["role"],
                         "is_active": row["is_active"]
@@ -162,8 +162,15 @@ with tabs[1]:
         safe_db_execute("Species Audit", sync_species, success_message=st.session_state.get('audit_msg'))
 
 with tabs[2]:
-    res_stages = supabase.table('development_stage').select("*").execute()
-    st.data_editor(pd.DataFrame(res_stages.data), disabled=True if is_locked else [])
+    st.info("Biological Development Icons are currently locked to the Titan Engine v7.9 Standard.")
+    st.markdown("""
+    | Stage | Description | Icon |
+    | :--- | :--- | :--- |
+    | **S0** | Initial Intake | ⚪ |
+    | **S1-S4** | Developmental Growth | 🧬 |
+    | **S5** | Pipping Initiated | 🌟 |
+    | **S6** | Hatched | ✨ |
+    """)
 
 with tabs[3]:
     st.subheader("📦 The Resurrection Vault")
@@ -207,5 +214,5 @@ with tabs[3]:
 
 with tabs[4]:
     st.subheader("📜 System Audit History")
-    logs = supabase.table('systemlog').select("*").order('timestamp', desc=True).limit(50).execute().data
+    logs = supabase.table('system_log').select("*").order('timestamp', desc=True).limit(50).execute().data
     st.dataframe(pd.DataFrame(logs), use_container_width=True)

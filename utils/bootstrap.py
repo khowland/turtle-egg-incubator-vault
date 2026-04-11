@@ -16,7 +16,7 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
     Standardized page initialization.
     Ensures Session IDs and Database clients are ready.
     """
-    st.set_page_config(page_title=f"{title} | WINC", page_icon=icon, layout="wide")
+    # st.set_page_config removed v7.9.5 — now handled by app.py / st.navigation
     
     # 1. Ensure Global Session ID for Audit Trace
     if 'session_id' not in st.session_state:
@@ -46,22 +46,37 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         
-        /* Force upscale and uniform font through entire vault */
-        html, body, [class*="css"], .stMarkdown, p, div, label, span, input, select {{
+        /* Unified font through entire vault */
+        html, body, [data-testid="stAppViewContainer"] {{
             font-family: 'Inter', sans-serif !important;
+        }}
+        
+        /* Clinical Scoped font-size (§6.2) */
+        .stMarkdown, p, label, .stButton > button, .stSelectbox, .stTextInput, .stNumberInput {{
             font-size: {st.session_state.global_font_size}px !important;
             line-height: {st.session_state.line_height} !important;
         }}
         
         {contrast_css}
         
-        /* Hide distracting Streamlit elements */
-        [data-testid="stHeader"] {{ visibility: hidden; }}
+        /* Ensure the toggle button is visible without intrusive styling */
+        [data-testid="stHeader"] {{ 
+            background: transparent !important;
+            visibility: visible !important;
+        }}
+        
         footer {{ visibility: hidden; }}
     </style>
     """, unsafe_allow_html=True)
              
     return get_supabase()
+
+def get_resilient_table(supabase, table_name):
+    """
+    Standard §35: Direct Table Access.
+    The database is fully transformed to singular snake_case.
+    """
+    return supabase.table(table_name)
 
 def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs):
     """
@@ -73,7 +88,7 @@ def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs)
         # v7.9.3: Forensic Success Audit
         if success_message:
             try:
-                get_supabase().table('system_log').insert({
+                get_resilient_table(get_supabase(), 'system_log').insert({
                     "session_id": st.session_state.get('session_id', 'SYSTEM'),
                     "event_type": "AUDIT",
                     "event_message": success_message
@@ -84,9 +99,9 @@ def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs)
     except Exception as e:
         st.error(f"❌ Biological Ledger Error ({operation_name}): Defaulting to Safe-State.")
         
-        # 🚨 TELEMETRY: Record error to SystemLog for debugging
+        # 🚨 TELEMETRY: Record error to system_log for debugging
         try:
-            get_supabase().table('system_log').insert({
+            get_resilient_table(get_supabase(), 'system_log').insert({
                 "session_id": st.session_state.get('session_id', 'UNKNOWN_ERR'),
                 "event_type": "ERROR",
                 "event_message": f"[{operation_name}] CRASH: {str(e)}"
