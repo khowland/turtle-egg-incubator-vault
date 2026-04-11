@@ -73,7 +73,7 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
         }}
         
         /* 🥚 Incubator Tray: High-Contrast Grid for Biological Clarity */
-        .egg-tray {
+        .egg-tray {{
             background-color: #0f172a !important; /* Deep Slate */
             padding: 15px;
             border-radius: 12px;
@@ -81,11 +81,11 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
             border: 1px solid #334155;
             box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
             margin-bottom: 10px;
-        }
+        }}
         
-        .egg-tray p, .egg-tray b, .egg-tray span {
+        .egg-tray p, .egg-tray b, .egg-tray span {{
             color: #f8fafc !important;
-        }
+        }}
 
         footer {{ visibility: hidden !important; }}
     </style>
