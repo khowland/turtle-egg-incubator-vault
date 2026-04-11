@@ -1,22 +1,17 @@
 """
-# ==============================================================================
-# Module:        vault_views/2_New_Intake.py
-# Project:       Incubator Vault v7.2.1
-# Client:        Wildlife In Need Center (WINC)
-# Author:        Antigravity (Sovereign Sprint)
-# Description:   Fully-Operational Intake with Atomic Mother/Bin/Egg Persistence.
-#
-# Revision History:
-# ------------------------------------------------------------------------------
-# Date          Author          Version     Description
-# ------------------------------------------------------------------------------
-# 2026-04-08    Antigravity     7.2.0       Initial Gold Master Release
-# 2026-04-09    Antigravity     7.2.1       Added Form Validation safeguards
-# 2026-04-10    Antigravity     7.9.4       Clinical Sovereignty Edition
-# ==============================================================================
+=============================================================================
+Module:        vault_views/2_New_Intake.py
+Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
+Requirement:   Matches Standard [§35, §36]
+Dependencies:  utils.bootstrap
+Inputs:        st.session_state (observer_id, session_id, bin_rows)
+Outputs:       mother, bin, egg, egg_observation
+Description:   Refactored Intake with Atomic Persistence and Unique Bin IDs.
+=============================================================================
 """
 
 import streamlit as st
+import datetime
 from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
 
 supabase = bootstrap_page("New Intake", "🛡️")
@@ -33,7 +28,7 @@ with st.sidebar.expander("ℹ️ Screen Help - Step-by-Step"):
     5. Hit **🚀 Finalize Intake** to instantly drop the eggs into our Ledger and automatically navigate to the Observation phase!
     """)
 
-# Strip +/- spinner controls from number inputs to force direct keyboard entry
+# Strip +/- spinner controls from number inputs
 st.markdown("""
 <style>
     input[type="number"]::-webkit-inner-spin-button, 
@@ -48,8 +43,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- DATA FETCHING ---
-res = supabase.table('species').select("species_id, species_code, common_name, intake_count").execute()
-species_data = {f"{s['species_code']} - {s['common_name']}" + (" (Stinkpot)" if s['species_code'] == 'MK' else ""): s for s in res.data}
+species_res = supabase.table('species').select("species_id, species_code, common_name, intake_count").execute()
+species_data_map = {f"{s['species_code']} - {s['common_name']}" + (" (Stinkpot)" if s['species_code'] == 'MK' else ""): s for s in species_res.data}
 
 # --- STATE ---
 if 'bin_rows' not in st.session_state:
@@ -58,28 +53,29 @@ if 'bin_rows' not in st.session_state:
 # --- Clinical Origin ---
 with st.container(border=True):
     st.subheader("🧬 Clinical Origin")
-    c1, c2, c3 = st.columns([2, 1, 1])
-    selected_label = c1.selectbox("Turtle Species", list(species_data.keys()))
-    case_num = c2.text_input("WINC Case #", placeholder="2026-XXXX")
-    intake_date = c3.date_input("Intake Date")
+    col1, col2, col3 = st.columns([2, 1, 1])
+    selected_label = col1.selectbox("Turtle Species", list(species_data_map.keys()))
+    case_number = col2.text_input("WINC Case #", placeholder="2026-XXXX")
+    intake_date = col3.date_input("Intake Date")
     
-    # Advanced Biological Markers v7.7.0
-    lc1, lc2, lc3 = st.columns(3)
-    finder_turtle_name = lc1.text_input("Finder/Turtle Name")
-    m_condition = lc2.selectbox("Mother Condition", ["Alive", "Injured", "DOA (Salvage)"], index=0)
-    m_extract = lc3.selectbox("Extraction Method", ["Natural", "Induced", "Surgical", "Post-Mortem Salvage"], index=0)
+    l_col1, l_col2, l_col3 = st.columns(3)
+    finder_name = l_col1.text_input("Finder/Turtle Name")
+    mother_condition = l_col2.selectbox("Mother Condition", ["Alive", "Injured", "DOA (Salvage)"], index=0)
+    extraction_method = l_col3.selectbox("Extraction Method", ["Natural", "Induced", "Surgical", "Post-Mortem Salvage"], index=0)
     
-    loc1, loc2 = st.columns([2, 1])
-    discovery_loc = loc1.text_input("Found at (Location)", placeholder="Roadside, Backyard, Wetland, etc.", help="Context for thermal shock assessment.")
-    carapace_len = loc2.number_input("Carapace Length (mm)", 0, 500, value=0)
+    loc_col1, loc_col2 = st.columns([2, 1])
+    discovery_location = loc_col1.text_input("Found at (Location)", placeholder="Roadside, Backyard, Wetland, etc.", help="Context for thermal shock assessment.")
+    carapace_length = loc_col2.number_input("Carapace Length (mm)", 0, 500, value=0)
 
-    selected_species = species_data[selected_label]
-    next_intake_num = (selected_species['intake_count'] or 0) + 1
+    selected_species = species_data_map[selected_label]
+    next_intake_number = (selected_species['intake_count'] or 0) + 1
 
 # --- Bin Matrix ---
 st.subheader("Bin Setup")
+timestamp_suffix = datetime.datetime.now().strftime('%y%m%d%H%M')
+
 for i, row in enumerate(st.session_state.bin_rows):
-    bin_code = f"{selected_species['species_code']}{next_intake_num}-{finder_turtle_name.replace(' ', '')}-{row['bin_num']}"
+    bin_code = f"{selected_species['species_code']}{next_intake_number}-{finder_name.replace(' ', '')}-{row['bin_num']}-{timestamp_suffix}"
     cols = st.columns([3, 2, 3, 1])
     cols[0].markdown(f"**Bin Code:** `{bin_code}`")
     row['egg_count'] = cols[1].number_input("Egg Count", 1, 99, row['egg_count'], key=f"egg_{i}")
@@ -95,18 +91,16 @@ if st.button("➕ Add Bin"):
         st.rerun()
 
 # --- ATOMIC COMMIT ---
-
-c_btn1, c_btn2 = st.columns([1, 4])
-if c_btn1.button("❌ Cancel", use_container_width=True):
+btn_col1, btn_col2 = st.columns([1, 4])
+if btn_col1.button("❌ Cancel", use_container_width=True):
     st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
     st.switch_page("vault_views/1_Dashboard.py")
 
-if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=True):
-    # RED TEAM FIX: Edge Case Validation
-    if not finder_turtle_name.strip():
+if btn_col2.button("🚀 Finalize Intake", type="primary", use_container_width=True):
+    if not finder_name.strip():
         st.error("❌ Validation Failed: A 'Finder / Turtle Name' is strictly required to generate Bin UUIDs.")
         st.stop()
-    if not case_num.strip():
+    if not case_number.strip():
         st.error("❌ Validation Failed: Please enter a valid 'WormD Case #'.")
         st.stop()
     if len(st.session_state.bin_rows) == 0:
@@ -114,74 +108,92 @@ if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=Tru
         st.stop()
 
     def commit_all():
-        with st.status("Writing Clinical Ledger...") as s:
-            # 1. Update Species Count
-            supabase.table('species').update({"intake_count": next_intake_num}).eq('species_id', selected_species['species_id']).execute()
-            
-            # 2. Insert Mother
-            mother_res = supabase.table('mother').insert({
-                "mother_name": case_num,
-                "finder_turtle_name": finder_turtle_name,
-                "species_id": selected_species['species_id'],
-                "intake_date": str(intake_date),
-                "intake_condition": m_condition,
-                "extraction_method": m_extract,
-                "discovery_location": discovery_loc,
-                "carapace_length_mm": carapace_len,
-                "session_id": st.session_state.session_id,
-                "created_by_id": st.session_state.observer_id,
-                "modified_by_id": st.session_state.observer_id
-            }).execute()
-            m_id = mother_res.data[0]['mother_id']
-            
-            first_bin_id = None
-            total_eggs = 0
-            # 3. Insert Bins & Eggs
-            for r in st.session_state.bin_rows:
-                bin_id_val = f"{selected_species['species_code']}{next_intake_num}-{finder_turtle_name}-{r['bin_num']}"
-                if first_bin_id is None:
-                    first_bin_id = bin_id_val
-                total_eggs += r['egg_count']
-                    
-                bin_res = supabase.table('bin').insert({
-                    "mother_id": m_id,
-                    "bin_id": bin_id_val,
-                    "bin_notes": r.get('notes', ''),
+        try:
+            with st.status("Writing Clinical Ledger...") as status:
+                # 1. Update Species Count
+                supabase.table('species').update({"intake_count": next_intake_number}).eq('species_id', selected_species['species_id']).execute()
+                
+                # 2. Insert Mother (Maternal Context)
+                mother_result = supabase.table('mother').insert({
+                    "mother_name": case_number,
+                    "finder_turtle_name": finder_name,
+                    "species_id": selected_species['species_id'],
+                    "intake_date": str(intake_date),
+                    "intake_condition": mother_condition,
+                    "extraction_method": extraction_method,
+                    "discovery_location": discovery_location,
+                    "carapace_length_mm": carapace_length,
                     "session_id": st.session_state.session_id,
                     "created_by_id": st.session_state.observer_id,
                     "modified_by_id": st.session_state.observer_id
                 }).execute()
-                b_id = bin_res.data[0]['bin_id']
                 
-                # Batch insert eggs for this bin
-                new_eggs = [{
-                    "bin_id": b_id, 
-                    "status": "Active", 
-                    "current_stage": "S0", 
-                    "intake_date": str(intake_date),
-                    "session_id": st.session_state.session_id,
-                    "created_by_id": st.session_state.observer_id,
-                    "modified_by_id": st.session_state.observer_id
-                } for _ in range(r['egg_count'])]
-                egg_res = supabase.table('egg').insert(new_eggs).execute()
+                if not mother_result.data:
+                    raise Exception("Maternal Record Creation Failed.")
+                    
+                mother_identity = mother_result.data[0]['mother_id']
                 
-                # 4. Generate "Day Zero" Baseline Observation for Audit History §35.4
-                baseline_obs = [{
-                    "session_id": st.session_state.session_id,
-                    "egg_id": e['egg_id'],
-                    "bin_id": b_id,
-                    "observer_id": st.session_state.observer_id,
-                    "created_by_id": st.session_state.observer_id,
-                    "modified_by_id": st.session_state.observer_id,
-                    "stage_at_observation": "S0",
-                    "observation_notes": "Clinical Intake Baseline"
-                } for e in egg_res.data]
-                get_resilient_table(supabase, 'egg_observation').insert(baseline_obs).execute()
-            
-            s.update(label=f"Intake Successful! Case {case_num} established with {total_eggs} eggs.", state="complete")
-            st.balloons()
-            st.session_state.active_bin_id = first_bin_id
-            st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
-            st.switch_page("vault_views/3_Observations.py")
+                first_bin_identifier = None
+                total_egg_tally = 0
+                finder_clean = finder_name.replace(" ", "")[:6] # Clinical truncate
+                
+                # 3. Insert Bins & Eggs
+                for row_data in st.session_state.bin_rows:
+                    # v8.0.0 Standard: [Code]-[Finder]-[Bin#]-[YYMMDDHHmm]
+                    current_bin_identifier = f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}-{timestamp_suffix}"
+                    
+                    if first_bin_identifier is None:
+                        first_bin_identifier = current_bin_identifier
+                    total_egg_tally += row_data['egg_count']
+                        
+                    supabase.table('bin').insert({
+                        "mother_id": mother_identity,
+                        "bin_id": current_bin_identifier,
+                        "bin_notes": row_data.get('notes', ''),
+                        "session_id": st.session_state.session_id,
+                        "created_by_id": st.session_state.observer_id,
+                        "modified_by_id": st.session_state.observer_id
+                    }).execute()
+                    
+                    # Batch insert eggs for this bin
+                    new_eggs_list = [{
+                        "bin_id": current_bin_identifier, 
+                        "status": "Active", 
+                        "current_stage": "S0", 
+                        "intake_date": str(intake_date),
+                        "session_id": st.session_state.session_id,
+                        "created_by_id": st.session_state.observer_id,
+                        "modified_by_id": st.session_state.observer_id
+                    } for _ in range(row_data['egg_count'])]
+                    
+                    egg_result = supabase.table('egg').insert(new_eggs_list).execute()
+                    
+                    # 4. Generate "Day Zero" Baseline Observation
+                    baseline_observations = [{
+                        "session_id": st.session_state.session_id,
+                        "egg_id": egg['egg_id'],
+                        "bin_id": current_bin_identifier,
+                        "observer_id": st.session_state.observer_id,
+                        "created_by_id": st.session_state.observer_id,
+                        "modified_by_id": st.session_state.observer_id,
+                        "stage_at_observation": "S0",
+                        "observation_notes": "Clinical Intake Baseline"
+                    } for egg in egg_result.data]
+                    
+                    get_resilient_table(supabase, 'egg_observation').insert(baseline_observations).execute()
+                
+                status.update(label=f"Intake Successful! Case {case_number} established.", state="complete")
+                st.balloons()
+                st.session_state.active_bin_id = first_bin_identifier
+                st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
+                st.switch_page("vault_views/3_Observations.py")
+        except Exception as error:
+            # Atomic Hardening: Log as "Incomplete Intake" if the chain breaks
+            get_resilient_table(supabase, "system_log").insert({
+                "session_id": st.session_state.session_id,
+                "event_type": "ERROR",
+                "event_message": f"CRITICAL: Incomplete Intake for Case {case_number}. Chain broke: {str(error)}"
+            }).execute()
+            raise error
     
     safe_db_execute("Intake", commit_all)

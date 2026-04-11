@@ -1,1 +1,0 @@
-BASE_CSS = """<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}</style>"""

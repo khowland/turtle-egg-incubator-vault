@@ -1,13 +1,12 @@
 """
 =============================================================================
-Module:     utils/db.py
-Project:    Incubator Vault v6.1 — Wildlife In Need Center (WINC)
-Purpose:    Supabase client initialization and singleton management with
-            Streamlit resource caching. Includes credential validation
-            and cache management for auto-sync after writes.
-Author:     Agent Zero (Automated Build)
-Modified:   2026-04-06 (Code Review: Restored credential validation,
-            added enterprise comments)
+Module:        utils/db.py
+Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
+Requirement:   Matches Standard [§35, §36]
+Dependencies:  supabase, python-dotenv
+Inputs:        Enviroment Variables (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+Outputs:       Supabase Client Singleton
+Description:   Supabase client initialization and singleton management.
 =============================================================================
 """
 
@@ -28,17 +27,7 @@ load_dotenv()
 
 @st.cache_resource
 def get_supabase_client() -> Client:
-    """Initializes and returns a cached Supabase client instance.
-    
-    Reads credentials from .env and creates a singleton-like client
-    managed by Streamlit's cache_resource to prevent re-initialization.
-    
-    Returns:
-        Client: An authenticated Supabase client.
-        
-    Raises:
-        SystemExit: If SUPABASE_URL or SUPABASE_KEY are missing.
-    """
+    """Initializes and returns a cached Supabase client instance."""
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
     
@@ -58,12 +47,7 @@ def get_supabase_client() -> Client:
 # =============================================================================
 
 def clear_vault_cache():
-    """Clears Streamlit's data cache to force fresh reads from Supabase.
-    
-    Called automatically after every successful write operation via
-    the logged_write() audit wrapper. This ensures the UI always
-    reflects the latest database state without manual refresh.
-    """
+    """Clears Streamlit's data cache to force fresh reads from Supabase."""
     logger.warning("🧹 Autonomous Sync: Clearing data cache for fresh reads.")
     st.cache_data.clear()
 
@@ -73,14 +57,7 @@ def clear_vault_cache():
 # Returns: bool — True if connection is live
 # -----------------------------------------------------------------------------
 def check_connection(supabase: Client) -> bool:
-    """Verifies connectivity to the Supabase backend.
-    
-    Attempts a simple select on the species table to ensure the link is live.
-    Used by the Neural Refresh button and startup diagnostics.
-    
-    Returns:
-        bool: True if connection is successful, False otherwise.
-    """
+    """Verifies connectivity to the Supabase backend."""
     try:
         supabase.table("species").select("species_id").limit(1).execute()
         logger.info("✅ Supabase connection verified.")

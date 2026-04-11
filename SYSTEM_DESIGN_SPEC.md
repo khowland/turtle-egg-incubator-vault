@@ -1,30 +1,30 @@
-# 🐢 WINC Incubator Vault: System Design Specification (v7.3.0)
-**Technical Architecture, Data Dictionary, and Bill of Materials**
+# 🐢 WINC Incubator Vault: System Design Specification (v8.0.0)
+**Technical Architecture, Data Dictionary, and Clinical Bill of Materials**
 
 ## 1. System Architecture Matrix
-This diagram depicts the flow of biological data from high-mobility field tablets through the Streamlit application layer and into the hardened Supabase PostgreSQL ledger.
+This diagram depicts the zero-deviation flow of biological data from high-mobility field tablets through the Streamlit application layer and into the hardened Supabase PostgreSQL ledger.
 
 ```mermaid
 graph TD
-    subgraph "Field Layer (Mobile Hub)"
+    subgraph "Field Layer (Clinical Hub)"
         A[Biologist Tablet] -- "HTTPS/Streamlit" --> B[WINC Web App]
         A2[Volunteer Phone] -- "HTTPS/Streamlit" --> B
     end
 
-    subgraph "Application Layer (Python/GCP)"
-        B -- "Identity Gate" --> C{Session Check}
-        C -- "Valid" --> D[Vault Logic Engine]
-        D -- "Batch Commit" --> E[Supabase Client]
+    subgraph "Application Layer (GCP Runtime)"
+        B -- "Identity Gate" --> C{Session Context}
+        C -- "Active" --> D[Vault Logic Engine]
+        D -- "Atomic Transaction" --> E[Supabase Client]
     end
 
-    subgraph "Data Layer (PostgreSQL)"
-        E -- "REST API (PostgREST)" --> F[(Biological Ledger)]
-        F -- "Auth/RLS" --> G[Secure Storage]
+    subgraph "Data Layer (Hardened PostgreSQL)"
+        E -- "REST API" --> F[(Biological Ledger)]
+        F -- "RLS Policies" --> G[Secure Storage]
     end
 
-    subgraph "Operations"
-        H[Cloud Scheduler] -- "Daily Ping" --> I[Heartbeat Script]
-        I -- "Prevents Auto-Pause" --> F
+    subgraph "Maintenance Ops"
+        H[Cloud Scheduler] -- "Heartbeat" --> I[Ping Utility]
+        I -- "Prevention" --> F
     end
 ```
 
@@ -38,6 +38,7 @@ graph LR
     BS[bootstrap.py] --> DB[db.py]
     BS --> SL[logger.py]
     BS --> SS[session.py]
+    BS --> VS[visuals.py]
     
     SS --> L[0_Login.py]
     SS --> D[1_Dashboard.py]
@@ -45,10 +46,10 @@ graph LR
     SS --> O[3_Observations.py]
     SS --> S[5_Settings.py]
     SS --> R[6_Reports.py]
-    SS --> DG[7_Diagnostic.py]
 
     style BS fill:#10b981,stroke:#333,stroke-width:2px
     style SS fill:#3b82f6,stroke:#333,stroke-width:2px
+    style VS fill:#f59e0b,stroke:#333,stroke-width:1px
 ```
 
 ---
@@ -59,19 +60,18 @@ graph LR
 Every transactional table in the ledger contains the following mandatory columns:
 *   `session_id` (TEXT): The unique shift/session identifier.
 *   `created_at` (TIMESTAMPTZ): Automatic record creation timestamp.
-*   `modified_at` (TIMESTAMPTZ): Automatic last-edit timestamp (Trigger managed).
-*   `created_by_id` (TEXT): FK to `observer.observer_id`.
+*   `modified_at` (TIMESTAMPTZ): Automatic last-edit timestamp.
 *   `created_by_id` (TEXT): FK to `observer.observer_id`.
 *   `modified_by_id` (TEXT): FK to `observer.observer_id`.
 
 ### B. Session Continuity Protocol (§36)
-The implementation utilizes a **Global Lookback** mechanism:
+The implementation utilizes a **Global Resumption** mechanism:
 1.  **Persistence**: Browsing sessions are validated against the `session_log`.
 2.  **Resumption**: Any new authentication within 4 hours of the *global* last activity adopts the existing `session_id`.
 3.  **Traceability**: Session adoption unifies the "Shift Folder" in reporting while maintaining separate `observer_id` authorship for each row.
 
-### B. Table Registry
-| Table Name | Description | Primary Key |
+### C. Table Registry
+| Table Name | Description | Key Column |
 | :--- | :--- | :--- |
 | **`observer`** | Registry of authorized staff and volunteers. | `observer_id` |
 | **`species`** | The 11 native Wisconsin turtle species definitions. | `species_id` |
@@ -82,9 +82,7 @@ The implementation utilizes a **Global Lookback** mechanism:
 | **`system_log`** | Global error telemetry and audit trails. | `system_log_id` |
 | **`egg_observation`** | Physical measurements (Chalking, Vasc, Health). | `egg_observation_id` |
 | **`bin_observation`** | Environmental metrics (Weight, Temp, Water). | `bin_observation_id` |
-| **`hatchling_ledger`** | Post-pipping neonate clinical records. | `hatchling_ledger_id` |
-| **`development_stage`** | Phases S0 through S6. | `stage_id` |
-| **`biological_property`** | Stage-linked physical markers (Lookup). | `property_id` |
+| **`hatchling_ledger`** | Neo-natal records (vitality_score, incubation_duration_days). | `hatchling_ledger_id` |
 
 ---
 
@@ -93,26 +91,20 @@ The implementation utilizes a **Global Lookback** mechanism:
 ### Core Frameworks
 *   **Streamlit**: Frontend user interface and navigation routing.
 *   **Supabase (Python SDK)**: Secure communication with the PostgreSQL backend.
-*   **Pandas / NumPy**: In-memory data manipulation and analytical processing.
+*   **Pandas**: In-memory data manipulation and analytical processing.
 *   **Plotly**: Interactive visualization for Dashboards and Reports.
 
 ### Utility Dependencies
-*   **python-dotenv**: Environment variable management (Secret safety).
-*   **datetime / uuid**: Part of the Python Standard Library; used for session logic.
+*   **python-dotenv**: Environment variable management.
+*   **datetime / uuid**: Part of the Python Standard Library.
 *   **Mermaid.js**: Integrated documentation visuals.
-
-### GCP Production Dependencies
-*   **Cloud Run**: Managed container execution environment.
-*   **Cloud Scheduler**: Triggers for the `heartbeat_ping.py` script.
-*   **Secret Manager**: Injection of Supabase API keys into the environment.
 
 ---
 
 ## 5. Maintenance Protocol
 *   **Heartbeat**: `scripts/heartbeat_ping.py` must be executed via Cron every 24 hours to prevent Supabase auto-pausing.
-*   **Schema Updates**: Any structure changes must be reflected first in `v7_3_0_FULL_SCHEMA.sql`.
-*   **Audit Check**: Run `scripts/verify_integrity.py` periodically to ensure data-integrity triggers are alive.
-*   **Session Audit**: Ensure the 4-hour `timedelta` in `utils/session.py` remains aligned with WINC business requirements.
+*   **Hydration Gate**: Standardized weight lookups must utilize `@st.cache_resource` for mobile performance.
+*   **ID Generation**: `bin_id` must include a `%y%m%d%H%M` timestamp suffix to guarantee global uniqueness.
 
 ---
-*Signed, Antigravity (Sovereign Sprint Agent)*
+*Signed, Lead Sovereign Architect (Antigravity)*

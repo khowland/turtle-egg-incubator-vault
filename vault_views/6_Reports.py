@@ -1,9 +1,12 @@
 """
 =============================================================================
-Module:     vault_views/6_Reports.py (v7.9.4)
-Project:    Incubator Vault v7.9.4 — WINC
-Purpose:    Expert Analytics with Hydration Scaling & Mortality Forecasting.
-Revision:   2026-04-10 — Clinical Sovereignty Edition
+Module:        vault_views/6_Reports.py
+Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
+Requirement:   Matches Standard [§35, §36]
+Dependencies:  utils.bootstrap
+Inputs:        st.session_state (observer_id, session_id)
+Outputs:       Downloadable CSV
+Description:   Expert Analytics with Hydration Scaling and Mortality Forecasting.
 =============================================================================
 """
 
@@ -12,7 +15,7 @@ import pandas as pd
 import plotly.express as px
 from utils.bootstrap import bootstrap_page, safe_db_execute
 
-supabase = bootstrap_page("Reports", "📈")
+supabase_client = bootstrap_page("Reports", "📈")
 
 st.title("🛡️ Biological Analytics Hub")
 
@@ -24,9 +27,9 @@ with st.sidebar:
     date_range = st.date_input("Season Window", [])
     
     # Fetch species for filtering
-    s_res = supabase.table('species').select("species_id, common_name").execute()
-    species_map = {s['common_name']: s['species_id'] for s in s_res.data}
-    selected_species = st.multiselect("Filter by Species", list(species_map.keys()), default=list(species_map.keys()))
+    species_result = supabase_client.table('species').select("species_id, common_name").execute()
+    species_mapping = {s['common_name']: s['species_id'] for s in species_result.data}
+    selected_species_list = st.multiselect("Filter by Species", list(species_mapping.keys()), default=list(species_mapping.keys()))
 
 st.divider()
 
@@ -35,47 +38,47 @@ st.divider()
 # =============================================================================
 def load_analytical_data():
     # 1. Mortality Data
-    eggs = supabase.table('egg').select("current_stage, status").execute().data
+    eggs_data = supabase_client.table('egg').select("current_stage, status").execute().data
     
     # 2. Hatchling Data
-    hatchlings = supabase.table('hatchling_ledger').select("*").execute().data
+    hatchlings_data = supabase_client.table('hatchling_ledger').select("*").execute().data
     
-    return pd.DataFrame(eggs), pd.DataFrame(hatchlings)
+    return pd.DataFrame(eggs_data), pd.DataFrame(hatchlings_data)
 
-egg_df, hatch_df = load_analytical_data()
+egg_dataframe, hatchling_dataframe = load_analytical_data()
 
-if egg_df.empty:
+if egg_dataframe.empty:
     st.info("No egg records detected in the filtered window.")
 else:
     # --- Filter Logic ---
     # (Simplified for demonstration, in production this would be SQL-side)
     
-    tabs = st.tabs(["🔥 Mortality Heatmap", "💧 Hydration Variance", "🌡️ Incubation Trends"])
+    report_tabs = st.tabs(["🔥 Mortality Heatmap", "💧 Hydration Variance", "🌡️ Incubation Trends"])
     
-    with tabs[0]:
+    with report_tabs[0]:
         st.subheader("Critical Stage Analysis (§5.47)")
         st.caption("Distribution of Terminal vs. Active subjects across developmental stages.")
         
         # Aggregate by stage and status
-        mortality = egg_df.groupby(['current_stage', 'status']).size().reset_index(name='count')
-        fig = px.bar(mortality, x='current_stage', y='count', color='status',
+        mortality_summary = egg_dataframe.groupby(['current_stage', 'status']).size().reset_index(name='count')
+        mortality_figure = px.bar(mortality_summary, x='current_stage', y='count', color='status',
                      title="Seasonal Stage Distribution", barmode='group',
                      color_discrete_map={'Active': '#10b981', 'Terminal': '#ef4444', 'Hatched': '#3b82f6'})
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(mortality_figure, use_container_width=True)
 
-    with t2:
+    with report_tabs[1]:
         st.subheader("Hatch Success Correlation (§5.48)")
-        if not hatch_df.empty:
-            fig2 = px.histogram(hatch_df, x='incubation_duration_days', color_discrete_sequence=['#f59e0b'],
+        if not hatchling_dataframe.empty:
+            success_figure = px.histogram(hatchling_dataframe, x='incubation_duration_days', color_discrete_sequence=['#f59e0b'],
                                 title="Average Duration (Intake to Pipping)", nbins=20)
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(success_figure, use_container_width=True)
         else:
             st.info("Awaiting pipping/hatching events to generate duration trends.")
 
 st.sidebar.divider()
 if st.sidebar.button("📦 Export Full Research CSV"):
     def audit_export():
-        st.sidebar.download_button("Click to Download", egg_df.to_csv(), "vault_export.csv", "text/csv")
+        st.sidebar.download_button("Click to Download", egg_dataframe.to_csv(), "vault_export.csv", "text/csv")
         return True
         
     safe_db_execute("Export Data", audit_export, success_message=f"Forensic Export: Observer {st.session_state.observer_name} downloaded seasonal research CSV.")

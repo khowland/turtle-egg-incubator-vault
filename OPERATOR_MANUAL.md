@@ -1,4 +1,5 @@
-# 📖 Incubator Vault: Operator's Manual (v7.9.4)
+# 📖 Incubator Vault: Operator's Manual (v8.0.0)
+**Clinical Sovereignty Edition**
 
 ## 1. Getting Started: The Login Splash
 When you first open the Vault, you must select your name from the **Observer Identity** list.
@@ -10,8 +11,8 @@ When you first open the Vault, you must select your name from the **Observer Ide
 Use this screen when a new clutch arrives.
 1.  **Select Species**: Choose from the list of 11 protected species.
 2.  **Case #**: This matches your internal WINC or DNR case number.
-3.  **The Matrix**: Describe the mother's condition, the discovery location, and carapace length.
-4.  **Finalize**: Clicking "Commit" will establish the Bins and Eggs in the primary ledger.
+3.  **Unique Bin Generation**: The system automatically appends a timestamp to each `bin_id` to ensure globallly unique clinical tracking.
+4.  **Finalize**: Clicking "Commit" will establish the Bins and Eggs in the primary ledger using an atomic transaction.
 
 ## 3. Daily Observations: The Workbench
 This is your primary tool for clinical monitoring.
@@ -23,40 +24,22 @@ This is your primary tool for clinical monitoring.
     *   **Star-Crack**: Stage S5 (Pipping).
 4.  **Property Matrix**: Select multiple eggs to update their Stage and Health markers in bulk.
 
-## 4. 🔄 Lifecycle: Retirement & Resurrection (v7.9.7)
+## 4. 🔄 Lifecycle: Retirement & Resurrection
 Data is never truly lost in the Vault; it simply moves between **Active** and **Archive**.
-Note: Archiving a bin "Soft Deletes" it. Dashboard KPI metrics explicitly filter out eggs from archived bins to prevent "Ghost Eggs" data anomalies.
 
-### 🗺️ The Resilience Flow
-```mermaid
-graph TD
-    A[New Intake] --> B[Active Workbench]
-    B --> C{Active Eggs?}
-    C -- YES --> B
-    C -- NO --> D[Dashboard Retirement Alert]
-    D --> E[Resilience Confirmation]
-    E --> F[ARCHIVE / SOFT-DELETE]
-    F -- Mistake? --> G[Resurrection Vault]
-    G --> B
-```
+### 4.1 The Resilience Flow
+Archiving a bin "Soft Deletes" it. Dashboard KPI metrics explicitly filter out eggs from archived bins.
 
-### 🧹 How to Retire a Bin (Season-End)
-When a Bin has 0 active eggs (everything has hatched or been removed):
-1.  Go to the **Dashboard**.
-2.  Locate the **"Workbench Cleanup"** card.
-3.  Select the Bin and move the **"Confirm Retirement"** slider.
-4.  Click **Retire Bin**. (The data is archived and eggs are removed from active dashboard KPIs).
+### 4.2 ✨ Surgical Resurrection
+If clinical data surgery is required (e.g., accidental retirement or correction of a past stage):
+1.  Enable the **Surgical Resurrection** toggle in the Observations workbench.
+2.  This mode allows selective purging of individual observation records, which automatically rolls back the egg's state to the previous clinical signature.
+3.  Alternatively, use the **Resurrection Vault** in Settings to restore entire retired Bins or Cases.
 
-### ✨ How to Undo a Deletion (Resurrection)
-If you accidentally retire a Bin or Case:
-1.  Go to **Settings** > **Resurrection Vault**.
-2.  Find the item in the list of retired records.
-3.  Click **Restore**. The system will instantly bring the record back to your active shift.
-
-## 5. What if an Egg Hatches? (WormD Bridge)
+## 5. What if an Egg Hatches?
 When an egg reaches **Stage S6 (Hatched)**:
 1.  Set the stage to S6. The egg will be moved to the **Hatchling Ledger**.
-2.  Data is prepared for export to the **WormD** system for pediatric care.
+2.  Data is prepared for export. Vitality scores and incubation durations are automatically calculated.
 3.  Physical subject is moved to juvenile enclosures.
 
 ## 6. Accountability & Logs
