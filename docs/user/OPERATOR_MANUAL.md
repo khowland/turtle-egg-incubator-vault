@@ -19,7 +19,7 @@ At WINC, every turtle egg represents a vital piece of Wisconsin's biodiversity. 
 ### 🐢 The Natural Journey Timeline
 This schematic depicts the biological milestones every egg follows. 
 
-![Biological Timeline Infographic](file:///C:/Users/Kevin/.gemini/antigravity/brain/c8ed9a4c-44d0-44e1-b7fc-1cf218bb1f6f/biological_timeline_infographic_1775942084172.png)
+![Biological Timeline Infographic](../../assets/manual/biological_timeline_infographic_1775942084172.png)
 
 ```mermaid
 graph LR
@@ -38,13 +38,13 @@ A sterile and stable environment is maintained through rigorous physical and dig
 ### 📐 Clinical Layout & Spacing
 To prevent the spread of fungal pathogens (molding), we employ a **Checkerboard Layout** in every bin.
 
-![Egg Biosecurity Layout Schematic](file:///C:/Users/Kevin/.gemini/antigravity/brain/c8ed9a4c-44d0-44e1-b7fc-1cf218bb1f6f/egg_biosecurity_layout_schematic_1775942684483.png)
+![Egg Biosecurity Layout Schematic](../../assets/manual/egg_biosecurity_layout_schematic_1775942684483.png)
 
 *   **1cm Rule**: Maintain at least 1cm of substrate between all eggs.
 *   **Contamination Shields**: If an egg is marked as "LEVEL 3 MOLD," consider isolating it physically from the rest of the clutch.
 
 ### 🧪 Standard Substrate Configuration
-![Incubation Bin Cross Section](file:///C:/Users/Kevin/.gemini/antigravity/brain/c8ed9a4c-44d0-44e1-b7fc-1cf218bb1f6f/incubation_bin_cross_section_1775942386387.png)
+![Incubation Bin Cross Section](../../assets/manual/incubation_bin_cross_section_1775942386387.png)
 
 > [!CAUTION]
 > **DO NOT FLIP THE EGGS**: Once an egg is nested, its top orientation must be maintained. Flipping can cause embryo detachment. Mark the "TOP" with a soft graphite pencil during intake.
@@ -55,7 +55,7 @@ To prevent the spread of fungal pathogens (molding), we employ a **Checkerboard 
 ## 🏁 Part 3: Session Continuity (The Handshake)
 Shift changes are the most common source of data error. The CIOS uses a "4-Hour Handshake" to unify volunteer efforts.
 
-![Session Handshake Infographic](file:///C:/Users/Kevin/.gemini/antigravity/brain/c8ed9a4c-44d0-44e1-b7fc-1cf218bb1f6f/session_handshake_infographic_1775942112852.png)
+![Session Handshake Infographic](../../assets/manual/session_handshake_infographic_1775942112852.png)
 
 *   **Persistence**: Your **Observer ID** is your signature. If a co-worker started the bin weight checks and you finish the health scans, the system links both names to the final save. 
 *   **Verification**: Always double-check "Who is active" in the sidebar before beginning.
@@ -76,7 +76,7 @@ The **New Intake** screen translates a biological arrival into a clinical datase
 
 ### 🧬 Logical Anatomy of a "Smart ID"
 The ID is generated to survive physical conditions in the lab.
-![Nest Bin Infographic](file:///C:/Users/Kevin/.gemini/antigravity/brain/c8ed9a4c-44d0-44e1-b7fc-1cf218bb1f6f/nest_bin_infographic_v2_1775942100835.png)
+![Nest Bin Infographic](../../assets/manual/nest_bin_infographic_v2_1775942100835.png)
 
 *   **Case #**: (e.g. 2026-042)
 *   **Smart ID**: `SN3-JONES-1` (Snapping, Intake #3, Finder Jones, Bin #1).
@@ -89,7 +89,7 @@ The ID is generated to survive physical conditions in the lab.
 Daily checks follow a strict linear progression. You cannot check the subjects until the environment is stabilized.
 
 ### ⚖️ The Weight Gateway (Safety Protocol)
-![Weight Gate Protocol Schematic](file:///C:/Users/Kevin/.gemini/antigravity/brain/c8ed9a4c-44d0-44e1-b7fc-1cf218bb1f6f/weight_gate_protocol_schematic_1775942398303.png)
+![Weight Gate Protocol Schematic](../../assets/manual/weight_gate_protocol_schematic_1775942398303.png)
 
 1.  **Select Bin**: Use the dropdown to focus on a specific box.
 2.  **Scale Check**: Place bin on scale; record mass.
@@ -114,10 +114,10 @@ The CIOS uses high-contrast clinical icons to show active growth stages.
 ## 📏 Part 6: Clinical Maturity (S1–S6)
 Understanding exact transitions is the key to preventing "Retirement Errors."
 
-![Turtle Egg Stages Schematic](file:///C:/Users/Kevin/.gemini/antigravity/brain/c8ed9a4c-44d0-44e1-b7fc-1cf218bb1f6f/turtle_egg_stages_schematic_1775942373550.png)
+![Turtle Egg Stages Schematic](../../assets/manual/turtle_egg_stages_schematic_1775942373550.png)
 
 ### 🌡️ Health Scaling (0–3)
-![Health Scale Infographic](file:///C:/Users/Kevin/.gemini/antigravity/brain/c8ed9a4c-44d0-44e1-b7fc-1cf218bb1f6f/health_scale_infographic_1775942070192.png)
+![Health Scale Infographic](../../assets/manual/health_scale_infographic_1775942070192.png)
 
 *   **Molding**: 0 (None) to 3 (Thick/Fuzzy).
 *   **Leaking**: 0 (Dry) to 3 (Active fluid loss).
@@ -129,7 +129,7 @@ Understanding exact transitions is the key to preventing "Retirement Errors."
 ## 🐢 Part 7: The Hatchling Transition (S6)
 The story ends with a new entry in the **Hatchling Ledger**.
 
-![Hatchling Ledger Workflow Schematic](file:///C:/Users/Kevin/.gemini/antigravity/brain/c8ed9a4c-44d0-44e1-b7fc-1cf218bb1f6f/hatchling_ledger_workflow_schematic_1775942695251.png)
+![Hatchling Ledger Workflow Schematic](../../assets/manual/hatchling_ledger_workflow_schematic_1775942695251.png)
 
 ### 📋 The S6 Workflow
 1.  **Mark S6**: When a turtle has fully emerged, select **S6** in the Matrix and click **SAVE**.
