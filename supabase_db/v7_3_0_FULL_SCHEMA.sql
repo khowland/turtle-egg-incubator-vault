@@ -94,7 +94,6 @@ CREATE TABLE IF NOT EXISTS public.mother (
 CREATE TABLE IF NOT EXISTS public.bin (
     bin_id TEXT PRIMARY KEY,
     mother_id TEXT REFERENCES public.mother(mother_id) ON DELETE CASCADE,
-    harvest_date DATE NOT NULL DEFAULT CURRENT_DATE,
     total_eggs INTEGER,
     target_total_weight_g DECIMAL(10,2),
     shelf_location TEXT,
@@ -113,6 +112,7 @@ CREATE TABLE IF NOT EXISTS public.egg (
     bin_id TEXT REFERENCES public.bin(bin_id) ON DELETE CASCADE,
     physical_mark INTEGER,
     mark_description TEXT,
+    intake_date DATE NOT NULL DEFAULT CURRENT_DATE,
     current_stage TEXT DEFAULT 'S0',
     status TEXT DEFAULT 'Active', -- Active, Dead, Transferred
     -- Audit Header §6.59

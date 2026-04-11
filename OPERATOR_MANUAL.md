@@ -1,4 +1,4 @@
-# 🐢 WINC Incubator Vault: Operator's Manual (v7.3.0)
+# 🐢 WINC Incubator Vault: Operator's Manual (v7.4.0)
 Welcome to the Incubator Vault. This guide will help you use the app to track our turtle eggs from intake to hatching.
 
 ## 1. Getting Started (Clocking In)
@@ -9,7 +9,14 @@ Welcome to the Incubator Vault. This guide will help you use the app to track ou
 ## 2. The Daily Protocol (The "Weight-First" Rule)
 Every day, we check the health of our turtle bins.
 1. **Go to Observations**: Click "Observations" in the sidebar.
-2. **Weigh the Bin**: Before you can see the egg list, you must place the physical plastic bin on the scale. Log the current weight. If it's low, the app will help you calculate how much water to add.
+2. **Load Your Workbench**: Search for Bins or Cases you've pulled for testing and "Pin" them to your session.
+3. **Check Your Progress Icons**:
+    - `🟢` **Done**: All eggs in this bin have been checked today.
+    - `🌓` **Partial**: Some eggs are done, but others are pending.
+    - `⚪` **New**: No eggs have been checked yet this shift.
+4. **The Weight-First Rule**: You must weigh the bin to unlock the egg grid. The app will calculate exactly how much water (ml) to add. 
+5. **Batch Recording**: Tap the eggs in the grid that look the same. Check the **CSV Selection Bar** (e.g., `E1, E3, E7`) to confirm your selection, then set the Stage/Chalking and hit **Confirm & Save**.
+6. **Supplemental Tools**: Use the sidebar to add extra bins to a case or add straggler eggs to an existing bin.
 
 ## 3. New Intake (Adding a Mother & Her Eggs)
 When a mother turtle arrives, use the **single-page** Intake screen to record everything at once.

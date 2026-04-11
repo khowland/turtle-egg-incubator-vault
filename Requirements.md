@@ -1,5 +1,5 @@
 # WINC Incubator Vault - Requirements & Specifications
-Version: 7.3.0 - Resilient Audit Architecture & Session Recovery
+Version: 7.5.0 - Egg Sovereignty & Chronological Audit Individualization
 Lead Biologist: Elisa Fosco
 
 ## 1. [Se] Session & Identity Architecture
@@ -17,7 +17,17 @@ Lead Biologist: Elisa Fosco
     - Bin Code Calculation: `{SpeciesCode}{IntakeCount+1}-{FinderName}-{Bin#}` (Must dynamically update to reflect the new Species Code, corresponding IntakeCount, and Finder Name in real-time if the user alters them on the intake form).
     - Mutability & UI: Egg Count is editable until first observation is recorded. The input must strictly be a numeric entry field (range 1-99) with NO +/- step controls. Users must directly type the number via keyboard for maximum data-entry efficiency.
 - **Auto-Commit Trigger:** Upon Next/Submit, `Species.IntakeCount` increments by 1.
-- **The "Daily Loop" (Observation Engine):**
+- **Individual Egg Sovereignty:** Every egg is its own chronological clock.
+  - **Intake Date:** Stored at the `egg` level (not bin). This allows a single mother to have eggs in a single bin that come from different days/clutches while tracking each egg's incubation progress individually.
+- **The "Daily Loop" (Observation Engine v7.5.0):**
+  - **The Workbench:** Users "pin" bins pull for the shift to their session. Pinned bins persist for the session duration.
+  - **Clinical Throughput Icons:** Bins display completion status via icons (🟢 Done, 🌓 Partial, ⚪ Pending) and a ratio (X/Y eggs observed in current shift).
+  - **Visual Selection Grid:** Eggs are displayed in a compact grid with current-shift status badges (✅/⚪).
+  - **Selection Verification:** A dynamic CSV bar displays the specific Egg IDs targeted for modification (e.g. `[E1, E4, E9]`).
+  - **Hydration Lock:** Mandatory weight check per bin once per shift.
+- **Supplemental Intake Logic:**
+  - Support adding new bins to existing Case #/Animal records.
+  - Support appending eggs to existing bins without restarting the intake form.
   - **Step A: Restorative Hydration.** User logs `Current_Bin_Weight`. System calculates `Moisture_Deficit` (Target - Current). User logs `Water_Added`.
   - **Step B: High-Density Observation.** Tile-based grid for multi-selecting eggs.
   - **Step C: Batch Processing.** Slide-up Action Tray for bulk-applying Stage and Property updates.

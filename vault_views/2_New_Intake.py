@@ -138,15 +138,27 @@ if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=Tru
                 b_id = bin_res.data[0]['bin_id']
                 
                 # Batch insert eggs for this bin
-                eggs = [{
+                new_eggs = [{
                     "bin_id": b_id, 
                     "status": "Active", 
                     "current_stage": "S0", 
+                    "intake_date": str(intake_date),
                     "session_id": st.session_state.session_id,
                     "created_by_id": st.session_state.observer_id,
                     "modified_by_id": st.session_state.observer_id
                 } for _ in range(r['egg_count'])]
-                supabase.table('egg').insert(eggs).execute()
+                egg_res = supabase.table('egg').insert(new_eggs).execute()
+                
+                # 4. Generate "Day Zero" Baseline Observation for Audit History §6.59
+                baseline_obs = [{
+                    "session_id": st.session_state.session_id,
+                    "egg_id": e['egg_id'],
+                    "bin_id": b_id,
+                    "observer_id": st.session_state.observer_id,
+                    "stage_at_observation": "S0",
+                    "notes": "Clinical Intake Baseline"
+                } for e in egg_res.data]
+                supabase.table('eggobservation').insert(baseline_obs).execute()
             
             s.update(label="Intake Successful! Transitioning...", state="complete")
             st.balloons()
