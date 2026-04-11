@@ -11,7 +11,7 @@
 # ------------------------------------------------------------------------------
 # Date          Author          Version     Description
 # ------------------------------------------------------------------------------
-# 2026-04-10    Antigravity     7.4.0       Workbench Grid & Status Icons
+# 2026-04-10    Antigravity     7.9.4       Clinical Sovereignty Edition
 # ==============================================================================
 """
 
@@ -20,7 +20,52 @@ import datetime
 from utils.bootstrap import bootstrap_page, safe_db_execute
 
 # 1. Page Initialization
-supabase = bootstrap_page("Observations", "🔍")
+# ------------------------------------------------------------------------------
+# BIOLOGICAL SVG ENGINE v7.9.0
+# ------------------------------------------------------------------------------
+def render_egg_icon(stage, chalk, vasc, status, selected=False):
+    """Generates a high-contrast clinical SVG for the grid."""
+    bg_color = "#fefce8" if status == "Active" else "#f3f4f6"
+    border_color = "#3b82f6" if selected else "#d1d5db"
+    border_width = "3" if selected else "1"
+    
+    # Chalking Band Opacity (0, 1, 2, 3)
+    chalk_op = (chalk / 3.0) * 0.9 if status == "Active" else 0.2
+    
+    # SVG Paths
+    ovoid = '<ellipse cx="30" cy="40" rx="20" ry="28" fill="ENTITY_BG" stroke="ENTITY_BORDER" stroke-width="ENTITY_BW" />'
+    ovoid = ovoid.replace("ENTITY_BG", bg_color).replace("ENTITY_BORDER", border_color).replace("ENTITY_BW", border_width)
+    
+    # Chalking Band (The equator)
+    band = ""
+    if chalk > 0:
+        band = f'<rect x="10" y="32" width="40" height="15" rx="5" fill="white" fill-opacity="{chalk_op}" />'
+        
+    # Vascularity (The "Neural Pulse")
+    veins = ""
+    if vasc and status == "Active":
+        veins = '<path d="M30 30 L25 20 M30 30 L35 20 M30 30 L30 50" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" opacity="0.8" />'
+        
+    # Stage Overlays
+    pip = ""
+    if stage == "S5":
+        pip = '<path d="M25 25 L35 35 M35 25 L25 35" stroke="black" stroke-width="2" />'
+    elif stage == "S6":
+        ovoid = '<path d="M10 40 Q30 80 50 40 L50 60 Q30 90 10 60 Z" fill="#e5e7eb" stroke="#9ca3af" />'
+
+    svg = f"""
+    <svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+        {ovoid}
+        {band}
+        {veins}
+        {pip}
+    </svg>
+    """
+    import base64
+    b64 = base64.b64encode(svg.encode('utf-8')).decode('utf-8')
+    return f"data:image/svg+xml;base64,{b64}"
+
+supabase = bootstrap_page("Observations", "🔬")
 st.title("🛡️ Observations")
 
 # 2. State Initialization
@@ -61,23 +106,58 @@ with st.sidebar:
 
     with st.expander("Add Eggs to Existing Bin"):
         target_b = st.selectbox("Select Target Bin", list(st.session_state.workbench_bins), key="sup_b")
+        # Fetch last weight for this bin
+        b_obs = supabase.table('incubatorobservation').select('bin_weight_g').eq('bin_id', target_b).order('timestamp', desc=True).limit(1).execute()
+        b_last_w = b_obs.data[0]['bin_weight_g'] if b_obs.data else 0.0
+        
+        st.write(f"**Current Context Mass:** `{b_last_w}g`" if b_last_w > 0 else "**Current Context:** New Bin")
+        
         egg_count = st.number_input("Eggs to Add", 1, 50, 1)
         egg_date = st.date_input("Egg Intake Date", key="sup_d")
-        if st.button("Append Eggs"):
+        new_target = st.number_input("New Post-Append Mass (g)", 0.0, 5000.0, help="Record the new total weight after stabilization.")
+        
+        if st.button("Append & Recalibrate"):
             def append_eggs():
+                if new_target <= 0:
+                    st.error("You must enter a valid new weight to recalibrate.")
+                    return
+                # 1. Update Bin Target & Auto-Annotate Bin Notes
+                prev_bin = supabase.table('bin').select('bin_notes').eq('bin_id', target_b).execute().data[0]
+                new_bin_note = f"{prev_bin.get('bin_notes', '')} | Append: {egg_count} new eggs added on {datetime.date.today().isoformat()}"
+                supabase.table('bin').update({
+                    "target_total_weight_g": new_target,
+                    "bin_notes": new_bin_note,
+                    "modified_by_id": st.session_state.observer_id
+                }).eq('bin_id', target_b).execute()
+                
+                # 2. Insert Eggs & Baseline
                 current = supabase.table('egg').select('egg_id', count='exact').eq('bin_id', target_b).execute()
                 start_num = current.count + 1
                 new_eggs = [{
-                    "egg_id": f"{target_b}-E{i}",
-                    "bin_id": target_b,
-                    "intake_date": str(egg_date),
-                    "session_id": st.session_state.session_id,
-                    "created_by_id": st.session_state.observer_id,
+                    "egg_id": f"{target_b}-E{i}", "bin_id": target_b, "intake_date": str(egg_date),
+                    "egg_notes": "Supplemental Append",
+                    "session_id": st.session_state.session_id, "created_by_id": st.session_state.observer_id,
                     "modified_by_id": st.session_state.observer_id
                 } for i in range(start_num, start_num + egg_count)]
-                supabase.table('egg').insert(new_eggs).execute()
-                st.success(f"Added {egg_count} eggs to {target_b}.")
-            safe_db_execute("Append Eggs", append_eggs)
+                egg_res = supabase.table('egg').insert(new_eggs).execute()
+                
+                obs_list = [{
+                    "session_id": st.session_state.session_id, "egg_id": e['egg_id'], "bin_id": target_b,
+                    "observer_id": st.session_state.observer_id, "stage_at_observation": "S0",
+                    "observation_notes": "Supplemental Intake Baseline"
+                } for e in egg_res.data]
+                supabase.table('egg_observation').insert(obs_list).execute()
+                
+                # 3. Log the Recalibration Event
+                supabase.table('bin_observation').insert({
+                    "session_id": st.session_state.session_id, "bin_id": target_b, "observer_id": st.session_state.observer_id,
+                    "bin_weight_g": new_target, "env_notes": f"Recalibration during append of {egg_count} eggs"
+                }).execute()
+                
+                st.success(f"Recalibrated {target_b} at {new_target}g.")
+            audit_msg = f"Supplemental Append: Added {egg_count} eggs to Bin {target_b}. New context mass: {new_target}g."
+            safe_db_execute("Append", append_eggs, success_message=audit_msg)
+            st.rerun()
 
 # ------------------------------------------------------------------------------
 # 1. THE WORKBENCH CONFIG & CORRECTION TOGGLE
@@ -128,30 +208,35 @@ if gate_key not in st.session_state: st.session_state[gate_key] = False
 
 # Skip hydration gate if exclusively in correction mode
 if not st.session_state.correction_mode and not st.session_state[gate_key]:
-    target_weight_res = supabase.table('bin').select('target_total_weight_g').eq('bin_id', active_bin_id).execute()
-    target_weight = target_weight_res.data[0]['target_total_weight_g'] if target_weight_res.data else None
+    # Fetch PREVIOUS weight from observations
+    last_obs = supabase.table('bin_observation').select('bin_weight_g').eq('bin_id', active_bin_id).order('timestamp', desc=True).limit(1).execute()
+    last_weight = last_obs.data[0]['bin_weight_g'] if last_obs.data else 0.0
 
     with st.container(border=True):
-        st.subheader("💧 Hydration Lock")
-        st.write(f"Stabilize **{active_bin_id}** (Target: {target_weight or 'TBD'}g)")
-        c1, c2 = st.columns(2)
-        curr_w = c1.number_input("Current Weight (g)", 0.0, 5000.0, key="wt_gate")
-        water_suggestion = max(0.0, target_weight - curr_w) if target_weight else 0.0
-        c2.metric("Suggested Water (ml)", f"{water_suggestion:.1f}")
-        water_add = c1.number_input("Actual Added (ml)", 0.0, 500.0, value=water_suggestion)
+        st.subheader("💧 Environment Check")
+        st.write(f"Record mass for **{active_bin_id}** to unlock the biological grid.")
+        
+        col_w1, col_w2 = st.columns(2)
+        col_w1.metric("Last Recorded Weight", f"{last_weight}g" if last_weight > 0 else "New Bin")
+        curr_w = col_w2.number_input("Current Total Mass (g)", 0.0, 5000.0, key="wt_gate", help="Biologist: Use your formula based on the delta from last weight.")
+        
+        water_add = st.number_input("Actual Water Added (ml)", 0.0, 500.0, help="Record the volume added based on your clinical assessment.")
+        
         if st.button("Unlock Grid", type="primary"):
             def unlock():
-                if target_weight is None:
-                    supabase.table('bin').update({"target_total_weight_g": curr_w}).eq('bin_id', active_bin_id).execute()
-                supabase.table('incubatorobservation').insert({
+                supabase.table('bin_observation').insert({
                     "session_id": st.session_state.session_id,
                     "bin_id": active_bin_id,
                     "observer_id": st.session_state.observer_id,
                     "bin_weight_g": curr_w,
-                    "water_added_ml": water_add
+                    "water_added_ml": water_add,
+                    "env_notes": "Gated weight check"
                 }).execute()
+                # Update bin target weight for legacy monitoring
+                supabase.table('bin').update({"target_total_weight_g": curr_w}).eq('bin_id', active_bin_id).execute()
                 st.session_state[gate_key] = True
-            safe_db_execute("Hydration", unlock)
+            audit_msg = f"Environment Check: Bin {active_bin_id} mass recorded at {curr_w}g. Water added: {water_add}ml."
+            safe_db_execute("Hydration", unlock, success_message=audit_msg)
             st.rerun()
     st.stop()
 
@@ -180,13 +265,18 @@ label_to_id = {f"{'✅' if e['egg_id'] in observed_ids else '⚪'} E{e['egg_id']
 
 if st.session_state.correction_mode:
     st.write("### 🥚 Biological Timeline (Surgical Mode)")
-    st.warning("Tap ONE egg below to perform clinical data surgery.")
-    selected_target = st.selectbox("Select Egg for Timeline", egg_labels)
+    st.warning("Search for ANY egg below (including Transferred/Dead) to perform clinical data surgery.")
+    
+    # NEW v7.9.2: Inclusive search for "Resurrection" use cases
+    repair_eggs = supabase.table('egg').select('egg_id').eq('bin_id', active_bin_id).execute().data
+    repair_labels = [f"🔍 {e['egg_id']}" for e in repair_eggs]
+    
+    selected_target = st.selectbox("Select Egg for Surgery", repair_labels)
     if selected_target:
-        target_id = label_to_id[selected_target]
+        target_id = selected_target.replace("🔍 ", "")
         st.write(f"#### Timeline: {target_id}")
         # Fetch ALL history for this egg
-        history = supabase.table('eggobservation').select('*').eq('egg_id', target_id).order('timestamp', desc=True).execute().data
+        history = supabase.table('egg_observation').select('*').eq('egg_id', target_id).order('timestamp', desc=True).execute().data
         if not history:
             st.info("No clinical history detected for this subject.")
         else:
@@ -198,18 +288,77 @@ if st.session_state.correction_mode:
                     cols[0].caption(f"Props: Chalk {h['chalking']} | Vasc {h['vascularity']} | Mold {h['molding']} | Leak {h['leaking']}")
                     if cols[1].button("🗑️", key=f"del_{h['detail_id']}"):
                         def surgical_delete():
-                            supabase.table('eggobservation').delete().eq('detail_id', h['detail_id']).execute()
-                            # ROLLBACK LOGIC: Find next most recent to update egg current state
-                            rem = supabase.table('eggobservation').select('stage_at_observation').eq('egg_id', target_id).order('timestamp', desc=True).limit(1).execute()
+                            # 1. Purge the errand record
+                            supabase.table('egg_observation').delete().eq('detail_id', h['detail_id']).execute()
+                            
+                            # 2. ROLLBACK LOGIC: v7.9.2 Resurrection Support
+                            rem = supabase.table('egg_observation').select('stage_at_observation').eq('egg_id', target_id).order('timestamp', desc=True).limit(1).execute()
                             new_s = rem.data[0]['stage_at_observation'] if rem.data else "S0"
-                            supabase.table('egg').update({"current_stage": new_s, "modified_by_id": st.session_state.observer_id}).eq('egg_id', target_id).execute()
-                            st.success("Record purged. Egg state reverted.")
-                        safe_db_execute("Surgical Delete", surgical_delete)
+                            
+                            # If new stage is NOT hatching, we resurrect the egg to 'Active'
+                            new_status = "Active" if new_s != "S6" else "Transferred"
+                            
+                            supabase.table('egg').update({
+                                "current_stage": new_s, 
+                                "status": new_status,
+                                "modified_by_id": st.session_state.observer_id
+                            }).eq('egg_id', target_id).execute()
+                            
+                            st.success(f"Record purged. Egg {target_id} has been reverted to {new_s} and is now {new_status}.")
+                        audit_msg = f"Surgical Purge: Observation record deleted for Egg {target_id}. State rolled back to {new_s}."
+                        safe_db_execute("Surgical Delete", surgical_delete, success_message=audit_msg)
                         st.rerun()
 else:
-    st.write("### 🥚 Biological Grid")
-    selected_labels = st.multiselect("Batch Triage (Tap to group):", egg_labels)
-    selected_real_ids = [label_to_id[l] for l in selected_labels]
+    # ------------------------------------------------------------------------------
+    # 4. THE BIOLOGICAL GRID (v7.9.0 - 4-Column High-Visibility)
+    # ------------------------------------------------------------------------------
+    st.markdown("### 🥚 Biological Grid")
+    st.write(f"Showing **{len(eggs_data)}** subjects in **{active_bin_id}**")
+
+    # Group Select Shortcut
+    if st.button("🏁 Select All Pending"):
+        st.session_state.selected_eggs = [e['egg_id'] for e in eggs_data if e['egg_id'] not in observed_ids]
+        st.rerun()
+
+    # 4-Column Implementation for Lead Biologist Accessibility §7.82
+    cols_per_row = 4
+    rows = [eggs_data[i:i + cols_per_row] for i in range(0, len(eggs_data), cols_per_row)]
+
+    for row in rows:
+        grid_cols = st.columns(cols_per_row)
+        for idx, egg in enumerate(row):
+            eid = egg['egg_id']
+            is_selected = eid in st.session_state.get("selected_eggs", [])
+            is_done = eid in observed_ids
+            
+            # Display SVG Biological Icon
+            img_data = render_egg_icon(
+                egg['current_stage'], 
+                egg.get('last_chalk', 0), 
+                egg.get('last_vasc', False), 
+                egg['status'],
+                is_selected
+            )
+            
+            with grid_cols[idx]:
+                # Use clickable image logic
+                st.image(img_data, width=70)
+                
+                # High-Visibility Label §7.81
+                label_text = f"**{eid.split('-E' if '-E' in eid else 'Egg')[-1]}**"
+                if is_done: label_text = "✅ " + label_text
+                
+                if st.checkbox(label_text, key=f"cb_{eid}", value=is_selected, label_visibility="visible"):
+                    if 'selected_eggs' not in st.session_state: st.session_state.selected_eggs = []
+                    if eid not in st.session_state.selected_eggs:
+                        st.session_state.selected_eggs.append(eid)
+                        st.rerun()
+                else:
+                    if 'selected_eggs' in st.session_state and eid in st.session_state.selected_eggs:
+                        st.session_state.selected_eggs.remove(eid)
+                        st.rerun()
+
+    selected_real_ids = st.session_state.get("selected_eggs", [])
 
     # --------------------------------------------------------------------------
     # 4. ACTION TRAY (Inherited Property Matrix)
@@ -243,6 +392,10 @@ else:
             m = bc2.checkbox("Molding")
             l = bc3.checkbox("Leaking")
             
+            # Added v7.6.0: Static Egg Metadata
+            egg_meta_notes = st.text_input("Permanent Egg Notes", placeholder="e.g., 'Slightly cracked' or 'Small specimen'")
+            observation_notes = st.text_area("Shift Observation Notes", placeholder="Describe unusual observations here...")
+            
             if st.button("🚀 Push Batch Update", type="primary", use_container_width=True):
                 def commit_batch():
                     m_id = supabase.table('bin').select('mother_id').eq('bin_id', active_bin_id).execute().data[0]['mother_id']
@@ -251,14 +404,28 @@ else:
                         obs_payload.append({
                             "session_id": st.session_state.session_id, "egg_id": rid, "bin_id": active_bin_id,
                             "observer_id": st.session_state.observer_id, "chalking": new_chalk, "vascularity": v,
-                            "molding": m, "leaking": l, "stage_at_observation": new_stage
+                            "molding": m, "leaking": l, "stage_at_observation": new_stage,
+                            "observation_notes": observation_notes
                         })
                         status = "Active" if new_stage != "S6" else "Transferred"
-                        supabase.table('egg').update({"current_stage": new_stage, "status": status, "modified_by_id": st.session_state.observer_id}).eq('egg_id', rid).execute()
+                        
+                        # Apply Stage, Permanent Meta-Notes, and Icon Cache v7.9.0
+                        update_fields = {
+                            "current_stage": new_stage, 
+                            "status": status, 
+                            "last_chalk": new_chalk,
+                            "last_vasc": v,
+                            "modified_by_id": st.session_state.observer_id
+                        }
+                        if egg_meta_notes:
+                            update_fields["egg_notes"] = egg_meta_notes
+                            
+                        supabase.table('egg').update(update_fields).eq('egg_id', rid).execute()
                     
-                    supabase.table('eggobservation').insert(obs_payload).execute()
+                    supabase.table('egg_observation').insert(obs_payload).execute()
                     st.success(f"Finalized {len(selected_real_ids)} clinical signatures.")
-                safe_db_execute("Prop Matrix Commit", commit_batch)
+                audit_msg = f"Batch Commit: Finalized {len(selected_real_ids)} eggs in Bin {active_bin_id} at Stage {new_stage}."
+                safe_db_execute("Prop Matrix Commit", commit_batch, success_message=audit_msg)
                 st.rerun()
 
 # ------------------------------------------------------------------------------

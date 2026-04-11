@@ -1,10 +1,9 @@
 """
 ============================================================================
 Module:     vault_views/1_Dashboard.py
-Project:    Incubator Vault v7.2.0 — Wildlife In Need Center (WINC)
-Purpose:    Biological Dashbord with Mortgage Heatmap and Hydration Correlation.
-Author:     Antigravity (Sovereign Sprint)
-Created:    2026-04-08
+Project:    Incubator Vault v7.9.4 — WINC
+Purpose:    Biological Dashboard with Mortality Heatmap & Hydration Audit.
+Revision:   2026-04-10 — Clinical Sovereignty Edition
 =============================================================================
 """
 
@@ -17,16 +16,17 @@ supabase = bootstrap_page("Dashboard", "📊")
 
 st.title("📊 Biological Command Center")
 
-# =============================================================================
-# SECTION: KPI Metrics
-# =============================================================================
+# v7.9.4: Session Handshake Audit
+if 'handshake_complete' not in st.session_state:
+    safe_db_execute("Handshake", lambda: True, success_message=f"Session Active: Observer {st.session_state.observer_name} entered Command Center.")
+    st.session_state.handshake_complete = True
 def fetch_kpis():
     active = supabase.table('egg').select('egg_id', count='exact').eq('status', 'Active').execute()
     hatched = supabase.table('egg').select('egg_id', count='exact').eq('status', 'Transferred').execute()
     
     # Calculate critical alerts (molding/leaking observations in last 48 hours for active eggs)
     # Simplified here to count historical warnings
-    alerts = supabase.table('eggobservation').select('detail_id', count='exact').or_('molding.eq.true,leaking.eq.true').execute()
+    alerts = supabase.table('egg_observation').select('detail_id', count='exact').or_('molding.eq.true,leaking.eq.true').execute()
     return active.count or 0, hatched.count or 0, alerts.count or 0
 
 active_ct, hatched_ct, alert_ct = fetch_kpis()
@@ -38,6 +38,36 @@ m3.metric("Critical Alerts", alert_ct, "Requires Attention" if alert_ct > 0 else
 m4.metric("Hydration Sync", "100%", "Target Reached")
 
 st.divider()
+
+# =============================================================================
+# SECTION: SEASON-END CLEANUP (v7.9.7)
+# =============================================================================
+res_bins = supabase.table('bin').select('bin_id').eq('is_deleted', False).execute().data
+retirement_targets = []
+
+for b in res_bins:
+    b_id = b['bin_id']
+    active_count = supabase.table('egg').select('egg_id', count='exact').eq('bin_id', b_id).eq('status', 'Active').execute().count
+    if active_count == 0:
+        retirement_targets.append(b_id)
+
+if retirement_targets:
+    with st.container(border=True):
+        st.subheader("🧹 Workbench Cleanup")
+        st.info(f"The following bins have **0 active eggs**. They should be retired to the archive.")
+        
+        target_to_retire = st.selectbox("Select Bin to Retire", retirement_targets)
+        
+        col_r1, col_r2 = st.columns([2,1])
+        conf_toggle = col_r1.toggle(f"I confirm that **{target_to_retire}** is finished for the season.", help="This will archive the bin and its entire clinical history.")
+        
+        if col_r2.button("📦 Retire Bin", disabled=not conf_toggle, use_container_width=True, type="primary"):
+            def retire_bin():
+                supabase.table('bin').update({"is_deleted": True}).eq('bin_id', target_to_retire).execute()
+                return True
+            safe_db_execute("Retire Bin", retire_bin, success_message=f"Lifecycle: Bin {target_to_retire} retired to the season archive.")
+            st.success(f"Bin {target_to_retire} archived.")
+            st.rerun()
 
 # =============================================================================
 # SECTION: Analytics (§5)
@@ -67,7 +97,7 @@ with col_right:
 
 st.divider()
 st.subheader("📜 Recent Vault Activity")
-sys_logs = supabase.table('systemlog').select('*').order('timestamp', desc=True).limit(5).execute().data
+sys_logs = supabase.table('system_log').select('*').order('timestamp', desc=True).limit(5).execute().data
 if sys_logs:
     for log in sys_logs:
         st.caption(f"{log['timestamp'][:16].replace('T', ' ')} | **{log['event_type']}**: {log['event_message']}")

@@ -1,8 +1,8 @@
 """
-=============================================================================
-Module:     utils/session.py
-Project:    Incubator Vault v7.2.0 — Wildlife In Need Center (WINC)
-Purpose:    Session management, SessionID generation, and Splash Screen Gate.
+Module:     utils/session.py (v7.9.4)
+Project:    Incubator Vault v7.9.4 — WINC
+Purpose:    Session management, SessionID recovery, and Admin Handshake.
+Revision:   2026-04-10 — Clinical Sovereignty Edition
 =============================================================================
 """
 
@@ -88,7 +88,7 @@ def show_splash_screen():
                     
                     try:
                         # REQ: Within 4 hours? Resume. (>4 Hours? New).
-                        last_session = supabase.table('sessionlog').select('*').eq('user_name', st.session_state.observer_name).order('login_timestamp', desc=True).limit(1).execute()
+                        last_session = supabase.table('session_log').select('*').eq('user_name', st.session_state.observer_name).order('login_timestamp', desc=True).limit(1).execute()
                         if last_session.data:
                             last_ts = datetime.fromisoformat(last_session.data[0]['login_timestamp'].replace('Z', '+00:00'))
                             if (datetime.now().astimezone() - last_ts.astimezone()) < timedelta(hours=4):
@@ -99,9 +99,9 @@ def show_splash_screen():
 
                     st.session_state.session_id = new_session_id
 
-                    # 🚨 TELEMETRY FIX: Register SessionLog first to satisfy Supabase Foreign Key constraints!
+                    # 🚨 TELEMETRY FIX: Register SessionLog first
                     try:
-                        supabase.table('sessionlog').upsert({
+                        supabase.table('session_log').upsert({
                             "session_id": st.session_state.session_id,
                             "user_name": st.session_state.observer_name,
                             "user_agent": "WINC Field App"
@@ -109,9 +109,8 @@ def show_splash_screen():
                     except:
                         pass
                         
-                    # Now the systemlog insert will survive the Foreign Key check!
                     try:
-                        supabase.table('systemlog').insert({
+                        supabase.table('system_log').insert({
                             "session_id": st.session_state.session_id,
                             "event_type": "ACCESS",
                             "event_message": f"Biologist {st.session_state.observer_name} clocked in."

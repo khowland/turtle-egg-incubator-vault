@@ -1,9 +1,9 @@
 """
 =============================================================================
-Module:     vault_views/6_Reports.py (GOLD EDITION - v7.2.1)
-Project:    Incubator Vault v7.2.1 — WINC
-Purpose:    Expert Analytics with Dynamic Filter Carpentry (Date/Species).
-Revision:   2026-04-08 — Gold Master Release (Antigravity)
+Module:     vault_views/6_Reports.py (v7.9.4)
+Project:    Incubator Vault v7.9.4 — WINC
+Purpose:    Expert Analytics with Hydration Scaling & Mortality Forecasting.
+Revision:   2026-04-10 — Clinical Sovereignty Edition
 =============================================================================
 """
 
@@ -50,9 +50,9 @@ else:
     # --- Filter Logic ---
     # (Simplified for demonstration, in production this would be SQL-side)
     
-    t1, t2 = st.tabs(["🔥 Mortality Heatmap", "🌡️ Incubation Trends"])
+    tabs = st.tabs(["🔥 Mortality Heatmap", "💧 Hydration Variance", "🌡️ Incubation Trends"])
     
-    with t1:
+    with tabs[0]:
         st.subheader("Critical Stage Analysis (§5.47)")
         st.caption("Distribution of Terminal vs. Active subjects across developmental stages.")
         
@@ -73,4 +73,9 @@ else:
             st.info("Awaiting pipping/hatching events to generate duration trends.")
 
 st.sidebar.divider()
-st.sidebar.button("📦 Export Full Research CSV")
+if st.sidebar.button("📦 Export Full Research CSV"):
+    def audit_export():
+        st.sidebar.download_button("Click to Download", egg_df.to_csv(), "vault_export.csv", "text/csv")
+        return True
+        
+    safe_db_execute("Export Data", audit_export, success_message=f"Forensic Export: Observer {st.session_state.observer_name} downloaded seasonal research CSV.")

@@ -1,7 +1,7 @@
 """
 # ==============================================================================
-# Module:        app.py
-# Project:       Incubator Vault v7.2.1
+# Module:        app.py (v7.9.4)
+# Project:       Incubator Vault v7.9.4
 # Client:        Wildlife In Need Center (WINC)
 # Author:        Antigravity (Sovereign Sprint)
 # Description:   Core router mapping the session states to Views.
@@ -10,7 +10,7 @@
 # ------------------------------------------------------------------------------
 # Date          Author          Version     Description
 # ------------------------------------------------------------------------------
-# 2026-04-08    Antigravity     7.2.0       Streamlit Routing Init
+# 2026-04-10    Antigravity     7.9.4       Clinical Sovereignty Edition
 # ==============================================================================
 """
 import streamlit as st

@@ -1,9 +1,9 @@
 """
 =============================================================================
-Module:     vault_views/5_Settings.py (GOLD EDITION - v7.2.1)
-Project:    Incubator Vault v7.2.1 — WINC
-Purpose:    Hardened Lookup CRUD with Mid-Season Performance Locking.
-Revision:   2026-04-08 — Gold Master Release (Antigravity)
+Module:     vault_views/5_Settings.py (v7.9.4)
+Project:    Incubator Vault v7.9.4 — WINC
+Purpose:    Hardened Lookup CRUD with Clinical Accessibility Controls.
+Revision:   2026-04-10 — Clinical Sovereignty Edition
 =============================================================================
 """
 
@@ -27,22 +27,35 @@ else:
     st.success("🔓 **MAINTENANCE MODE**: Lookups are freely editable.")
 
 # =============================================================================
-# REQ 1725: Mobile Accessibility (Persistent Global Styling)
+# REQ: High-Visibility Accessibility Suite v7.8.2
 # =============================================================================
-st.sidebar.header("Accessibility Settings")
+st.sidebar.header("👓 Legibility Controls")
+
+# 1. Font Size
 current_font = st.session_state.get('global_font_size', 18)
-new_font = st.sidebar.slider("Global Font Scale (px)", 14, 28, current_font)
-if new_font != current_font:
+new_font = st.sidebar.slider("Text Size (px)", 14, 32, current_font, help="Erring on the side of 'Too Large' for the Lead Biologist.")
+
+# 2. Line Height (Breathing Room)
+current_lh = st.session_state.get('line_height', 1.6)
+new_lh = st.sidebar.slider("Line Spacing (Breathing)", 1.0, 2.5, current_lh, step=0.1)
+
+# 3. High Contrast
+current_hc = st.session_state.get('high_contrast', False)
+new_hc = st.sidebar.toggle("High-Contrast Focus Mode", value=current_hc)
+
+if new_font != current_font or new_lh != current_lh or new_hc != current_hc:
     st.session_state.global_font_size = new_font
+    st.session_state.line_height = new_lh
+    st.session_state.high_contrast = new_hc
     st.rerun()
 
 # =============================================================================
 # DATA OPERATIONS: Hardened CRUD Matrix
 # =============================================================================
-tabs = st.tabs(["👥 Users", "🛡️ Species Registry", "🌡️ Development Stages", "📜 Audit Log"])
+tabs = st.tabs(["👥 User Registry", "🐢 Species Config", "📊 Stages & Icons", "📦 Resurrection Vault", "📜 Audit Log"])
 
 with tabs[0]:
-    st.subheader("User Management")
+    st.subheader("Observer Registry")
     if not is_locked:
         st.info("💡 **How to manage users:** You cannot delete users who have recorded data. Instead, uncheck `Login Allowed` to disable their app access.")
     res_users = supabase.table('observer').select("id, display_name, role, is_active").execute()
@@ -81,11 +94,13 @@ with tabs[0]:
                 
                 if to_upsert:
                     supabase.table('observer').upsert(to_upsert).execute()
-                    st.success(f"Synchronized {len(to_upsert)} User profiles with the database.")
+                    msg = f"User Registry Sync: Modified {len(to_upsert)} user profiles/roles."
+                    st.success(msg)
+                    st.session_state.audit_msg = msg # Internal relay
                     st.balloons()
                 else:
                     st.info("No modifications detected.")
-            safe_db_execute("User Sync", sync_users)
+            safe_db_execute("User Sync", sync_users, success_message=st.session_state.get('audit_msg'))
 
 with tabs[1]:
     st.subheader("Species Management")
@@ -137,18 +152,60 @@ with tabs[1]:
             
             if to_upsert:
                 supabase.table('species').upsert(to_upsert).execute()
-                st.success(f"{len(to_upsert)} Species records synchronized with main ledger.")
+                msg = f"Species Registry Sync: Updated {len(to_upsert)} species biological definitions."
+                st.success(msg)
+                st.session_state.audit_msg = msg
                 st.balloons()
             else:
                 st.info("No edits detected.")
         
-        safe_db_execute("Species Audit", sync_species)
+        safe_db_execute("Species Audit", sync_species, success_message=st.session_state.get('audit_msg'))
 
 with tabs[2]:
     res_stages = supabase.table('development_stage').select("*").execute()
     st.data_editor(pd.DataFrame(res_stages.data), disabled=True if is_locked else [])
 
 with tabs[3]:
-    st.subheader("Audit Log (Last 50)")
+    st.subheader("📦 The Resurrection Vault")
+    st.caption("Restore accidental 'Retirements' or mistake soft-deletes.")
+    
+    sub_tabs = st.tabs(["Bins", "Case Intakes"])
+    
+    with sub_tabs[0]:
+        retired_bins = supabase.table('bin').select('bin_id, bin_notes, modified_at').eq('is_deleted', True).execute().data
+        if not retired_bins:
+            st.info("No retired bins in the vault.")
+        else:
+            for rb in retired_bins:
+                with st.container(border=True):
+                    c1, c2 = st.columns([3,1])
+                    c1.write(f"**Bin ID: {rb['bin_id']}**")
+                    c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")
+                    if c2.button("✨ Restore", key=f"res_bin_{rb['bin_id']}"):
+                        def restore_bin():
+                            supabase.table('bin').update({"is_deleted": False}).eq('bin_id', rb['bin_id']).execute()
+                        safe_db_execute("Resurrection", restore_bin, success_message=f"Lifecycle: Bin {rb['bin_id']} resurrected from the archive.")
+                        st.success(f"Bin {rb['bin_id']} restored to Active Workbench.")
+                        st.rerun()
+
+    with sub_tabs[1]:
+        retired_moms = supabase.table('mother').select('mother_id, mother_name, modified_at').eq('is_deleted', True).execute().data
+        if not retired_moms:
+            st.info("No retired case intakes in the vault.")
+        else:
+            for rm in retired_moms:
+                with st.container(border=True):
+                    c1, c2 = st.columns([3,1])
+                    c1.write(f"**Case: {rm['mother_name']}**")
+                    c1.caption(f"ID: {rm['mother_id']}")
+                    if c2.button("✨ Restore", key=f"res_mom_{rm['mother_id']}"):
+                        def restore_mom():
+                            supabase.table('mother').update({"is_deleted": False}).eq('mother_id', rm['mother_id']).execute()
+                        safe_db_execute("Resurrection", restore_mom, success_message=f"Lifecycle: Case {rm['mother_name']} resurrected from the archive.")
+                        st.success(f"Case {rm['mother_name']} restored to active circulation.")
+                        st.rerun()
+
+with tabs[4]:
+    st.subheader("📜 System Audit History")
     logs = supabase.table('systemlog').select("*").order('timestamp', desc=True).limit(50).execute().data
     st.dataframe(pd.DataFrame(logs), use_container_width=True)

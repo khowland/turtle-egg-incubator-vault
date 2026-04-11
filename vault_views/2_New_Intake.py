@@ -12,15 +12,16 @@
 # ------------------------------------------------------------------------------
 # 2026-04-08    Antigravity     7.2.0       Initial Gold Master Release
 # 2026-04-09    Antigravity     7.2.1       Added Form Validation safeguards
+# 2026-04-10    Antigravity     7.9.4       Clinical Sovereignty Edition
 # ==============================================================================
 """
 
 import streamlit as st
 from utils.bootstrap import bootstrap_page, safe_db_execute
 
-supabase = bootstrap_page("New Intake", "🐣")
+supabase = bootstrap_page("New Intake", "🛡️")
 
-st.title("New Intake")
+st.title("🛡️ New Intake")
 
 with st.sidebar.expander("ℹ️ Screen Help - Step-by-Step"):
     st.markdown("""
@@ -52,37 +53,45 @@ species_data = {f"{s['species_code']} - {s['common_name']}" + (" (Stinkpot)" if 
 
 # --- STATE ---
 if 'bin_rows' not in st.session_state:
-    st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
+    st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1, "notes": "Initial Intake"}]
 
 # --- Clinical Origin ---
 with st.container(border=True):
-    c1, c2 = st.columns(2)
-    selected_label = c1.selectbox("Turtle Species", list(species_data.keys()), help="Select the physiological origin species.")
-    case_num = c2.text_input("WormD Case #", help="Enter official Wildlife In Need Center case identifier.")
+    st.subheader("🧬 Clinical Origin")
+    c1, c2, c3 = st.columns([2, 1, 1])
+    selected_label = c1.selectbox("Turtle Species", list(species_data.keys()))
+    case_num = c2.text_input("WINC Case #", placeholder="2026-XXXX")
+    intake_date = c3.date_input("Intake Date")
     
-    cc1, cc2 = st.columns(2)
-    finder_turtle_name = cc1.text_input("Finder/Turtle Name", help="Required for clinical tracking.")
-    intake_date = cc2.date_input("Intake Date")
+    # Advanced Biological Markers v7.7.0
+    lc1, lc2, lc3 = st.columns(3)
+    finder_turtle_name = lc1.text_input("Finder/Turtle Name")
+    m_condition = lc2.selectbox("Mother Condition", ["Alive", "Injured", "DOA (Salvage)"], index=0)
+    m_extract = lc3.selectbox("Extraction Method", ["Natural", "Induced", "Surgical", "Post-Mortem Salvage"], index=0)
+    
+    loc1, loc2 = st.columns([2, 1])
+    discovery_loc = loc1.text_input("Found at (Location)", placeholder="Roadside, Backyard, Wetland, etc.", help="Context for thermal shock assessment.")
+    carapace_len = loc2.number_input("Carapace Length (mm)", 0, 500, value=0)
 
     selected_species = species_data[selected_label]
     next_intake_num = (selected_species['intake_count'] or 0) + 1
 
 # --- Bin Matrix ---
 st.subheader("Bin Setup")
-commit_rows = []
 for i, row in enumerate(st.session_state.bin_rows):
     bin_code = f"{selected_species['species_code']}{next_intake_num}-{finder_turtle_name.replace(' ', '')}-{row['bin_num']}"
-    cols = st.columns([3, 2, 1])
+    cols = st.columns([3, 2, 3, 1])
     cols[0].markdown(f"**Bin Code:** `{bin_code}`")
-    row['egg_count'] = cols[1].number_input("Egg Count", min_value=1, max_value=99, value=row['egg_count'], step=1, key=f"egg_{i}")
-    if cols[2].button("🗑️", key=f"del_{i}"):
+    row['egg_count'] = cols[1].number_input("Egg Count", 1, 99, row['egg_count'], key=f"egg_{i}")
+    row['notes'] = cols[2].text_input("Bin Notes", value=row['notes'], key=f"note_{i}")
+    if cols[3].button("🗑️", key=f"del_{i}"):
         st.session_state.bin_rows.pop(i)
         for idx, r in enumerate(st.session_state.bin_rows): r['bin_num'] = idx + 1
         st.rerun()
 
 if st.button("➕ Add Bin"):
     if len(st.session_state.bin_rows) < 9:
-        st.session_state.bin_rows.append({"bin_num": len(st.session_state.bin_rows) + 1, "egg_count": 1})
+        st.session_state.bin_rows.append({"bin_num": len(st.session_state.bin_rows) + 1, "egg_count": 1, "notes": "Initial Intake"})
         st.rerun()
 
 # --- ATOMIC COMMIT ---
@@ -115,6 +124,10 @@ if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=Tru
                 "finder_turtle_name": finder_turtle_name,
                 "species_id": selected_species['species_id'],
                 "intake_date": str(intake_date),
+                "intake_condition": m_condition,
+                "extraction_method": m_extract,
+                "discovery_location": discovery_loc,
+                "carapace_length_mm": carapace_len,
                 "session_id": st.session_state.session_id,
                 "created_by_id": st.session_state.observer_id,
                 "modified_by_id": st.session_state.observer_id
@@ -122,15 +135,18 @@ if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=Tru
             m_id = mother_res.data[0]['mother_id']
             
             first_bin_id = None
+            total_eggs = 0
             # 3. Insert Bins & Eggs
             for r in st.session_state.bin_rows:
                 bin_id_val = f"{selected_species['species_code']}{next_intake_num}-{finder_turtle_name}-{r['bin_num']}"
                 if first_bin_id is None:
                     first_bin_id = bin_id_val
+                total_eggs += r['egg_count']
                     
                 bin_res = supabase.table('bin').insert({
                     "mother_id": m_id,
                     "bin_id": bin_id_val,
+                    "bin_notes": r.get('notes', ''),
                     "session_id": st.session_state.session_id,
                     "created_by_id": st.session_state.observer_id,
                     "modified_by_id": st.session_state.observer_id
@@ -156,11 +172,11 @@ if c_btn2.button("🚀 Finalize Intake", type="primary", use_container_width=Tru
                     "bin_id": b_id,
                     "observer_id": st.session_state.observer_id,
                     "stage_at_observation": "S0",
-                    "notes": "Clinical Intake Baseline"
+                    "observation_notes": "Clinical Intake Baseline"
                 } for e in egg_res.data]
-                supabase.table('eggobservation').insert(baseline_obs).execute()
+                supabase.table('egg_observation').insert(baseline_obs).execute()
             
-            s.update(label="Intake Successful! Transitioning...", state="complete")
+            s.update(label=f"Intake Successful! Case {case_num} established with {total_eggs} eggs.", state="complete")
             st.balloons()
             st.session_state.active_bin_id = first_bin_id
             st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
