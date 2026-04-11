@@ -24,11 +24,12 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
     if 'session_id' not in st.session_state:
         st.session_state.session_id = str(uuid.uuid4())
         
-    # 2. Check Identity
+    # 2. Check Identity (skip when running outside a full ScriptRunContext, e.g. tests)
     if not st.session_state.get('observer_id'):
-        if st.active_script_hash != "": 
-             st.warning("⚠️ Session expired or not started. Redirecting...")
-             st.stop()
+        _script_hash = getattr(st, "active_script_hash", "")
+        if _script_hash != "":
+            st.warning("⚠️ Session expired or not started. Redirecting...")
+            st.stop()
              
     # 3. Global Accessibility Initialization
     if 'global_font_size' not in st.session_state: st.session_state.global_font_size = 18

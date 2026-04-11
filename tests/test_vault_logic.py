@@ -35,6 +35,25 @@ def test_database_persistence():
     assert len(res.data) > 0
     print("✅ Database Persistence Validated.")
 
+def test_wormd_export_bundle_shape():
+    """ISS-2: JSON envelope includes versioned spec and clinical_origin block."""
+    from utils.wormd_export import build_wormd_intake_json_bundle, EXPORT_SPEC_VERSION
+
+    raw = build_wormd_intake_json_bundle(
+        selection_criteria={"mother_ids": ["M1"]},
+        clinical_origin=[{"vault_mother_id": "M1", "winc_or_wormd_case_number": "2026-0001"}],
+        bins=[],
+        eggs=[],
+        include_flags={"bins": False, "eggs": False},
+    )
+    import json
+
+    data = json.loads(raw)
+    assert data["export_spec_version"] == EXPORT_SPEC_VERSION
+    assert "wormd_intake_guess" in data
+    assert data["clinical_origin"][0]["winc_or_wormd_case_number"] == "2026-0001"
+
+
 def test_session_recovery_logic():
     """
     Verifies the v1.8 4-hour session recovery requirement.
