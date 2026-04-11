@@ -374,9 +374,16 @@ else:
             )
             
             with grid_cols[idx]:
-                st.image(img_data, width=70)
                 label_text = f"**{eid.split('-E' if '-E' in eid else 'Egg')[-1]}**"
                 if is_done: label_text = "✅ " + label_text
+                
+                # Render the High-Contrast Tray
+                st.markdown(f"""
+                <div class="egg-tray">
+                    <img src="{img_data}" width="70">
+                    <br>
+                </div>
+                """, unsafe_allow_html=True)
                 
                 if st.checkbox(label_text, key=f"cb_{eid}", value=is_selected):
                     if 'selected_eggs' not in st.session_state: st.session_state.selected_eggs = []
