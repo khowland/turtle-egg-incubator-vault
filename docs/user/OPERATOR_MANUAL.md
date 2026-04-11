@@ -21,13 +21,12 @@ This schematic depicts the biological milestones every egg follows.
 
 ![Biological Timeline Infographic](../../assets/manual/biological_timeline_infographic_1775942084172.png)
 
-```mermaid
-graph LR
-    A[🐣 Intake] --> B[⚖️ Weight Check]
-    B --> C[🔍 Health Scan]
-    C --> D[🐢 Transition]
-    D --> E[🏞️ Wild Release]
-```
+### 🐢 The Clinical Workflow (Step-by-Step)
+1.  **🐣 Intake**: Subject accessioning and Smart ID generation.
+2.  **⚖️ Weight Check**: Mandatory humidity-baseline verification.
+3.  **🔍 Health Scan**: 0-3 clinical scaling for Molding, Leaking, and Denting.
+4.  **🐢 Transition**: Movement to hatchling tanks upon S6 arrival.
+5.  **🏞️ Wild Release**: Reintroduction to native Wisconsin watershed.
 
 ---
 <div style="page-break-after: always;"></div>

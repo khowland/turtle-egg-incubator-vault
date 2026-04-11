@@ -57,27 +57,37 @@ try:
 
         import re
         import base64
+        from pathlib import Path
 
-        def get_image_base64(path):
+        # Core Path Resolution (§v9.0.1 Migration)
+        ROOT_DIR = Path(__file__).parent.parent
+        
+        def get_image_base64(path_str):
             try:
-                # Resolve the relative path in the MD file to an absolute path on disk
-                # MD says: ../../assets/manual/img.png
-                # But from vault_views/8_Help.py, the path relative to CWD (root) is: assets/manual/img.png
+                # Normalize path separators and remove relative dots
+                clean_path = path_str.replace("\\", "/").replace("../../", "").replace("../", "")
+                full_path = ROOT_DIR / clean_path
                 
-                # Strip leading relative dots if present
-                clean_path = path.replace("../../", "").replace("../", "")
-                full_path = os.path.join(os.getcwd(), clean_path)
-                
-                if os.path.exists(full_path):
-                    with open(full_path, "rb") as image_file:
-                        return f"data:image/png;base64,{base64.b64encode(image_file.read()).decode()}"
-                return path # Fallback
-            except:
-                return path
+                if full_path.exists():
+                    ext = full_path.suffix.lower()
+                    mime = "image/png"
+                    if ext == ".svg": mime = "image/svg+xml"
+                    elif ext in [".jpg", ".jpeg"]: mime = "image/jpeg"
+                    
+                    with open(full_path, "rb") as f:
+                        b64 = base64.b64encode(f.read()).decode()
+                        return f"data:{mime};base64,{b64}"
+                return path_str
+            except Exception as e:
+                return path_str
 
-        # Find all local image links and swap them for Base64 strings for robust rendering
-        image_pattern = r'!\[(.*?)\]\((.*?)\)'
-        manual_content = re.sub(image_pattern, lambda m: f'![{m.group(1)}]({get_image_base64(m.group(2))})', manual_content)
+        # 1. Update Markdown Image Syntax: ![alt](path)
+        md_pattern = r'!\[(.*?)\]\((.*?)\)'
+        manual_content = re.sub(md_pattern, lambda m: f'![{m.group(1)}]({get_image_base64(m.group(2))})', manual_content)
+
+        # 2. Update HTML Image Syntax: <img src="path" ...>
+        html_pattern = r'<img\s+[^>]*src="([^"]+)"'
+        manual_content = re.sub(html_pattern, lambda m: m.group(0).replace(m.group(1), get_image_base64(m.group(1))), manual_content)
 
         st.markdown(manual_content, unsafe_allow_html=True)
     else:
