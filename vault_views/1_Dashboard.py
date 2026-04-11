@@ -34,7 +34,7 @@ def fetch_key_performance_indicators():
     active_bin_identifiers = [b['bin_id'] for b in bins_result] if bins_result else []
     
     if not active_bin_identifiers:
-        return 0, 0, get_resilient_table(supabase_client, 'egg_observation').select('egg_observation_id', count='exact').or_('molding.eq.true,leaking.eq.true').execute().count or 0
+        return 0, 0, get_resilient_table(supabase_client, 'egg_observation').select('egg_observation_id', count='exact').or_('molding.gt.0,leaking.gt.0').execute().count or 0
 
     active_eggs = (
         supabase_client.table('egg')
@@ -53,7 +53,7 @@ def fetch_key_performance_indicators():
         .execute()
     )
     
-    alerts_query = get_resilient_table(supabase_client, 'egg_observation').select('egg_observation_id', count='exact').or_('molding.eq.true,leaking.eq.true').execute()
+    alerts_query = get_resilient_table(supabase_client, 'egg_observation').select('egg_observation_id', count='exact').or_('molding.gt.0,leaking.gt.0').execute()
     return active_eggs.count or 0, hatched_eggs.count or 0, alerts_query.count or 0
 
 active_count, hatched_count, alert_count = fetch_key_performance_indicators()
