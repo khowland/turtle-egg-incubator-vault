@@ -130,7 +130,7 @@ git push origin main
   └── utils/
       ├── db.py                 # Supabase client singleton + helpers
       ├── session.py            # Observer selection + session_id generation
-      ├── audit.py              # SystemLog logged_write() wrapper
+      ├── audit.py              # system_log logged_write() wrapper
       ├── guardrails.py         # Biological alert rules (Phase C)
       └── css.py                # All CSS strings (design tokens from Requirements §3)
   ```

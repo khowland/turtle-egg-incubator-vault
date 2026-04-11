@@ -64,7 +64,7 @@ To hand this off, run the Agent Zero container and give it this **Mission Direct
 
 > "Agent Zero, read `/workspace/Requirements.md`. Your mission is to initialize the **Supabase Backend** for the TurtleEggDB. 
 > 1. Create the `schema.sql` with the 'Clue Chain' natural key logic. 
-> 2. Ensure all tables have 'Created/Updated/Deleted' audit columns linked to a `SessionLog`. 
+> 2. Ensure all tables have 'Created/Updated/Deleted' audit columns linked to a `session_log`. 
 > 3. Implement the Postgres triggers for the 'Clue Chain' auto-generation. 
 > 4. Generate the AppSheet Expression logic for the 'Quick Edit' toggles mentioned in line 146. 
 > 5. Report back when the DB is ready for data ingestion."

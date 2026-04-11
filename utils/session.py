@@ -104,7 +104,7 @@ def show_splash_screen():
                     if resume_user:
                         st.session_state.resume_notice = f"📍 Resuming active shift started by **{resume_user}**"
 
-                    # 🚨 TELEMETRY FIX: Register SessionLog first
+                    # 🚨 TELEMETRY FIX: Register session_log first
                     try:
                         get_resilient_table(supabase, 'session_log').upsert({
                             "session_id": st.session_state.session_id,
