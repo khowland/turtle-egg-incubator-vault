@@ -1,4 +1,4 @@
-# 📖 WINC Incubator System: Operator's Manual (v8.1.3)
+# 📖 WINC Incubator System: Operator's Manual (v8.1.4)
 **WINC Production Edition (Simplicity Release)**
 
 ## 🐢 The Turtle Journey
@@ -47,6 +47,8 @@ graph TD
     style ID fill:#f8fafc,stroke:#64748b,stroke-width:2px
 ```
 
+---
+
 ## 3. Check on Eggs (Daily Observations)
 This is the most frequent task in the system. The workflow is designed to be fast on mobile tablets while ensuring high-quality clinical data.
 
@@ -86,6 +88,40 @@ When eggs are selected, the **Matrix** appears at the bottom of the screen. This
 
 ### Step 4: Finalizing the Shift 🏁
 Always click the green **SAVE** button after making changes. The system will instantly update the icons in the grid to reflect their new development stage.
+
+---
+
+### 📐 The Clinical Workflow Map
+This diagram shows the sequence of checks a volunteer performs to ensure shift continuity:
+
+```mermaid
+graph TD
+    A[Today's Summary] -->|Select Bin| B[Clinical Gateway]
+    B -->|Weigh Bin| C[Biological Grid]
+    C -->|Select Eggs| D[Property Matrix]
+    D -->|Rate Health 0-3| E[SAVE RECORDS]
+    E -->|Success| A
+```
+
+### 📸 Simulated Observation Screen
+When working on a mobile tablet, your screen will follow this high-definition layout:
+
+| **Biological Grid (The Incubator Tray)** |
+| :---: |
+| *(Deep Slate Background for high-contrast visibility)* |
+| <img src="../../assets/icons/egg_s1.svg" width="40"> **01** | <img src="../../assets/icons/egg_s2.svg" width="40"> **02** | <img src="../../assets/icons/egg_s3.svg" width="40"> **03** | <img src="../../assets/icons/egg_s1.svg" width="40"> **04** |
+| [ ] Select | [x] Focus | [ ] Select | [ ] Select |
+
+| **Property Matrix (Active Settings)** |
+| :--- |
+| **Stage Selection**: `[ S3: Chalking ]` |
+| **Molding Level**: `[ 0 | 1 | 2 | 3 ]` |
+| **Denting Level**: `[ 0 | 1 | 2 | 3 ]` |
+| **Leaking Level**: `[ 0 | 1 | 2 | 3 ]` |
+| **Clinical Notes**: "Large white band, healthy vascularity." |
+| **[ 🏁 SAVE RECORDS ]** |
+
+---
 
 ## 🎨 Visual Stage Legend (Clinical Markers)
 The icons in your workbench change as the turtle grows. Here is how to read the "High-Def" clinical markers:
@@ -133,4 +169,4 @@ If you make a mistake or need to change a previous entry:
 Found under **Download Data**, you can export CSV or JSON files for external agency reporting (WormD).
 
 ---
-*WINC Clinical Standard v8.1.3 (2026 Season)*
+*WINC Clinical Standard v8.1.4 (2026 Season)*
