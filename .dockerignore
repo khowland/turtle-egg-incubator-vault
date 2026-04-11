@@ -1,0 +1,39 @@
+# =============================================================================
+# .dockerignore: Production Exclusions
+# Project:     Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
+# Description: Prevents development bloat and sensitive files from entering the
+#              cloud container image for Google Cloud Run.
+# =============================================================================
+
+# 1. Version Control Junk
+.git
+.gitignore
+.gitattributes
+
+# 2. Python Bytecode & Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# 3. Sensitive Configuration (Securely handled by GCP Env Vars)
+.env
+a0_usr.env
+
+# 4. Local Development Data & Reports
+data/*
+reports/*
+tmp/
+turtleegg_bundle.txt
+db_schema_export.txt
+
+# 5. Archive (Do not ship historical baggage to the cloud)
+docs/archive/
+
+# 6. Desktop OS Metadata
+.DS_Store
+Thumbs.db

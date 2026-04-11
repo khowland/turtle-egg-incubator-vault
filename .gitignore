@@ -49,3 +49,6 @@ test_app.py
 
 # Project Data (Optional: Ignore if using large local backups)
 data/v1_backup.sql
+
+# Production Release: Ignore local devtools
+devtools/

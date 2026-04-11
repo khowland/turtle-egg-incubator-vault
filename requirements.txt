@@ -1,7 +1,13 @@
-streamlit
-supabase
-python-dotenv
-pandas
-plotly
-streamlit-aggrid
-psycopg2-binary
+# =============================================================================
+# requirements.txt: Stable Production Dependencies
+# Project:     Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
+# Description: Fixed version constraints to prevent breaking changes in the cloud.
+# =============================================================================
+
+streamlit>=1.35.0
+supabase>=2.4.0
+python-dotenv>=1.0.1
+pandas>=2.1.0
+plotly>=5.18.0
+psycopg2-binary>=2.9.9
+httpx>=0.25.0

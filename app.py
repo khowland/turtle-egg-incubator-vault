@@ -28,7 +28,8 @@ else:
         st.Page("vault_views/2_New_Intake.py", title="New Intake", icon="🐣"),
         st.Page("vault_views/3_Observations.py", title="Observations", icon="🔍"),
         st.Page("vault_views/5_Settings.py", title="Settings", icon="⚙️"),
-        st.Page("vault_views/6_Reports.py", title="Reports", icon="📈")
+        st.Page("vault_views/6_Reports.py", title="Reports", icon="📈"),
+        st.Page("vault_views/8_Help.py", title="Help & Manual", icon="📚")
     ]
 
 pg = st.navigation(pages)
