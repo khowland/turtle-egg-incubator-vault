@@ -124,10 +124,19 @@ The system mandates the following button labeling for cross-module consistency:
 
 ---
 
+---
+
 ## 4. Hardware and Environment Specification
 - **Incubator Topology**: SINGLE Physical Unit.
 - **Organization**: Multiple "Bins" (Containers) per Incubator.
 - **Terminology**: The word "Incubator" is reserved for the machine; "Bin" is used for the plastic egg boxes.
+
+### 🎨 Biological Visual Identity
+The system utilizes high-definition SVG assets for biological triage. Developers must maintain this visual parity:
+
+| S1: Healthy | S2: Vascular | S3: Chalking | S5: Pipping | S6: Hatched |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="../assets/icons/egg_s1.svg" width="50"> | <img src="../assets/icons/egg_s2.svg" width="50"> | <img src="../assets/icons/egg_s3.svg" width="50"> | <img src="../assets/icons/egg_s4.svg" width="50"> | <img src="../assets/icons/egg_s5.svg" width="50"> |
 
 ---
 

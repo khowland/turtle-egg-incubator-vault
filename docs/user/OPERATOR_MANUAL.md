@@ -59,11 +59,11 @@ The icons in your workbench change as the turtle grows. Here is how to read the 
 
 | Icon Mark | Biological Meaning | What to do |
 | :--- | :--- | :--- |
-| **Cream Ovoid** | **Healthy Egg** | Standard active state. |
-| **Broad White Band** | **Chalking** (Levels 1-2) | Calcium equator is visible. This indicates high vitality. |
-| **Branching Veins** | **Vascularity** (+) | Red "tree" pattern visible. Heartbeat/Life confirmed. |
-| **Star Crack** | **Stage S5 (Pipping)** | Multi-point crack visible. Turtle is emerging! |
-| **Jagged Broken Shell** | **Stage S6 (Hatched)** | Only the "egg cup" remains. Move to transition. |
+| <img src="../../assets/icons/egg_s1.svg" width="30"> | **Healthy Egg** | Standard active state. |
+| <img src="../../assets/icons/egg_s3.svg" width="30"> | **Chalking** (Levels 1-2) | Calcium equator is visible. This indicates high vitality. |
+| <img src="../../assets/icons/egg_s2.svg" width="30"> | **Vascularity** (+) | Red "tree" pattern visible. Heartbeat/Life confirmed. |
+| <img src="../../assets/icons/egg_s4.svg" width="30"> | **Stage S5 (Pipping)** | Multi-point crack visible. Turtle is emerging! |
+| <img src="../../assets/icons/egg_s5.svg" width="30"> | **Stage S6 (Hatched)** | Only the "egg cup" remains. Move to transition. |
 | **Grey Ovoid** | **Inactive / Retired** | Egg is no longer part of the active shift. |
 
 ### 📸 Workbench Cheat Sheet
