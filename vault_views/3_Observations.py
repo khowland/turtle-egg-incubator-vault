@@ -5,8 +5,9 @@ Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
 Requirement:   Matches Standard [§35, §36]
 Dependencies:  utils.bootstrap, utils.visuals
 Inputs:        st.session_state (observer_id, session_id, workbench_bins)
-Outputs:       bin_observation, egg_observation, egg
-Description:   Workbench Grid with Hardened Hydration Gate and Surgical Resurrection.
+Outputs:       bin_observation, egg_observation, egg, hatchling_ledger
+Description:   Workbench Grid with Hardened Hydration Gate and Surgical Resurrection
+               (soft-void observations, ISS-1); S6 hatchling ledger (ISS-3); RBAC (ISS-7).
 =============================================================================
 """
 
@@ -14,6 +15,7 @@ import streamlit as st
 import datetime
 import uuid
 from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table, get_last_bin_weight
+from utils.rbac import can_elevated_clinical_operations
 from utils.visuals import render_egg_icon
 
 # 1. Page Initialization
@@ -90,9 +92,15 @@ with st.sidebar:
                 egg_res = supabase.table('egg').insert(new_eggs).execute()
                 
                 obs_list = [{
-                    "session_id": st.session_state.session_id, "egg_id": e['egg_id'], "bin_id": target_b,
-                    "observer_id": st.session_state.observer_id, "stage_at_observation": "S0",
-                    "observation_notes": "Supplemental Intake Baseline"
+                    "session_id": st.session_state.session_id,
+                    "egg_id": e['egg_id'],
+                    "bin_id": target_b,
+                    "observer_id": st.session_state.observer_id,
+                    "created_by_id": st.session_state.observer_id,
+                    "modified_by_id": st.session_state.observer_id,
+                    "stage_at_observation": "S0",
+                    "observation_notes": "Supplemental Intake Baseline",
+                    "is_deleted": False,
                 } for e in egg_res.data]
                 get_resilient_table(supabase, 'egg_observation').insert(obs_list).execute()
                 
@@ -116,11 +124,19 @@ with st.sidebar:
 # ------------------------------------------------------------------------------
 # 1. THE WORKBENCH CONFIG & SURGICAL RESURRECTION TOGGLE
 # ------------------------------------------------------------------------------
-if 'surgical_resurrection' not in st.session_state: st.session_state.surgical_resurrection = False
+if 'surgical_resurrection' not in st.session_state:
+    st.session_state.surgical_resurrection = False
 
-col_h1, col_h2 = st.columns([2,1])
+_col_h1, col_h2 = st.columns([2, 1])
 with col_h2:
-    st.session_state.surgical_resurrection = st.toggle("🛡️ Surgical Resurrection", help="Switch to single-egg surgical edit/delete mode.")
+    if can_elevated_clinical_operations():
+        st.session_state.surgical_resurrection = st.toggle(
+            "🛡️ Surgical Resurrection",
+            help="Void individual observation rows (soft delete) and roll back egg stage.",
+        )
+    else:
+        st.session_state.surgical_resurrection = False
+        st.caption("Surgical mode requires Admin, Staff, or Biologist role.")
 
 st.caption("Active Workbench")
 
@@ -137,8 +153,15 @@ if not st.session_state.workbench_bins:
 # Switcher with Status Icons
 wb_status_list = []
 for b_id in sorted(st.session_state.workbench_bins):
-    eggs = supabase.table('egg').select('egg_id').eq('bin_id', b_id).eq('status', 'Active').execute().data
-    obs = get_resilient_table(supabase, 'egg_observation').select('egg_id').eq('session_id', st.session_state.session_id).execute().data
+    eggs = supabase.table('egg').select('egg_id').eq('bin_id', b_id).eq('status', 'Active').eq('is_deleted', False).execute().data
+    obs = (
+        get_resilient_table(supabase, 'egg_observation')
+        .select('egg_id')
+        .eq('session_id', st.session_state.session_id)
+        .eq('is_deleted', False)
+        .execute()
+        .data
+    )
     observed_ids = {o['egg_id'] for o in obs}
     
     done = sum(1 for e in eggs if e['egg_id'] in observed_ids)
@@ -210,7 +233,15 @@ if not st.session_state.surgical_resurrection:
 res_eggs = supabase.table('egg').select('*').eq('bin_id', active_bin_id).eq('status', 'Active').eq('is_deleted', False).order('egg_id').execute()
 eggs_data = res_eggs.data
 
-obs_session = get_resilient_table(supabase, 'egg_observation').select('*').eq('bin_id', active_bin_id).eq('session_id', st.session_state.session_id).execute().data
+obs_session = (
+    get_resilient_table(supabase, 'egg_observation')
+    .select('*')
+    .eq('bin_id', active_bin_id)
+    .eq('session_id', st.session_state.session_id)
+    .eq('is_deleted', False)
+    .execute()
+    .data
+)
 observed_ids = {o['egg_id'] for o in obs_session}
 
 def sort_key(e_id):
@@ -219,41 +250,91 @@ def sort_key(e_id):
 
 if st.session_state.surgical_resurrection:
     st.write("### 🥚 Biological Timeline (Surgical Mode)")
-    st.warning("Search for ANY egg below (including Transferred/Dead) to perform clinical data surgery.")
-    
+    st.warning(
+        "Search for ANY egg below (including Transferred/Dead) to void individual "
+        "observation rows (soft delete). Egg stage rolls back to the latest remaining observation."
+    )
+
     repair_eggs = supabase.table('egg').select('egg_id').eq('bin_id', active_bin_id).execute().data
     repair_labels = [f"🔍 {e['egg_id']}" for e in repair_eggs]
-    
+
     selected_target = st.selectbox("Select Egg for Surgery", repair_labels)
+    void_reason_input = st.text_input(
+        "Void reason (audit)",
+        placeholder="e.g. duplicate entry, wrong stage selected",
+        key="surgical_void_reason",
+    )
     if selected_target:
         target_id = selected_target.replace("🔍 ", "")
         st.write(f"#### Timeline: {target_id}")
-        history = get_resilient_table(supabase, 'egg_observation').select('*').eq('egg_id', target_id).order('timestamp', desc=True).execute().data
-        if not history:
+        history_active = (
+            get_resilient_table(supabase, 'egg_observation')
+            .select('*')
+            .eq('egg_id', target_id)
+            .eq('is_deleted', False)
+            .order('timestamp', desc=True)
+            .execute()
+            .data
+        )
+        history_voided = (
+            get_resilient_table(supabase, 'egg_observation')
+            .select('*')
+            .eq('egg_id', target_id)
+            .eq('is_deleted', True)
+            .order('timestamp', desc=True)
+            .execute()
+            .data
+        )
+        if not history_active and not history_voided:
             st.info("No clinical history detected for this subject.")
         else:
-            for h in history:
+            for h in history_active:
                 with st.container(border=True):
-                    ts = datetime.datetime.fromisoformat(h['timestamp']).strftime('%Y-%m-%d %H:%M')
+                    ts = datetime.datetime.fromisoformat(str(h['timestamp']).replace('Z', '+00:00')).strftime('%Y-%m-%d %H:%M')
                     st.write(f"**{ts}** | Stage: {h['stage_at_observation']} | Observer: {h['observer_id'] or 'Unknown'}")
-                    cols = st.columns([4,1])
-                    cols[0].caption(f"Props: Chalk {h['chalking']} | Vasc {h['vascularity']} | Mold {h['molding']} | Leak {h['leaking']}")
-                    if cols[1].button("🗑️", key=f"del_{h['egg_observation_id']}"):
-                        def surgical_delete():
-                            get_resilient_table(supabase, 'egg_observation').delete().eq('egg_observation_id', h['egg_observation_id']).execute()
-                            rem = get_resilient_table(supabase, 'egg_observation').select('stage_at_observation').eq('egg_id', target_id).order('timestamp', desc=True).limit(1).execute()
+                    cols = st.columns([4, 1])
+                    cols[0].caption(
+                        f"Props: Chalk {h['chalking']} | Vasc {h['vascularity']} | "
+                        f"Mold {h['molding']} | Leak {h['leaking']}"
+                    )
+                    if cols[1].button("Void", key=f"void_{h['egg_observation_id']}"):
+                        def surgical_void():
+                            reason = (void_reason_input or "").strip() or "No reason supplied"
+                            get_resilient_table(supabase, 'egg_observation').update({
+                                "is_deleted": True,
+                                "void_reason": reason,
+                                "modified_by_id": st.session_state.observer_id,
+                            }).eq('egg_observation_id', h['egg_observation_id']).execute()
+                            rem = (
+                                get_resilient_table(supabase, 'egg_observation')
+                                .select('stage_at_observation')
+                                .eq('egg_id', target_id)
+                                .eq('is_deleted', False)
+                                .order('timestamp', desc=True)
+                                .limit(1)
+                                .execute()
+                            )
                             new_s = rem.data[0]['stage_at_observation'] if rem.data else "S0"
                             new_status = "Active" if new_s != "S6" else "Transferred"
-                            
+
                             supabase.table('egg').update({
-                                "current_stage": new_s, 
+                                "current_stage": new_s,
                                 "status": new_status,
-                                "modified_by_id": st.session_state.observer_id
+                                "modified_by_id": st.session_state.observer_id,
                             }).eq('egg_id', target_id).execute()
-                            st.success(f"Record purged. Egg {target_id} reverted to {new_s} ({new_status}).")
-                        audit_msg = f"Surgical Purge: Observation record deleted for Egg {target_id}."
-                        safe_db_execute("Surgical Delete", surgical_delete, success_message=audit_msg)
+                            st.success(f"Observation voided. Egg {target_id} reverted to {new_s} ({new_status}).")
+
+                        audit_msg = f"Surgical void: egg_observation_id={h['egg_observation_id']} egg={target_id} reason={void_reason_input or 'n/a'}"
+                        safe_db_execute("Surgical Void", surgical_void, success_message=audit_msg)
                         st.rerun()
+            if history_voided:
+                with st.expander("Voided observations (audit trail)"):
+                    for h in history_voided:
+                        ts = datetime.datetime.fromisoformat(str(h['timestamp']).replace('Z', '+00:00')).strftime('%Y-%m-%d %H:%M')
+                        st.caption(
+                            f"{ts} | stage {h.get('stage_at_observation')} | "
+                            f"reason: {h.get('void_reason') or '—'}"
+                        )
 else:
     # ------------------------------------------------------------------------------
     # 4. THE BIOLOGICAL GRID
@@ -332,28 +413,93 @@ else:
                     obs_payload = []
                     for rid in selected_real_ids:
                         obs_payload.append({
-                            "session_id": st.session_state.session_id, "egg_id": rid, "bin_id": active_bin_id,
-                            "observer_id": st.session_state.observer_id, 
+                            "session_id": st.session_state.session_id,
+                            "egg_id": rid,
+                            "bin_id": active_bin_id,
+                            "observer_id": st.session_state.observer_id,
                             "created_by_id": st.session_state.observer_id,
                             "modified_by_id": st.session_state.observer_id,
-                            "chalking": new_chalk, "vascularity": v,
-                            "molding": m, "leaking": l, "stage_at_observation": new_stage,
-                            "observation_notes": observation_notes
+                            "chalking": new_chalk,
+                            "vascularity": v,
+                            "molding": m,
+                            "leaking": l,
+                            "stage_at_observation": new_stage,
+                            "observation_notes": observation_notes,
+                            "is_deleted": False,
                         })
-                    
+
                     status_val = "Active" if new_stage != "S6" else "Transferred"
                     update_fields = {
-                        "current_stage": new_stage, 
-                        "status": status_val, 
+                        "current_stage": new_stage,
+                        "status": status_val,
                         "last_chalk": new_chalk,
                         "last_vasc": v,
-                        "modified_by_id": st.session_state.observer_id
+                        "modified_by_id": st.session_state.observer_id,
                     }
                     if egg_meta_notes:
                         update_fields["egg_notes"] = egg_meta_notes
-                        
+
                     supabase.table('egg').update(update_fields).in_('egg_id', selected_real_ids).execute()
                     get_resilient_table(supabase, 'egg_observation').insert(obs_payload).execute()
+
+                    if new_stage == "S6":
+                        hatch_date = datetime.date.today()
+                        vitality = (observation_notes or "").strip() or "pending_field_assessment"
+                        for rid in selected_real_ids:
+                            egg_one = (
+                                supabase.table('egg')
+                                .select("egg_id, bin_id, intake_date")
+                                .eq("egg_id", rid)
+                                .execute()
+                            )
+                            if not egg_one.data:
+                                continue
+                            erow = egg_one.data[0]
+                            bin_one = (
+                                supabase.table("bin")
+                                .select("mother_id")
+                                .eq("bin_id", erow["bin_id"])
+                                .execute()
+                            )
+                            if not bin_one.data:
+                                continue
+                            mother_id = bin_one.data[0]["mother_id"]
+                            incub_days = None
+                            id_raw = erow.get("intake_date")
+                            if id_raw:
+                                try:
+                                    id_part = str(id_raw)[:10]
+                                    incub_days = (hatch_date - datetime.date.fromisoformat(id_part)).days
+                                except ValueError:
+                                    incub_days = None
+                            hl_existing = (
+                                supabase.table("hatchling_ledger")
+                                .select("hatchling_ledger_id")
+                                .eq("egg_id", rid)
+                                .execute()
+                            )
+                            hl_row = {
+                                "egg_id": rid,
+                                "mother_id": mother_id,
+                                "hatch_date": str(hatch_date),
+                                "vitality_score": vitality[:500],
+                                "incubation_duration_days": incub_days,
+                                "notes": "Auto-recorded on S6 batch transition",
+                                "session_id": st.session_state.session_id,
+                                "created_by_id": st.session_state.observer_id,
+                                "modified_by_id": st.session_state.observer_id,
+                            }
+                            if hl_existing.data:
+                                hid = hl_existing.data[0]["hatchling_ledger_id"]
+                                supabase.table("hatchling_ledger").update({
+                                    "hatch_date": str(hatch_date),
+                                    "vitality_score": vitality[:500],
+                                    "incubation_duration_days": incub_days,
+                                    "modified_by_id": st.session_state.observer_id,
+                                }).eq("hatchling_ledger_id", hid).execute()
+                            else:
+                                supabase.table("hatchling_ledger").insert(hl_row).execute()
+
                     st.success(f"Finalized {len(selected_real_ids)} clinical signatures.")
                 audit_msg = f"Batch Commit: {len(selected_real_ids)} eggs in Bin {active_bin_id} at Stage {new_stage}."
                 safe_db_execute("Prop Matrix Commit", commit_batch, success_message=audit_msg)
@@ -364,6 +510,14 @@ else:
 # ------------------------------------------------------------------------------
 if not st.session_state.surgical_resurrection:
     with st.expander("📊 Live Session Audit"):
-        logs = get_resilient_table(supabase, 'egg_observation').select('*').eq('session_id', st.session_state.session_id).order('timestamp', desc=True).execute().data
+        logs = (
+            get_resilient_table(supabase, 'egg_observation')
+            .select('*')
+            .eq('session_id', st.session_state.session_id)
+            .eq('is_deleted', False)
+            .order('timestamp', desc=True)
+            .execute()
+            .data
+        )
         for l in logs:
             st.write(f"[{l['timestamp'][11:16]}] **{l['egg_id']}** -> Stage {l['stage_at_observation']} ✅")

@@ -63,6 +63,11 @@ CREATE TABLE IF NOT EXISTS public.mother (
     mother_name TEXT NOT NULL,
     species_id TEXT REFERENCES public.species(species_id),
     intake_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    finder_turtle_name TEXT,
+    intake_condition TEXT,
+    extraction_method TEXT,
+    discovery_location TEXT,
+    carapace_length_mm DECIMAL(10,2),
     condition TEXT,
     notes TEXT,
     -- Audit Header §35.4
@@ -97,6 +102,10 @@ CREATE TABLE IF NOT EXISTS public.egg (
     physical_mark INTEGER,
     status TEXT DEFAULT 'Active',
     current_stage TEXT DEFAULT 'S0',
+    intake_date DATE,
+    egg_notes TEXT,
+    last_chalk INTEGER,
+    last_vasc BOOLEAN,
     -- Audit Header §35.4
     session_id TEXT REFERENCES public.session_log(session_id),
     created_by_id UUID REFERENCES public.observer(observer_id),
@@ -124,6 +133,7 @@ CREATE TABLE IF NOT EXISTS public.egg_observation (
     water_added_ml DECIMAL(10,2),
     observation_notes TEXT,
     stage_at_observation TEXT,
+    void_reason TEXT,
     -- Audit Header §35.4
     created_by_id UUID REFERENCES public.observer(observer_id),
     modified_by_id UUID REFERENCES public.observer(observer_id),
@@ -152,6 +162,7 @@ CREATE TABLE IF NOT EXISTS public.hatchling_ledger (
     hatch_date DATE DEFAULT CURRENT_DATE,
     hatch_weight_g DECIMAL(10,2),
     vitality_score TEXT,
+    incubation_duration_days INTEGER,
     notes TEXT,
     -- Audit Header §35.4
     session_id TEXT REFERENCES public.session_log(session_id),

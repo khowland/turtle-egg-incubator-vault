@@ -32,15 +32,15 @@ Archiving a bin "Soft Deletes" it. Dashboard KPI metrics explicitly filter out e
 
 ### 4.2 ✨ Surgical Resurrection
 If clinical data surgery is required (e.g., accidental retirement or correction of a past stage):
-1.  Enable the **Surgical Resurrection** toggle in the Observations workbench.
-2.  This mode allows selective purging of individual observation records, which automatically rolls back the egg's state to the previous clinical signature.
-3.  Alternatively, use the **Resurrection Vault** in Settings to restore entire retired Bins or Cases.
+1.  Enable the **Surgical Resurrection** toggle in the Observations workbench (**Admin, Staff, or Biologist** only).
+2.  This mode **voids** individual observation rows (soft delete with audit reason); the egg's displayed stage rolls back to the latest non-void observation. Voided rows remain visible under the audit expander.
+3.  Alternatively, use the **Resurrection Vault** in Settings (same roles) to restore entire retired Bins or Cases.
 
 ## 5. What if an Egg Hatches?
 When an egg reaches **Stage S6 (Hatched)**:
-1.  Set the stage to S6. The egg will be moved to the **Hatchling Ledger**.
-2.  Data is prepared for export. Vitality scores and incubation durations are automatically calculated.
-3.  Physical subject is moved to juvenile enclosures.
+1.  Set the stage to S6 via the Property Matrix. The egg status becomes **Transferred** and a **Hatchling Ledger** row is created or updated for that egg (incubation duration from egg intake date to hatch date when available).
+2.  Use **Reports → WormD / Intake Export** (trusted roles) to download **flattened CSV** and **JSON** bundles for agency handoff; confirm import against your current WormD or DNR workflow.
+3.  Physical subject is moved to juvenile enclosures per WINC SOP.
 
 ## 6. Accountability & Logs
 At the bottom of the Observation screen, use the **Live Session Audit** to review your actions. 

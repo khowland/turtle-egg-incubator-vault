@@ -26,6 +26,9 @@ def init_session():
 
     if 'observer_id' not in st.session_state:
         st.session_state.observer_id = None
+
+    if 'observer_role' not in st.session_state:
+        st.session_state.observer_role = None
         
     if 'observer_name' not in st.session_state:
         st.session_state.observer_name = "Guest"
@@ -47,6 +50,7 @@ def show_splash_screen():
         with columns[1]:
             with st.form("login_form"):
                 observer_options = {f"{o['display_name']} ({o['role']})": o['observer_id'] for o in active_observers}
+                observer_id_to_role = {str(o['observer_id']): o.get('role') or 'Guest' for o in active_observers}
                 
                 last_user_record = ""
                 try:
@@ -66,7 +70,9 @@ def show_splash_screen():
                 selected_observer = st.selectbox("Observer Identity", options=names_list, index=default_index)
                 
                 if st.form_submit_button("Launch Vault", use_container_width=True):
-                    st.session_state.observer_id = observer_options[selected_observer]
+                    chosen_oid = observer_options[selected_observer]
+                    st.session_state.observer_id = chosen_oid
+                    st.session_state.observer_role = observer_id_to_role.get(str(chosen_oid), 'Guest')
                     st.session_state.observer_name = selected_observer.split(' (')[0]
                     
                     try:
@@ -124,6 +130,7 @@ def render_custom_sidebar():
     st.sidebar.caption(f"Session ID: {st.session_state.get('session_id', 'Unknown')}")
     if st.sidebar.button("Log Out", key="global_logout_btn", use_container_width=True): 
         st.session_state.observer_id = None
+        st.session_state.observer_role = None
         st.session_state.env_gate_synced = False
         st.rerun()
     st.sidebar.divider()

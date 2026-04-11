@@ -1,15 +1,20 @@
 """
 =============================================================================
-Module:     vault_views/5_Settings.py (v7.9.4)
-Project:    Incubator Vault v7.9.4 — WINC
-Purpose:    Hardened Lookup CRUD with Clinical Accessibility Controls.
-Revision:   2026-04-10 — Clinical Sovereignty Edition
+Module:        vault_views/5_Settings.py
+Project:       Incubator Vault v8.1.0 — WINC (Clinical Sovereignty Edition)
+Requirement:   Matches Standard [§35, §36]; Resurrection Vault RBAC (ISS-7)
+Dependencies:  utils.bootstrap, utils.rbac
+Inputs:        st.session_state
+Outputs:       Lookup CRUD, audit events
+Description:   Hardened lookup CRUD, accessibility controls, Resurrection Vault
+               restricted to trusted clinical roles.
 =============================================================================
 """
 
 import streamlit as st
 import pandas as pd
 from utils.bootstrap import bootstrap_page, safe_db_execute
+from utils.rbac import can_elevated_clinical_operations
 
 supabase = bootstrap_page("Settings", "⚙️")
 
@@ -174,43 +179,55 @@ with tabs[2]:
 
 with tabs[3]:
     st.subheader("📦 The Resurrection Vault")
-    st.caption("Restore accidental 'Retirements' or mistake soft-deletes.")
-    
-    sub_tabs = st.tabs(["Bins", "Case Intakes"])
-    
-    with sub_tabs[0]:
-        retired_bins = supabase.table('bin').select('bin_id, bin_notes, modified_at').eq('is_deleted', True).execute().data
-        if not retired_bins:
-            st.info("No retired bins in the vault.")
-        else:
-            for rb in retired_bins:
-                with st.container(border=True):
-                    c1, c2 = st.columns([3,1])
-                    c1.write(f"**Bin ID: {rb['bin_id']}**")
-                    c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")
-                    if c2.button("✨ Restore", key=f"res_bin_{rb['bin_id']}"):
-                        def restore_bin():
-                            supabase.table('bin').update({"is_deleted": False}).eq('bin_id', rb['bin_id']).execute()
-                        safe_db_execute("Resurrection", restore_bin, success_message=f"Lifecycle: Bin {rb['bin_id']} resurrected from the archive.")
-                        st.success(f"Bin {rb['bin_id']} restored to Active Workbench.")
-                        st.rerun()
+    st.caption("Restore accidental 'Retirements' or mistaken soft-deletes.")
+    if not can_elevated_clinical_operations():
+        st.warning("Resurrection requires Admin, Staff, or Biologist role.")
+    else:
+        sub_tabs = st.tabs(["Bins", "Case Intakes"])
 
-    with sub_tabs[1]:
-        retired_moms = supabase.table('mother').select('mother_id, mother_name, modified_at').eq('is_deleted', True).execute().data
-        if not retired_moms:
-            st.info("No retired case intakes in the vault.")
-        else:
-            for rm in retired_moms:
-                with st.container(border=True):
-                    c1, c2 = st.columns([3,1])
-                    c1.write(f"**Case: {rm['mother_name']}**")
-                    c1.caption(f"ID: {rm['mother_id']}")
-                    if c2.button("✨ Restore", key=f"res_mom_{rm['mother_id']}"):
-                        def restore_mom():
-                            supabase.table('mother').update({"is_deleted": False}).eq('mother_id', rm['mother_id']).execute()
-                        safe_db_execute("Resurrection", restore_mom, success_message=f"Lifecycle: Case {rm['mother_name']} resurrected from the archive.")
-                        st.success(f"Case {rm['mother_name']} restored to active circulation.")
-                        st.rerun()
+        with sub_tabs[0]:
+            retired_bins = supabase.table('bin').select('bin_id, bin_notes, modified_at').eq('is_deleted', True).execute().data
+            if not retired_bins:
+                st.info("No retired bins in the vault.")
+            else:
+                for rb in retired_bins:
+                    with st.container(border=True):
+                        c1, c2 = st.columns([3, 1])
+                        c1.write(f"**Bin ID: {rb['bin_id']}**")
+                        c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")
+                        if c2.button("✨ Restore", key=f"res_bin_{rb['bin_id']}"):
+                            def restore_bin():
+                                supabase.table('bin').update({"is_deleted": False}).eq('bin_id', rb['bin_id']).execute()
+
+                            safe_db_execute(
+                                "Resurrection",
+                                restore_bin,
+                                success_message=f"Lifecycle: Bin {rb['bin_id']} resurrected from the archive.",
+                            )
+                            st.success(f"Bin {rb['bin_id']} restored to Active Workbench.")
+                            st.rerun()
+
+        with sub_tabs[1]:
+            retired_moms = supabase.table('mother').select('mother_id, mother_name, modified_at').eq('is_deleted', True).execute().data
+            if not retired_moms:
+                st.info("No retired case intakes in the vault.")
+            else:
+                for rm in retired_moms:
+                    with st.container(border=True):
+                        c1, c2 = st.columns([3, 1])
+                        c1.write(f"**Case: {rm['mother_name']}**")
+                        c1.caption(f"ID: {rm['mother_id']}")
+                        if c2.button("✨ Restore", key=f"res_mom_{rm['mother_id']}"):
+                            def restore_mom():
+                                supabase.table('mother').update({"is_deleted": False}).eq('mother_id', rm['mother_id']).execute()
+
+                            safe_db_execute(
+                                "Resurrection",
+                                restore_mom,
+                                success_message=f"Lifecycle: Case {rm['mother_name']} resurrected from the archive.",
+                            )
+                            st.success(f"Case {rm['mother_name']} restored to active circulation.")
+                            st.rerun()
 
 with tabs[4]:
     st.subheader("📜 System Audit History")
