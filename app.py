@@ -22,19 +22,19 @@ init_session()
 # Navigation definition
 if not st.session_state.get('observer_id'):
     # ONLY Login page visible when not logged in
-    pages = [st.Page("vault_views/0_Login.py", title="Vault Login", icon="🐢")]
+    pages = [st.Page("vault_views/0_Login.py", title="Welcome", icon="🐢")]
 else:
     # Full menu visible when logged in
     pages = [
-        st.Page("vault_views/1_Dashboard.py", title="Dashboard", icon="📊"),
-        st.Page("vault_views/2_New_Intake.py", title="New Intake", icon="🐣"),
-        st.Page("vault_views/3_Observations.py", title="Observations", icon="🔍"),
-        st.Page("vault_views/5_Settings.py", title="Settings", icon="⚙️"),
-        st.Page("vault_views/6_Reports.py", title="Reports", icon="📈"),
+        st.Page("vault_views/1_Dashboard.py", title="Home (Stats)", icon="📊"),
+        st.Page("vault_views/2_New_Intake.py", title="Add New Eggs", icon="🐣"),
+        st.Page("vault_views/3_Observations.py", title="Check on Eggs", icon="🔍"),
+        st.Page("vault_views/5_Settings.py", title="Manage Staff", icon="⚙️"),
+        st.Page("vault_views/6_Reports.py", title="Download Data", icon="📈"),
     ]
     if can_elevated_clinical_operations():
-        pages.append(st.Page("vault_views/7_Diagnostic.py", title="Diagnostics", icon="🩺"))
-    pages.append(st.Page("vault_views/8_Help.py", title="Help & Manual", icon="📚"))
+        pages.append(st.Page("vault_views/7_Diagnostic.py", title="System Check", icon="🩺"))
+    pages.append(st.Page("vault_views/8_Help.py", title="Help & Manual", icon="📚") )
 
 pg = st.navigation(pages)
 pg.run()

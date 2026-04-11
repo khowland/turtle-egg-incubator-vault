@@ -80,29 +80,91 @@ with st.sidebar:
             bin_obs_sum = []
             hatch_rows = []
 
-            for m in chosen:
-                sp = species_by_id.get(m["species_id"], {})
-                bins_d = (
-                    supabase_client.table("bin")
+            # 1. Batch Fetch Foundational Data
+            chosen_mids = [m["mother_id"] for m in chosen]
+            species_by_id = {s["species_id"]: s for s in species_result.data}
+
+            # All bins for chosen mothers
+            all_bins_data = (
+                supabase_client.table("bin")
+                .select("*")
+                .in_("mother_id", chosen_mids)
+                .eq("is_deleted", False)
+                .execute()
+                .data or []
+            )
+            all_bins = all_bins_data
+            bin_ids = [b["bin_id"] for b in all_bins_data]
+
+            # All eggs for those bins
+            all_eggs_data = []
+            if bin_ids:
+                all_eggs_data = (
+                    supabase_client.table("egg")
                     .select("*")
-                    .eq("mother_id", m["mother_id"])
+                    .in_("bin_id", bin_ids)
                     .eq("is_deleted", False)
                     .execute()
-                    .data
-                    or []
+                    .data or []
                 )
-                bin_ids = [b["bin_id"] for b in bins_d]
-                eggs_d = []
-                if bin_ids:
-                    eggs_d = (
-                        supabase_client.table("egg")
-                        .select("*")
-                        .in_("bin_id", bin_ids)
-                        .eq("is_deleted", False)
-                        .execute()
-                        .data
-                        or []
-                    )
+            all_eggs = all_eggs_data
+            egg_ids = [e["egg_id"] for e in all_eggs_data]
+
+            # 2. Conditional Batch Fetch for Observations & Hatchlings
+            egg_obs_map = {}
+            if inc_egg_obs and egg_ids:
+                # Fetch all non-deleted observations for selection, newest first
+                # Note: We fetch all and filter in Python to avoid N+1 and complex SQL in SDK
+                raw_obs = (
+                    get_resilient_table(supabase_client, "egg_observation")
+                    .select("egg_id, stage_at_observation, timestamp")
+                    .in_("egg_id", egg_ids[:1000]) # Safety cap for mobile
+                    .eq("is_deleted", False)
+                    .order("timestamp", desc=True)
+                    .execute()
+                    .data or []
+                )
+                for o in raw_obs:
+                    if o["egg_id"] not in egg_obs_map:
+                        egg_obs_map[o["egg_id"]] = o
+
+            bin_obs_map = {}
+            if inc_bin_obs and bin_ids:
+                raw_b_obs = (
+                    supabase_client.table("bin_observation")
+                    .select("bin_id, bin_weight_g, water_added_ml, timestamp")
+                    .in_("bin_id", bin_ids[:500])
+                    .eq("is_deleted", False)
+                    .order("timestamp", desc=True)
+                    .execute()
+                    .data or []
+                )
+                for bo in raw_b_obs:
+                    if bo["bin_id"] not in bin_obs_map:
+                        bin_obs_map[bo["bin_id"]] = bo
+
+            hatch_map = {}
+            if inc_hatch and egg_ids:
+                raw_h = (
+                    supabase_client.table("hatchling_ledger")
+                    .select("*")
+                    .in_("egg_id", egg_ids[:1000])
+                    .eq("is_deleted", False)
+                    .execute()
+                    .data or []
+                )
+                for h in raw_h:
+                    hatch_map[h["egg_id"]] = h
+
+            # 3. Assemble Flat CSV & Clinical Block
+            flat_rows = []
+            clinical_block = []
+
+            for m in chosen:
+                sp = species_by_id.get(m["species_id"], {})
+                m_bins = [b for b in all_bins_data if b["mother_id"] == m["mother_id"]]
+                m_bin_ids = [b["bin_id"] for b in m_bins]
+                m_eggs = [e for e in all_eggs_data if e["bin_id"] in m_bin_ids]
 
                 flat_rows.append({
                     "vault_mother_id": m["mother_id"],
@@ -116,63 +178,12 @@ with st.sidebar:
                     "extraction_method": m.get("extraction_method"),
                     "discovery_location": m.get("discovery_location"),
                     "carapace_length_mm": m.get("carapace_length_mm"),
-                    "total_bins": len(bins_d),
-                    "total_eggs": len(eggs_d),
-                    "bin_ids_concat": "|".join(bin_ids),
-                    "first_bin_id": bin_ids[0] if bin_ids else "",
+                    "total_bins": len(m_bins),
+                    "total_eggs": len(m_eggs),
+                    "bin_ids_concat": "|".join(m_bin_ids),
+                    "first_bin_id": m_bin_ids[0] if m_bin_ids else "",
                 })
-                all_bins.extend(bins_d)
-                all_eggs.extend(eggs_d)
 
-                if inc_egg_obs and eggs_d:
-                    for e in eggs_d[:200]:
-                        last_o = (
-                            get_resilient_table(supabase_client, "egg_observation")
-                            .select("stage_at_observation, timestamp")
-                            .eq("egg_id", e["egg_id"])
-                            .eq("is_deleted", False)
-                            .order("timestamp", desc=True)
-                            .limit(1)
-                            .execute()
-                            .data
-                        )
-                        egg_obs_sum.append({
-                            "egg_id": e["egg_id"],
-                            "latest_stage": last_o[0]["stage_at_observation"] if last_o else None,
-                            "latest_ts": str(last_o[0]["timestamp"]) if last_o else None,
-                        })
-                if inc_bin_obs and bin_ids:
-                    for bid in bin_ids[:50]:
-                        last_b = (
-                            supabase_client.table("bin_observation")
-                            .select("bin_weight_g, water_added_ml, timestamp")
-                            .eq("bin_id", bid)
-                            .order("timestamp", desc=True)
-                            .limit(1)
-                            .execute()
-                            .data
-                        )
-                        bin_obs_sum.append({
-                            "bin_id": bid,
-                            "last_bin_weight_g": last_b[0]["bin_weight_g"] if last_b else None,
-                            "last_water_added_ml": last_b[0]["water_added_ml"] if last_b else None,
-                            "last_env_ts": str(last_b[0]["timestamp"]) if last_b else None,
-                        })
-                if inc_hatch and eggs_d:
-                    hl = (
-                        supabase_client.table("hatchling_ledger")
-                        .select("*")
-                        .in_("egg_id", [e["egg_id"] for e in eggs_d])
-                        .execute()
-                        .data
-                        or []
-                    )
-                    hatch_rows.extend(hl)
-
-            csv_text = build_flat_case_csv(flat_rows)
-            clinical_block = []
-            for m in chosen:
-                sp = species_by_id.get(m["species_id"], {})
                 clinical_block.append({
                     "vault_mother_id": m["mother_id"],
                     "winc_or_wormd_case_number": m.get("mother_name"),
@@ -188,8 +199,29 @@ with st.sidebar:
                     "carapace_length_mm": m.get("carapace_length_mm"),
                 })
 
+            # 4. Final Payload Assembly
+            egg_obs_sum = [
+                {
+                    "egg_id": eid,
+                    "latest_stage": entry["stage_at_observation"],
+                    "latest_ts": str(entry["timestamp"]),
+                }
+                for eid, entry in egg_obs_map.items()
+            ]
+            bin_obs_sum = [
+                {
+                    "bin_id": bid,
+                    "last_bin_weight_g": entry["bin_weight_g"],
+                    "last_water_added_ml": entry["water_added_ml"],
+                    "last_env_ts": str(entry["timestamp"]),
+                }
+                for bid, entry in bin_obs_map.items()
+            ]
+            hatch_rows = list(hatch_map.values())
+
+            csv_text = build_flat_case_csv(flat_rows)
             json_text = build_wormd_intake_json_bundle(
-                selection_criteria={"mother_ids": [m["mother_id"] for m in chosen]},
+                selection_criteria={"mother_ids": chosen_mids},
                 clinical_origin=clinical_block,
                 bins=all_bins if inc_bins else [],
                 eggs=all_eggs if inc_eggs else [],

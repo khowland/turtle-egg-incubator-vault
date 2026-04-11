@@ -37,7 +37,7 @@ def init_session():
         st.session_state.env_gate_synced = False
 
 def show_splash_screen():
-    st.markdown("<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 WINC Incubator Vault</h1><p style='color: #94A3B8;'>Please select your name to begin the session</p></div>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p></div>", unsafe_allow_html=True)
     supabase_client = get_supabase()
     
     try:
@@ -67,9 +67,9 @@ def show_splash_screen():
                         default_index = i
                         break
                         
-                selected_observer = st.selectbox("Observer Identity", options=names_list, index=default_index)
+                selected_observer = st.selectbox("Select Your Name", options=names_list, index=default_index)
                 
-                if st.form_submit_button("Launch Vault", use_container_width=True):
+                if st.form_submit_button("START", use_container_width=True):
                     chosen_oid = observer_options[selected_observer]
                     st.session_state.observer_id = chosen_oid
                     st.session_state.observer_role = observer_id_to_role.get(str(chosen_oid), 'Guest')
@@ -103,13 +103,17 @@ def show_splash_screen():
                         st.session_state.resume_notice = f"📍 Resuming active shift started by **{resuming_user_name}**"
 
                     try:
+                        display_name = st.session_state.observer_name
+                        if resuming_user_name and resuming_user_name != display_name:
+                            display_name = f"{resuming_user_name} (Shared with {display_name})"
+
                         get_resilient_table(supabase_client, 'session_log').upsert({
                             "session_id": st.session_state.session_id,
-                            "user_name": st.session_state.observer_name,
+                            "user_name": display_name,
                             "user_agent": "WINC Field App"
                         }).execute()
-                    except:
-                        pass
+                    except Exception as e:
+                        logger.error(f"Failed to log session: {e}")
                         
                     try:
                         get_resilient_table(supabase_client, 'system_log').insert({

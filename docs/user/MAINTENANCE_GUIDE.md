@@ -1,30 +1,31 @@
-# 🐢 Incubator Vault v7.2.0 - Maintenance Guide
+# 🐢 Incubator Vault v8.1.3 - Maintenance Guide
+**2026 Production Season Edition**
 
 ## 🚀 Launch Instructions
-1. Ensure your network is clear.
-2. Activate your environment.
-3. Run:
+1. Activate your Python environment.
+2. Run:
    ```powershell
    streamlit run app.py
    ```
-   *(The app is pre-configured to launch on Port 9000 to avoid Windows conflicts)*
+   *(Port 9000 is default to avoid local conflicts)*
 
-## 🛠️ Feedback & Bug Reporting (Change Request Protocol)
-Change Requests are managed via individual text documents for simplicity.
+## 🛠️ Change Request Protocol
+1. **Creation:** New requests use: `ChangeRequest_MMDD_HHMM.txt`.
+2. **Categories:** `BUG`, `ENHANCEMENT`, `SECURITY`.
 
-**Agent Directives for Change Requests (CRs):**
-1. **Creation:** AI Agents must use the naming convention: `ChangeRequest_MMDD_HHMM.txt`.
-2. **Immutability:** Existing CR files are historical records. AI Agents MUST NOT edit them after creation.
-3. **Actionability:** AI Agents should only implement a Change Request when explicitly commanded by the user.
+## 🧬 Technical Standards (v8.1.3)
+- **UI Standard**: "5th-Grader" Intuitiveness (Unified Verb-Based Labels).
+- **Core Identifiers**: Simplified Bin IDs (No timestamp suffix).
+- **Primary Migration**: `supabase_db/v8_1_2_FULL_CONSOLIDATED_SCHEMA.sql`
+- **Logic Engine**: Atomic RPC Intake via `vault_finalize_intake`.
+- **Temporal Tracking**: `intake_timestamp` (TIMESTAMPTZ) for individual egg history.
 
-Categories: `BUG`, `ENHANCEMENT`, `EXPERT_FEEDBACK`, `SECURITY`.
-
-## 🧬 Biological Coordinates (v7.2.0)
-- **Primary Migration**: `supabase_db/migrations/20260408_v7_2_0_DEEP_DIVE.sql`
-- **Native Species Registry**: 11 Wisconsin Native species (BL, WT, OB, PA, SN, MT, FM, OM, SS, SM, MK).
-- **Core Requirements**: Refer to `Requirements.md` for the official v7.2.0 Biologist Workflow specs.
+## 🧬 Biological Coordinates
+- **Registry**: 11 native species (BL, WT, OB, PA, SN, MT, FM, OM, SS, SM, MK).
 
 ## 🔒 Security & Admin
-- **Settings Page**: CRUD is enabled but gated by the **Mid-Season Lock**.
-- **Lock Trigger**: `st.session_state.active_eggs_count > 0`.
-- **Identity**: Session-based. One observer ID per browser session.
+- **Correction Mode**: Replaces high-complexity "Surgical Resurrection" terminology for better volunteer understanding.
+- **RBAC**: Role-based access managed via `utils/rbac.py`.
+
+---
+*Verified for Release v8.1.3.*

@@ -128,10 +128,12 @@ def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs)
             get_resilient_table(get_supabase(), 'system_log').insert({
                 "session_id": st.session_state.get('session_id', 'UNKNOWN_ERR'),
                 "event_type": "ERROR",
-                "event_message": f"[{operation_name}] CRASH: {str(e)} | {error_details[:500]}"
+                "event_message": f"[{operation_name}] CRASH: {str(e)}"
             }).execute()
         except:
             pass 
             
+        with st.expander("🔍 Differential Diagnosis (Technical Details)"):
+            st.code(error_details)
         return None
 

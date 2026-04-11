@@ -1,48 +1,98 @@
-# 📖 Incubator Vault: Operator's Manual (v8.0.0)
-**Clinical Sovereignty Edition**
+# 📖 Incubator Vault: Operator's Manual (v8.1.3)
+**Clinical Sovereignty Edition (Simplicity Release)**
 
-## 1. Getting Started: The Login Splash
-When you first open the Vault, you must select your name from the **Observer Identity** list.
-*   **Persistent Login**: The system will remember your name for the rest of your shift.
-*   **Global Shift Continuity**: If you or a colleague were active in the last 4 hours, the Vault will automatically resume the current "Shift Session." This ensures all your research notes for the morning are grouped together.
-*   **Session Handshake**: Your entry into the Command Center is logged for research integrity.
+## 🐢 The Turtle Journey
+Every egg in the Vault follows this biological path. If you follow these 4 steps, your data will always be perfect.
 
-## 2. New Intake: Bringing Eggs into the Vault
-Use this screen when a new clutch arrives.
-1.  **Select Species**: Choose from the list of 11 protected species.
-2.  **Case #**: This matches your internal WINC or DNR case number.
-3.  **Unique Bin Generation**: The system automatically appends a timestamp to each `bin_id` to ensure globallly unique clinical tracking.
-4.  **Finalize**: Clicking "Commit" will establish the Bins and Eggs in the primary ledger using an atomic transaction.
+```mermaid
+graph LR
+    A[🐣 Intake] --> B[⚖️ Weight Check]
+    B --> C[🔍 Egg Checks]
+    C --> D[🐢 Hatching!]
+    
+    style A fill:#d1fae5,stroke:#059669
+    style B fill:#dcfce7,stroke:#16a34a
+    style C fill:#f0f9ff,stroke:#0ea5e9
+    style D fill:#fef3c7,stroke:#d97706
+```
 
-## 3. Daily Observations: The Workbench
-This is your primary tool for clinical monitoring.
-1.  **The Hydration Gate**: You MUST record the bin's weight before you can see the eggs. This ensures our hydration protocols are never skipped.
-2.  **The 4-Column Grid**: Large icons show the status of every egg.
-3.  **Biological Icons**: 
-    *   **Equator Band**: Chalking (0, 1, or 2). [0: None, 1: Partial, 2: Full]
-    *   **Red Pulse**: Vascularity detected.
-    *   **Star-Crack**: Stage S5 (Pipping).
-4.  **Property Matrix**: Select multiple eggs to update their Stage and Health markers in bulk.
+---
 
-## 4. 🔄 Lifecycle: Retirement & Resurrection
-Data is never truly lost in the Vault; it simply moves between **Active** and **Archive**.
+## 1. Getting Started: The Welcome Screen
+When you first open the Vault, you will see the **Welcome** screen.
+1.  **Select Your Name**: Choose your name from the list.
+2.  **START**: Click the **START** button to begin your shift.
+*   **Persistent Login**: The system will remember you for the rest of your shift.
+*   **Shift Continuity**: If a co-worker was active in the last 4 hours, you will automatically join their session to keep the data consistent.
 
-### 4.1 The Resilience Flow
-Archiving a bin "Soft Deletes" it. Dashboard KPI metrics explicitly filter out eggs from archived bins.
+## 2. Add New Eggs (Intake)
+Use the **Add New Eggs** screen when a new turtle or clutch of eggs arrives.
+1.  **Step 1: Origin**: Fill in who found the turtle, the species, and the Case #.
+2.  **Step 2: Sorting**: Decide how many boxes (**Bins**) you need. 
+3.  **ADD**: Click **ADD** to create a new bin row.
+4.  **SAVE**: Click the green **SAVE** button.
 
-### 4.2 ✨ Surgical Resurrection
-If clinical data surgery is required (e.g., accidental retirement or correction of a past stage):
-1.  Enable the **Surgical Resurrection** toggle in the Observations workbench (**Admin, Staff, or Biologist** only).
-2.  This mode **voids** individual observation rows (soft delete with audit reason); the egg's displayed stage rolls back to the latest non-void observation. Voided rows remain visible under the audit expander.
-3.  Alternatively, use the **Resurrection Vault** in Settings (same roles) to restore entire retired Bins or Cases.
+### 🧬 Anatomy of a Bin ID
+The Vault automatically labels your bins with a "Smart Code." Here is how to read it:
 
-## 5. What if an Egg Hatches?
-When an egg reaches **Stage S6 (Hatched)**:
-1.  Set the stage to S6 via the Property Matrix. The egg status becomes **Transferred** and a **Hatchling Ledger** row is created or updated for that egg (incubation duration from egg intake date to hatch date when available).
-2.  Use **Reports → WormD / Intake Export** (trusted roles) to download **flattened CSV** and **JSON** bundles for agency handoff; confirm import against your current WormD or DNR workflow.
-3.  Physical subject is moved to juvenile enclosures per WINC SOP.
+```mermaid
+graph TD
+    ID["BL4 - JOHNDOE - 1"]
+    
+    ID --- S[Species: Blanding's]
+    ID --- N[Intake #4 this year]
+    ID --- F[Who found her: John Doe]
+    ID --- B[Bin #1 of this clutch]
 
-## 6. Accountability & Logs
-At the bottom of the Observation screen, use the **Live Session Audit** to review your actions. 
+    style ID fill:#f8fafc,stroke:#64748b,stroke-width:2px
+```
 
-**Note on Resumed Shifts**: If you see a banner stating **"📍 Resuming active shift started by..."**, it means your work is being added to the existing shift folder for clinical continuity. You still get full personal credit for your actions via your Observer ID.
+## 3. Check on Eggs (Observations)
+Select a bin from the list to start your daily checks.
+1.  **Bin Weight Check**: You MUST record the current weight before checking the eggs.
+2.  **START WORKING**: Click this button after entering the weight to unlock the egg grid.
+3.  **Select Eggs**: Click the checkboxes for the eggs you want to update.
+4.  **SAVE**: Click the green **SAVE** button at the bottom of the grid to record your observations.
+
+## 🎨 Visual Stage Legend (Clinical Markers)
+The icons in your workbench change as the turtle grows. Here is how to read the "High-Def" clinical markers:
+
+| Icon Mark | Biological Meaning | What to do |
+| :--- | :--- | :--- |
+| **Cream Ovoid** | **Healthy Egg** | Standard active state. |
+| **Broad White Band** | **Chalking** (Levels 1-2) | Calcium equator is visible. This indicates high vitality. |
+| **Branching Veins** | **Vascularity** (+) | Red "tree" pattern visible. Heartbeat/Life confirmed. |
+| **Star Crack** | **Stage S5 (Pipping)** | Multi-point crack visible. Turtle is emerging! |
+| **Jagged Broken Shell** | **Stage S6 (Hatched)** | Only the "egg cup" remains. Move to transition. |
+| **Grey Ovoid** | **Inactive / Retired** | Egg is no longer part of the active shift. |
+
+### 📸 Workbench Cheat Sheet
+```mermaid
+graph LR
+    subgraph "S1: Healthy Base"
+    E1["🥚 Cream Ovoid"]
+    end
+    subgraph "S2: Life Confirmed"
+    E2["🥚 + 🌿 Branching Veins"]
+    end
+    subgraph "S3: Calcium Equator"
+    E3["🥚 + 💍 Broad White Band"]
+    end
+    subgraph "S6: Hatched"
+    E4["🥣 Jagged Broken Shell"]
+    end
+```
+
+---
+
+## 4. 🔄 Fixing Mistakes (Correction Mode)
+If you make a mistake or need to change a previous entry:
+1.  Enable **Correction Mode** (requires authorized role).
+2.  **REMOVE**: Use the remove buttons to undo observations.
+3.  **Rollback**: If you move an egg back from "Hatched" (Stage S6) to an earlier stage, the system automatically cleans up the records.
+
+## 5. Download Data (Reports)
+Found under **Download Data**, you can export CSV or JSON files for external agency reporting (WormD).
+
+---
+*WINC Clinical Standard v8.1.3 (2026 Season)*

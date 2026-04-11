@@ -17,16 +17,16 @@ import pandas as pd
 from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
 from utils.rbac import can_elevated_clinical_operations
 
-supabase_client = bootstrap_page("Dashboard", "📊")
+supabase_client = bootstrap_page("Today's Stats", "📊")
 
-st.title("📊 Biological Command Center")
+st.title("📊 Today's Summary")
 
 if st.session_state.get('resume_notice'):
     st.success(st.session_state.resume_notice)
     del st.session_state.resume_notice
 
 if 'handshake_complete' not in st.session_state:
-    safe_db_execute("Handshake", lambda: True, success_message=f"Session Active: Observer {st.session_state.observer_name} entered Command Center.")
+    safe_db_execute("Handshake", lambda: True, success_message=f"Session Active: {st.session_state.observer_name} is here.")
     st.session_state.handshake_complete = True
 
 def fetch_key_performance_indicators():
@@ -59,10 +59,10 @@ def fetch_key_performance_indicators():
 active_count, hatched_count, alert_count = fetch_key_performance_indicators()
 
 metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
-metric_col1.metric("Active Subjects", active_count, "Live")
-metric_col2.metric("Hatched (Season)", hatched_count, "Transferred")
-metric_col3.metric("Critical Alerts", alert_count, "Requires Attention" if alert_count > 0 else "Clear", delta_color="inverse" if alert_count > 0 else "normal")
-metric_col4.metric("Hydration Sync", "100%", "Target Reached")
+metric_col1.metric("Active Eggs", active_count, "Live")
+metric_col2.metric("Hatched", hatched_count, "Season Total")
+metric_col3.metric("Help Needed", alert_count, "Alerts" if alert_count > 0 else "All Good", delta_color="inverse" if alert_count > 0 else "normal")
+metric_col4.metric("Water Check", "100%", "Target Reached")
 
 st.divider()
 
@@ -78,20 +78,20 @@ for entry in bins_cleanup_result:
 
 if retirement_targets_list:
     with st.container(border=True):
-        st.subheader("🧹 Workbench Cleanup")
-        st.info(f"The following bins have **0 active eggs**. They should be retired to the archive.")
+        st.subheader("🧹 Remove Empty Bins")
+        st.info(f"The following bins have **0 active eggs**. They should be removed from the list.")
         if not can_elevated_clinical_operations():
-            st.warning("Retiring bins requires Admin, Staff, or Biologist role.")
+            st.warning("Removing bins requires more permission.")
         else:
-            selected_retirement_target = st.selectbox("Select Bin to Retire", retirement_targets_list)
+            selected_retirement_target = st.selectbox("Select Bin to Remove", retirement_targets_list)
 
             confirm_col, action_col = st.columns([2, 1])
             confirmation_toggle = confirm_col.toggle(
-                f"I confirm that **{selected_retirement_target}** is finished for the season."
+                f"Is **{selected_retirement_target}** empty and done for the year?"
             )
 
             if action_col.button(
-                "📦 Retire Bin",
+                "REMOVE BIN",
                 disabled=not confirmation_toggle,
                 use_container_width=True,
                 type="primary",
@@ -103,11 +103,11 @@ if retirement_targets_list:
                     return True
 
                 safe_db_execute(
-                    "Retire Bin",
+                    "Remove Bin",
                     retire_bin,
-                    success_message=f"Lifecycle: Bin {selected_retirement_target} retired to the season archive.",
+                    success_message=f"Bin {selected_retirement_target} was removed.",
                 )
-                st.success(f"Bin {selected_retirement_target} archived.")
+                st.success(f"Bin {selected_retirement_target} removed.")
                 st.rerun()
 
 # --- Analytics ---

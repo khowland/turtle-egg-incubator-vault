@@ -19,8 +19,8 @@ from utils.rbac import can_elevated_clinical_operations
 from utils.visuals import render_egg_icon
 
 # 1. Page Initialization
-supabase = bootstrap_page("Observations", "🔬")
-st.title("🛡️ Observations")
+supabase = bootstrap_page("Egg Checks", "🔬")
+st.title("🔬 Check on Eggs")
 
 # 2. State Initialization
 if 'workbench_bins' not in st.session_state:
@@ -38,8 +38,8 @@ if 'active_case_id' in st.session_state:
 # SIDEBAR: Supplemental Tools & Help
 # ------------------------------------------------------------------------------
 with st.sidebar:
-    st.header("➕ Supplemental Tools")
-    with st.expander("Add Bin to Existing Case"):
+    st.header("🛠️ Extra Tools")
+    with st.expander("Add a Bin to a Case"):
         all_mothers = supabase.table('mother').select('mother_id, mother_name').eq('is_deleted', False).order('created_at', desc=True).limit(20).execute()
         m_map = {m['mother_name']: m['mother_id'] for m in all_mothers.data}
         target_m = st.selectbox("Select Mother/Case", list(m_map.keys()), key="sup_m")
@@ -131,19 +131,19 @@ _col_h1, col_h2 = st.columns([2, 1])
 with col_h2:
     if can_elevated_clinical_operations():
         st.session_state.surgical_resurrection = st.toggle(
-            "🛡️ Surgical Resurrection",
-            help="Void individual observation rows (soft delete) and roll back egg stage.",
+            "🛠️ Correction Mode",
+            help="Enable this to fix mistakes or undo accidental saves.",
         )
     else:
         st.session_state.surgical_resurrection = False
-        st.caption("Surgical mode requires Admin, Staff, or Biologist role.")
+        st.caption("Admin only.")
 
-st.caption("Active Workbench")
+st.caption("Bins being checked:")
 
-# Multi-select to "Load" bins into the session
+# Select bins to work on
 available_bins = supabase.table('bin').select('bin_id').eq('is_deleted', False).execute()
 bin_options = sorted([b['bin_id'] for b in available_bins.data])
-loaded_bins = st.multiselect("Load Bins to Session", bin_options, default=list(st.session_state.workbench_bins))
+loaded_bins = st.multiselect("Select Bins to Check", bin_options, default=list(st.session_state.workbench_bins))
 st.session_state.workbench_bins = set(loaded_bins)
 
 if not st.session_state.workbench_bins:
@@ -197,8 +197,8 @@ if not st.session_state.surgical_resurrection:
         last_weight = last_weight_data['bin_weight_g']
 
         with st.container(border=True):
-            st.subheader("💧 Environment Check")
-            st.write(f"Record mass for **{active_bin_id}** to unlock the biological grid.")
+            st.subheader("💧 Bin Weight Check")
+            st.write(f"We need the current weight for **{active_bin_id}** before you check the eggs.")
             
             col_w1, col_w2 = st.columns(2)
             col_w1.metric("Last Recorded Weight", f"{last_weight}g" if last_weight > 0 else "New Bin")
@@ -206,7 +206,7 @@ if not st.session_state.surgical_resurrection:
             
             water_add = st.number_input("Actual Water Added (ml)", 0.0, 500.0, help="Record the volume added based on your clinical assessment.")
             
-            if st.button("Unlock Grid", type="primary"):
+            if st.button("START WORKING", type="primary"):
                 def unlock():
                     get_resilient_table(supabase, 'bin_observation').insert({
                         "bin_observation_id": str(uuid.uuid4()),
@@ -322,6 +322,15 @@ if st.session_state.surgical_resurrection:
                                 "status": new_status,
                                 "modified_by_id": st.session_state.observer_id,
                             }).eq('egg_id', target_id).execute()
+
+                            if new_s != "S6":
+                                # Rollback from S hatchling requires voiding ledger entries
+                                supabase.table("hatchling_ledger").update({
+                                    "is_deleted": True,
+                                    "notes": f"Voided via surgery {datetime.date.today().isoformat()}",
+                                    "modified_by_id": st.session_state.observer_id,
+                                }).eq("egg_id", target_id).execute()
+
                             st.success(f"Observation voided. Egg {target_id} reverted to {new_s} ({new_status}).")
 
                         audit_msg = f"Surgical void: egg_observation_id={h['egg_observation_id']} egg={target_id} reason={void_reason_input or 'n/a'}"
@@ -408,7 +417,7 @@ else:
             egg_meta_notes = st.text_input("Permanent Egg Notes", placeholder="e.g., 'Slightly cracked'")
             observation_notes = st.text_area("Shift Observation Notes", placeholder="Describe unusual observations...")
             
-            if st.button("🚀 Push Batch Update", type="primary", use_container_width=True):
+            if st.button("SAVE", type="primary", use_container_width=True):
                 def commit_batch():
                     obs_payload = []
                     for rid in selected_real_ids:
@@ -448,7 +457,7 @@ else:
                         for rid in selected_real_ids:
                             egg_one = (
                                 supabase.table('egg')
-                                .select("egg_id, bin_id, intake_date")
+                                .select("egg_id, bin_id, intake_timestamp")
                                 .eq("egg_id", rid)
                                 .execute()
                             )
@@ -465,12 +474,13 @@ else:
                                 continue
                             mother_id = bin_one.data[0]["mother_id"]
                             incub_days = None
-                            id_raw = erow.get("intake_date")
+                            id_raw = erow.get("intake_timestamp")
                             if id_raw:
                                 try:
-                                    id_part = str(id_raw)[:10]
-                                    incub_days = (hatch_date - datetime.date.fromisoformat(id_part)).days
-                                except ValueError:
+                                    # Handle string or datetime object
+                                    dt_val = datetime.datetime.fromisoformat(str(id_raw).replace('Z', '+00:00'))
+                                    incub_days = (hatch_date - dt_val.date()).days
+                                except (ValueError, TypeError):
                                     incub_days = None
                             hl_existing = (
                                 supabase.table("hatchling_ledger")
