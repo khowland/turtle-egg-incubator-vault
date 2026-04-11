@@ -415,13 +415,14 @@ else:
             matrix_chalk = next(iter(chalks_found)) if len(chalks_found) == 1 else 0
             new_chalk = ac2.selectbox(f"{'✅' if len(chalks_found) == 1 else '⚪'} Chalking", [0, 1, 2], index=matrix_chalk)
             
-            st.write("**Cumulative Health Flags**")
-            bc1, bc2, bc3 = st.columns(3)
+            st.write("**Clinical Health Scales (0-3)**")
+            bc1, bc2, bc3, bc4 = st.columns(4)
             v = bc1.checkbox("Vascularity (+)")
-            m = bc2.checkbox("Molding")
-            l = bc3.checkbox("Leaking")
+            m_val = bc2.selectbox("Molding", [0, 1, 2, 3], help="0:None, 1:Spotting, 2:Patchy, 3:Aggressive")
+            l_val = bc3.selectbox("Leaking", [0, 1, 2, 3], help="0:None, 1:Damp, 2:Active, 3:Ruptured")
+            d_val = bc4.selectbox("Denting", [0, 1, 2, 3], help="0:None, 1:Slight, 2:Compressed, 3:Collapsed")
             
-            egg_meta_notes = st.text_input("Permanent Egg Notes", placeholder="e.g., 'Slightly cracked'")
+            egg_meta_notes = st.text_input("Permanent Egg Notes", placeholder="e.g., 'Small crack on underside'")
             observation_notes = st.text_area("Shift Observation Notes", placeholder="Describe unusual observations...")
             
             if st.button("SAVE", type="primary", use_container_width=True):
@@ -437,8 +438,9 @@ else:
                             "modified_by_id": st.session_state.observer_id,
                             "chalking": new_chalk,
                             "vascularity": v,
-                            "molding": m,
-                            "leaking": l,
+                            "molding": m_val,
+                            "leaking": l_val,
+                            "dented": d_val,
                             "stage_at_observation": new_stage,
                             "observation_notes": observation_notes,
                             "is_deleted": False,
@@ -450,6 +452,9 @@ else:
                         "status": status_val,
                         "last_chalk": new_chalk,
                         "last_vasc": v,
+                        "last_molding": m_val,
+                        "last_leaking": l_val,
+                        "last_dented": d_val,
                         "modified_by_id": st.session_state.observer_id,
                     }
                     if egg_meta_notes:

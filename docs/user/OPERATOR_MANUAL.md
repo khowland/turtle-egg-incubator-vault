@@ -47,12 +47,45 @@ graph TD
     style ID fill:#f8fafc,stroke:#64748b,stroke-width:2px
 ```
 
-## 3. Check on Eggs (Observations)
-Select a bin from the list to start your daily checks.
-1.  **Bin Weight Check**: You MUST record the current weight before checking the eggs.
-2.  **START WORKING**: Click this button after entering the weight to unlock the egg grid.
-3.  **Select Eggs**: Click the checkboxes for the eggs you want to update.
-4.  **SAVE**: Click the green **SAVE** button at the bottom of the grid to record your observations.
+## 3. Check on Eggs (Daily Observations)
+This is the most frequent task in the system. The workflow is designed to be fast on mobile tablets while ensuring high-quality clinical data.
+
+### Step 1: The Weight Gateway 💧
+Before you can see the eggs, you must perform a **Bin Weight Check**.
+*   Place the bin on the scale.
+*   Enter the weight in grams (g).
+*   Record how much water (ml) you added to the substrate.
+*   Click **START WORKING**. This "unlocks" the eggs for that bin and ensures we have the humidity data for our analytics.
+
+### Step 2: The Biological Grid 🥚
+Once unlocked, you will see the **Grid View**.
+*   **To Select One Egg**: Tap the egg icon once. It will turn blue.
+*   **To Select Multiple**: Tap as many as you like. You can update an entire row or the whole bin at once!
+*   **The Checkmark (✅)**: If an egg has a checkmark, it means a check has already been recorded for it today.
+
+### Step 3: The Property Matrix 📐
+When eggs are selected, the **Matrix** appears at the bottom of the screen. This is where you record what you see:
+
+| Field | How to use it simply |
+| :--- | :--- |
+| **Stage** | Are they still eggs (S1-S4), breaking out (S5), or turtles (S6)? |
+| **Chalking** | Look for the white band. 0 = None, 1 = Some, 2 = Strong. |
+| **Health Scales** | **Vascular**: Check if veins are visible. **Molding/Leaking/Denting**: Rate from 0 (None) to 3 (Severe/Aggressive). |
+| **Notes** | Use "Permanent Notes" for physical traits (e.g., "Small crack") and "Shift Notes" for temporary updates. |
+
+### 🔬 Clinical Health Reference (0-3 Scale)
+| Level | Molding | Leaking | Denting |
+| :---: | :--- | :--- | :--- |
+| **0** | **None** | **Dry** | **Smooth** |
+| **1** | **Spotting** (Small spots) | **Damp** (Slight moisture) | **Slight** (Flattened area) |
+| **2** | **Patchy** (Fuzzy coverage) | **Active** (Visible fluid) | **Compressed** (Deep dent) |
+| **3** | **Aggressive** (Thick mold) | **Ruptured** (Massive loss) | **Collapsed** (Structural failure) |
+
+> [!TIP]
+> **Use Batching!** If all the eggs in the bin look the same, select them all and hit **SAVE** once. You don't have to click each one individually.
+
+### Step 4: Finalizing the Shift 🏁
+Always click the green **SAVE** button after making changes. The system will instantly update the icons in the grid to reflect their new development stage.
 
 ## 🎨 Visual Stage Legend (Clinical Markers)
 The icons in your workbench change as the turtle grows. Here is how to read the "High-Def" clinical markers:
@@ -70,17 +103,22 @@ The icons in your workbench change as the turtle grows. Here is how to read the 
 ```mermaid
 graph LR
     subgraph "S1: Healthy Base"
-    E1["🥚 Cream Ovoid"]
+    E1["🥚 Tan Ovoid"]
     end
     subgraph "S2: Life Confirmed"
-    E2["🥚 + 🌿 Branching Veins"]
+    E2["🕸️ Red Veins"]
     end
-    subgraph "S3: Calcium Equator"
-    E3["🥚 + 💍 Broad White Band"]
+    subgraph "S3: Chalking"
+    E3["⬜ White Band"]
+    end
+    subgraph "S5: Pipping"
+    E5["💥 Black Crack"]
     end
     subgraph "S6: Hatched"
-    E4["🥣 Jagged Broken Shell"]
+    E6["🐚 Broken Shell"]
     end
+
+    E1 --> E2 --> E3 --> E5 --> E6
 ```
 
 ---
