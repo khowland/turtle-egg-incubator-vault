@@ -1,8 +1,8 @@
-# 🐢 Project Requirements: Incubator Vault v8.1.3
-**(Industry Best Practice & Clinical Sovereignty Edition)**
+# 🐢 Project Requirements: WINC Incubator System v8.1.3
+**(Industry Best Practice & WINC Production Edition)**
 
 ## 🌐 Project Scope & Framework
-The **Incubator Vault** is a high-integrity clinical ledger designed for the Wildlife In Need Center (WINC). It adheres to **Industry Best Practices** for enterprise software engineering, focusing on data durability, system transparency, and biological accuracy.
+The **WINC Incubator System** is a high-integrity records system designed for the Wildlife In Need Center (WINC). It adheres to **Industry Best Practices** for enterprise software engineering, focusing on data durability, system transparency, and biological accuracy.
 
 *   **Human-First Design**: The system must be intuitive enough for a volunteer with zero technical training to operate ("5th-Grader Standard").
 *   **Infrastructure Standard**: Hosted on **Google Cloud Platform (GCP)** with a **Supabase (PostgreSQL)** backend, utilizing containerized Streamlit for maximum availability.

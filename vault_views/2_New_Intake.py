@@ -1,12 +1,12 @@
 """
 =============================================================================
 Module:        vault_views/2_New_Intake.py
-Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
+Project:       WINC Incubator System
 Requirement:   Matches Standard [§35, §36]
 Dependencies:  utils.bootstrap
 Inputs:        st.session_state (observer_id, session_id, bin_rows)
 Outputs:       mother, bin, egg, egg_observation
-Description:   Refactored Intake with Unique Bin IDs; prefers vault_finalize_intake
+Description:   Refactored Intake with Unique Bin IDs; prefers internal intake
                RPC (single DB transaction, ISS-5) with legacy client fallback.
 =============================================================================
 """
@@ -28,7 +28,7 @@ with st.sidebar.expander("ℹ️ Screen Help - Step-by-Step"):
     2. Add the **Finder Name** (This dynamically generates your physical Bin Labels).
     3. Type the **Egg Count** for the bin (1-99). Use the direct keyboard.
     4. Need multiple bins for one mother? Click **➕ Add Bin**.
-    5. Hit **🚀 Finalize Intake** to instantly drop the eggs into our Ledger and automatically navigate to the Observation phase!
+    5. Hit **SAVE** to instantly record the eggs and automatically move to the observation phase!
     """)
 
 # Strip +/- spinner controls from number inputs
@@ -127,7 +127,7 @@ if btn_col2.button("SAVE", type="primary", use_container_width=True):
             st.stop()
 
         try:
-            with st.status("Writing Clinical Ledger...") as status:
+            with st.status("Saving Records...") as status:
                 finder_clean = str(re.sub(r'[^A-Z0-9]', '', finder_name.upper()))
                 bins_payload = []
                 for row_data in st.session_state.bin_rows:
@@ -180,7 +180,7 @@ if btn_col2.button("SAVE", type="primary", use_container_width=True):
                     if hasattr(rpc_err, 'message'):
                         err_msg = rpc_err.message
                     
-                    st.error(f"🔴 CRITICAL: Clinical Ledger Write Failed! {err_msg}")
+                    st.error(f"🔴 CRITICAL: Records could not be saved! {err_msg}")
                     logger.error("vault_finalize_intake RPC failed: %s", traceback.format_exc())
                     raise rpc_err
         except Exception as error:

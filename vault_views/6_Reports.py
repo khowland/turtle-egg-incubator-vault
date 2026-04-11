@@ -1,7 +1,7 @@
 """
 =============================================================================
 Module:        vault_views/6_Reports.py
-Project:       Incubator Vault v8.1.0 — WINC (Clinical Sovereignty Edition)
+Project:       WINC Incubator System
 Requirement:   Matches Standard [§35, §36]; ISS-2 WormD-oriented ad-hoc exports
 Dependencies:  utils.bootstrap, utils.rbac, utils.wormd_export
 Inputs:        st.session_state (observer_id, session_id)
@@ -20,7 +20,7 @@ from utils.wormd_export import build_flat_case_csv, build_wormd_intake_json_bund
 
 supabase_client = bootstrap_page("Reports", "📈")
 
-st.title("🛡️ Biological Analytics Hub")
+st.title("🛡️ Egg Reports & Analytics")
 
 # =============================================================================
 # SIDEBAR: Filters & WormD export (ISS-2)
@@ -167,7 +167,7 @@ with st.sidebar:
                 m_eggs = [e for e in all_eggs_data if e["bin_id"] in m_bin_ids]
 
                 flat_rows.append({
-                    "vault_mother_id": m["mother_id"],
+                    "internal_case_id": m["mother_id"],
                     "winc_case_number": m.get("mother_name"),
                     "finder_turtle_name": m.get("finder_turtle_name"),
                     "species_code": sp.get("species_code"),
@@ -185,7 +185,7 @@ with st.sidebar:
                 })
 
                 clinical_block.append({
-                    "vault_mother_id": m["mother_id"],
+                    "internal_case_id": m["mother_id"],
                     "winc_or_wormd_case_number": m.get("mother_name"),
                     "finder_turtle_name": m.get("finder_turtle_name"),
                     "species_id": m.get("species_id"),
@@ -332,7 +332,7 @@ else:
         st.caption("Hydration and mass analytics will layer here as season data accrues.")
 
     with report_tabs[2]:
-        st.subheader("Incubation duration (hatchling ledger)")
+        st.subheader("Hatch Success (Hatchling Records)")
         if not hatchling_dataframe.empty and "incubation_duration_days" in hatchling_dataframe.columns:
             plot_df = hatchling_dataframe.dropna(subset=["incubation_duration_days"])
             if not plot_df.empty:
@@ -374,7 +374,7 @@ if st.sidebar.button("📦 Export eggs (active bins) CSV"):
         st.sidebar.download_button(
             "Click to download",
             egg_dataframe.to_csv(index=False),
-            "vault_eggs_active_bins_export.csv",
+            "incubator_eggs_export.csv",
             "text/csv",
         )
         return True

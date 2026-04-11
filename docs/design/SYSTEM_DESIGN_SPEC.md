@@ -1,8 +1,8 @@
-# 🐢 WINC Incubator Vault: System Design Specification (v8.1.3)
-**Technical Architecture, Data Dictionary, and Clinical Bill of Materials**
+# 🐢 WINC Incubator System: System Design Specification (v8.1.3)
+**Technical Architecture, Database Dictionary, and System Parts List**
 
 ## 1. System Architecture Matrix
-This diagram depicts the zero-deviation flow of biological data from high-mobility field tablets through the Streamlit application layer and into the hardened Supabase PostgreSQL ledger.
+This diagram depicts the zero-deviation flow of biological data from high-mobility field tablets through the Streamlit application layer and into the hardened Supabase PostgreSQL database.
 
 ```mermaid
 graph TD
@@ -13,12 +13,12 @@ graph TD
 
     subgraph "Application Layer (GCP Runtime)"
         B -- "Identity Gate" --> C{Session Context}
-        C -- "Active" --> D[Vault Logic Engine]
-        D -- "Atomic Transaction" --> E[Supabase Client]
+        C -- "Active" --> D[Incubator Logic]
+        D -- "Safe Save" --> E[Supabase Client]
     end
 
     subgraph "Data Layer (Hardened PostgreSQL)"
-        E -- "REST API" --> F[(Biological Ledger)]
+        E -- "REST API" --> F[(Egg Records)]
         F -- "RLS Policies" --> G[Secure Storage]
     end
 
@@ -57,7 +57,7 @@ graph LR
 ---
 
 ## 3. Biological State Machine
-Individual eggs progress through the ledger according to the following state logic. "Correction Mode" permits manual state reversal while maintaining the audit trail.
+Individual eggs progress through the database according to the following state logic. "Correction Mode" permits manual state reversal while maintaining the audit trail.
 
 ```mermaid
 stateDiagram-v2
@@ -70,7 +70,7 @@ stateDiagram-v2
     S5 --> S6: Hatched
     S6 --> [*]: Transferred
     
-    S6 --> S5: Correction (Void Ledger)
+    S6 --> S5: Correction (Void Records)
     S5 --> S4: Correction
     S4 --> S3: Correction
 ```
@@ -78,12 +78,12 @@ stateDiagram-v2
 ---
 
 ## 4. Shift Continuity Timeline
-The Vault unifies multi-observer activity during a 4-hour clinical window to ensure a coherent "Shift Folder" for forensics.
+The System unifies multi-observer activity during a 4-hour clinical window to ensure a coherent "Shift Folder" for forensics.
 
 ```mermaid
 sequenceDiagram
     participant O1 as Observer A
-    participant DB as Vault Ledger
+    participant DB as App Database
     participant O2 as Observer B
     
     O1->>DB: Login (New Session ID: 101)
@@ -97,10 +97,10 @@ sequenceDiagram
 
 ---
 
-## 5. Data Dictionary (The Clinical Ledger)
+## 5. Database Dictionary (The Incubator Records)
 
 ### A. Audit Header Standard (§6.59)
-Every transactional table in the ledger contains the following mandatory columns:
+Every transactional table in the records contains the following mandatory columns:
 *   **`session_id`** (TEXT): The unique shift/session identifier.
 *   **`created_at`** (TIMESTAMPTZ): Automatic record creation timestamp.
 *   **`modified_at`** (TIMESTAMPTZ): Automatic last-edit timestamp.
@@ -143,7 +143,7 @@ The system mandates the following button labeling for cross-module consistency:
 
 ## 6. Maintenance Protocol
 *   **Heartbeat**: `scripts/heartbeat_ping.py` must be executed via Cron every 24 hours.
-*   **Atomic Intake**: All clutches must be committed via `vault_finalize_intake` RPC to ensure maternal/bin/egg parity.
+*   **Atomic Intake**: All clutches must be committed via `vault_finalize_intake` RPC to ensure parity.
 *   **Temporal Precision**: Eggs use `intake_timestamp` (TIMESTAMPTZ) for sub-second audit forensic tracking.
 
 ---

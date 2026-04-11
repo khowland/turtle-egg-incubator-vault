@@ -1,7 +1,7 @@
 """
 =============================================================================
 Module:        vault_views/1_Dashboard.py
-Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
+Project:       WINC Incubator System
 Requirement:   Matches Standard [§35, §36]
 Dependencies:  utils.bootstrap
 Inputs:        st.session_state (observer_id, session_id)

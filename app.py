@@ -1,13 +1,13 @@
 """
 =============================================================================
 Module:        app.py
-Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
+Project:       WINC Incubator System
 Requirement:   Matches Standard [§35, §36]
 Dependencies:  utils.session
 Inputs:        st.session_state (observer_id, observer_role)
 Outputs:       st.navigation
 Description:   Core router mapping the session states to Views; Diagnostics for
-               trusted clinical roles only (ISS-10).
+               trusted roles only (ISS-10).
 =============================================================================
 """
 import streamlit as st
@@ -16,7 +16,7 @@ from utils.bootstrap import bootstrap_page
 from utils.rbac import can_elevated_clinical_operations
 
 # v8.0.0 Global Entry: Mount CSS Early to eliminate flickering
-bootstrap_page("Incubator Vault | WINC", "🐢")
+bootstrap_page("WINC Incubator", "🐢")
 init_session()
 
 # Navigation definition

@@ -1,8 +1,8 @@
-# 📖 Incubator Vault: Operator's Manual (v8.1.3)
-**Clinical Sovereignty Edition (Simplicity Release)**
+# 📖 WINC Incubator System: Operator's Manual (v8.1.3)
+**WINC Production Edition (Simplicity Release)**
 
 ## 🐢 The Turtle Journey
-Every egg in the Vault follows this biological path. If you follow these 4 steps, your data will always be perfect.
+Every egg in the System follows this biological path. If you follow these 4 steps, your data will always be perfect.
 
 ```mermaid
 graph LR
@@ -19,7 +19,7 @@ graph LR
 ---
 
 ## 1. Getting Started: The Welcome Screen
-When you first open the Vault, you will see the **Welcome** screen.
+When you first open the App, you will see the **Welcome** screen.
 1.  **Select Your Name**: Choose your name from the list.
 2.  **START**: Click the **START** button to begin your shift.
 *   **Persistent Login**: The system will remember you for the rest of your shift.
@@ -32,8 +32,8 @@ Use the **Add New Eggs** screen when a new turtle or clutch of eggs arrives.
 3.  **ADD**: Click **ADD** to create a new bin row.
 4.  **SAVE**: Click the green **SAVE** button.
 
-### 🧬 Anatomy of a Bin ID
-The Vault automatically labels your bins with a "Smart Code." Here is how to read it:
+### 🧬 Anatomy of a Smart ID
+The System automatically labels your bins with a "Smart Code." Here is how to read it:
 
 ```mermaid
 graph TD

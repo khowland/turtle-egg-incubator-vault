@@ -1,7 +1,7 @@
 """
 =============================================================================
 Module:        utils/session.py
-Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
+Project:       WINC Incubator System
 Requirement:   Matches Standard [§35, §36]
 Dependencies:  utils.db, utils.bootstrap
 Inputs:        st.session_state (observer_id, session_id)
@@ -19,10 +19,10 @@ from utils.bootstrap import get_resilient_table
 from utils.logger import logger
 
 def init_session():
-    """Initializes the browser session state for v8.0.0 requirements."""
+    """Initializes the browser session state."""
     if 'session_id' not in st.session_state:
         st.session_state.session_id = str(uuid.uuid4())
-        logger.info(f"🆕 New Vault Session Initialized: {st.session_state.session_id}")
+        logger.info(f"🆕 New System Session Initialized: {st.session_state.session_id}")
 
     if 'observer_id' not in st.session_state:
         st.session_state.observer_id = None
