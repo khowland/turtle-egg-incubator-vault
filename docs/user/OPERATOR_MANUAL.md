@@ -1,68 +1,84 @@
-# 🐢 WINC Clinical Incubator System v10.2.0
-## "The Simple Edition" — How to Use the Vault
+# 🐢 WINC Clinical Incubator System v10.3.0
+## "The Visual Edition" — Illustrated System Guide
 
-**Our Goal:** To show you exactly how to use this system to do your job in the easiest way possible. Every step is simple so you can work with confidence.
-
----
-
-### 📑 TABLE OF CONTENTS (Where to Find Things)
-1.  **🏠 HOME**: The Main Screen (See how the lab is doing)
-2.  **� ADDING TURTLES**: Starting a New Case 
-3.  **� BINS & EGGS**: Keeping Track of Everything
-4.  **🔍 DAILY SCAN**: Checking Health & Weight
-5.  **🐣 HATCHING**: Finishing a Case
-6.  **📊 GETTING DATA**: Saving Reports for Later
-7.  **🆘 PROBLEM SOLVING**: What to do when things go wrong
+**North Star Objective:** To provide a screen-by-screen tactical manual that transforms physical clinical workflows into simple, failure-proof digital steps using best-in-class graphics.
 
 ---
 
-### 1. 🏠 HOME (The Main Screen)
-**Goal:** Use this screen to see if any eggs need help right now.
-
-*   **Help Needed:** If you see a number here, it means some eggs have mold or are leaking. Go check them first.
-*   **Total Eggs:** This shows you how many living eggs are in the vault today.
-
----
-
-### 2. 📥 ADDING TURTLES (Intake)
-**Goal:** Put a new mother turtle into the system.
-
-1.  **Choose the Species:** Pick the kind of turtle (like "Blanding's").
-2.  **Name the Mother:** Type in the name or the case number.
-3.  **Pick the Date:** Use today’s date.
-4.  **Click [Complete Intake]**: This creates a unique ID so the system always remembers this turtle.
+### 📑 TABLE OF CONTENTS
+1.  **🧭 NAVIGATION**: The Sidebar Icons
+2.  **🏠 HOME**: The Dashboard Overview
+3.  **📥 INTAKE**: Adding New Turtles
+4.  **📦 BINS & EGGS**: The Inventory View
+5.  **🔍 DAILY SCAN**: Health & Weight Entries
+6.  **🐣 HATCHING**: Finishing a Case
+7.  **📊 DATA EXPORTS**: Saving Reports
 
 ---
 
-### 4. � DAILY SCAN (Observations)
-**Goal:** Check the eggs and write down how they look.
+### 1. 🧭 NAVIGATION (The Sidebar)
+**Goal:** Learn how to move between work phases.
 
-**The Health Slider (Scores 0–3):**
-*   **Score 0 (Perfect):** The egg is clean and dry.
-*   **Score 1 (A Little Mold):** You see a tiny bit of grey fuzz.
-*   **Score 2 (Medium):** There is a lot of mold or the egg is leaking.
-*   **Score 3 (Bad):** The egg needs to be moved away from others right away.
-
-**Checking the Weight:**
-*   If the screen says the bin is too light, add water until the numbers match.
+**{[B] SCREENSHOT: The Main Sidebar Navigation Menu [/B]}**
 
 ---
 
-### 7. 🆘 PROBLEM SOLVING (What Ifs)
+### 2. 🏠 HOME (The Dashboard)
+**Goal:** See the health of the entire lab at a glance.
 
-**What if I have an injured mother who lays eggs twice?**
-*   If she lays more eggs a few days later, **do not** make a new case. 
-*   Find her old ID and click **[Add New Bin]**. This keeps all her eggs together in one place.
+**{[B] SCREENSHOT: The Dashboard / Home Screen [/B]}**
 
-**What if I type the wrong weight?**
-*   Just make a new entry with the correct weight. The system will always use the newest information you give it.
+**Clinical Logic Diagram:**
+*   **High Help Needed** → Proceed to **Observations**.
+*   **Low Battery/Disconnected** → Proceed to **Crisis Protocol**.
 
-**What if I make an egg by mistake?**
-*   Set the status to **"Void/Error."** This tells the system to ignore that egg.
+---
+
+### 3. 📥 INTAKE (Adding New Turtles)
+**Goal:** Create a new record for a mother turtle and her eggs.
+
+**{[B] SCREENSHOT: The Intake Page / New Entry Screen [/B]}**
+
+**The Workflow Choice:**
+*   **Route A (New Case):** Mother → No ID yet? → Create New Intake.
+*   **Route B (Existing Case):** Mother → ID already exists? → Use "Add Bin" tool.
+
+---
+
+### 4. 📦 BINS & EGGS (Inventory)
+**Goal:** Manage where eggs are physically kept in the lab.
+
+**{[B] SCREENSHOT: The Bin Management & Egg Ledger Screens [/B]}**
+
+**The ID Hierarchy (System Schematic):**
+```
+[Mother ID: M2026-X]
+   ├── [Bin ID: B-01] -> [Egg ID -01, -02, -03...]
+   └── [Bin ID: B-02] -> [Egg ID -04, -05, -06...]
+```
+
+---
+
+### 5. 🔍 DAILY SCAN (Observations)
+**Goal:** Record the health (0–3) and weight of each egg.
+
+**{[B] SCREENSHOT: The Observation Entry Screen showing Health Sliders [/B]}**
+
+**The Health Decision Tree (System Action):**
+1.  **Look** at Egg → **See** Mold.
+2.  **Score** the Scale (1, 2, or 3).
+3.  **Click Update** → System triggers Dashboard Alert.
+
+---
+
+### 7. 📊 DATA EXPORTS (Reporting)
+**Goal:** Download your data for annual reports.
+
+**{[B] SCREENSHOT: The Reports Page showing Download CSV/JSON buttons [/B]}**
 
 ---
 
 <div style="page-break-after: always;"></div>
 
 **WINC Sovereign Documentation © 2026**  
-*Simple. Professional. Failure-Proof.*
+*Illustrated. Tactical. Failure-Proof.*

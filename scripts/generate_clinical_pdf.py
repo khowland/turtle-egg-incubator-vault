@@ -5,13 +5,13 @@ from pathlib import Path
 # Paths (§v9.0.2)
 ROOT_DIR = Path(__file__).parent.parent
 MD_PATH = ROOT_DIR / "docs" / "user" / "OPERATOR_MANUAL.md"
-OUTPUT_PATH = ROOT_DIR / "docs" / "user" / "WINC_OPERATOR_MANUAL_v10_2.pdf"
+OUTPUT_PATH = ROOT_DIR / "docs" / "user" / "WINC_OPERATOR_MANUAL_v10_3.pdf"
 
 class ClinicalPDF(FPDF):
     def header(self):
         self.set_font('helvetica', 'B', 8)
         self.set_text_color(128, 128, 128)
-        self.cell(0, 10, 'WINC Clinical CIOS Reference Manual v10.2.0 (The Simple Edition)', 0, 0, 'L')
+        self.cell(0, 10, 'WINC Clinical CIOS Reference Manual v10.3.0 (The Visual Edition)', 0, 0, 'L')
         self.ln(15)
 
     def footer(self):
