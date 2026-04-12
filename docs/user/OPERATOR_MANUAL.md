@@ -1,9 +1,5 @@
 # WINC Turtle Egg Incubation and Hatching System
-![WINC Manual Cover Art](../../assets/manual/cover.png)
-
-**Developed by Kevin Howland**  
-*Version 10.5.1 | Released: April 2026*  
-Contact: it2howland@gmail.com
+![WINC Manual Cover Poster](../../assets/manual/poster_cover.svg)
 
 ---
 
