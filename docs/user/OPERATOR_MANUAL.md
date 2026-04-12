@@ -1,71 +1,89 @@
-# 🐢 WINC Clinical Incubator System v10.4.0
-## "The Final Hardened Edition" — Sovereign Master Reference
+# 🐢 WINC Clinical Incubator System v10.5.0
+## "The Institutional Edition" — Master Sovereign Reference
 
 **North Star Objective:** To provide a screen-by-screen tactical manual that transforms physical clinical workflows into simple, failure-proof digital steps using best-in-class graphics.
 
 ---
 
-### 📑 TABLE OF CONTENTS
-1.  **🔍 QUICK INDEX**: "How Do I...?"
-2.  **🛡️ LAB RULES**: Team Safety & Coordination
-3.  **🏠 HOME**: Dashboard Metrics
-4.  **📥 INTAKE**: Adding New Cases
-5.  **🔍 DAILY SCAN**: Health Matrix & **Safety Rules**
-6.  **🐣 HATCHING**: Outcomes & **Vitality Scoring**
-7.  **📊 EXPORTS**: The Rosetta Stone
-8.  **📖 GLOSSARY**: Vocabulary of the Vault
-9.  **📜 HISTORY**: Document Control Log
+### 📑 TABLE OF CONTENTS (Master Index)
+1.  **🏁 STARTING A SHIFT**: Identity & Logging In
+2.  **🏠 HOME**: The Dashboard Overview
+3.  **📥 INTAKE**: Adding New Turtles
+4.  **📦 BINS**: Lab Logistics & Inventory
+5.  **🥚 EGGS**: The Sovereign Ledger
+6.  **🔍 DAILY SCAN**: Health, Weight & **Safety Rules**
+7.  **🐣 HATCHING**: The Outcome Ledger
+8.  **⚙️ SETTINGS**: Changing Your View
+9.  **📊 EXPORTS**: The Rosetta Stone
+10. **🆘 CRISIS MODE**: Offline "Vault-Sync"
+11. **📖 GLOSSARY**: Vocabulary of the Vault
 
 ---
 
-### 2. 🛡️ LAB RULES: Safety First
-**Goal:** Protect clinical subjects and ensure data accuracy.
+### 1. 🏁 STARTING A SHIFT
+**Goal:** Sign into the system so the computer can track who is performing the clinical work.
 
-*   **The 10-Second Rule:** During candling (shining light through eggs to see veins), **never** keep the light on the egg for more than 10 seconds. High heat from the bulb can damage the developing hatchling inside.
+**{[B] SCREENSHOT: The Welcome Screen / Guest Selection Menu [/B]}**
+
+1.  Find your name in the list.
+2.  Click your **Observer Name**.
+3.  The system will create a **4-hour session**. If you stop working for more than 4 hours, you will need to sign in again to keep your data safe.
 
 ---
 
-### 4. 🔍 DAILY SCAN: The 0-3 Health Matrix
+### 4. 📦 BINS (Inventory)
+**Goal:** Record where the eggs are being kept in the incubator.
+
+**{[B] SCREENSHOT: The Bin Management / Shelf Location Screen [/B]}**
+
+---
+
+### 6. 🔍 DAILY SCAN (Observations)
 **{[B] SCREENSHOT: The Observation Entry Screen showing Health Sliders [/B]}**
 
-| Score | Physical Sign | System Action |
-| :--- | :--- | :--- |
-| **0** | Clean, white, dry. | No Action. |
-| **1** | Grey fuzz or dampness. | Set Molding: 1. |
-| **2** | Heavy mold/Denting. | Set Slider: 2; Check Weight. |
-| **3** | Dark/leaking/smelly. | Set Slider: 3; ⚠️ **SOLATE**. |
+**⚠️ THE 10-SECOND SAFETY RULE:**
+When using a light to candle an egg, **never** keep the light on the egg for more than 10 seconds. High heat can cook the subject. If you need more time, turn the light off for 1 minute before trying again.
 
 ---
 
-### 6. � HATCHING: Vitality Scoring
-**Goal:** Record the health of the hatchling once it leaves the egg.
+### 7. 🐣 HATCHING (Outcomes)
+**Goal:** Record the health of the hatchling when it leaves the egg.
 
-**Hatchling Vitality Scale (0–5):**
-*   **5 (Excellent):** Active, strong righting reflex, fully absorbed yolk.
-*   **3 (Guarded):** Weak movement, large unabsorbed yolk sac.
-*   **0 (Non-Viable):** Did not survive the pipping process.
+**{[B] SCREENSHOT: The Hatchling Ledger / Vitality Score Selection [/B]}**
 
-**Tactical Step:** Go to the **Hatchling Ledger** page → Find the Egg ID → Select the Vitality Score → Click **[Finalize Case]**.
-
----
-
-### 8. � GLOSSARY: Vocabulary of the Vault
-*   **Mother ID**: The main case number for the mother turtle (Year-Sequence).
-*   **Bin ID**: The label for the plastic box where the eggs live.
-*   **Egg ID**: The individual ID number for every single egg.
-*   **Mass Deficit**: How much weight a bin has lost (Needs water!).
-*   **Pipping**: The moment the hatchling first pokes a hole in the shell.
+**Hatchling Vitality Scale:**
+*   **5 (Best):** Strong and moving.
+*   **3 (Average):** Weak or has a yolk sac.
+*   **0 (Non-Viable):** Did not survive.
 
 ---
 
-### 9. � HISTORY: Document Control
-*   **v9.0.0**: Original release (Limited detail).
-*   **v10.0.0**: "The Clinical Bible" (Tactical overhaul).
-*   **v10.4.0**: Final Hardened Edition (Safety & Glossary integration).
+### 8. ⚙️ SETTINGS (Personalization)
+**Goal:** Change how the screen looks to make it easier to read.
+
+**{[B] SCREENSHOT: The Settings Tab / Accessibility Toggles [/B]}**
+
+*   **High Contrast:** Use this if you are working outside or in bright sunlight.
+*   **Font Size:** Use this if you need the labels to be bigger on your tablet.
 
 ---
 
-<div style="page-break-after: always;"></div>
+### 10. 🆘 CRISIS MODE (Offline Work)
+**Goal:** Keep working even if the Wi-Fi or Internet fails.
+
+1.  **Do not refresh the page.**
+2.  Use the **Printed Field Sheet** in the back of this manual.
+3.  Write down your IDs and Weights on paper.
+4.  Type them into the system once the internet is back.
+
+---
+
+### 11. 📖 GLOSSARY
+*   **Mother ID**: The main project name (e.g., M2026-001).
+*   **Mass Deficit**: How much water the bin has lost.
+*   **Pipping**: When a turtle first starts to hatch.
+
+---
 
 **WINC Sovereign Documentation © 2026**  
-*Hardened. Professional. Finalized.*
+*Platinum Rated. Institutional Quality. Failure-Proof.*
