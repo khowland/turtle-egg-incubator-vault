@@ -1,4 +1,13 @@
-# 🐢 WINC Clinical Incubator System v10.5.0
+# WINC Turtle Egg Incubation and Hatching System
+![WINC Manual Cover Art](../../assets/manual/cover.png)
+
+**Developed by Kevin Howland**  
+*Version 10.5.1 | Released: April 2026*  
+Contact: it2howland@gmail.com
+
+---
+
+# 🐢 WINC Clinical Incubator System v10.5.1
 ## "The Institutional Edition" — Master Sovereign Reference
 
 **North Star Objective:** To provide a screen-by-screen tactical manual that transforms physical clinical workflows into simple, failure-proof digital steps using best-in-class graphics.
