@@ -1,86 +1,70 @@
-# 🐢 WINC Clinical Incubator Operating System (CIOS) v10.0
-## "The Clinical Bible" — Sovereign Reference Manual
+# 🐢 WINC Clinical Incubator Operating System (CIOS) v10.1.0
+## "The Resilient Edition" — Sovereign Reference Manual
 
-**North Star Objective:** To provide a screen-by-screen tactical manual that transforms physical clinical workflows into simple, failure-proof digital steps—ensuring every staff member knows exactly what data to enter, where to enter it, and why it matters to the mission.
+**North Star Objective:** To provide a failure-proof procedural roadmap that empowers WINC staff to master every digital workflow, data-entry gate, and system report with absolute efficiency and technical precision—regardless of environment or connectivity.
 
 ---
 
 ### 📑 TABLE OF CONTENTS
-1.  **📟 DASHBOARD**: Real-Time Operational Awareness
-2.  **📥 INTAKE**: Accessioning & Smart-ID Generation
-3.  **🥚 EGGS & BINS**: Inventory Management
-4.  **🔍 OBSERVATIONS**: The Daily Maintenance Round
+1.  **� QUICK INDEX**: "How Do I...?" (5-Second Reference)
+2.  **�📟 DASHBOARD**: Operational Awareness
+3.  **📥 INTAKE**: Accessioning & Smart-ID Generation
+4.  **🔍 OBSERVATIONS**: Daily Maintenance & **Health Matrix**
 5.  **🐣 HATCHLINGS**: The Transition Ledger
-6.  **📉 REPORTS**: Forensic Audit & Data Exports
-7.  **🛠️ ADVANCED WORKFLOWS**: (Batch & Injured Mother Use-Cases)
-8.  **🆘 TROUBLESHOOTING**: Correcting Mistakes
+6.  **� DATA EXPORTS**: The WormD Rosetta Stone
+7.  **🆘 CRISIS PROTOCOL**: Offline "Vault-Sync" Procedures
 
 ---
 
-### 1. 📟 DASHBOARD: The Command Center
-**The Goal:** Use this screen to instantly identify which eggs or bins require immediate biological intervention.
+### 1. � QUICK INDEX: "HOW DO I...?"
 
-*   **Help Needed Metric:** If this number is greater than zero, eggs are currently in a "Molding" or "Leaking" state.
-*   **Active Inventory:** A real-time count of all living subjects currently in the vault.
-
-**Tactical Step:** Check the **Health Alerts** section first thing every morning. If an alert is red, proceed immediately to the **Observations** page for that Bin.
-
----
-
-### 2. 📥 INTAKE: Accessioning
-**The Goal:** Legally and clinically enroll a Mother turtle into the WINC registry.
-
-**Standard Workflow (New Case):**
-1.  Select **Species**.
-2.  Enter **Mother Name** (Internal WINC label or Case Number).
-3.  Enter **Intake Date** and **Condition Notes**.
-4.  **Click [Complete Intake]**: This generates the unique **Mother ID** used for all child records.
-
-**The "Why":** Without a Mother ID, the system cannot link eggs to their genetic lineage.
+| If you want to... | Go to Page... |
+| :--- | :--- |
+| Enroll a new salvaged Mother | Page 4 (Intake) |
+| Add more eggs to an existing bin | Page 8 (Advanced Intake) |
+| Score mold on an individual egg | Page 5 (Observations) |
+| **The Wi-Fi/Internet has failed** | **Page 12 (Crisis Mode)** |
+| Export data for an annual report | Page 10 (Exports) |
 
 ---
 
-### 3. 🛠️ ADVANCED WORKFLOWS
-**The Goal:** Handle non-standard biological events without corrupting the database.
+### 4. � OBSERVATIONS: The Clinical Health Matrix
+**Goal:** Consistent Health Scoring across all staff members.
 
-#### A. The "Batch Intake" (Efficiency)
-When processing 50+ eggs, do not enter them separately.
-*   **Workflow:** Use the **Bulk Enrollment** tool on the Egg Ledger page. Enter the total count, and the system will auto-increment suffixes (e.g., -01, -02).
-
-#### B. The "Injured Mother" (Delayed Clutch)
-**Use Case:** An injured mother is held in the clinic and provides a second clutch 3 days after the first.
-1.  **DO NOT** create a new Mother record.
-2.  Search for the existing **Mother ID**.
-3.  Select **[Add New Bin to Existing Case]**.
-4.  Populate the new bin with the secondary clutch.
-*   **Success Measure:** The system shows two Bins (Bin A & Bin B) under a single Mother ID.
+| Score | Clinical Description | Digital Action |
+| :--- | :--- | :--- |
+| **0** | **Sterile.** No visible fuzz, odor, or fluid. | Leave Sliders at 0. |
+| **1** | **Trace Indicator.** Localized "grey mist" on shell. | Move Molding to 1. |
+| **2** | **Degradation.** Solid fungal mats or fluid leak. | Move Slider to 2; Add Note. |
+| **3** | **Critical/Necrotic.** Potential non-viability. | ⚠️ **ISOLATE**; Score 3. |
 
 ---
 
-### 4. 🔍 OBSERVATIONS: The Daily Round
-**The Goal:** Record the biological trajectory of each egg using the 0–3 Clinical Scale.
+### 6. 📊 DATA EXPORTS: The WormD Rosetta Stone
+**Goal:** Eliminate confusion when mapping exported CSV data to clinical reports.
 
-**The Health Slider Logic:**
-*   **0 (Clean):** No visible mold, leaks, or dents.
-*   **1 (Trace):** Minimal fuzzy growth or slight fluid glistening.
-*   **2 (Moderate):** Significant mold requiring sanitation; clear moisture deficit (dent).
-*   **3 (Critical):** Immediate isolation required; high risk of non-viability.
-
-**Weight Gate:**
-*   If the system displays a **Negative Mass Deficit**, you must add water to the substrate until the weight matches the **Target Weight** displayed on the screen.
+| System Header ID | Clinical Report Label | Unit |
+| :--- | :--- | :--- |
+| `mother_id` | Maternal Accession Number | Text |
+| `bin_weight_g` | Incubator Mass | Grams |
+| `moisture_deficit_g` | Rehydration Requirement | Grams/ML |
+| `chalking` | Calcium Deposition Index | 0-2 Scale |
 
 ---
 
-### 5. 🆘 TROUBLESHOOTING: Fixing Mistakes
-**I entered the wrong egg weight:**
-*   Navigate to the Observations grid, find the timestamped entry, and use the **[Edit]** tool (Admin only) or enter a **New Corrective Observation** immediately. The system prioritizes the most recent timestamp.
+### 7. 🆘 CRISIS PROTOCOL: The Offline Fallback
+**Goal:** 100% Data Integrity during network or system downtime.
 
-**An ID was generated for a non-existent egg:**
-*   Set the status to **"Void/Error."** Do not attempt to re-use the ID for a different egg, as this breaks the audit trail.
+**If the Vault is unreachable:**
+1.  **Cease Digital Entry:** Do not attempt to refresh the app (you may lose cached input).
+2.  **Deploy "Vault-Sync" Sheet:** Retrieve the printed Field Sheet from the back of this binder.
+3.  **Perform Manual Audit:** Record IDs, Weights, and Health Scores on Paper.
+4.  **The Re-Sync:** Once connectivity is restored, enter the paper data into the **Observations** screen.
+    *   *Note: Because the paper log matches the screen layout, you can batch-enter 50 eggs in under 3 minutes.*
 
 ---
 
 <div style="page-break-after: always;"></div>
 
 **WINC Sovereign Documentation © 2026**  
-*Validated by SME, SWE, and Technical Writing Master Editor.*
+*Hardened for Field Resilience. Verified by PM, SWE, and Red Team.*
