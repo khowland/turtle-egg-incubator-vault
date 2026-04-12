@@ -18,12 +18,30 @@ svg_content = f"""<svg width="612" height="792" viewBox="0 0 612 792" xmlns="htt
     <!-- The Illustration (Base64) -->
     <image xlink:href="data:image/png;base64,{img_b64}" x="30" y="180" width="552" height="430" preserveAspectRatio="xMidYMid slice" />
     
-    <!-- Header Bubble -->
-    <rect x="30" y="40" width="552" height="120" rx="30" fill="white" stroke="#27ae60" stroke-width="6" />
+    <!-- Header Bubble (Removed, moved to overlay) -->
     
-    <!-- Title Text -->
-    <text x="306" y="95" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="34" fill="#27ae60">WINC</text>
-    <text x="306" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="22" fill="#2c3e50">TURTLE EGG INCUBATION AND HATCHING SYSTEM</text>
+    <!-- Title Text (Curved Path Over Artwork) -->
+    <defs>
+        <path id="titleCurve" d="M 50,210 Q 306,120 562,210" />
+        <filter id="shadow" x="0" y="0" width="200%" height="200%">
+            <feOffset result="offOut" in="SourceAlpha" dx="3" dy="3" />
+            <feGaussianBlur result="blurOut" in="offOut" stdDeviation="3" />
+            <feBlend in="SourceHighlight" in2="blurOut" mode="normal" />
+        </filter>
+    </defs>
+    
+    <text font-family="Arial Black, sans-serif" font-size="28" fill="#27ae60" filter="url(#shadow)">
+        <textPath xlink:href="#titleCurve" startOffset="50%" text-anchor="middle">
+            WINC TURTLE EGG INCUBATION AND HATCHING SYSTEM
+        </textPath>
+    </text>
+    
+    <!-- White Outline for Contrast -->
+    <text font-family="Arial Black, sans-serif" font-size="28" fill="none" stroke="white" stroke-width="1" opacity="0.8">
+        <textPath xlink:href="#titleCurve" startOffset="50%" text-anchor="middle">
+            WINC TURTLE EGG INCUBATION AND HATCHING SYSTEM
+        </textPath>
+    </text>
     
     <!-- Footer Block (Removed Center Block, replaced with small right-aligned text) -->
     <rect x="0" y="740" width="612" height="52" fill="white" />
