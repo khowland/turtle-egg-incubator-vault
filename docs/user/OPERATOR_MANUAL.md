@@ -1,84 +1,72 @@
-# 🐢 WINC Clinical Incubator System v10.3.0
-## "The Visual Edition" — Illustrated System Guide
+# 🐢 WINC Clinical Incubator System v10.4.0
+## "The Final Hardened Edition" — Sovereign Master Reference
 
 **North Star Objective:** To provide a screen-by-screen tactical manual that transforms physical clinical workflows into simple, failure-proof digital steps using best-in-class graphics.
 
 ---
 
 ### 📑 TABLE OF CONTENTS
-1.  **🧭 NAVIGATION**: The Sidebar Icons
-2.  **🏠 HOME**: The Dashboard Overview
-3.  **📥 INTAKE**: Adding New Turtles
-4.  **📦 BINS & EGGS**: The Inventory View
-5.  **🔍 DAILY SCAN**: Health & Weight Entries
-6.  **🐣 HATCHING**: Finishing a Case
-7.  **📊 DATA EXPORTS**: Saving Reports
+1.  **🔍 QUICK INDEX**: "How Do I...?"
+2.  **🛡️ LAB RULES**: Team Safety & Coordination
+3.  **🏠 HOME**: Dashboard Metrics
+4.  **📥 INTAKE**: Adding New Cases
+5.  **🔍 DAILY SCAN**: Health Matrix & **Safety Rules**
+6.  **🐣 HATCHING**: Outcomes & **Vitality Scoring**
+7.  **📊 EXPORTS**: The Rosetta Stone
+8.  **📖 GLOSSARY**: Vocabulary of the Vault
+9.  **📜 HISTORY**: Document Control Log
 
 ---
 
-### 1. 🧭 NAVIGATION (The Sidebar)
-**Goal:** Learn how to move between work phases.
+### 2. 🛡️ LAB RULES: Safety & Coordination
+**Goal:** Prevent data errors and protect clinical subjects.
 
-**{[B] SCREENSHOT: The Main Sidebar Navigation Menu [/B]}**
-
----
-
-### 2. 🏠 HOME (The Dashboard)
-**Goal:** See the health of the entire lab at a glance.
-
-**{[B] SCREENSHOT: The Dashboard / Home Screen [/B]}**
-
-**Clinical Logic Diagram:**
-*   **High Help Needed** → Proceed to **Observations**.
-*   **Low Battery/Disconnected** → Proceed to **Crisis Protocol**.
+*   **Team Coordination:** Always announce which **Bin** you are opening digitally. If two people save data for the same egg at the same time, the second person may overwrite the first.
+*   **The 10-Second Rule:** During candling (shining light through eggs), **never** keep the light on the egg for more than 10 seconds. High heat can damage the developing hatchling.
 
 ---
 
-### 3. 📥 INTAKE (Adding New Turtles)
-**Goal:** Create a new record for a mother turtle and her eggs.
-
-**{[B] SCREENSHOT: The Intake Page / New Entry Screen [/B]}**
-
-**The Workflow Choice:**
-*   **Route A (New Case):** Mother → No ID yet? → Create New Intake.
-*   **Route B (Existing Case):** Mother → ID already exists? → Use "Add Bin" tool.
-
----
-
-### 4. 📦 BINS & EGGS (Inventory)
-**Goal:** Manage where eggs are physically kept in the lab.
-
-**{[B] SCREENSHOT: The Bin Management & Egg Ledger Screens [/B]}**
-
-**The ID Hierarchy (System Schematic):**
-```
-[Mother ID: M2026-X]
-   ├── [Bin ID: B-01] -> [Egg ID -01, -02, -03...]
-   └── [Bin ID: B-02] -> [Egg ID -04, -05, -06...]
-```
-
----
-
-### 5. 🔍 DAILY SCAN (Observations)
-**Goal:** Record the health (0–3) and weight of each egg.
-
+### 4. 🔍 DAILY SCAN: The 0-3 Health Matrix
 **{[B] SCREENSHOT: The Observation Entry Screen showing Health Sliders [/B]}**
 
-**The Health Decision Tree (System Action):**
-1.  **Look** at Egg → **See** Mold.
-2.  **Score** the Scale (1, 2, or 3).
-3.  **Click Update** → System triggers Dashboard Alert.
+| Score | Physical Sign | System Action |
+| :--- | :--- | :--- |
+| **0** | Clean, white, dry. | No Action. |
+| **1** | Grey fuzz or dampness. | Set Molding: 1. |
+| **2** | Heavy mold/Denting. | Set Slider: 2; Check Weight. |
+| **3** | Dark/leaking/smelly. | Set Slider: 3; ⚠️ **SOLATE**. |
 
 ---
 
-### 7. 📊 DATA EXPORTS (Reporting)
-**Goal:** Download your data for annual reports.
+### 6. � HATCHING: Vitality Scoring
+**Goal:** Record the health of the hatchling once it leaves the egg.
 
-**{[B] SCREENSHOT: The Reports Page showing Download CSV/JSON buttons [/B]}**
+**Hatchling Vitality Scale (0–5):**
+*   **5 (Excellent):** Active, strong righting reflex, fully absorbed yolk.
+*   **3 (Guarded):** Weak movement, large unabsorbed yolk sac.
+*   **0 (Non-Viable):** Did not survive the pipping process.
+
+**Tactical Step:** Go to the **Hatchling Ledger** page → Find the Egg ID → Select the Vitality Score → Click **[Finalize Case]**.
+
+---
+
+### 8. � GLOSSARY: Vocabulary of the Vault
+*   **Mother ID**: The main case number for the mother turtle (Year-Sequence).
+*   **Bin ID**: The label for the plastic box where the eggs live.
+*   **Egg ID**: The individual ID number for every single egg.
+*   **Mass Deficit**: How much weight a bin has lost (Needs water!).
+*   **Pipping**: The moment the hatchling first pokes a hole in the shell.
+
+---
+
+### 9. � HISTORY: Document Control
+*   **v9.0.0**: Original release (Limited detail).
+*   **v10.0.0**: "The Clinical Bible" (Tactical overhaul).
+*   **v10.4.0**: Final Hardened Edition (Safety & Glossary integration).
 
 ---
 
 <div style="page-break-after: always;"></div>
 
 **WINC Sovereign Documentation © 2026**  
-*Illustrated. Tactical. Failure-Proof.*
+*Hardened. Professional. Finalized.*
