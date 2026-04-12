@@ -27,7 +27,7 @@
 
 1.  Find your name in the list.
 2.  Click your **Observer Name**.
-3.  The system will create a **4-hour session**. If you stop working for more than 4 hours, you will need to sign in again to keep your data safe.
+3.  Every time you open the app, just select your name from the list. If you return to the system within 4 hours of your last visit, the Vault will automatically group your work into the same session. This keeps our daily reports neat and easy to read.
 
 ---
 
