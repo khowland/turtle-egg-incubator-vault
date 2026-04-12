@@ -1,0 +1,53 @@
+vault_views/1_Dashboard.py
+    F 39:0 fetch_key_performance_indicators - B
+    F 146:16 retire_bin - A
+vault_views/2_New_Intake.py
+    ERROR: expected an indented block after 'try' statement on line 170 (<unknown>, line 171)
+vault_views/3_Observations.py
+    F 628:16 commit_batch - C
+    F 442:24 surgical_void - B
+    F 116:12 append_eggs - A
+    F 374:0 sort_key - A
+    F 71:12 create_sup_bin - A
+    F 323:16 unlock - A
+vault_views/5_Settings.py
+    F 185:8 sync_species - B
+    F 114:12 sync_users - A
+    F 262:28 restore_bin - A
+    F 295:28 restore_mom - A
+vault_views/6_Reports.py
+    F 314:0 load_analytical_data - B
+    F 273:12 _log_export - A
+    F 428:4 audit_export - A
+vault_views/7_Diagnostic.py
+    F 28:8 run_ping - A
+vault_views/8_Help.py
+    F 70:8 get_image_base64 - A
+utils/audit.py
+    F 20:0 logged_write - A
+    F 63:0 safe_db_execute - A
+utils/bootstrap.py
+    F 21:0 bootstrap_page - B
+    F 146:0 safe_db_execute - A
+    F 107:0 get_last_bin_weight - A
+    F 141:0 get_resilient_table - A
+utils/db.py
+    F 32:0 get_supabase_client - A
+    F 67:0 check_connection - A
+    F 56:0 clear_vault_cache - A
+utils/rbac.py
+    F 9:0 can_elevated_clinical_operations - A
+    F 13:0 require_elevated_clinical - A
+utils/session.py
+    F 40:0 show_splash_screen - C
+    F 24:0 init_session - A
+    F 170:0 render_custom_sidebar - A
+utils/visuals.py
+    F 21:0 render_egg_icon - A
+utils/wormd_export.py
+    F 46:0 build_wormd_intake_json_bundle - C
+    F 31:0 build_flat_case_csv - A
+    F 27:0 _utc_now_iso - A
+
+35 blocks (classes, functions, methods) analyzed.
+Average complexity: A (4.142857142857143)

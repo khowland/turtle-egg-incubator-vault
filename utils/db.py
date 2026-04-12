@@ -3,8 +3,10 @@
 Module:        utils/db.py
 Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
 Requirement:   Matches Standard [§35, §36]
-Dependencies:  supabase, python-dotenv
-Inputs:        Enviroment Variables (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+Upstream:      utils/audit.py, utils/bootstrap.py, utils/session.py
+Downstream:    supabase, python-dotenv
+Use Cases:     [Pending - Describe practical usage here]
+Inputs:        Enviroment Variables (SUPABASE_URL, SUPABASE_ANON_KEY)
 Outputs:       Supabase Client Singleton
 Description:   Supabase client initialization and singleton management.
 =============================================================================
@@ -25,20 +27,24 @@ load_dotenv()
 #              the client on every Streamlit page re-run.
 # =============================================================================
 
+
 @st.cache_resource
 def get_supabase_client() -> Client:
     """Initializes and returns a cached Supabase client instance."""
     url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-    
+    key = os.getenv("SUPABASE_ANON_KEY")
+
     # Requirement: Fail fast with clear error if credentials are missing
     if not url or not key:
         logger.error("❌ Supabase credentials missing from .env environment.")
-        st.error("❌ **Supabase credentials missing.** Check your `.env` file for `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.")
+        st.error(
+            "❌ **Supabase credentials missing.** Check your `.env` file for `SUPABASE_URL` and `SUPABASE_ANON_KEY`."
+        )
         st.stop()
-    
+
     logger.info(f"🔌 Initializing Supabase Connection: {url[:40]}...")
     return create_client(url, key)
+
 
 # =============================================================================
 # SECTION: Cache Management
@@ -46,10 +52,12 @@ def get_supabase_client() -> Client:
 #              Called by audit.py after every successful logged_write().
 # =============================================================================
 
+
 def clear_vault_cache():
     """Clears Streamlit's data cache to force fresh reads from Supabase."""
     logger.warning("🧹 Autonomous Sync: Clearing data cache for fresh reads.")
     st.cache_data.clear()
+
 
 # -----------------------------------------------------------------------------
 # Function: check_connection
@@ -65,6 +73,7 @@ def check_connection(supabase: Client) -> bool:
     except Exception as e:
         logger.error(f"❌ Supabase connection failed: {e}")
         return False
+
 
 # Alias for easier imports
 get_supabase = get_supabase_client

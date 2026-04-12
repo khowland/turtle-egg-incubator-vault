@@ -1,0 +1,203 @@
+app.py:37:83: E202 whitespace before ')'
+utils/audit.py:17:1: E302 expected 2 blank lines, found 1
+utils/audit.py:24:1: W293 blank line contains whitespace
+utils/audit.py:28:121: E501 line too long (138 > 120 characters)
+utils/audit.py:31:1: W293 blank line contains whitespace
+utils/audit.py:37:1: W293 blank line contains whitespace
+utils/audit.py:47:1: W293 blank line contains whitespace
+utils/audit.py:50:1: E302 expected 2 blank lines, found 1
+utils/audit.py:54:1: W293 blank line contains whitespace
+utils/bootstrap.py:15:1: F401 'datetime' imported but unused
+utils/bootstrap.py:18:1: E302 expected 2 blank lines, found 1
+utils/bootstrap.py:26:1: W293 blank line contains whitespace
+utils/bootstrap.py:33:1: W293 blank line contains whitespace
+utils/bootstrap.py:35:50: E701 multiple statements on one line (colon)
+utils/bootstrap.py:36:45: E701 multiple statements on one line (colon)
+utils/bootstrap.py:37:47: E701 multiple statements on one line (colon)
+utils/bootstrap.py:38:1: W293 blank line contains whitespace
+utils/bootstrap.py:50:1: W293 blank line contains whitespace
+utils/bootstrap.py:62:1: W293 blank line contains whitespace
+utils/bootstrap.py:67:1: W293 blank line contains whitespace
+utils/bootstrap.py:69:1: W293 blank line contains whitespace
+utils/bootstrap.py:70:36: W291 trailing whitespace
+utils/bootstrap.py:74:1: W293 blank line contains whitespace
+utils/bootstrap.py:85:1: W293 blank line contains whitespace
+utils/bootstrap.py:93:1: W293 blank line contains whitespace
+utils/bootstrap.py:96:1: E302 expected 2 blank lines, found 1
+utils/bootstrap.py:103:121: E501 line too long (160 > 120 characters)
+utils/bootstrap.py:104:1: W293 blank line contains whitespace
+utils/bootstrap.py:107:1: W293 blank line contains whitespace
+utils/bootstrap.py:112:1: W293 blank line contains whitespace
+utils/bootstrap.py:115:1: E302 expected 2 blank lines, found 1
+utils/bootstrap.py:119:1: E302 expected 2 blank lines, found 1
+utils/bootstrap.py:126:1: W293 blank line contains whitespace
+utils/bootstrap.py:134:13: E722 do not use bare 'except'
+utils/bootstrap.py:134:19: E701 multiple statements on one line (colon)
+utils/bootstrap.py:135:1: W293 blank line contains whitespace
+utils/bootstrap.py:141:1: W293 blank line contains whitespace
+utils/bootstrap.py:148:9: E722 do not use bare 'except'
+utils/bootstrap.py:149:17: W291 trailing whitespace
+utils/bootstrap.py:150:1: W293 blank line contains whitespace
+utils/bootstrap.py:154:1: W391 blank line at end of file
+utils/db.py:28:1: E302 expected 2 blank lines, found 1
+utils/db.py:33:1: W293 blank line contains whitespace
+utils/db.py:37:121: E501 line too long (130 > 120 characters)
+utils/db.py:39:1: W293 blank line contains whitespace
+utils/db.py:49:1: E302 expected 2 blank lines, found 1
+utils/db.py:59:1: E302 expected 2 blank lines, found 1
+utils/db.py:70:1: E305 expected 2 blank lines after class or function definition, found 1
+utils/session.py:21:1: E302 expected 2 blank lines, found 1
+utils/session.py:32:1: W293 blank line contains whitespace
+utils/session.py:39:1: E302 expected 2 blank lines, found 1
+utils/session.py:40:121: E501 line too long (211 > 120 characters)
+utils/session.py:42:1: W293 blank line contains whitespace
+utils/session.py:44:121: E501 line too long (150 > 120 characters)
+utils/session.py:48:1: W293 blank line contains whitespace
+utils/session.py:54:1: W293 blank line contains whitespace
+utils/session.py:60:17: E722 do not use bare 'except'
+utils/session.py:62:1: W293 blank line contains whitespace
+utils/session.py:69:1: W293 blank line contains whitespace
+utils/session.py:71:1: W293 blank line contains whitespace
+utils/session.py:77:1: W293 blank line contains whitespace
+utils/session.py:82:21: E722 do not use bare 'except'
+utils/session.py:84:1: W293 blank line contains whitespace
+utils/session.py:87:1: W293 blank line contains whitespace
+utils/session.py:90:121: E501 line too long (148 > 120 characters)
+utils/session.py:92:121: E501 line too long (137 > 120 characters)
+utils/session.py:96:121: E501 line too long (139 > 120 characters)
+utils/session.py:101:1: W293 blank line contains whitespace
+utils/session.py:117:1: W293 blank line contains whitespace
+utils/session.py:124:21: E722 do not use bare 'except'
+utils/session.py:126:1: W293 blank line contains whitespace
+utils/session.py:131:1: E302 expected 2 blank lines, found 1
+utils/session.py:135:88: W291 trailing whitespace
+utils/visuals.py:17:1: E302 expected 2 blank lines, found 1
+utils/visuals.py:25:28: W291 trailing whitespace
+utils/visuals.py:29:1: W293 blank line contains whitespace
+utils/visuals.py:32:1: W293 blank line contains whitespace
+utils/visuals.py:34:121: E501 line too long (211 > 120 characters)
+utils/visuals.py:48:1: W293 blank line contains whitespace
+vault_views/0_Login.py:18:13: F541 f-string is missing placeholders
+vault_views/1_Dashboard.py:29:121: E501 line too long (124 > 120 characters)
+vault_views/1_Dashboard.py:32:1: E302 expected 2 blank lines, found 1
+vault_views/1_Dashboard.py:35:1: W293 blank line contains whitespace
+vault_views/1_Dashboard.py:37:121: E501 line too long (174 > 120 characters)
+vault_views/1_Dashboard.py:55:1: W293 blank line contains whitespace
+vault_views/1_Dashboard.py:56:121: E501 line too long (161 > 120 characters)
+vault_views/1_Dashboard.py:59:1: E305 expected 2 blank lines after class or function definition, found 1
+vault_views/1_Dashboard.py:64:121: E501 line too long (147 > 120 characters)
+vault_views/1_Dashboard.py:75:121: E501 line too long (155 > 120 characters)
+vault_views/1_Dashboard.py:82:17: F541 f-string is missing placeholders
+vault_views/1_Dashboard.py:132:1: W293 blank line contains whitespace
+vault_views/1_Dashboard.py:137:86: W291 trailing whitespace
+vault_views/1_Dashboard.py:138:30: E128 continuation line under-indented for visual indent
+vault_views/1_Dashboard.py:150:121: E501 line too long (122 > 120 characters)
+vault_views/2_New_Intake.py:16:1: F401 'datetime' imported but unused
+vault_views/2_New_Intake.py:37:53: W291 trailing whitespace
+vault_views/2_New_Intake.py:50:121: E501 line too long (148 > 120 characters)
+vault_views/2_New_Intake.py:63:1: W293 blank line contains whitespace
+vault_views/2_New_Intake.py:66:1: W293 blank line contains whitespace
+vault_views/2_New_Intake.py:74:121: E501 line too long (135 > 120 characters)
+vault_views/2_New_Intake.py:75:1: W293 blank line contains whitespace
+vault_views/2_New_Intake.py:88:37: E226 missing whitespace around arithmetic operator
+vault_views/2_New_Intake.py:90:121: E501 line too long (130 > 120 characters)
+vault_views/2_New_Intake.py:93:63: E701 multiple statements on one line (colon)
+vault_views/2_New_Intake.py:98:121: E501 line too long (136 > 120 characters)
+vault_views/2_New_Intake.py:170:1: W293 blank line contains whitespace
+vault_views/2_New_Intake.py:173:1: W293 blank line contains whitespace
+vault_views/2_New_Intake.py:182:1: W293 blank line contains whitespace
+vault_views/2_New_Intake.py:195:1: W391 blank line at end of file
+vault_views/3_Observations.py:43:121: E501 line too long (154 > 120 characters)
+vault_views/3_Observations.py:64:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:66:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:69:121: E501 line too long (134 > 120 characters)
+vault_views/3_Observations.py:70:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:77:121: E501 line too long (141 > 120 characters)
+vault_views/3_Observations.py:83:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:93:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:106:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:109:63: W291 trailing whitespace
+vault_views/3_Observations.py:110:40: W291 trailing whitespace
+vault_views/3_Observations.py:117:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:120:121: E501 line too long (122 > 120 characters)
+vault_views/3_Observations.py:156:121: E501 line too long (130 > 120 characters)
+vault_views/3_Observations.py:166:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:169:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:171:35: E701 multiple statements on one line (colon)
+vault_views/3_Observations.py:172:18: E701 multiple statements on one line (colon)
+vault_views/3_Observations.py:189:121: E501 line too long (152 > 120 characters)
+vault_views/3_Observations.py:202:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:205:121: E501 line too long (167 > 120 characters)
+vault_views/3_Observations.py:206:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:207:121: E501 line too long (145 > 120 characters)
+vault_views/3_Observations.py:208:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:222:121: E501 line too long (121 > 120 characters)
+vault_views/3_Observations.py:225:121: E501 line too long (125 > 120 characters)
+vault_views/3_Observations.py:233:121: E501 line too long (145 > 120 characters)
+vault_views/3_Observations.py:247:1: E302 expected 2 blank lines, found 1
+vault_views/3_Observations.py:248:8: E701 multiple statements on one line (colon)
+vault_views/3_Observations.py:249:5: E722 do not use bare 'except'
+vault_views/3_Observations.py:249:11: E701 multiple statements on one line (colon)
+vault_views/3_Observations.py:251:1: E305 expected 2 blank lines after class or function definition, found 1
+vault_views/3_Observations.py:293:121: E501 line too long (127 > 120 characters)
+vault_views/3_Observations.py:294:121: E501 line too long (122 > 120 characters)
+vault_views/3_Observations.py:336:121: E501 line too long (150 > 120 characters)
+vault_views/3_Observations.py:342:121: E501 line too long (131 > 120 characters)
+vault_views/3_Observations.py:367:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:369:38: W291 trailing whitespace
+vault_views/3_Observations.py:370:42: W291 trailing whitespace
+vault_views/3_Observations.py:371:45: W291 trailing whitespace
+vault_views/3_Observations.py:375:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:378:27: E701 multiple statements on one line (colon)
+vault_views/3_Observations.py:379:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:387:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:389:63: E701 multiple statements on one line (colon)
+vault_views/3_Observations.py:405:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:409:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:410:31: E231 missing whitespace after ','
+vault_views/3_Observations.py:410:36: E231 missing whitespace after ','
+vault_views/3_Observations.py:410:41: E231 missing whitespace after ','
+vault_views/3_Observations.py:410:46: E231 missing whitespace after ','
+vault_views/3_Observations.py:410:51: E231 missing whitespace after ','
+vault_views/3_Observations.py:410:56: E231 missing whitespace after ','
+vault_views/3_Observations.py:413:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:416:121: E501 line too long (122 > 120 characters)
+vault_views/3_Observations.py:417:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:424:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:427:1: W293 blank line contains whitespace
+vault_views/3_Observations.py:544:13: E741 ambiguous variable name 'l'
+vault_views/5_Settings.py:27:121: E501 line too long (167 > 120 characters)
+vault_views/5_Settings.py:41:121: E501 line too long (134 > 120 characters)
+vault_views/5_Settings.py:65:121: E501 line too long (155 > 120 characters)
+vault_views/5_Settings.py:67:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:70:38: W291 trailing whitespace
+vault_views/5_Settings.py:72:33: E261 at least two spaces before inline comment
+vault_views/5_Settings.py:74:121: E501 line too long (126 > 120 characters)
+vault_views/5_Settings.py:75:121: E501 line too long (143 > 120 characters)
+vault_views/5_Settings.py:81:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:92:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:99:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:104:53: E261 at least two spaces before inline comment
+vault_views/5_Settings.py:113:121: E501 line too long (212 > 120 characters)
+vault_views/5_Settings.py:114:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:117:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:123:32: E261 at least two spaces before inline comment
+vault_views/5_Settings.py:124:121: E501 line too long (132 > 120 characters)
+vault_views/5_Settings.py:135:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:140:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:148:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:157:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:166:1: W293 blank line contains whitespace
+vault_views/5_Settings.py:189:121: E501 line too long (127 > 120 characters)
+vault_views/5_Settings.py:211:121: E501 line too long (135 > 120 characters)
+vault_views/5_Settings.py:222:121: E501 line too long (129 > 120 characters)
+vault_views/6_Reports.py:121:51: E261 at least two spaces before inline comment
+vault_views/8_Help.py:29:1: W293 blank line contains whitespace
+vault_views/8_Help.py:64:1: W293 blank line contains whitespace
+vault_views/8_Help.py:70:1: W293 blank line contains whitespace
+vault_views/8_Help.py:74:37: E701 multiple statements on one line (colon)
+vault_views/8_Help.py:75:50: E701 multiple statements on one line (colon)
+vault_views/8_Help.py:76:1: W293 blank line contains whitespace
+vault_views/8_Help.py:81:13: F841 local variable 'e' is assigned to but never used
+vault_views/8_Help.py:86:121: E501 line too long (121 > 120 characters)
+vault_views/8_Help.py:90:121: E501 line too long (133 > 120 characters)

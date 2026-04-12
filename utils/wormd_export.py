@@ -3,7 +3,9 @@
 Module:        utils/wormd_export.py
 Project:       Incubator Vault v8.1.0 — WINC (Clinical Sovereignty Edition)
 Requirement:   §1.2 Bridge — Ad-hoc WormD-oriented export bundles (ISS-2)
-Dependencies:  datetime, json, typing
+Upstream:      vault_views/6_Reports.py
+Downstream:    datetime, json, typing
+Use Cases:     [Pending - Describe practical usage here]
 Inputs:        Normalized clinical records (dicts from Supabase)
 Outputs:       CSV string, JSON string (versioned intake bundle)
 Description:   Builds flattened case-level CSV and selectable JSON payloads as a
@@ -18,7 +20,6 @@ import io
 import json
 from datetime import datetime, timezone
 from typing import Any
-
 
 EXPORT_SPEC_VERSION = "wormd_intake_bundle_v1"
 
@@ -87,9 +88,15 @@ def build_wormd_intake_json_bundle(
         bundle["bins"] = bins
     if bundle["include"]["eggs"] and eggs is not None:
         bundle["eggs"] = eggs
-    if bundle["include"]["egg_observations_summary"] and egg_observations_summary is not None:
+    if (
+        bundle["include"]["egg_observations_summary"]
+        and egg_observations_summary is not None
+    ):
         bundle["egg_observations_summary"] = egg_observations_summary
-    if bundle["include"]["bin_observations_summary"] and bin_observations_summary is not None:
+    if (
+        bundle["include"]["bin_observations_summary"]
+        and bin_observations_summary is not None
+    ):
         bundle["bin_observations_summary"] = bin_observations_summary
     if bundle["include"]["hatchling_outcomes"] and hatchling_outcomes is not None:
         bundle["hatchling_outcomes"] = hatchling_outcomes

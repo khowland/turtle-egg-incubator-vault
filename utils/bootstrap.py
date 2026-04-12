@@ -3,7 +3,9 @@
 Module:        utils/bootstrap.py
 Project:       Incubator Vault v8.0.0 — WINC (Clinical Sovereignty Edition)
 Requirement:   Matches Standard [§35.1, §36]
-Dependencies:  utils.db
+Upstream:      app.py, utils/session.py, vault_views/1_Dashboard.py, vault_views/2_New_Intake.py, vault_views/3_Observations.py, vault_views/5_Settings.py, vault_views/6_Reports.py, vault_views/7_Diagnostic.py, vault_views/8_Help.py
+Downstream:    utils.db
+Use Cases:     [Pending - Describe practical usage here]
 Inputs:        st.session_state (observer_id, session_id)
 Outputs:       Supabase Client, Cached Metrics
 Description:   Unified Application Bootstrap for Page Config, Theme, and Auditing.
@@ -15,27 +17,31 @@ import uuid
 import datetime
 from utils.db import get_supabase
 
+
 def bootstrap_page(title="Incubator Vault", icon="🐢"):
     """
     Standardized page initialization.
     Ensures Session IDs and Database clients are ready.
     """
     # 1. Ensure Global Session ID for Audit Trace
-    if 'session_id' not in st.session_state:
+    if "session_id" not in st.session_state:
         st.session_state.session_id = str(uuid.uuid4())
-        
+
     # 2. Check Identity (skip when running outside a full ScriptRunContext, e.g. tests)
-    if not st.session_state.get('observer_id'):
+    if not st.session_state.get("observer_id"):
         _script_hash = getattr(st, "active_script_hash", "")
         if _script_hash != "":
             st.warning("⚠️ Session expired or not started. Redirecting...")
             st.stop()
-             
+
     # 3. Global Accessibility Initialization
-    if 'global_font_size' not in st.session_state: st.session_state.global_font_size = 18
-    if 'line_height' not in st.session_state: st.session_state.line_height = 1.6
-    if 'high_contrast' not in st.session_state: st.session_state.high_contrast = False
-        
+    if "global_font_size" not in st.session_state:
+        st.session_state.global_font_size = 18
+    if "line_height" not in st.session_state:
+        st.session_state.line_height = 1.6
+    if "high_contrast" not in st.session_state:
+        st.session_state.high_contrast = False
+
     contrast_css = ""
     if st.session_state.high_contrast:
         contrast_css = """
@@ -44,7 +50,8 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
             .stButton > button { border: 2px solid #000000 !important; font-weight: 800 !important; }
         """
 
-    st.markdown(f"""
+    st.markdown(
+        f"""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         
@@ -89,9 +96,12 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
 
         footer {{ visibility: hidden !important; }}
     </style>
-    """, unsafe_allow_html=True)
-             
+    """,
+        unsafe_allow_html=True,
+    )
+
     return get_supabase()
+
 
 @st.cache_resource(ttl=3600)
 def get_last_bin_weight(bin_id):
@@ -100,21 +110,38 @@ def get_last_bin_weight(bin_id):
     Retrieves the last recorded weight for a bin from the clinical ledger.
     """
     supabase = get_supabase()
-    last_observation = supabase.table('bin_observation').select('bin_weight_g, timestamp').eq('bin_id', bin_id).order('timestamp', desc=True).limit(1).execute()
-    
+    last_observation = (
+        supabase.table("bin_observation")
+        .select("bin_weight_g, timestamp")
+        .eq("bin_id", bin_id)
+        .order("timestamp", desc=True)
+        .limit(1)
+        .execute()
+    )
+
     if last_observation.data:
         return last_observation.data[0]
-    
+
     # Fallback to bin table metadata
-    bin_data = supabase.table('bin').select('target_total_weight_g').eq('bin_id', bin_id).execute()
+    bin_data = (
+        supabase.table("bin")
+        .select("target_total_weight_g")
+        .eq("bin_id", bin_id)
+        .execute()
+    )
     if bin_data.data:
-        return {"bin_weight_g": float(bin_data.data[0].get('target_total_weight_g') or 0.0), "timestamp": None}
-    
+        return {
+            "bin_weight_g": float(bin_data.data[0].get("target_total_weight_g") or 0.0),
+            "timestamp": None,
+        }
+
     return {"bin_weight_g": 0.0, "timestamp": None}
+
 
 def get_resilient_table(supabase, table_name):
     """Standard §35: Direct Table Access."""
     return supabase.table(table_name)
+
 
 def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs):
     """
@@ -123,32 +150,39 @@ def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs)
     """
     try:
         result = func(*args, **kwargs)
-        
+
         if success_message:
             try:
-                get_resilient_table(get_supabase(), 'system_log').insert({
-                    "session_id": st.session_state.get('session_id', 'SYSTEM'),
-                    "event_type": "AUDIT",
-                    "event_message": success_message
-                }).execute()
-            except: pass
-            
+                get_resilient_table(get_supabase(), "system_log").insert(
+                    {
+                        "session_id": st.session_state.get("session_id", "SYSTEM"),
+                        "event_type": "AUDIT",
+                        "event_message": success_message,
+                    }
+                ).execute()
+            except:
+                pass
+
         return result
     except Exception as e:
         import traceback
+
         error_details = traceback.format_exc()
-        st.error(f"❌ Biological Ledger Error ({operation_name}): Defaulting to Safe-State.")
-        
+        st.error(
+            f"❌ Biological Ledger Error ({operation_name}): Defaulting to Safe-State."
+        )
+
         try:
-            get_resilient_table(get_supabase(), 'system_log').insert({
-                "session_id": st.session_state.get('session_id', 'UNKNOWN_ERR'),
-                "event_type": "ERROR",
-                "event_message": f"[{operation_name}] CRASH: {str(e)}"
-            }).execute()
+            get_resilient_table(get_supabase(), "system_log").insert(
+                {
+                    "session_id": st.session_state.get("session_id", "UNKNOWN_ERR"),
+                    "event_type": "ERROR",
+                    "event_message": f"[{operation_name}] CRASH: {str(e)}",
+                }
+            ).execute()
         except:
-            pass 
-            
+            pass
+
         with st.expander("🔍 Differential Diagnosis (Technical Details)"):
             st.code(error_details)
         return None
-

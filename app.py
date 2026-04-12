@@ -3,13 +3,16 @@
 Module:        app.py
 Project:       WINC Incubator System
 Requirement:   Matches Standard [§35, §36]
-Dependencies:  utils.session
+Upstream:      devtools/a0_models.py
+Downstream:    utils.session
+Use Cases:     [Pending - Describe practical usage here]
 Inputs:        st.session_state (observer_id, observer_role)
 Outputs:       st.navigation
 Description:   Core router mapping the session states to Views; Diagnostics for
                trusted roles only (ISS-10).
 =============================================================================
 """
+
 import streamlit as st
 from utils.session import init_session
 from utils.bootstrap import bootstrap_page
@@ -20,7 +23,7 @@ bootstrap_page("WINC Incubator", "🐢")
 init_session()
 
 # Navigation definition
-if not st.session_state.get('observer_id'):
+if not st.session_state.get("observer_id"):
     # ONLY Login page visible when not logged in
     pages = [st.Page("vault_views/0_Login.py", title="Welcome", icon="🐢")]
 else:
@@ -33,8 +36,10 @@ else:
         st.Page("vault_views/6_Reports.py", title="Download Data", icon="📈"),
     ]
     if can_elevated_clinical_operations():
-        pages.append(st.Page("vault_views/7_Diagnostic.py", title="System Check", icon="🩺"))
-    pages.append(st.Page("vault_views/8_Help.py", title="Help & Manual", icon="📚") )
+        pages.append(
+            st.Page("vault_views/7_Diagnostic.py", title="System Check", icon="🩺")
+        )
+    pages.append(st.Page("vault_views/8_Help.py", title="Help & Manual", icon="📚"))
 
 pg = st.navigation(pages)
 pg.run()

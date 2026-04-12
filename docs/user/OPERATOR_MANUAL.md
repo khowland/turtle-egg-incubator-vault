@@ -48,6 +48,12 @@
 **⚠️ THE 10-SECOND SAFETY RULE:**
 When using a light to candle an egg, **never** keep the light on the egg for more than 10 seconds. High heat can cook the subject. If you need more time, turn the light off for 1 minute before trying again.
 
+**🥚 The Chalking Scale (Health Indicator):**
+When candling, you will record the egg's "chalking" (the white calcification of the shell as the turtle grows). Use the simple 3-step scale:
+*   **None:** The egg is entirely translucent/pink. (May indicate an infertile "slug").
+*   **Partial:** A distinct white spot or band is visible, but the bottom is still pink.
+*   **Full:** The entire egg has turned opaque white. (Robust, healthy development).
+
 ---
 
 ### 7. 🐣 HATCHING (Outcomes)

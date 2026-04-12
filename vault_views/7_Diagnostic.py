@@ -3,7 +3,9 @@
 Module:        vault_views/7_Diagnostic.py
 Project:       Incubator Vault v8.1.0 — WINC (Clinical Sovereignty Edition)
 Requirement:   Matches Standard [§35, §36]
-Dependencies:  utils.bootstrap
+Upstream:      None (Entry point or dynamic)
+Downstream:    utils.bootstrap
+Use Cases:     [Pending - Describe practical usage here]
 Inputs:        st.session_state (session_id)
 Outputs:       Health Status Diagnostics
 Description:   System health checks prior to peak intake; navigation gated in app.py.
@@ -20,11 +22,16 @@ st.caption("Perform these checks prior to a major influx of eggs.")
 
 # --- Connectivity Heartbeat ---
 st.subheader("1. Connectivity Heartbeat")
-if st.button("Run Connection Ping"):
+if st.button("START", help="Run Connection Ping"):
     with st.spinner("Pinging Biological Ledger..."):
 
         def run_ping():
-            return supabase_client.table("species").select("species_id", count="exact").limit(1).execute()
+            return (
+                supabase_client.table("species")
+                .select("species_id", count="exact")
+                .limit(1)
+                .execute()
+            )
 
         ping_result = safe_db_execute("Ping", run_ping)
         if ping_result is not None:
@@ -34,17 +41,24 @@ if st.button("Run Connection Ping"):
 
 # --- Sequence Logic Check ---
 st.subheader("2. Sequence Logic Check")
-if st.button("Verify Intake Counter"):
+if st.button("START", help="Verify Intake Counter"):
     with st.spinner("Analyzing species sequence..."):
-        bl_species_result = supabase_client.table("species").select("intake_count").eq("species_id", "BL").execute()
+        bl_species_result = (
+            supabase_client.table("species")
+            .select("intake_count")
+            .eq("species_id", "BL")
+            .execute()
+        )
         if bl_species_result.data:
             current_count = bl_species_result.data[0]["intake_count"]
-            st.info(f"🧬 Current Blanding's sequential header: **BL{current_count + 1}**")
+            st.info(
+                f"🧬 Current Blanding's sequential header: **BL{current_count + 1}**"
+            )
             st.success("✅ Sequence logic valid.")
 
 # --- Audit Layer Trace ---
 st.subheader("3. Audit Layer Trace (§6.53)")
-if st.button("Verify Active Session ID"):
+if st.button("START", help="Verify Active Session ID"):
     st.write(f"Your session ID for this audit: `{st.session_state.session_id}`")
     st.success("✅ Audit propagation active.")
 

@@ -1,0 +1,40 @@
+services:
+  agent-zero:
+    image: agent0ai/agent-zero:latest
+    container_name: TurtleDB_Development_Agent
+    volumes:
+      - .:/a0/usr/workdir
+      - ./devtools/expert.md:/a0/expert.md
+      - ./devtools/qa_expert.md:/a0/qa_expert.md
+      - ./.env:/a0/.env
+    ports:
+      - 50081:80
+    env_file: .env
+    environment:
+      - WORKSPACE_DIR=/a0/usr/workdir
+      - LITELLM_LOGGING=ERROR
+    depends_on:
+      - mcp-supabase
+    stdin_open: true
+    tty: true
+    restart: always
+
+  mcp-supabase:
+    image: node:18-slim
+    container_name: IncubatorVault_MCP
+    env_file: .env
+    command: >
+      sh -c "npx -y @supabase/mcp-server-supabase@latest --access-token ${SUPABASE_MANAGEMENT_API_TOKEN}"
+    stdin_open: true
+    tty: true
+    restart: always
+
+  turtle-db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: TurtleDB_Production_Vault
+    ports:
+      - "${AXIS_PORT:-8080}:8080"
+    env_file: .env
+    restart: always
