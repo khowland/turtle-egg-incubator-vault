@@ -18,11 +18,10 @@
 
 ---
 
-### 2. 🛡️ LAB RULES: Safety & Coordination
-**Goal:** Prevent data errors and protect clinical subjects.
+### 2. 🛡️ LAB RULES: Safety First
+**Goal:** Protect clinical subjects and ensure data accuracy.
 
-*   **Team Coordination:** Always announce which **Bin** you are opening digitally. If two people save data for the same egg at the same time, the second person may overwrite the first.
-*   **The 10-Second Rule:** During candling (shining light through eggs), **never** keep the light on the egg for more than 10 seconds. High heat can damage the developing hatchling.
+*   **The 10-Second Rule:** During candling (shining light through eggs to see veins), **never** keep the light on the egg for more than 10 seconds. High heat from the bulb can damage the developing hatchling inside.
 
 ---
 
