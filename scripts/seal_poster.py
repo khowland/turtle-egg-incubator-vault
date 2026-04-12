@@ -10,33 +10,48 @@ SVG_PATH = ROOT_DIR / "assets/manual/poster_cover.svg"
 with open(IMG_PATH, "rb") as f:
     img_b64 = base64.b64encode(f.read()).decode()
 
-# Layout Settings
-font_title = "Arial Black, sans-serif"
-font_regular = "Arial, sans-serif"
-color_main = "#ffffff"  # High contrast white for dark pond/grass bg
-color_accent = "#2ecc71" # Clinical Green
-
 svg_content = f"""<svg width="612" height="792" viewBox="0 0 612 792" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Background Frame -->
-    <rect width="612" height="792" fill="#2c3e50" />
-    
-    <!-- The Illustration (Full Bleed) -->
+    <defs>
+        <!-- Stylized Title Gradient -->
+        <linearGradient id="titleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#2ecc71;stop-opacity:1" />
+        </linearGradient>
+        
+        <!-- Text Shadow for Readability -->
+        <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+            <feOffset dx="2" dy="2" result="offsetblur" />
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.5" />
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+    </defs>
+
+    <!-- The Master Artwork (Full Bleed) -->
     <image xlink:href="data:image/png;base64,{img_b64}" x="0" y="0" width="612" height="792" preserveAspectRatio="xMidYMid slice" />
     
-    <!-- TWO-LINE TITLE (Flat contrasting, Large) -->
-    <text x="306" y="90" text-anchor="middle" font-family="{font_title}" font-size="38" fill="{color_main}">WINC TURTLE EGG INCUBATION</text>
-    <text x="306" y="140" text-anchor="middle" font-family="{font_title}" font-size="38" fill="{color_main}">AND HATCHING SYSTEM</text>
+    <!-- DESIGNED TITLE BLOCK -->
+    <g filter="url(#textShadow)">
+        <text x="306" y="85" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-weight="900" font-size="36" fill="url(#titleGrad)" stroke="#1b5e20" stroke-width="1.5">WINC TURTLE EGG INCUBATION</text>
+        <text x="306" y="135" text-anchor="middle" font-family="Verdana, Geneva, sans-serif" font-weight="900" font-size="34" fill="url(#titleGrad)" stroke="#1b5e20" stroke-width="1.5">&amp; HATCHING SYSTEM</text>
+    </g>
     
-    <!-- OFFICIAL LABEL (Center Bottom) -->
-    <text x="306" y="740" text-anchor="middle" font-family="{font_title}" font-size="18" fill="{color_main}">OFFICIAL OPERATOR'S MANUAL</text>
+    <!-- OFFICIAL STATUS BAR -->
+    <rect x="156" y="715" width="300" height="30" rx="15" fill="rgba(44, 62, 80, 0.85)" stroke="#ffffff" stroke-width="1" />
+    <text x="306" y="736" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="#ffffff" letter-spacing="2">OFFICIAL USER MANUAL</text>
     
-    <!-- CREDITS (Lower Right, Conservative) -->
-    <text x="580" y="765" text-anchor="end" font-family="{font_regular}" font-size="12" font-weight="bold" fill="{color_main}">Developed by Kevin Howland</text>
-    <text x="580" y="780" text-anchor="end" font-family="{font_regular}" font-size="10" fill="{color_main}">it2howland@gmail.com | v10.5.1</text>
+    <!-- CONSERVATIVE SIGNATURE -->
+    <text x="590" y="770" text-anchor="end" font-family="Georgia, serif" font-style="italic" font-size="11" fill="#2c3e50">Developed by Kevin Howland</text>
+    <text x="590" y="785" text-anchor="end" font-family="Arial, sans-serif" font-weight="bold" font-size="9" fill="#7f8c8d">VERSION 10.5.2</text>
     
 </svg>"""
 
 with open(SVG_PATH, "w") as f:
     f.write(svg_content)
 
-print(f"✅ Success: Locked Final Master into {SVG_PATH}")
+print(f"✅ Success: Applied Designer Typography to {SVG_PATH}")
