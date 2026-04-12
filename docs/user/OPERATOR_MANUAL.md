@@ -1,4 +1,4 @@
-![WINC Manual Cover Poster](../../assets/manual/poster_cover.svg)
+![WINC Manual Cover Poster](../../assets/manual/operators_manual_cover_page.png)
 
 ---
 
