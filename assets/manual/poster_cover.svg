@@ -13,14 +13,16 @@
     <text x="306" y="105" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="54" fill="#27ae60">WINC</text>
     <text x="306" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="20" fill="#2c3e50">TURTLE EGG INCUBATION SYSTEM</text>
     
-    <!-- Footer Block -->
-    <rect x="0" y="650" width="612" height="142" fill="#2c3e50" />
-    <rect x="0" y="650" width="612" height="8" fill="#27ae60" />
+    <!-- Footer Block (Removed Center Block, replaced with small right-aligned text) -->
+    <rect x="0" y="740" width="612" height="52" fill="white" />
+    <rect x="0" y="740" width="612" height="4" fill="#27ae60" />
     
-    <!-- Credit Text -->
-    <text x="306" y="705" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="32" fill="#2ecc71">Developed by Kevin Howland</text>
-    <text x="306" y="735" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#bdc3c7">it2howland@gmail.com | Released: April 2026</text>
-    <text x="306" y="765" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="white">OFFICIAL OPERATOR'S MANUAL v10.5.1</text>
+    <!-- Credit Text (Lower Right, Conservative) -->
+    <text x="582" y="770" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">Developed by Kevin Howland</text>
+    <text x="582" y="785" text-anchor="end" font-family="Arial, sans-serif" font-size="9" fill="#7f8c8d">it2howland@gmail.com | v10.5.1</text>
+    
+    <!-- Version/Title Note (Lower Left) -->
+    <text x="30" y="775" text-anchor="start" font-family="Arial, sans-serif" font-weight="bold" font-size="12" fill="#27ae60">OFFICIAL OPERATOR'S MANUAL</text>
     
     <!-- Version Badge -->
     <polygon points="520,0 580,0 580,80 550,65 520,80" fill="#f1c40f" stroke="black" stroke-width="2" />

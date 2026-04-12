@@ -1,4 +1,3 @@
-# WINC Turtle Egg Incubation and Hatching System
 ![WINC Manual Cover Poster](../../assets/manual/poster_cover.svg)
 
 ---
