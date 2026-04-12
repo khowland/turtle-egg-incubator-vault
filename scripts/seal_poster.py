@@ -19,11 +19,11 @@ svg_content = f"""<svg width="612" height="792" viewBox="0 0 612 792" xmlns="htt
     <image xlink:href="data:image/png;base64,{img_b64}" x="30" y="180" width="552" height="430" preserveAspectRatio="xMidYMid slice" />
     
     <!-- Header Bubble -->
-    <rect x="60" y="40" width="492" height="120" rx="30" fill="white" stroke="#27ae60" stroke-width="6" />
+    <rect x="30" y="40" width="552" height="120" rx="30" fill="white" stroke="#27ae60" stroke-width="6" />
     
     <!-- Title Text -->
-    <text x="306" y="105" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="54" fill="#27ae60">WINC</text>
-    <text x="306" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="20" fill="#2c3e50">TURTLE EGG INCUBATION SYSTEM</text>
+    <text x="306" y="95" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="34" fill="#27ae60">WINC</text>
+    <text x="306" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="22" fill="#2c3e50">TURTLE EGG INCUBATION AND HATCHING SYSTEM</text>
     
     <!-- Footer Block (Removed Center Block, replaced with small right-aligned text) -->
     <rect x="0" y="740" width="612" height="52" fill="white" />
