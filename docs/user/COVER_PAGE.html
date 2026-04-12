@@ -1,131 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WINC Manual Cover</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap');
+
         body {
             margin: 0;
             padding: 0;
-            background-color: #f8fafc;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: #f4f7f6;
+            font-family: 'Outfit', sans-serif;
+            color: #2c3e50;
         }
 
-        .cover-page {
+        .cover-container {
             width: 8.5in;
             height: 11in;
-            background-color: white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            position: relative;
+            background: white;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            border-top: 25px solid #10b981; /* WINC GREEN */
-            overflow: hidden;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1in;
             box-sizing: border-box;
+            border: 10px solid #27ae60;
+            position: relative;
         }
 
         .header {
-            padding: 60px;
-            z-index: 10;
+            text-align: center;
         }
 
-        .winc-logo {
-            font-weight: 900;
-            letter-spacing: -2px;
-            font-size: 32px;
-            color: #10b981;
-            margin-bottom: 40px;
-            display: flex;
-            align-items: center;
-        }
-
-        .title {
-            font-size: 48px;
-            font-weight: 900;
-            line-height: 1.1;
-            color: #1e293b;
-            margin-bottom: 20px;
+        h1 {
+            font-size: 42pt;
+            margin: 0;
+            color: #27ae60;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
         }
 
         .subtitle {
-            font-size: 24px;
-            font-weight: 400;
-            color: #64748b;
-            max-width: 80%;
+            font-size: 18pt;
+            margin-top: 10px;
+            color: #7f8c8d;
+            font-weight: 300;
+        }
+
+        .image-container {
+            width: 100%;
+            height: 5in;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 20px;
+            border: 4px dashed #27ae60;
+            padding: 10px;
+        }
+
+        .image-container img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 15px;
         }
 
         .footer {
-            margin-top: auto;
-            padding: 60px;
-            background-color: #f1f5f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            z-index: 10;
+            text-align: center;
+            width: 100%;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 30px;
         }
 
-        .stats {
-            color: #1e293b;
-            font-size: 14px;
-            line-height: 2;
+        .credits {
+            font-size: 14pt;
+            font-weight: 600;
+            color: #2c3e50;
         }
 
-        .version-badge {
-            background-color: #10b981;
-            color: white;
-            padding: 8px 16px;
-            font-weight: 700;
-            font-size: 14px;
-            border-radius: 4px;
+        .metadata {
+            font-size: 11pt;
+            color: #95a5a6;
+            margin-top: 10px;
+            line-height: 1.6;
         }
 
-        /* Decorative Watermark */
-        .watermark {
+        .winc-badge {
             position: absolute;
-            bottom: -50px;
-            right: -50px;
-            opacity: 0.05;
-            width: 80%;
-            pointer-events: none;
+            top: 40px;
+            right: 40px;
+            background: #27ae60;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: 800;
+            font-size: 10pt;
         }
 
         @media print {
-            body { background: none; }
-            .cover-page { 
-                box-shadow: none; 
-                border-top: 15mm solid #10b981; 
+            body {
+                background: none;
+            }
+
+            .cover-container {
+                box-shadow: none;
+                border: 10px solid #27ae60 !important;
             }
         }
     </style>
 </head>
+
 <body>
-    <div class="cover-page">
+
+    <div class="cover-container">
+        <div class="winc-badge">OFFICIAL CLINICAL REFERENCE</div>
+
         <div class="header">
-            <div class="winc-logo">
-                <span style="font-size: 46px; margin-right: 15px;">🐢</span> WINC CLINICAL
-            </div>
-            <div class="title">Clinical Incubator Operating System (CIOS)</div>
-            <div class="subtitle">Reference Manual for Precision Chelonian Conservation and Longitudinal Biological Tracking.</div>
+            <h1>WINC</h1>
+            <div class="subtitle">Turtle Egg Incubation and Hatching System</div>
+        </div>
+
+        <div class="image-container">
+            <img src="../../assets/manual/cover.png" alt="WINC Turtle Cover Art">
         </div>
 
         <div class="footer">
-            <div class="stats">
-                <b>WISCONSIN TURTLE PROGRAM</b><br>
-                Wildlife In Need Center © 2026<br>
-                <i>Clinical Sovereignty Edition</i>
+            <div class="credits">Developed by Kevin Howland</div>
+            <div class="metadata">
+                Version 10.5.1 | Released: April 2026<br>
+                Contact: it2howland@gmail.com<br>
+                <i>Wildlife In Need Center - Clinical Operations</i>
             </div>
-            <div class="version-badge">VERSION 9.0.2</div>
         </div>
-
-        <!-- This watermark will be replaced by the schematic if path resolution allows in browser -->
-        <img class="watermark" src="../../assets/manual/turtle_egg_stages_schematic_1775942373550.png" onerror="this.style.display='none'">
     </div>
+
 </body>
+
 </html>
