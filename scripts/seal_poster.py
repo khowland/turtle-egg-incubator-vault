@@ -10,57 +10,33 @@ SVG_PATH = ROOT_DIR / "assets/manual/poster_cover.svg"
 with open(IMG_PATH, "rb") as f:
     img_b64 = base64.b64encode(f.read()).decode()
 
+# Layout Settings
+font_title = "Arial Black, sans-serif"
+font_regular = "Arial, sans-serif"
+color_main = "#ffffff"  # High contrast white for dark pond/grass bg
+color_accent = "#2ecc71" # Clinical Green
+
 svg_content = f"""<svg width="612" height="792" viewBox="0 0 612 792" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Background Frame -->
     <rect width="612" height="792" fill="#2c3e50" />
-    <rect x="15" y="15" width="582" height="762" fill="white" />
     
-    <!-- The Illustration (Base64) -->
-    <image xlink:href="data:image/png;base64,{img_b64}" x="30" y="180" width="552" height="430" preserveAspectRatio="xMidYMid slice" />
+    <!-- The Illustration (Full Bleed) -->
+    <image xlink:href="data:image/png;base64,{img_b64}" x="0" y="0" width="612" height="792" preserveAspectRatio="xMidYMid slice" />
     
-    <!-- Header Bubble (Removed, moved to overlay) -->
+    <!-- TWO-LINE TITLE (Flat contrasting, Large) -->
+    <text x="306" y="90" text-anchor="middle" font-family="{font_title}" font-size="38" fill="{color_main}">WINC TURTLE EGG INCUBATION</text>
+    <text x="306" y="140" text-anchor="middle" font-family="{font_title}" font-size="38" fill="{color_main}">AND HATCHING SYSTEM</text>
     
-    <!-- Title Text (Curved Path Over Artwork) -->
-    <defs>
-        <path id="titleCurve" d="M 50,210 Q 306,120 562,210" />
-        <filter id="shadow" x="0" y="0" width="200%" height="200%">
-            <feOffset result="offOut" in="SourceAlpha" dx="3" dy="3" />
-            <feGaussianBlur result="blurOut" in="offOut" stdDeviation="3" />
-            <feBlend in="SourceHighlight" in2="blurOut" mode="normal" />
-        </filter>
-    </defs>
+    <!-- OFFICIAL LABEL (Center Bottom) -->
+    <text x="306" y="740" text-anchor="middle" font-family="{font_title}" font-size="18" fill="{color_main}">OFFICIAL OPERATOR'S MANUAL</text>
     
-    <text font-family="Arial Black, sans-serif" font-size="28" fill="#27ae60" filter="url(#shadow)">
-        <textPath xlink:href="#titleCurve" startOffset="50%" text-anchor="middle">
-            WINC TURTLE EGG INCUBATION AND HATCHING SYSTEM
-        </textPath>
-    </text>
+    <!-- CREDITS (Lower Right, Conservative) -->
+    <text x="580" y="765" text-anchor="end" font-family="{font_regular}" font-size="12" font-weight="bold" fill="{color_main}">Developed by Kevin Howland</text>
+    <text x="580" y="780" text-anchor="end" font-family="{font_regular}" font-size="10" fill="{color_main}">it2howland@gmail.com | v10.5.1</text>
     
-    <!-- White Outline for Contrast -->
-    <text font-family="Arial Black, sans-serif" font-size="28" fill="none" stroke="white" stroke-width="1" opacity="0.8">
-        <textPath xlink:href="#titleCurve" startOffset="50%" text-anchor="middle">
-            WINC TURTLE EGG INCUBATION AND HATCHING SYSTEM
-        </textPath>
-    </text>
-    
-    <!-- Footer Block (Removed Center Block, replaced with small right-aligned text) -->
-    <rect x="0" y="740" width="612" height="52" fill="white" />
-    <rect x="0" y="740" width="612" height="4" fill="#27ae60" />
-    
-    <!-- Credit Text (Lower Right, Conservative) -->
-    <text x="582" y="770" text-anchor="end" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">Developed by Kevin Howland</text>
-    <text x="582" y="785" text-anchor="end" font-family="Arial, sans-serif" font-size="9" fill="#7f8c8d">it2howland@gmail.com | v10.5.1</text>
-    
-    <!-- Version/Title Note (Lower Left) -->
-    <text x="30" y="775" text-anchor="start" font-family="Arial, sans-serif" font-weight="bold" font-size="12" fill="#27ae60">OFFICIAL OPERATOR'S MANUAL</text>
-    
-    <!-- Version Badge -->
-    <polygon points="520,0 580,0 580,80 550,65 520,80" fill="#f1c40f" stroke="black" stroke-width="2" />
-    <text x="550" y="35" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="10" fill="#2c3e50">WINC</text>
-    <text x="550" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="12" fill="#2c3e50">V10.5</text>
 </svg>"""
 
 with open(SVG_PATH, "w") as f:
     f.write(svg_content)
 
-print(f"✅ Success: Locked image into {SVG_PATH}")
+print(f"✅ Success: Locked Final Master into {SVG_PATH}")
