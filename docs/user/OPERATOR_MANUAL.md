@@ -1,70 +1,68 @@
-# 🐢 WINC Clinical Incubator Operating System (CIOS) v10.1.0
-## "The Resilient Edition" — Sovereign Reference Manual
+# 🐢 WINC Clinical Incubator System v10.2.0
+## "The Simple Edition" — How to Use the Vault
 
-**North Star Objective:** To provide a failure-proof procedural roadmap that empowers WINC staff to master every digital workflow, data-entry gate, and system report with absolute efficiency and technical precision—regardless of environment or connectivity.
-
----
-
-### 📑 TABLE OF CONTENTS
-1.  **� QUICK INDEX**: "How Do I...?" (5-Second Reference)
-2.  **�📟 DASHBOARD**: Operational Awareness
-3.  **📥 INTAKE**: Accessioning & Smart-ID Generation
-4.  **🔍 OBSERVATIONS**: Daily Maintenance & **Health Matrix**
-5.  **🐣 HATCHLINGS**: The Transition Ledger
-6.  **� DATA EXPORTS**: The WormD Rosetta Stone
-7.  **🆘 CRISIS PROTOCOL**: Offline "Vault-Sync" Procedures
+**Our Goal:** To show you exactly how to use this system to do your job in the easiest way possible. Every step is simple so you can work with confidence.
 
 ---
 
-### 1. � QUICK INDEX: "HOW DO I...?"
-
-| If you want to... | Go to Page... |
-| :--- | :--- |
-| Enroll a new salvaged Mother | Page 4 (Intake) |
-| Add more eggs to an existing bin | Page 8 (Advanced Intake) |
-| Score mold on an individual egg | Page 5 (Observations) |
-| **The Wi-Fi/Internet has failed** | **Page 12 (Crisis Mode)** |
-| Export data for an annual report | Page 10 (Exports) |
-
----
-
-### 4. � OBSERVATIONS: The Clinical Health Matrix
-**Goal:** Consistent Health Scoring across all staff members.
-
-| Score | Clinical Description | Digital Action |
-| :--- | :--- | :--- |
-| **0** | **Sterile.** No visible fuzz, odor, or fluid. | Leave Sliders at 0. |
-| **1** | **Trace Indicator.** Localized "grey mist" on shell. | Move Molding to 1. |
-| **2** | **Degradation.** Solid fungal mats or fluid leak. | Move Slider to 2; Add Note. |
-| **3** | **Critical/Necrotic.** Potential non-viability. | ⚠️ **ISOLATE**; Score 3. |
+### 📑 TABLE OF CONTENTS (Where to Find Things)
+1.  **🏠 HOME**: The Main Screen (See how the lab is doing)
+2.  **� ADDING TURTLES**: Starting a New Case 
+3.  **� BINS & EGGS**: Keeping Track of Everything
+4.  **🔍 DAILY SCAN**: Checking Health & Weight
+5.  **🐣 HATCHING**: Finishing a Case
+6.  **📊 GETTING DATA**: Saving Reports for Later
+7.  **🆘 PROBLEM SOLVING**: What to do when things go wrong
 
 ---
 
-### 6. 📊 DATA EXPORTS: The WormD Rosetta Stone
-**Goal:** Eliminate confusion when mapping exported CSV data to clinical reports.
+### 1. 🏠 HOME (The Main Screen)
+**Goal:** Use this screen to see if any eggs need help right now.
 
-| System Header ID | Clinical Report Label | Unit |
-| :--- | :--- | :--- |
-| `mother_id` | Maternal Accession Number | Text |
-| `bin_weight_g` | Incubator Mass | Grams |
-| `moisture_deficit_g` | Rehydration Requirement | Grams/ML |
-| `chalking` | Calcium Deposition Index | 0-2 Scale |
+*   **Help Needed:** If you see a number here, it means some eggs have mold or are leaking. Go check them first.
+*   **Total Eggs:** This shows you how many living eggs are in the vault today.
 
 ---
 
-### 7. 🆘 CRISIS PROTOCOL: The Offline Fallback
-**Goal:** 100% Data Integrity during network or system downtime.
+### 2. 📥 ADDING TURTLES (Intake)
+**Goal:** Put a new mother turtle into the system.
 
-**If the Vault is unreachable:**
-1.  **Cease Digital Entry:** Do not attempt to refresh the app (you may lose cached input).
-2.  **Deploy "Vault-Sync" Sheet:** Retrieve the printed Field Sheet from the back of this binder.
-3.  **Perform Manual Audit:** Record IDs, Weights, and Health Scores on Paper.
-4.  **The Re-Sync:** Once connectivity is restored, enter the paper data into the **Observations** screen.
-    *   *Note: Because the paper log matches the screen layout, you can batch-enter 50 eggs in under 3 minutes.*
+1.  **Choose the Species:** Pick the kind of turtle (like "Blanding's").
+2.  **Name the Mother:** Type in the name or the case number.
+3.  **Pick the Date:** Use today’s date.
+4.  **Click [Complete Intake]**: This creates a unique ID so the system always remembers this turtle.
+
+---
+
+### 4. � DAILY SCAN (Observations)
+**Goal:** Check the eggs and write down how they look.
+
+**The Health Slider (Scores 0–3):**
+*   **Score 0 (Perfect):** The egg is clean and dry.
+*   **Score 1 (A Little Mold):** You see a tiny bit of grey fuzz.
+*   **Score 2 (Medium):** There is a lot of mold or the egg is leaking.
+*   **Score 3 (Bad):** The egg needs to be moved away from others right away.
+
+**Checking the Weight:**
+*   If the screen says the bin is too light, add water until the numbers match.
+
+---
+
+### 7. 🆘 PROBLEM SOLVING (What Ifs)
+
+**What if I have an injured mother who lays eggs twice?**
+*   If she lays more eggs a few days later, **do not** make a new case. 
+*   Find her old ID and click **[Add New Bin]**. This keeps all her eggs together in one place.
+
+**What if I type the wrong weight?**
+*   Just make a new entry with the correct weight. The system will always use the newest information you give it.
+
+**What if I make an egg by mistake?**
+*   Set the status to **"Void/Error."** This tells the system to ignore that egg.
 
 ---
 
 <div style="page-break-after: always;"></div>
 
 **WINC Sovereign Documentation © 2026**  
-*Hardened for Field Resilience. Verified by PM, SWE, and Red Team.*
+*Simple. Professional. Failure-Proof.*
