@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS public.egg_observation (
     observer_id UUID REFERENCES public.observer(observer_id),
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     vascularity BOOLEAN,
-    chalking INTEGER, -- 0-3 Scale (None, Small, Medium, Major)
+    chalking INTEGER, -- 0-3 Scale (None, Small, Medium, Joint-Covering/Major)
     molding BOOLEAN,
     leaking BOOLEAN,
     dented BOOLEAN DEFAULT FALSE,
@@ -177,7 +177,7 @@ INSERT INTO public.development_stage (stage_id, label, description) VALUES
 ('S2', 'Vascular', 'Network of veins clearly visible during candling.'),
 ('S3S', 'Small Chalking', 'Initial calcium shell thickening.'),
 ('S3M', 'Medium Chalking', 'Moderate calcium shell thickening.'),
-('S3J', 'Major Chalking', 'Heavy calcium shell thickening.'),
+('S3J', 'Joint-Covered Chalking', 'Heavy calcium shell thickening covering entire surface area.'),
 ('S4', 'Late Stage', 'Heavy vascularity or shadow movement.'),
 ('S5', 'Pipping', 'Physical breakthrough of the shell surface.'),
 ('S6', 'Hatched', 'Complete emergence; ready for transition.')
