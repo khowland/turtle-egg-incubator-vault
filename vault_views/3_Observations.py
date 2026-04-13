@@ -580,7 +580,7 @@ else:
             st.markdown(f"#### 📐 Property Matrix: `[{csv_ids}]`")
             ac1, ac2 = st.columns(2)
 
-            stage_opts = ["S0", "S1", "S2", "S3", "S4", "S5", "S6"]
+            stage_opts = ["S0", "S1", "S2", "S3S", "S3M", "S3J", "S4", "S5", "S6"]
             st_idx = stage_opts.index(matrix_stage) if matrix_stage in stage_opts else 0
             new_stage = ac1.selectbox(
                 f"{'✅' if matrix_stage != 'MIXED' else '➖'} Stage",
@@ -592,11 +592,13 @@ else:
                 o["chalking"] for o in obs_session if o["egg_id"] in selected_real_ids
             }
             matrix_chalk = next(iter(chalks_found)) if len(chalks_found) == 1 else 0
-            new_chalk = ac2.selectbox(
+            chalking_map = {0: "None", 1: "Small", 2: "Medium", 3: "Major"}
+            new_chalk_label = ac2.selectbox(
                 f"{'✅' if len(chalks_found) == 1 else '⚪'} Chalking",
-                [0, 1, 2],
-                index=matrix_chalk,
+                options=list(chalking_map.values()),
+                index=matrix_chalk if matrix_chalk <= 3 else 0,
             )
+            new_chalk = next(k for k, v in chalking_map.items() if v == new_chalk_label)
 
             st.write("**Clinical Health Scales (0-3)**")
             bc1, bc2, bc3, bc4 = st.columns(4)
