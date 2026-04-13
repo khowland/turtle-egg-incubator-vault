@@ -16,16 +16,12 @@ class InstitutionalDoc(BaseDocTemplate):
     def __init__(self, filename, **kw):
         self.allowSplitting = 1
         BaseDocTemplate.__init__(self, filename, **kw)
-        
-    # Standard TOC indexing for ReportLab
     def afterFlowable(self, flowable):
         if isinstance(flowable, Paragraph):
             text = flowable.getPlainText()
             style = flowable.style.name
-            if style == 'H1':
-                self.notify('TOCEntry', (0, text, self.page))
-            elif style == 'H2':
-                self.notify('TOCEntry', (1, text, self.page))
+            if style == 'H1': self.notify('TOCEntry', (0, text, self.page))
+            elif style == 'H2': self.notify('TOCEntry', (1, text, self.page))
 
 class InstitutionalCompiler:
     def __init__(self, output_path):
@@ -68,44 +64,56 @@ class InstitutionalCompiler:
 
         html = markdown2.markdown(content, extras=["tables", "fenced-code-blocks"])
         soup = BeautifulSoup(html, 'html.parser')
+        raw_elements = soup.find_all(['h1', 'h2', 'h3', 'p', 'li'])
 
-        # --- TITLE BLOCK ---
+        # Title and TOC remain same
         self.elements.append(Spacer(1, 80*mm))
         self.elements.append(Paragraph("WINC Incubator System", self.styles['CentredTitle']))
         self.elements.append(Paragraph("Operator's Guide and Clinical Protocol", self.styles['H2']))
-        self.elements.append(Spacer(1, 80*mm))
-        self.elements.append(Paragraph("Release v10.5.1 | Institutional Edition", self.styles['H3']))
+        self.elements.append(Spacer(1, 80*mm)); self.elements.append(Paragraph("Release v10.5.1 | Institutional Edition", self.styles['H3']))
         self.elements.append(PageBreak())
-
-        # --- TOC PAGE ---
         self.elements.append(Paragraph("Table of Contents", self.styles['H1']))
         toc = TableOfContents()
-        toc.levelStyles = [
-            ParagraphStyle(name='TOCL1', fontSize=12, leading=16, fontName='Helvetica-Bold'),
-            ParagraphStyle(name='TOCL2', fontSize=10, leading=14, fontName='Helvetica', leftIndent=10)
-        ]
-        self.elements.append(toc)
-        self.elements.append(PageBreak())
+        toc.levelStyles = [ParagraphStyle(name='TOCL1', fontSize=12, leading=16, fontName='Helvetica-Bold'), ParagraphStyle(name='TOCL2', fontSize=10, leading=14, fontName='Helvetica', leftIndent=10)]
+        self.elements.append(toc); self.elements.append(PageBreak())
 
-        # --- CONTENT ---
+        # --- SMART SECTION AGGREGATION ---
         first_img_skipped = False
         first_heading_processed = False
-        current_group = []
-        for element in soup.find_all(['h1', 'h2', 'h3', 'p', 'li']):
+        
+        # We parse the soup and create high-level 'Section Blocks'
+        current_block = []
+        
+        def flush_block(elements_list, target_list):
+            if elements_list:
+                # If block is small, KeepTogether. If huge, allow splitting.
+                # Threshold ~ 1500 chars (approx 1 page)
+                total_len = sum(len(str(e)) for e in elements_list)
+                if total_len < 3000:
+                    target_list.append(KeepTogether(elements_list))
+                else:
+                    target_list.extend(elements_list)
+
+        for element in raw_elements:
             text = clean_text(element.get_text().strip())
             if not text and not element.find('img'): continue
+            
             p_obj = None
-            if element.name == 'h1':
+            # Major headings trigger a block flush and a New Page
+            if element.name in ['h1', 'h2']:
+                flush_block(current_block, self.elements)
+                current_block = []
                 if first_heading_processed: self.elements.append(PageBreak())
                 first_heading_processed = True
-                p_obj = Paragraph(text, self.styles['H1'])
-            elif element.name == 'h2':
-                if first_heading_processed: self.elements.append(PageBreak())
-                first_heading_processed = True
-                p_obj = Paragraph(text, self.styles['H2'])
-            elif element.name == 'h3':
-                current_group = [Paragraph(text, self.styles['H3'])]
+                self.elements.append(Paragraph(text, self.styles['H1'] if element.name == 'h1' else self.styles['H2']))
                 continue
+                
+            # H3 Subheadings trigger a block flush but NOT necessarily a PageBreak (unless it starts at the end)
+            elif element.name == 'h3':
+                flush_block(current_block, self.elements)
+                current_block = [Paragraph(text, self.styles['H3'])]
+                continue
+
             elif element.name == 'p':
                 img = element.find('img')
                 if img:
@@ -123,12 +131,9 @@ class InstitutionalCompiler:
                 p_obj = Paragraph(f"&bull; {text}", self.styles['InstitutionalBullet'])
 
             if p_obj:
-                if current_group:
-                    current_group.append(p_obj)
-                    self.elements.append(KeepTogether(current_group))
-                    current_group = []
-                else:
-                    self.elements.append(p_obj)
+                current_block.append(p_obj)
+        
+        flush_block(current_block, self.elements) # Final flush
 
         doc = InstitutionalDoc(self.output_path, pagesize=A4)
         cover_frame = Frame(0, 0, 210*mm, 297*mm, id='cover_frame', leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
@@ -137,10 +142,9 @@ class InstitutionalCompiler:
             cover_path = os.path.join(os.getcwd(), "assets", "manual", "operators_manual_cover_page.png")
             if os.path.exists(cover_path): canvas.drawImage(cover_path, 0, 0, width=210*mm, height=297*mm)
         doc.addPageTemplates([PageTemplate(id='Cover', frames=cover_frame, onPage=draw_cover), PageTemplate(id='Later', frames=content_frame, onPage=self.header_footer)])
-        # Multi-pass build for TOC
         doc.multiBuild([PageBreak('Later')] + self.elements)
 
 if __name__ == "__main__":
     compiler = InstitutionalCompiler('./docs/user/OPERATOR_MANUAL_v10_5_1.pdf')
     compiler.compile('./docs/user/OPERATOR_MANUAL.md')
-    print("ReportLab Multi-Pass Professional Manual Compiled.")
+    print("ReportLab Adaptive Block Manual Compiled.")
