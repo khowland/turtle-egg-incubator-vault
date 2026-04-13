@@ -56,6 +56,7 @@ def generate_pdf(md_path, pdf_path):
     pdf.add_page()
     
     # Content
+    first_img_skipped = False
     for element in soup.find_all(['h1', 'h2', 'h3', 'p', 'li', 'table', 'blockquote', 'hr']):
         text = clean_text(element.get_text())
         if element.name == 'h1':
@@ -76,6 +77,9 @@ def generate_pdf(md_path, pdf_path):
             # Handle images in p tags
             img = element.find('img')
             if img:
+                if not first_img_skipped:
+                    first_img_skipped = True
+                    continue # SKIP redundant cover page image in Markdown
                 src = img.get('src')
                 # Resolve relative path
                 img_path = os.path.join(os.path.dirname(md_path), src.replace('/', os.sep))
@@ -92,8 +96,9 @@ def generate_pdf(md_path, pdf_path):
                     pdf.cell(0, 10, f"[Missing Image: {src}]", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_text_color(0, 0, 0)
             else:
-                pdf.multi_cell(0, 6, text)
-                pdf.ln(3)
+                if text.strip():
+                    pdf.multi_cell(0, 6, text)
+                    pdf.ln(3)
         elif element.name == 'li':
             pdf.set_x(20)
             pdf.set_font('helvetica', '', 11)
