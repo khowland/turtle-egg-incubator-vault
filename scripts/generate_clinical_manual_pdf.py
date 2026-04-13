@@ -84,8 +84,12 @@ def process_element(pdf, element, first_img_skipped, md_path, capture_toc=False)
         if capture_toc: pdf.add_toc_entry(1, text, pdf.page_no())
         pdf.ln(5)
     elif element.name == 'h2':
-        pdf.add_page() # ENFORCE PAGE BREAK FOR MAJOR SECTIONS
-        pdf.ln(5)
+        # ONLY PAGE BREAK IF WE ARE PAST THE MIDPOINT (Adaptive Layout)
+        if pdf.get_y() > 120:
+            pdf.add_page()
+        else:
+            pdf.ln(10) # Add breathing room instead of a break
+            
         pdf.set_font('helvetica', 'B', 16)
         pdf.cell(0, 10, text, new_x="LMARGIN", new_y="NEXT")
         if capture_toc: pdf.add_toc_entry(2, text, pdf.page_no())
