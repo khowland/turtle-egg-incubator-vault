@@ -11,7 +11,6 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS public.observer (
     observer_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     observer_name TEXT NOT NULL,
-    role TEXT DEFAULT 'Staff',
     is_deleted BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -85,6 +84,11 @@ CREATE TABLE IF NOT EXISTS public.egg (
     current_stage TEXT REFERENCES public.development_stage(stage_id),
     status TEXT DEFAULT 'Active',
     egg_notes TEXT,
+    last_chalk INTEGER DEFAULT 0,
+    last_vasc BOOLEAN DEFAULT FALSE,
+    last_molding INTEGER DEFAULT 0,
+    last_leaking INTEGER DEFAULT 0,
+    last_dented INTEGER DEFAULT 0,
     session_id TEXT REFERENCES public.session_log(session_id),
     created_by_id UUID REFERENCES public.observer(observer_id),
     modified_by_id UUID REFERENCES public.observer(observer_id),
@@ -115,15 +119,17 @@ CREATE TABLE IF NOT EXISTS public.egg_observation (
     bin_id TEXT REFERENCES public.bin(bin_id),
     observer_id UUID REFERENCES public.observer(observer_id),
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    egg_observation_date DATE DEFAULT CURRENT_DATE, -- Standard (§4.D)
     vascularity BOOLEAN,
-    chalking INTEGER, -- 0-3 Scale (None, Small, Medium, Joint-Covering/Major)
-    molding BOOLEAN,
-    leaking BOOLEAN,
-    dented BOOLEAN DEFAULT FALSE,
+    chalking INTEGER DEFAULT 0, -- 0-3 Scale
+    molding INTEGER DEFAULT 0,
+    leaking INTEGER DEFAULT 0,
+    dented INTEGER DEFAULT 0,
     discolored BOOLEAN DEFAULT FALSE,
     moisture_deficit_g NUMERIC,
     water_added_ml NUMERIC,
     stage_at_observation TEXT,
+    sub_stage_code TEXT,
     notes TEXT,
     is_deleted BOOLEAN DEFAULT FALSE,
     created_by_id UUID REFERENCES public.observer(observer_id),
@@ -185,9 +191,9 @@ ON CONFLICT (stage_id) DO NOTHING;
 
 -- Populate Initial Clinical Observers (Seed Users)
 -- Note: Replace these with official WINC Staff Registry during first log-in.
-INSERT INTO public.observer (observer_name, role) VALUES
-('WINC Staff', 'Admin'),
-('Volunteer Biologist', 'Staff')
+INSERT INTO public.observer (observer_name) VALUES
+('WINC Staff'),
+('Volunteer Biologist')
 ON CONFLICT DO NOTHING;
 
 COMMIT;

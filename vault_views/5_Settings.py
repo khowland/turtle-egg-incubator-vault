@@ -18,7 +18,7 @@ import pandas as pd
 from utils.bootstrap import bootstrap_page, safe_db_execute
 from utils.rbac import can_elevated_clinical_operations
 
-supabase = bootstrap_page("Settings", "⚙️")
+supabase = bootstrap_page("Vault Administration", "⚙️")
 
 st.title("⚙️ Vault Administration")
 
@@ -227,7 +227,7 @@ with tabs[2]:
     st.markdown("""
     | Stage | Description | Icon |
     | :--- | :--- | :--- |
-    | **S0** | Initial Intake | ⚪ |
+    | **S1** | Initial Intake | ⚪ |
     | **S1-S4** | Developmental Growth | 🧬 |
     | **S5** | Pipping Initiated | 🌟 |
     | **S6** | Hatched | ✨ |
@@ -236,97 +236,94 @@ with tabs[2]:
 with tabs[3]:
     st.subheader("📦 The Resurrection Vault")
     st.caption("Restore accidental 'Retirements' or mistaken soft-deletes.")
-    if not can_elevated_clinical_operations():
-        st.warning("Resurrection requires Admin, Staff, or Biologist role.")
-    else:
-        sub_tabs = st.tabs(["Bins", "Case Intakes"])
+    sub_tabs = st.tabs(["Bins", "Case Intakes"])
 
-        with sub_tabs[0]:
-            # Resilient client-side aggregation for Ghost Data detection
-            retired_bins_raw = (
-                supabase.table("bin")
-                .select("bin_id, bin_notes")
-                .eq("is_deleted", True)
-                .execute()
-                .data or []
-            )
-            
-            # Fetch all active eggs to map orphans
-            active_orphans = (
-                supabase.table("egg")
-                .select("bin_id")
-                .eq("is_deleted", False)
-                .in_("status", ["Active"]) # Specific check for active subjects
-                .execute()
-                .data or []
-            )
-            orphan_map = {}
-            for o in active_orphans:
-                bid = o["bin_id"]
-                orphan_map[bid] = orphan_map.get(bid, 0) + 1
-            
-            retired_bins = retired_bins_raw
-            
-            if not retired_bins:
-                st.info("No retired bins in the database.")
-            else:
-                for rb in retired_bins:
-                    ghost_count = orphan_map.get(rb["bin_id"], 0)
-                    with st.container(border=True):
-                        c1, c2 = st.columns([3, 1])
-                        c1.write(f"**Bin ID: {rb['bin_id']}**")
-                        if ghost_count > 0:
-                            c1.error(f"⚠️ **GHOST DATA DETECTED**: {ghost_count} 'Active' eggs are trapped in this deleted bin.")
-                        c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")
-                        if c2.button("✨ Restore", key=f"res_bin_{rb['bin_id']}"):
+    with sub_tabs[0]:
+        # Resilient client-side aggregation for Ghost Data detection
+        retired_bins_raw = (
+            supabase.table("bin")
+            .select("bin_id, bin_notes")
+            .eq("is_deleted", True)
+            .execute()
+            .data or []
+        )
+        
+        # Fetch all active eggs to map orphans
+        active_orphans = (
+            supabase.table("egg")
+            .select("bin_id")
+            .eq("is_deleted", False)
+            .in_("status", ["Active"]) # Specific check for active subjects
+            .execute()
+            .data or []
+        )
+        orphan_map = {}
+        for o in active_orphans:
+            bid = o["bin_id"]
+            orphan_map[bid] = orphan_map.get(bid, 0) + 1
+        
+        retired_bins = retired_bins_raw
+        
+        if not retired_bins:
+            st.info("No retired bins in the database.")
+        else:
+            for rb in retired_bins:
+                ghost_count = orphan_map.get(rb["bin_id"], 0)
+                with st.container(border=True):
+                    c1, c2 = st.columns([3, 1])
+                    c1.write(f"**Bin ID: {rb['bin_id']}**")
+                    if ghost_count > 0:
+                        c1.error(f"⚠️ **GHOST DATA DETECTED**: {ghost_count} 'Active' eggs are trapped in this deleted bin.")
+                    c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")
+                    if c2.button("✨ Restore", key=f"res_bin_{rb['bin_id']}"):
 
-                            def restore_bin():
-                                supabase.table("bin").update({"is_deleted": False}).eq(
-                                    "bin_id", rb["bin_id"]
-                                ).execute()
+                        def restore_bin():
+                            supabase.table("bin").update({"is_deleted": False}).eq(
+                                "bin_id", rb["bin_id"]
+                            ).execute()
 
-                            safe_db_execute(
-                                "Resurrection",
-                                restore_bin,
-                                success_message=f"Lifecycle: Bin {rb['bin_id']} resurrected from the archive.",
-                            )
-                            st.success(
-                                f"Bin {rb['bin_id']} restored to Active Workbench."
-                            )
-                            st.rerun()
+                        safe_db_execute(
+                            "Resurrection",
+                            restore_bin,
+                            success_message=f"Lifecycle: Bin {rb['bin_id']} resurrected from the archive.",
+                        )
+                        st.success(
+                            f"Bin {rb['bin_id']} restored to Active Workbench."
+                        )
+                        st.rerun()
 
-        with sub_tabs[1]:
-            retired_moms = (
-                supabase.table("mother")
-                .select("mother_id, mother_name, modified_at")
-                .eq("is_deleted", True)
-                .execute()
-                .data
-            )
-            if not retired_moms:
-                st.info("No retired case intakes in the vault.")
-            else:
-                for rm in retired_moms:
-                    with st.container(border=True):
-                        c1, c2 = st.columns([3, 1])
-                        c1.write(f"**Case: {rm['mother_name']}**")
-                        c1.caption(f"ID: {rm['mother_id']}")
-                        if c2.button("✨ Restore", key=f"res_mom_{rm['mother_id']}"):
+    with sub_tabs[1]:
+        retired_moms = (
+            supabase.table("intake")
+            .select("intake_id, intake_name, modified_at")
+            .eq("is_deleted", True)
+            .execute()
+            .data
+        )
+        if not retired_moms:
+            st.info("No retired case intakes in the vault.")
+        else:
+            for rm in retired_moms:
+                with st.container(border=True):
+                    c1, c2 = st.columns([3, 1])
+                    c1.write(f"**Case: {rm['intake_name']}**")
+                    c1.caption(f"ID: {rm['intake_id']}")
+                    if c2.button("✨ Restore", key=f"res_mom_{rm['intake_id']}"):
 
-                            def restore_mom():
-                                supabase.table("mother").update(
-                                    {"is_deleted": False}
-                                ).eq("mother_id", rm["mother_id"]).execute()
+                        def restore_mom():
+                            supabase.table("intake").update(
+                                {"is_deleted": False}
+                            ).eq("intake_id", rm["intake_id"]).execute()
 
-                            safe_db_execute(
-                                "Resurrection",
-                                restore_mom,
-                                success_message=f"Lifecycle: Case {rm['mother_name']} resurrected from the archive.",
-                            )
-                            st.success(
-                                f"Case {rm['mother_name']} restored to active circulation."
-                            )
-                            st.rerun()
+                        safe_db_execute(
+                            "Resurrection",
+                            restore_mom,
+                            success_message=f"Lifecycle: Case {rm['intake_name']} resurrected from the archive.",
+                        )
+                        st.success(
+                            f"Case {rm['intake_name']} restored to active circulation."
+                        )
+                        st.rerun()
 
 with tabs[4]:
     st.subheader("📜 System Audit History")

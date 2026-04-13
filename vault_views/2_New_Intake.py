@@ -7,7 +7,7 @@ Upstream:      None (Entry point or dynamic)
 Downstream:    utils.bootstrap
 Use Cases:     [Pending - Describe practical usage here]
 Inputs:        st.session_state (observer_id, session_id, bin_rows)
-Outputs:       mother, bin, egg, egg_observation
+Outputs:       intake, bin, egg, egg_observation
 Description:   Refactored Intake with Unique Bin IDs; prefers internal intake
                RPC (single DB transaction, ISS-5) with legacy client fallback.
 =============================================================================
@@ -31,7 +31,7 @@ with st.sidebar.expander("ℹ️ Screen Help - Step-by-Step"):
     1. Pick your **Species**.
     2. Add the **Finder Name** (This dynamically generates your physical Bin Labels).
     3. Type the **Egg Count** for the bin (1-99). Use the direct keyboard.
-    4. Need multiple bins for one mother? Click **➕ Add Bin**.
+    4. Need multiple bins for one intake? Click **➕ Add Bin**.
     5. Hit **SAVE** to instantly record the eggs and automatically move to the observation phase!
     """)
 
@@ -92,8 +92,8 @@ with st.container(border=True):
     if not is_valid_finder:
         st.warning("⚠️ Names can only have letters, numbers, and spaces.")
 
-    mother_condition = l_col2.selectbox(
-        "Condition of Mother", ["Alive", "Injured", "Dead (Salvage)"], index=0
+    intake_condition = l_col2.selectbox(
+        "Condition of Intake", ["Alive", "Injured", "Dead (Salvage)"], index=0
     )
     extraction_method = l_col3.selectbox(
         "How were they collected?",
@@ -197,12 +197,12 @@ if btn_col2.button("SAVE", type="primary", use_container_width=True):
                         "intake_date": str(intake_date),
                         "session_id": st.session_state.session_id,
                         "observer_id": str(st.session_state.observer_id),
-                        "mother": {
-                            "mother_name": case_number,
+                        "intake": {
+                            "intake_name": case_number,
                             "finder_turtle_name": finder_name,
                             "species_id": selected_species["species_id"],
                             "intake_date": str(intake_date),
-                            "intake_condition": mother_condition,
+                            "intake_condition": intake_condition,
                             "extraction_method": extraction_method,
                             "discovery_location": discovery_location,
                             "carapace_length_mm": (

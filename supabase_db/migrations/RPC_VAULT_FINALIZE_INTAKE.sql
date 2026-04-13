@@ -101,7 +101,7 @@ BEGIN
         egg_id, bin_id, status, current_stage, intake_date,
         session_id, created_by_id, modified_by_id
       ) VALUES (
-        v_egg_id, v_bin_id, 'Active', 'S0', v_intake_date,
+        v_egg_id, v_bin_id, 'Active', 'S1', v_intake_date,
         v_session_id, v_observer_id, v_observer_id
       );
       INSERT INTO public.egg_observation (
@@ -111,7 +111,7 @@ BEGIN
       ) VALUES (
         v_session_id, v_egg_id, v_bin_id, v_observer_id,
         v_observer_id, v_observer_id,
-        'S0', 'Clinical Intake Baseline', FALSE
+        'S1', 'Clinical Intake Baseline', FALSE
       );
     END LOOP;
   END LOOP;

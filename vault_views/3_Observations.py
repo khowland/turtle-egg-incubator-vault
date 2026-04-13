@@ -43,7 +43,7 @@ if "active_case_id" in st.session_state:
     case_bins = (
         supabase.table("bin")
         .select("bin_id")
-        .eq("mother_id", st.session_state.active_case_id)
+        .eq("intake_id", st.session_state.active_case_id)
         .execute()
     )
     for b in case_bins.data:
@@ -56,15 +56,15 @@ with st.sidebar:
     st.header("🛠️ Extra Tools")
     with st.expander("Add a Bin to a Case"):
         all_mothers = (
-            supabase.table("mother")
-            .select("mother_id, mother_name")
+            supabase.table("intake")
+            .select("intake_id, intake_name")
             .eq("is_deleted", False)
             .order("created_at", desc=True)
             .limit(20)
             .execute()
         )
-        m_map = {m["mother_name"]: m["mother_id"] for m in all_mothers.data}
-        target_m = st.selectbox("Select Mother/Case", list(m_map.keys()), key="sup_m")
+        m_map = {m["intake_name"]: m["intake_id"] for m in all_mothers.data}
+        target_m = st.selectbox("Select Intake/Case", list(m_map.keys()), key="sup_m")
         new_bin_code = st.text_input("New Bin ID", placeholder="OB1-NAME-2")
         if st.button("ADD", help="Create Supplemental Bin"):
 
@@ -72,7 +72,7 @@ with st.sidebar:
                 supabase.table("bin").insert(
                     {
                         "bin_id": new_bin_code,
-                        "mother_id": m_map[target_m],
+                        "intake_id": m_map[target_m],
                         "session_id": st.session_state.session_id,
                         "created_by_id": st.session_state.observer_id,
                         "modified_by_id": st.session_state.observer_id,
@@ -162,7 +162,7 @@ with st.sidebar:
                         "observer_id": st.session_state.observer_id,
                         "created_by_id": st.session_state.observer_id,
                         "modified_by_id": st.session_state.observer_id,
-                        "stage_at_observation": "S0",
+                        "stage_at_observation": "S1",
                         "observation_notes": "Supplemental Intake Baseline",
                         "is_deleted": False,
                     }
@@ -475,7 +475,7 @@ if st.session_state.surgical_resurrection:
                             new_s = (
                                 rem.data[0]["stage_at_observation"]
                                 if rem.data
-                                else "S0"
+                                else "S1"
                             )
                             new_status = "Active" if new_s != "S6" else "Transferred"
 
@@ -591,7 +591,7 @@ else:
             st.markdown(f"#### 📐 Property Matrix: `[{csv_ids}]`")
             ac1, ac2 = st.columns(2)
 
-            stage_opts = ["S0", "S1", "S2", "S3S", "S3M", "S3J", "S4", "S5", "S6"]
+            stage_opts = ["S1", "S1", "S2", "S3S", "S3M", "S3J", "S4", "S5", "S6"]
             st_idx = stage_opts.index(matrix_stage) if matrix_stage in stage_opts else 0
             new_stage = ac1.selectbox(
                 f"{'✅' if matrix_stage != 'MIXED' else '➖'} Stage",
@@ -613,7 +613,8 @@ else:
 
             st.write("**Clinical Health Scales (0-3)**")
             bc1, bc2, bc3, bc4 = st.columns(4)
-            v = bc1.checkbox("Vascularity (+)")
+            auto_vasc = bool(new_stage and new_stage.startswith("S3"))
+            v = bc1.checkbox("Vascularity (+)", value=auto_vasc, disabled=auto_vasc)
             m_val = bc2.selectbox(
                 "Molding",
                 [0, 1, 2, 3],
@@ -627,6 +628,8 @@ else:
                 [0, 1, 2, 3],
                 help="0:None, 1:Slight, 2:Compressed, 3:Collapsed",
             )
+            st.write("**Audit / Backdating**")
+            st.date_input("Observation Date (Backdating)", key="backdate_obs")
 
             egg_meta_notes = st.text_input(
                 "Permanent Egg Notes", placeholder="e.g., 'Small crack on underside'"
@@ -698,13 +701,13 @@ else:
                             erow = egg_one.data[0]
                             bin_one = (
                                 supabase.table("bin")
-                                .select("mother_id")
+                                .select("intake_id")
                                 .eq("bin_id", erow["bin_id"])
                                 .execute()
                             )
                             if not bin_one.data:
                                 continue
-                            mother_id = bin_one.data[0]["mother_id"]
+                            intake_id = bin_one.data[0]["intake_id"]
                             incub_days = None
                             id_raw = erow.get("intake_timestamp")
                             if id_raw:
@@ -724,7 +727,7 @@ else:
                             )
                             hl_row = {
                                 "egg_id": rid,
-                                "mother_id": mother_id,
+                                "intake_id": intake_id,
                                 "hatch_date": str(hatch_date),
                                 "vitality_score": vitality[:500],
                                 "incubation_duration_days": incub_days,

@@ -52,7 +52,7 @@ This application is containerized for stateless deployment on GCP.
 
 ## 🔒 Security & Admin
 - **Correction Mode**: Replaces high-complexity "Surgical Resurrection" terminology for better volunteer understanding.
-- **RBAC**: Role-based access managed via `utils/rbac.py`.
+- **Single-Kiosk Mode**: Role-based access removed for simplified field operations.
 
 ---
 *Verified for Release v8.1.3.*

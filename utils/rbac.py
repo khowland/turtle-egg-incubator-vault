@@ -1,7 +1,7 @@
 """
 =============================================================================
 Module:        utils/rbac.py
-Description:   Role-based access removed for single-kiosk mode.
+Description:   Role-based access decommissioned. All observers share clinical privileges.
 =============================================================================
 """
 

@@ -22,7 +22,7 @@ def render_egg_icon(stage, chalk, vasc, status, selected=False):
     """Loads and returns a high-definition biological SVG with color correction."""
     # Mapping stages to custom files
     icon_map = {
-        "S0": "egg_s1.svg",
+        "S1": "egg_s1.svg",
         "S1": "egg_s1.svg",
         "S2": "egg_s2.svg",
         "S3": "egg_s3.svg",

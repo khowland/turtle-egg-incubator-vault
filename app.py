@@ -29,17 +29,16 @@ if not st.session_state.get("observer_id"):
 else:
     # Full menu visible when logged in
     pages = [
-        st.Page("vault_views/1_Dashboard.py", title="Home (Stats)", icon="📊"),
-        st.Page("vault_views/2_New_Intake.py", title="Add New Eggs", icon="🐣"),
-        st.Page("vault_views/3_Observations.py", title="Check on Eggs", icon="🔍"),
-        st.Page("vault_views/5_Settings.py", title="Manage Staff", icon="⚙️"),
-        st.Page("vault_views/6_Reports.py", title="Download Data", icon="📈"),
+        st.Page("vault_views/1_Dashboard.py", title="Today's Summary", icon="📊"),
+        st.Page("vault_views/2_New_Intake.py", title="New Intake", icon="🐣"),
+        st.Page("vault_views/3_Observations.py", title="Daily Checks", icon="🔍"),
+        st.Page("vault_views/5_Settings.py", title="Vault Administration", icon="⚙️"),
+        st.Page("vault_views/6_Reports.py", title="Egg Reports & Analytics", icon="📈"),
     ]
-    if can_elevated_clinical_operations():
-        pages.append(
-            st.Page("vault_views/7_Diagnostic.py", title="System Check", icon="🩺")
-        )
-    pages.append(st.Page("vault_views/8_Help.py", title="Help & Manual", icon="📚"))
+    pages.append(
+        st.Page("vault_views/7_Diagnostic.py", title="System Check", icon="🩺")
+    )
+    pages.append(st.Page("vault_views/8_Help.py", title="Manual & Help", icon="📚"))
 
 pg = st.navigation(pages)
 pg.run()

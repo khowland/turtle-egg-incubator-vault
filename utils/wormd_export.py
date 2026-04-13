@@ -30,7 +30,7 @@ def _utc_now_iso() -> str:
 
 def build_flat_case_csv(rows: list[dict[str, Any]]) -> str:
     """
-    One row per maternal case (mother). Column order is stable for spreadsheets
+    One row per maternal case (intake). Column order is stable for spreadsheets
     and mail merge. `rows` must be pre-joined dicts (see Reports view builder).
     """
     if not rows:

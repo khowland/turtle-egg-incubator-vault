@@ -841,14 +841,6 @@
   },
   {
     "table_name": "observer",
-    "column_name": "role",
-    "data_type": "text",
-    "is_nullable": "YES",
-    "key_type": null,
-    "default_value": "'Staff'::text"
-  },
-  {
-    "table_name": "observer",
     "column_name": "is_active",
     "data_type": "boolean",
     "is_nullable": "YES",

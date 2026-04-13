@@ -11,7 +11,6 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS public.observer (
     observer_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     observer_name TEXT NOT NULL,
-    role TEXT DEFAULT 'Staff',
     is_active BOOLEAN DEFAULT TRUE,
     is_deleted BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -36,20 +35,31 @@ CREATE TABLE IF NOT EXISTS public.species (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. [Lookup] Development Stages (S0-S6)
+-- 4. [Lookup] Development Stages (S1-S6)
 CREATE TABLE IF NOT EXISTS public.development_stage (
     stage_id TEXT PRIMARY KEY,
+    milestone TEXT NOT NULL,
+    sub_code TEXT,
     label TEXT NOT NULL,
+    ordinal_rank INTEGER NOT NULL,
     description TEXT
 );
 
--- 5. [Clinical] Maternal Case Ledger
-CREATE TABLE IF NOT EXISTS public.mother (
-    mother_id TEXT PRIMARY KEY, -- Standard v8: String-based ID logic (e.g. M20260411...)
-    mother_name TEXT NOT NULL,
+-- [System] Global Configuration Registry
+CREATE TABLE IF NOT EXISTS public.system_config (
+    config_key TEXT PRIMARY KEY,
+    config_value TEXT NOT NULL,
+    description TEXT,
+    modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 5. [Clinical] Biological Intake Ledger (formerly Mother)
+CREATE TABLE IF NOT EXISTS public.intake (
+    intake_id TEXT PRIMARY KEY, -- Standard v8: String-based ID logic (e.g. M20260411...)
+    intake_name TEXT, -- Generic name/label for the intake event
     finder_turtle_name TEXT,
     species_id TEXT REFERENCES public.species(species_id),
-    intake_date DATE DEFAULT CURRENT_DATE,
+    intake_date DATE DEFAULT CURRENT_DATE, -- Standard (§4.D)
     intake_condition TEXT,
     extraction_method TEXT,
     discovery_location TEXT,
@@ -66,8 +76,8 @@ CREATE TABLE IF NOT EXISTS public.mother (
 -- 6. [Clinical] Incubator Bin Registry
 CREATE TABLE IF NOT EXISTS public.bin (
     bin_id TEXT PRIMARY KEY,
-    mother_id TEXT REFERENCES public.mother(mother_id),
-    harvest_date DATE DEFAULT CURRENT_DATE,
+    intake_id TEXT REFERENCES public.intake(intake_id),
+    bin_date DATE DEFAULT CURRENT_DATE, -- Standard (§4.D)
     total_eggs INTEGER,
     target_total_weight_g NUMERIC,
     substrate TEXT,
@@ -107,6 +117,7 @@ CREATE TABLE IF NOT EXISTS public.bin_observation (
     bin_id TEXT REFERENCES public.bin(bin_id),
     observer_id UUID REFERENCES public.observer(observer_id),
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    bin_observation_date DATE DEFAULT CURRENT_DATE, -- Standard (§4.D)
     bin_weight_g NUMERIC,
     water_added_ml NUMERIC,
     env_notes TEXT,
@@ -122,15 +133,17 @@ CREATE TABLE IF NOT EXISTS public.egg_observation (
     bin_id TEXT REFERENCES public.bin(bin_id),
     observer_id UUID REFERENCES public.observer(observer_id),
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    egg_observation_date DATE DEFAULT CURRENT_DATE, -- For clinical backdating (§4.D)
     vascularity BOOLEAN,
-    chalking INTEGER, -- 0-2 Scale
-    molding BOOLEAN,
-    leaking BOOLEAN,
-    dented BOOLEAN DEFAULT FALSE,
+    chalking INTEGER, -- 0-3 Scale
+    molding INTEGER DEFAULT 0,
+    leaking INTEGER DEFAULT 0,
+    dented INTEGER DEFAULT 0,
     discolored BOOLEAN DEFAULT FALSE,
     moisture_deficit_g NUMERIC,
     water_added_ml NUMERIC,
     stage_at_observation TEXT,
+    sub_stage_code TEXT,
     void_reason TEXT,
     notes TEXT,
     is_deleted BOOLEAN DEFAULT FALSE,
@@ -142,7 +155,7 @@ CREATE TABLE IF NOT EXISTS public.egg_observation (
 CREATE TABLE IF NOT EXISTS public.hatchling_ledger (
     hatchling_ledger_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     egg_id TEXT NOT NULL,
-    mother_id TEXT NOT NULL,
+    intake_id TEXT NOT NULL,
     session_id TEXT,
     hatch_date DATE DEFAULT CURRENT_DATE,
     hatch_weight_g NUMERIC,
@@ -186,20 +199,30 @@ INSERT INTO public.species (species_id, species_name, species_code, common_name,
 ON CONFLICT (species_id) DO NOTHING;
 
 -- Populate Development Stages
-INSERT INTO public.development_stage (stage_id, label, description) VALUES
-('S0', 'Intake', 'Initial assessment and entry into the vault.'),
-('S1', 'Early Dev', 'Initial incubation period; no vascularity visible.'),
-('S2', 'Vascular', 'Network of veins clearly visible during candling.'),
-('S3', 'Chalking', 'Visible calcium shell thickening.'),
-('S4', 'Late Stage', 'Heavy vascularity or shadow movement; yolk absorption start.'),
-('S5', 'Pipping', 'Physical breakthrough of the shell surface.'),
-('S6', 'Hatched', 'Complete emergence; ready for transition.')
-ON CONFLICT (stage_id) DO NOTHING;
+INSERT INTO public.development_stage (stage_id, milestone, sub_code, label, ordinal_rank, description) VALUES
+('S1',     'S1', NULL,  'Intake',  100, 'Baseline post-oviposition entry.'),
+('S2S',    'S2', 'S',   'Spot',    200, 'Initial chalking spot at apex.'),
+('S2B',    'S2', 'B',   'Band',    210, 'Equatorial calcification band.'),
+('S2F',    'S2', 'F',   'Full',    220, 'Total calcification (Joint-Covering).'),
+('S3',     'S3', NULL,  'Veins',   300, 'Vascularization: Vitelline veins visible.'),
+('S4C',    'S4', 'C',   'C-Stage', 400, 'Early embryonic curve (Shrimp).'),
+('S4T',    'S4', 'T',   'Term',    410, 'Advanced development shadow occlusion.'),
+('S4M',    'S4', 'M',   'Motion',  420, 'Somatic movement detected.'),
+('S5',     'S5', NULL,  'Pipping', 500, 'Mechanical shell breach initiated.'),
+('S6-YA1', 'S6', 'YA1', 'Hatch 1', 600, 'Hatched; Full Yolk Sac external.'),
+('S6-YA2', 'S6', 'YA2', 'Hatch 2', 610, 'Hatched; Half Yolk absorbed.'),
+('S6-YA3', 'S6', 'YA3', 'Hatch 3', 620, 'Hatched; Fully Absorbed (READY TO EXPORT).')
+ON CONFLICT (stage_id) DO UPDATE SET milestone = EXCLUDED.milestone, sub_code = EXCLUDED.sub_code, label = EXCLUDED.label, ordinal_rank = EXCLUDED.ordinal_rank, description = EXCLUDED.description;
+
+-- Populate System Confidence Checks
+INSERT INTO public.system_config (config_key, config_value, description)
+VALUES ('MIN_EXPORT_STAGE_ORDINAL', '620', 'Minimum developmental stage (ordinal) required for site export.')
+ON CONFLICT (config_key) DO NOTHING;
 
 -- Populate Initial Clinical Observers (Seed Users)
-INSERT INTO public.observer (observer_name, role) VALUES
-('WINC Staff', 'Admin'),
-('Volunteer Biologist', 'Biologist')
+INSERT INTO public.observer (observer_name) VALUES
+('WINC Staff'),
+('Volunteer Biologist')
 ON CONFLICT DO NOTHING;
 
 -- =============================================================================
@@ -218,7 +241,7 @@ DECLARE
   v_intake_date date;
   v_session_id text;
   v_observer_id uuid;
-  v_mother_id text;
+  v_intake_id text;
   v_bin jsonb;
   v_bin_id text;
   v_notes text;
@@ -239,12 +262,12 @@ BEGIN
   -- 2. Update Global Species Counter
   UPDATE public.species SET intake_count = v_next_intake WHERE species_id = v_species_id;
 
-  -- 3. Create Maternal Case Record
-  v_mother_id := 'M' || to_char(clock_timestamp(), 'YYYYMMDDHH24MISS');
+  -- 3. Create Biological Intake Record
+  v_intake_id := 'I' || to_char(clock_timestamp(), 'YYYYMMDDHH24MISS');
   
-  INSERT INTO public.mother (
-    mother_id,
-    mother_name,
+  INSERT INTO public.intake (
+    intake_id,
+    intake_name,
     finder_turtle_name,
     species_id,
     intake_date,
@@ -256,15 +279,15 @@ BEGIN
     created_by_id,
     modified_by_id
   ) VALUES (
-    v_mother_id,
-    NULLIF(p_payload#>>'{mother,mother_name}', ''),
-    NULLIF(p_payload#>>'{mother,finder_turtle_name}', ''),
+    v_intake_id,
+    NULLIF(p_payload#>>'{intake,intake_name}', ''),
+    NULLIF(p_payload#>>'{intake,finder_turtle_name}', ''),
     v_species_id,
-    COALESCE(NULLIF(p_payload#>>'{mother,intake_date}', '')::date, v_intake_date),
-    NULLIF(p_payload#>>'{mother,intake_condition}', ''),
-    NULLIF(p_payload#>>'{mother,extraction_method}', ''),
-    NULLIF(p_payload#>>'{mother,discovery_location}', ''),
-    NULLIF(p_payload#>>'{mother,carapace_length_mm}', '')::numeric,
+    COALESCE(NULLIF(p_payload#>>'{intake,intake_date}', '')::date, v_intake_date),
+    NULLIF(p_payload#>>'{intake,intake_condition}', ''),
+    NULLIF(p_payload#>>'{intake,extraction_method}', ''),
+    NULLIF(p_payload#>>'{intake,discovery_location}', ''),
+    NULLIF(p_payload#>>'{intake,carapace_length_mm}', '')::numeric,
     v_session_id,
     v_observer_id,
     v_observer_id
@@ -281,9 +304,9 @@ BEGIN
 
     -- Create Bin
     INSERT INTO public.bin (
-      bin_id, mother_id, bin_notes, session_id, created_by_id, modified_by_id
+      bin_id, intake_id, bin_notes, session_id, created_by_id, modified_by_id
     ) VALUES (
-      v_bin_id, v_mother_id, v_notes, v_session_id, v_observer_id, v_observer_id
+      v_bin_id, v_intake_id, v_notes, v_session_id, v_observer_id, v_observer_id
     );
 
     -- Create Eggs & Baseline Observations
@@ -297,14 +320,14 @@ BEGIN
           egg_id, bin_id, status, current_stage, intake_date, 
           session_id, created_by_id, modified_by_id
         ) VALUES (
-          v_egg_id, v_bin_id, 'Active', 'S0', v_intake_date,
+          v_egg_id, v_bin_id, 'Active', 'S1', v_intake_date,
           v_session_id, v_observer_id, v_observer_id
         );
 
         INSERT INTO public.egg_observation (
           session_id, egg_id, bin_id, observer_id, stage_at_observation, notes, created_by_id, modified_by_id
         ) VALUES (
-          v_session_id, v_egg_id, v_bin_id, v_observer_id, 'S0', 'Intake Baseline', v_observer_id, v_observer_id
+          v_session_id, v_egg_id, v_bin_id, v_observer_id, 'S1', 'Intake Baseline', v_observer_id, v_observer_id
         );
       END;
     END LOOP;
@@ -312,7 +335,7 @@ BEGIN
 
   -- 5. Return Handshake
   RETURN jsonb_build_object(
-    'mother_id', v_mother_id,
+    'intake_id', v_intake_id,
     'first_bin_id', v_first_bin
   );
 END;

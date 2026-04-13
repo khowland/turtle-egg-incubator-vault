@@ -20,7 +20,7 @@ from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
 from utils.rbac import can_elevated_clinical_operations
 from utils.wormd_export import build_flat_case_csv, build_wormd_intake_json_bundle
 
-supabase_client = bootstrap_page("Reports", "📈")
+supabase_client = bootstrap_page("Egg Reports & Analytics", "📈")
 
 st.title("🛡️ Egg Reports & Analytics")
 
@@ -56,16 +56,16 @@ with st.sidebar:
 
     if can_elevated_clinical_operations():
         mothers_res = (
-            supabase_client.table("mother")
-            .select("mother_id, mother_name, species_id, intake_date")
+            supabase_client.table("intake")
+            .select("intake_id, intake_name, species_id, intake_date")
             .eq("is_deleted", False)
-            .order("mother_id", desc=True)
+            .order("intake_id", desc=True)
             .limit(80)
             .execute()
         )
         mom_rows = mothers_res.data or []
         mom_labels = [
-            f"{m['mother_name']} ({(m.get('mother_id') or '')[:12]}…)" for m in mom_rows
+            f"{m['intake_name']} ({(m.get('intake_id') or '')[:12]}…)" for m in mom_rows
         ]
         mom_by_label = dict(zip(mom_labels, mom_rows))
         pick = st.multiselect(
@@ -92,14 +92,14 @@ with st.sidebar:
             hatch_rows = []
 
             # 1. Batch Fetch Foundational Data
-            chosen_mids = [m["mother_id"] for m in chosen]
+            chosen_mids = [m["intake_id"] for m in chosen]
             species_by_id = {s["species_id"]: s for s in species_result.data}
 
-            # All bins for chosen mothers
+            # All bins for chosen intakes
             all_bins_data = (
                 supabase_client.table("bin")
                 .select("*")
-                .in_("mother_id", chosen_mids)
+                .in_("intake_id", chosen_mids)
                 .eq("is_deleted", False)
                 .execute()
                 .data
@@ -178,14 +178,14 @@ with st.sidebar:
 
             for m in chosen:
                 sp = species_by_id.get(m["species_id"], {})
-                m_bins = [b for b in all_bins_data if b["mother_id"] == m["mother_id"]]
+                m_bins = [b for b in all_bins_data if b["intake_id"] == m["intake_id"]]
                 m_bin_ids = [b["bin_id"] for b in m_bins]
                 m_eggs = [e for e in all_eggs_data if e["bin_id"] in m_bin_ids]
 
                 flat_rows.append(
                     {
-                        "internal_case_id": m["mother_id"],
-                        "winc_case_number": m.get("mother_name"),
+                        "internal_case_id": m["intake_id"],
+                        "winc_case_number": m.get("intake_name"),
                         "finder_turtle_name": m.get("finder_turtle_name"),
                         "species_code": sp.get("species_code"),
                         "common_name": sp.get("common_name"),
@@ -204,8 +204,8 @@ with st.sidebar:
 
                 clinical_block.append(
                     {
-                        "internal_case_id": m["mother_id"],
-                        "winc_or_wormd_case_number": m.get("mother_name"),
+                        "internal_case_id": m["intake_id"],
+                        "winc_or_wormd_case_number": m.get("intake_name"),
                         "finder_turtle_name": m.get("finder_turtle_name"),
                         "species_id": m.get("species_id"),
                         "species_code": sp.get("species_code"),
@@ -241,7 +241,7 @@ with st.sidebar:
 
             csv_text = build_flat_case_csv(flat_rows)
             json_text = build_wormd_intake_json_bundle(
-                selection_criteria={"mother_ids": chosen_mids},
+                selection_criteria={"intake_ids": chosen_mids},
                 clinical_origin=clinical_block,
                 bins=all_bins if inc_bins else [],
                 eggs=all_eggs if inc_eggs else [],

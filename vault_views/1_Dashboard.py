@@ -19,7 +19,7 @@ import pandas as pd
 from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
 from utils.rbac import can_elevated_clinical_operations
 
-supabase_client = bootstrap_page("Today's Stats", "📊")
+supabase_client = bootstrap_page("Today's Summary", "📊")
 
 st.title("📊 Today's Summary")
 
@@ -124,12 +124,9 @@ if retirement_targets_list:
         st.info(
             f"The following bins have **0 active eggs**. They should be removed from the list."
         )
-        if not can_elevated_clinical_operations():
-            st.warning("Removing bins requires more permission.")
-        else:
-            selected_retirement_target = st.selectbox(
-                "Select Bin to Remove", retirement_targets_list
-            )
+        selected_retirement_target = st.selectbox(
+            "Select Bin to Remove", retirement_targets_list
+        )
 
             confirm_col, action_col = st.columns([2, 1])
             confirmation_toggle = confirm_col.toggle(
