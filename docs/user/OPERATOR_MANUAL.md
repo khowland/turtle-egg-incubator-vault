@@ -208,14 +208,14 @@ WINC uses a specialized "Alpha-Numeric" code for every stage. Understanding thes
 ![Turtle Lifecycle Infographic](../../assets/manual/turtle_lifecycle_infographic.png)
 
 *   **S0 (Baseline)**: A brand new egg. It looks uniform and clear.
-*   **S1 (Early Development)**: A tiny "disk" or spot appears on the top of the egg.
-*   **S2 (Vascular)**: You can see red veins. This is the heartbeat of the subject!
+*   <img src="../../assets/icons/egg_s1.svg" width="24"> **S1 (Early Development)**: A tiny "disk" or spot appears on the top of the egg.
+*   <img src="../../assets/icons/egg_s2.svg" width="24"> **S2 (Vascular)**: You can see red veins. This is the heartbeat of the subject!
 *   **S3 (The Chalking Window)**:
-    -   **S3S (Small)**: A small white patch appears.
-    -   **S3M (Medium)**: The white patch covers half the egg.
-    -   **S3J (Major)**: The entire egg is opaque white.
-*   **S4 (Late Stage)**: The egg is dark. You might see the baby moving inside.
-*   **S5 (Pipping)**: The baby uses its specialized "egg-tooth" to cut the shell. You will see a small crack or hole.
+    -   <img src="../../assets/icons/egg_s3.svg" width="24"> **S3S (Small)**: A small white patch appears.
+    -   <img src="../../assets/icons/egg_s3.svg" width="24"> **S3M (Medium)**: The white patch covers about half the egg.
+    -   <img src="../../assets/icons/egg_s3.svg" width="24"> **S3J (Major)**: The entire egg is opaque white.
+*   <img src="../../assets/icons/egg_s4.svg" width="24"> **S4 (Late Stage)**: The egg is dark. You might see the baby moving inside.
+*   <img src="../../assets/icons/egg_s5.svg" width="24"> **S5 (Pipping)**: The baby uses its specialized "egg-tooth" to cut the shell. You will see a small crack or hole.
 *   **S6 (Hatched)**: The turtle has fully emerged from the shell and is active in the bin.
 
 ### 4.2 Recording Hatching Vitality
