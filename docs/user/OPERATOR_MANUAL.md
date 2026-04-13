@@ -125,7 +125,9 @@ When you pick up an egg to check it, **NEVER TURN IT OVER.**
 *   If you flip the egg (rotation), the embryo will be crushed or drowned by the yolk.
 *   **Correct Handling**: Lift the egg vertically. Keep the "Top" (identified by the white chalking patch) facing up at all times.
 
-### 3.4 Navigating the Egg Observation Grid
+---
+ 
+ ### 3.4 Navigating the Egg Observation Grid
 Once **[SAVED]**, you will see a visual representation of every egg in the bin, arranged in a grid.
 
 **Selection Logic:**

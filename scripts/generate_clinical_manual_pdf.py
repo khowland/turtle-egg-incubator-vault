@@ -95,10 +95,12 @@ class InstitutionalCompiler:
         # Goal: Prevent Orphans (Headings separated from content)
         # Goal: Glue Figures to Captions
         
-        raw_elements = soup.find_all(['h1', 'h2', 'h3', 'p', 'li', 'table'])
+        raw_elements = soup.find_all(['h1', 'h2', 'h3', 'p', 'li', 'table', 'hr'])
         
         idx = 0
         self.first_img_skipped = False
+        last_was_pagebreak = False
+        
         while idx < len(raw_elements):
             element = raw_elements[idx]
             tag = element.name
@@ -109,8 +111,10 @@ class InstitutionalCompiler:
                 # Bond the heading to the next 2 paragraphs/items to prevent the heading being at the bottom of a page
                 cluster = []
                 # Handle H1/H2 Page Breaks
-                if tag in ['h1', 'h2'] and idx > 0:
-                    self.elements.append(PageBreak())
+                if tag in ['h1', 'h2']:
+                    if idx > 0 and not last_was_pagebreak:
+                        self.elements.append(PageBreak())
+                        last_was_pagebreak = True
                 
                 # Add the heading itself
                 style = self.styles['H1'] if tag == 'h1' else (self.styles['H2'] if tag == 'h2' else self.styles['H3'])
@@ -121,7 +125,7 @@ class InstitutionalCompiler:
                 internal_idx = idx + 1
                 while lookahead_limit > 0 and internal_idx < len(raw_elements):
                     next_el = raw_elements[internal_idx]
-                    if next_el.name in ['h1', 'h2', 'h3']: break # Don't glue to next heading
+                    if next_el.name in ['h1', 'h2', 'h3'] or next_el.name == 'hr': break # Don't glue to next heading/break
                     
                     # Process and add to cluster
                     p_obj = self._process_element(next_el, md_path)
@@ -132,12 +136,22 @@ class InstitutionalCompiler:
                 
                 self.elements.append(KeepTogether(cluster))
                 idx = internal_idx
+                last_was_pagebreak = False
+                continue
+
+            # --- MANUAL PAGE BREAK (HR) ---
+            elif tag == 'hr':
+                if idx > 0 and not last_was_pagebreak:
+                    self.elements.append(PageBreak())
+                    last_was_pagebreak = True
+                idx += 1
                 continue
 
             # --- STANDALONE PARAGRAPH / FIGURE LOGIC ---
             else:
                 p_obj = self._process_element(element, md_path)
                 if p_obj:
+                    last_was_pagebreak = False
                     # Check if this is an image. If so, look ahead for a caption.
                     if isinstance(p_obj, Image) and idx + 1 < len(raw_elements):
                         next_el = raw_elements[idx+1]
