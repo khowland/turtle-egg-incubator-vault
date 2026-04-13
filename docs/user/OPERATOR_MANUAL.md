@@ -149,7 +149,7 @@ This is the most important report for the Science team. It shows a grid of "Dang
 *   **Green Squares**: Normal development for that time of year.
 *   **Red Squares**: A "Critical Window" where many eggs are failing. If you see a cluster of Red, check the incubator temperature immediately!
 
-> [Figure 6.1: Report Placeholder - Mortality Heatmap View]
+![WINC Analytical Dashboard: Mortality Heatmap and Stage Distribution](../../assets/manual/report_sample_dashboard.png)
 
 ### 6.2 WormD Exports (Sharing for Science)
 WINC is part of a global network. We share our data with other turtle scientists using a format called **WormD**.
