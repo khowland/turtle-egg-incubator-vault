@@ -125,7 +125,7 @@ with st.container(border=True):
             key=f"note_{i}",
             placeholder="e.g., 1:1 Vermiculite",
         )
-        if cols[3].button("REMOVE", key=f"del_{i}", help="REMOVE"):
+        if cols[3].button("DELETE", key=f"del_{i}", help="DELETE"):
             st.session_state.bin_rows.pop(i)
             for idx, r in enumerate(st.session_state.bin_rows):
                 r["bin_num"] = idx + 1

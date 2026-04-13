@@ -137,7 +137,7 @@ if retirement_targets_list:
             )
 
             if action_col.button(
-                "REMOVE BIN",
+                "DELETE",
                 disabled=not confirmation_toggle,
                 use_container_width=True,
                 type="primary",

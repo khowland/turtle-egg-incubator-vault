@@ -318,7 +318,8 @@ if not st.session_state.surgical_resurrection:
                 help="Record the volume added based on your clinical assessment.",
             )
 
-            if st.button("START WORKING", type="primary"):
+            st.info("💡 **Clinical Requirement**: Record weights then press **SAVE** to unlock the observation grid.")
+            if st.button("SAVE", type="primary", help="Record weights and unlock the Egg Observation grid"):
 
                 def unlock():
                     get_resilient_table(supabase, "bin_observation").insert(

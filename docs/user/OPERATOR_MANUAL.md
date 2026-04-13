@@ -103,9 +103,9 @@ Follow these steps to register a healthy discovery:
 2.  **Assign WINC Case #**: Type the year and the sequence number (e.g., `2026-003`). This is the "Master ID" for the mother.
 3.  **Discovery Details**: Type the **Finder's Name** and where they found the turtle.
 4.  **Maternal Metrics**: Type the **Mother's Weight (g)** and **Carapace Length (mm)** if required by the Lead Biologist.
-5.  **Establishing Case**: Double-check your numbers. Then, click the big **[ESTABLISH CASE]** button.
+5.  **Establishing Case**: Double-check your numbers. Then, click the big **[SAVE]** button.
 
-> 📘 **NOTE**: When you click **[ESTABLISH CASE]**, the "Audit Robot" creates 1 Mother record, 1 Bin record, and up to 30 individual Egg records all at once. This is called an **Atomic Transaction**.
+> 📘 **NOTE**: When you click **[SAVE]**, the "Audit Robot" creates 1 Mother record, 1 Bin record, and up to 30 individual Egg records all at once. This is called an **Atomic Transaction**.
 
 ### 3.3 The DOA Salvage Protocol
 If a turtle is found deceased (Dead on Arrival) but the eggs are still viable, follow this path:
@@ -121,7 +121,7 @@ Sometimes a mother turtle lays so many eggs that they won't fit in one plastic b
 2.  Go to the **Supplemental Intake** screen (See Chapter 3).
 3.  Choose the same **Mother ID** and create **Bin 2**.
 
-> 🛑 **IMPORTANT: MOTHER ID VERIFICATION**: Before clicking **[ESTABLISH CASE]**, look at the physical tag on the mother turtle. Ensure it matches the **Mother ID** you selected in the app. Choosing the wrong ID will link your 30 eggs to the wrong biological parent in the permanent cloud records.
+> 🛑 **IMPORTANT: MOTHER ID VERIFICATION**: Before clicking **[SAVE]**, look at the physical tag on the mother turtle. Ensure it matches the **Mother ID** you selected in the app. Choosing the wrong ID will link your 30 eggs to the wrong biological parent in the permanent cloud records.
 
 ---
 
@@ -138,7 +138,8 @@ You cannot record observations for the eggs until you weigh the bin. The bin dat
     *   If your weight is **lower** than the Target, you must add water.
     *   If your weight is **higher**, contact the Lead Biologist (this may mean the substrate is too wet).
 3.  **Record Hydration**: Type the exact amount of water you added (in ml) into the **Actual Water Added (ml)** box.
-4.  **Clinical Unlock**: Click the **[START WORKING]** button. The Egg Grid will now appear.
+4.  **Clinical Unlock**: Click the **[SAVE]** button. 
+    > 📘 **THE SAVE BUTTON**: This button acts as a **Clinical Unlock**. It is a biological safeguard that ensures the bin environment (weights and hydration) is recorded *before* any egg-specific health scores are entered. This creates a complete and accurate clinical timeline.
 
 > [Figure 3.1: Hydration Gate Placeholder - Weighing the Bin]
 
@@ -239,7 +240,7 @@ Administrators use the **Vault Settings** to keep the system up to date.
 At the end of the hatching season, you must retire empty bins to keep the Dashboard clean.
 1.  Go to the **Summary Dashboard**.
 2.  Scroll to the **🧹 Remove Empty Bins** section.
-3.  Choose the Bin and click **[REMOVE BIN]**.
+3.  Choose the Bin and click **[DELETE]**.
 
 > ⚠️ **KPI ACCURACY WARNING (GHOST DATA)**: Before removing a bin, ensure ALL eggs have reached Stage S6 (Hatched) and have been "Transferred." If you retire a bin that still contains "Active" eggs, those eggs will become **Ghost Data**. They will still exist in the database, but they will no longer appear in your daily counts or health alerts.
 
