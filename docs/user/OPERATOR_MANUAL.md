@@ -180,21 +180,14 @@ WINC uses a specialized "Alpha-Numeric" code for every stage. Understanding thes
 *   **The Last Letter (S, M, J)**: Indicates the **Level of Progress** during that chapter.
 
 #### The Chalking Expansion (Stage 3):
-| Code | Full Name | Biological Meaning |
-| :--- | :--- | :--- |
-| **S3S** | Stage 3 - **Small** | Only a tiny "white dot" or patch of calcium is visible. |
-| **S3M** | Stage 3 - **Medium** | The white chalking patch covers about half the egg. |
-| **S3J** | Stage 3 - **Joint-Covering** | The "Major" level. The white coating has joined together to cover the entire egg surface. |
+Stage 3 represents the "White Chalking" process where calcium is absorbed from the shell. It is tracked in three levels: **Small (S3S)**, **Medium (S3M)**, and **Joint-Covering (S3J)**.
 
 ![Turtle Lifecycle Infographic](../../assets/manual/turtle_lifecycle_infographic.png)
 
 *   **S0 (Baseline)**: A brand new egg. It looks uniform and clear.
 *   <img src="../../assets/icons/egg_s1.svg" width="24"> **S1 (Early Development)**: A tiny "disk" or spot appears on the top of the egg.
 *   <img src="../../assets/icons/egg_s2.svg" width="24"> **S2 (Vascular)**: You can see red veins. This is the heartbeat of the subject!
-*   **S3 (The Chalking Window)**:
-    -   <img src="../../assets/icons/egg_s3.svg" width="24"> **S3S (Small)**: A small white patch appears.
-    -   <img src="../../assets/icons/egg_s3.svg" width="24"> **S3M (Medium)**: The white patch covers about half the egg.
-    -   <img src="../../assets/icons/egg_s3.svg" width="24"> **S3J (Major)**: The entire egg is opaque white.
+*   <img src="../../assets/icons/egg_s3.svg" width="24"> **S3 (Chalking)**: Calcium patches appear. Tracked as **S3S** (Small), **S3M** (Medium), or **S3J** (Major/Joint-Covering).
 *   <img src="../../assets/icons/egg_s4.svg" width="24"> **S4 (Late Stage)**: The egg is dark. You might see the baby moving inside.
 *   <img src="../../assets/icons/egg_s5.svg" width="24"> **S5 (Pipping)**: The baby uses its specialized "egg-tooth" to cut the shell. You will see a small crack or hole.
 *   **S6 (Hatched)**: The turtle has fully emerged from the shell and is active in the bin.
