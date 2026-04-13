@@ -2,12 +2,6 @@
 
 ---
 
-# 🐢 WINC Sovereign Clinical Incubator System
-## Operator's Guide and Clinical Protocol
-**Release v10.5.1 | Institutional Edition**
-
----
-
 ## 📖 PREFACE: THE STANDARDS OF SOVEREIGNTY
 
 ### 1.1 Purpose of this Document
