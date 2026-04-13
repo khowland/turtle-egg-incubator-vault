@@ -147,8 +147,27 @@ class InstitutionalCompiler:
         cover_frame = Frame(0, 0, 210*mm, 297*mm, id='cover_frame', leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
         content_frame = Frame(20*mm, 20*mm, 170*mm, 257*mm, id='content_frame')
         def draw_cover(canvas, doc):
-            cover_path = os.path.join(os.getcwd(), "assets", "manual", "operators_manual_cover_page_optimized.png")
-            if os.path.exists(cover_path): canvas.drawImage(cover_path, 0, 0, width=210*mm, height=297*mm)
+            from PIL import Image as PILImage
+            from reportlab.lib.utils import ImageReader
+            import io
+            
+            cover_path = os.path.join(os.getcwd(), "assets", "manual", "operators_manual_cover_page.png")
+            if os.path.exists(cover_path):
+                # Use PIL to load and potentially handle the large image more gracefully
+                with PILImage.open(cover_path) as img:
+                    # Convert to RGB to allow saving as JPEG
+                    if img.mode in ('RGBA', 'P'):
+                        img = img.convert('RGB')
+                    
+                    # Resize to a safe but high-quality resolution (approx 180dpi)
+                    img.thumbnail((1500, 2100), PILImage.Resampling.LANCZOS)
+                    
+                    # Store in a memory buffer as JPEG (much more memory efficient for reportlab)
+                    img_buffer = io.BytesIO()
+                    img.save(img_buffer, format='JPEG', quality=90, optimize=True)
+                    img_buffer.seek(0)
+                    
+                    canvas.drawImage(ImageReader(img_buffer), 0, 0, width=210*mm, height=297*mm)
         doc.addPageTemplates([PageTemplate(id='Cover', frames=cover_frame, onPage=draw_cover), PageTemplate(id='Later', frames=content_frame, onPage=self.header_footer)])
         doc.multiBuild([PageBreak('Later')] + self.elements)
 
