@@ -84,6 +84,7 @@ def process_element(pdf, element, first_img_skipped, md_path, capture_toc=False)
         if capture_toc: pdf.add_toc_entry(1, text, pdf.page_no())
         pdf.ln(5)
     elif element.name == 'h2':
+        pdf.add_page() # ENFORCE PAGE BREAK FOR MAJOR SECTIONS
         pdf.ln(5)
         pdf.set_font('helvetica', 'B', 16)
         pdf.cell(0, 10, text, new_x="LMARGIN", new_y="NEXT")
