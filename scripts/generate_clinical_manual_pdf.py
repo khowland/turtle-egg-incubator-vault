@@ -32,11 +32,20 @@ def generate_pdf(md_path, pdf_path):
 
     pdf = ClinicalManualPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
     
-    # Title Page
+    # 1. Page 1: Artistic Cover Page
+    pdf.add_page()
+    cover_path = os.path.join(os.getcwd(), "assets", "manual", "operators_manual_cover_page.png")
+    if os.path.exists(cover_path):
+        pdf.image(cover_path, x=0, y=0, w=210, h=297) # Full page bleed
+    else:
+        pdf.set_font('helvetica', 'B', 16)
+        pdf.cell(0, 10, "[Cover Image Placeholder]", align='C')
+
+    # 2. Page 2: Technical Title Page
+    pdf.add_page()
     pdf.set_font('helvetica', 'B', 24)
-    pdf.ln(50)
+    pdf.ln(80)
     pdf.cell(0, 20, "WINC Incubator System", align='C', new_x="LMARGIN", new_y="NEXT")
     pdf.set_font('helvetica', '', 16)
     pdf.cell(0, 10, "Operator's Guide and Clinical Protocol", align='C', new_x="LMARGIN", new_y="NEXT")
