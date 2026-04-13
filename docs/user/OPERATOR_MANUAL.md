@@ -148,8 +148,8 @@ Sometimes a mother turtle lays so many eggs that they won't fit in one plastic b
 
 The **Observations Workbench** is where you will spend 90% of your time. This screen is used to check the health of the eggs and ensure they are hydrated.
 
-### 4.1 The Hydration Gate (Safety Protocol)
-The system has a built-in "Safety Lock" called the **Hydration Gate**. You cannot see the eggs until you prove that the bin has enough water.
+### 3.1 The Hydration Gate
+You cannot record observations for the eggs until you weigh the bin. The bin data captured here ensures later reporting is meaningful.
 
 #### Step-by-Step Instructions:
 1.  **Mass Verification**: Take the physical bin to the scale. Type the mass in the **Current Total Mass (g)** box.
@@ -159,15 +159,15 @@ The system has a built-in "Safety Lock" called the **Hydration Gate**. You canno
 3.  **Record Hydration**: Type the exact amount of water you added (in ml) into the **Actual Water Added (ml)** box.
 4.  **Clinical Unlock**: Click the **[START WORKING]** button. The Egg Grid will now appear.
 
-> [Figure 4.1: Hydration Gate Placeholder - Weighing the Bin]
+> [Figure 3.1: Hydration Gate Placeholder - Weighing the Bin]
 
-### 4.2 Biological Mandate: NEVER ROTATE
+### 3.2 Biological Mandate: NEVER ROTATE
 🛑 **IMPORTANT**: When you pick up an egg to check it, **NEVER TURN IT OVER.**
 Turtle eggs are not like chicken eggs. The embryo (the baby) is attached to the bottom of the shell. The air sac (the breathing room) is at the top. If you flip the egg, the baby will drown in its own yolk.
 
 ![Egg Air Sac Diagram](../../assets/manual/egg_air_sac_diagram.png)
 
-### 4.3 Using the Property Matrix (Batch Updating)
+### 3.3 Using the Property Matrix (Batch Updating)
 Checking 100 eggs one-by-one is slow. WINC uses a **Property Matrix** to let you update whole groups at once.
 
 1.  **Select Subjects**: Click the little check-boxes on the left side of the Egg Grid. You can select all eggs in a bin or just a few.
@@ -175,7 +175,7 @@ Checking 100 eggs one-by-one is slow. WINC uses a **Property Matrix** to let you
 3.  **Set Health Scores**: Use the sliders to rate health markers from **0 (None/Healthy)** to **3 (Critical/Dangerous)**.
 4.  **Sign and Commit**: Click the big **[SAVE]** button at the bottom. The system will record your name and the current time for every egg you selected.
 
-### 4.4 Clinical Health Scales (The 0-3 Rule)
+### 3.4 Clinical Health Scales (The 0-3 Rule)
 | Marker | Level 0 | Level 1 | Level 2 | Level 3 |
 | :--- | :--- | :--- | :--- | :--- |
 | **Chalking** | No White | Small Spot | Half the Egg | Fully White |
@@ -191,7 +191,7 @@ Checking 100 eggs one-by-one is slow. WINC uses a **Property Matrix** to let you
 
 Every turtle egg in the Vault follows a "Biological State Machine." This means it moves from Stage S0 (Just Laid) to Stage S6 (Hatched).
 
-### 5.1 Understanding the Stages (Anatomy of a Code)
+### 4.1 Understanding the Stages (Anatomy of a Code)
 WINC uses a specialized "Alpha-Numeric" code for every stage. Understanding these letters helps you identify the subject's growth instantly.
 
 *   **The First Letter (S)**: Stands for **"Stage."**
@@ -218,7 +218,7 @@ WINC uses a specialized "Alpha-Numeric" code for every stage. Understanding thes
 *   **S5 (Pipping)**: The baby uses its specialized "egg-tooth" to cut the shell. You will see a small crack or hole.
 *   **S6 (Hatched)**: The turtle has fully emerged from the shell and is active in the bin.
 
-### 5.2 Recording Hatching Vitality
+### 4.2 Recording Hatching Vitality
 When an egg reaches **Stage S6**, the system will ask for a **Vitality Score**. This tells us how strong the baby is.
 
 1.  **Select the Egg**: In the workbench, change the **Stage** to **S6**.
@@ -228,7 +228,7 @@ When an egg reaches **Stage S6**, the system will ask for a **Vitality Score**. 
     -   **0 (Failed)**: The baby died during the hatching process.
 3.  **Incubation Duration**: The vault will automatically calculate how many days the egg was in the incubator. This is critical data for scientists!
 
-> [Figure 5.1: Lifecycle Chart Placeholder - Photo of each Stage]
+> [Figure 4.1: Lifecycle Chart Placeholder - Photo of each Stage]
 
 ---
 
@@ -236,7 +236,7 @@ When an egg reaches **Stage S6**, the system will ask for a **Vitality Score**. 
 
 We understand that clinical recording is fast-paced and typos happen. WINC provides a **Surgical Correction Mode** to fix data without breaking the "Chain of Custody."
 
-### 6.1 The Mandatory Void Policy
+### 5.1 The Mandatory Void Policy
 In the WINC Vault, we never "Overwrite" or "Erase" data. Instead, we **Void** it. This means the old bad data is hidden, but the system keeps a secret copy for the Biologist to prove that no one "faked" the records.
 
 #### Step-by-Step Instructions for Fixing a Typo:
@@ -246,13 +246,13 @@ In the WINC Vault, we never "Overwrite" or "Erase" data. Instead, we **Void** it
 4.  **Provide a Reason**: A box will appear. You **MUST** type why you are deleting the record (e.g., *"Typo in weight," "Checked wrong bin"*).
     > 🛑 **IMPORTANT**: The system will block you if you leave the reason box empty.
 
-> [Figure 6.1: Correction Mode Placeholder - The Void Button]
+> [Figure 5.1: Correction Mode Placeholder - The Void Button]
 
-### 6.2 The Mid-Season Registry Lock
+### 5.2 The Mid-Season Registry Lock
 To prevent accidents, the "Master Lists" (like Species names and Observer names) are locked during the active hatching season. 
 *   If you need to add a new volunteer name, contact a **Vault Administrator** to use the **Unlock Key**.
 
-### 6.3 The Resurrection Vault
+### 5.3 The Resurrection Vault
 If a bin or a mother is deleted by mistake, the data is not gone! It is moved to the **Resurrection Vault**. Only the System Admin can "resurrect" these records.
 
 ---
@@ -261,14 +261,14 @@ If a bin or a mother is deleted by mistake, the data is not gone! It is moved to
 
 The WINC Vault doesn't just store data; it translates it into biological stories. These reports help us understand which clutches are healthy and which ones need more help.
 
-### 7.1 The Mortality Heatmap
+### 6.1 The Mortality Heatmap
 This is the most important report for the Science team. It shows a grid of "Danger Zones."
 *   **Green Squares**: Normal development for that time of year.
 *   **Red Squares**: A "Critical Window" where many eggs are failing. If you see a cluster of Red, check the incubator temperature immediately!
 
-> [Figure 7.1: Report Placeholder - Mortality Heatmap View]
+> [Figure 6.1: Report Placeholder - Mortality Heatmap View]
 
-### 7.2 WormD Exports (Sharing for Science)
+### 6.2 WormD Exports (Sharing for Science)
 WINC is part of a global network. We share our data with other turtle scientists using a format called **WormD**.
 1.  Go to the **Download Data** screen.
 2.  Select **WormD Export**.
@@ -280,24 +280,24 @@ WINC is part of a global network. We share our data with other turtle scientists
 
 Field tablets rely on Wi-Fi or Cellular data. If the connection drops in the middle of a check, follow this **Resilience Protocol**.
 
-### 8.1 The Resilience Protocol
+### 7.1 The Resilience Protocol
 1.  ⚠️ **DO NOT REFRESH**: If you refresh the browser while the internet is "Red," you will lose the data currently in your tablet's local memory.
 2.  **Switch to Paper**: Immediately pull out your **Physical Field Sheets** (v2026). Record all weights and health scores by hand.
 3.  **The Double-Witness Rule**: Once the internet is restored, you must type the paper logs into the software. **A second person** (the "Witness") must sit next to you and check your typing against the paper to ensure there are no Subject ID typos.
 
-> [Figure 8.1: Crisis Icon Placeholder - The "Offline" Indicator]
+> [Figure 7.1: Crisis Icon Placeholder - The "Offline" Indicator]
 
 ---
 
 ## 📖 8. GLOSSARY & ICON KEY
 
-### 9.1 Clinical Vocabulary
+### 8.1 Clinical Vocabulary
 *   **Chalking**: The white "calcification" of the shell that shows the embryo is pulling calcium for its bones.
 *   **Hydration Gate**: The software lock that ensures bin mass is checked before egg handling.
 *   **Sovereign Residency**: The fact that our data lives in OUR vault, not a third-party commercial cloud.
 *   **Subject**: We use this word instead of "egg" to remind us that these are living individuals.
 
-### 9.2 Icon Key (Visual Language)
+### 8.2 Icon Key (Visual Language)
 *   ⚪ **Unchecked**: This egg has not been seen today.
 *   🟢 **Signature Applied**: You have successfully recorded an observation for this egg.
 *   ✨ **Gold Star**: This subject has reached Stage S6 (Hatched) and is a success!
