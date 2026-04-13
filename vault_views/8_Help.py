@@ -120,8 +120,22 @@ except Exception as e:
 
 # 3. Supplemental WINC Resources
 with st.sidebar:
+    st.header("🖨️ Clinical Printing")
+    pdf_path = os.path.join(os.getcwd(), "docs", "user", "OPERATOR_MANUAL_v10_5_1.pdf")
+    if os.path.exists(pdf_path):
+        with open(pdf_path, "rb") as f:
+            st.sidebar.download_button(
+                label="Download Full PDF (Printing)",
+                data=f,
+                file_name="WINC_OPERATOR_MANUAL_v10_5_1.pdf",
+                mime="application/pdf",
+                help="Download the institutional-grade paged version for physical lab binders."
+            )
+    else:
+        st.sidebar.error("PDF not found. Admin must run generation script.")
+
     st.header("🖇️ Quick Resources")
     st.write("[PostgreSQL Schema](docs/design/db_schema_export.txt)")
     st.write("[System Design Spec](docs/design/SYSTEM_DESIGN_SPEC.md)")
     st.divider()
-    st.caption("WINC-Vault v8.0.0 (2026 Season)")
+    st.caption("WINC-Vault v10.5.1 | Support: clinical@winc.org")

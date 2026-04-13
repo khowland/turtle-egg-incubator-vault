@@ -142,6 +142,8 @@ Sometimes a mother turtle lays so many eggs that they won't fit in one plastic b
 2.  Go to the **Supplemental Intake** screen (See Chapter 3).
 3.  Choose the same **Mother ID** and create **Bin 2**.
 
+> 🛑 **IMPORTANT: MOTHER ID VERIFICATION**: Before clicking **[ESTABLISH CASE]**, look at the physical tag on the mother turtle. Ensure it matches the **Mother ID** you selected in the app. Choosing the wrong ID will link your 30 eggs to the wrong biological parent in the permanent cloud records.
+
 ---
 
 ## 🔬 3. OBSERVATIONS: THE CLINICAL WORKBENCH (DAILY CHECKS)
@@ -254,6 +256,20 @@ To prevent accidents, the "Master Lists" (like Species names and Observer names)
 
 ### 5.3 The Resurrection Vault
 If a bin or a mother is deleted by mistake, the data is not gone! It is moved to the **Resurrection Vault**. Only the System Admin can "resurrect" these records.
+
+### 5.4 Registry Maintenance (Settings)
+Administrators use the **Vault Settings** to keep the system up to date.
+*   **Adding Observers**: Go to **User Registry**. Type the new name in the blank row at the bottom and click **[SAVE]**.
+*   **Species Config**: You can add new species codes (e.g., `PT` for Painted Turtle) in the **Species Config** tab.
+    > ⚠️ **CAUTION**: Changing a species code mid-season will change the "Optimal Temp" alerts for all existing eggs of that type. Always consult the Lead Biologist first.
+
+### 5.5 Season-End Cleanup (Bin Retirement)
+At the end of the hatching season, you must retire empty bins to keep the Dashboard clean.
+1.  Go to the **Summary Dashboard**.
+2.  Scroll to the **🧹 Remove Empty Bins** section.
+3.  Choose the Bin and click **[REMOVE BIN]**.
+
+> ⚠️ **KPI ACCURACY WARNING (GHOST DATA)**: Before removing a bin, ensure ALL eggs have reached Stage S6 (Hatched) and have been "Transferred." If you retire a bin that still contains "Active" eggs, those eggs will become **Ghost Data**. They will still exist in the database, but they will no longer appear in your daily counts or health alerts.
 
 ---
 
