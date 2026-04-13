@@ -1,4 +1,4 @@
-![WINC Manual Cover Page](assets/manual/cover_v10_5_1.png)
+![WINC Manual Cover Page](../../assets/manual/cover_v10_5_1.png)
 
 ---
 
@@ -115,7 +115,7 @@ When a mother turtle is found and eggs are collected, we must "Establish the Cas
 ### 3.1 Choosing the Intake Path
 Not every turtle arrives in the same way. Use the flowchart below to decide which path to take before you touch the screen.
 
-![Intake Logic Flowchart](assets/manual/intake_logic_flowchart.png)
+![Intake Logic Flowchart](../../assets/manual/intake_logic_flowchart.png)
 
 ### 3.2 Standard Clinical Intake Workflow
 Follow these steps to register a healthy discovery:
@@ -165,7 +165,7 @@ The system has a built-in "Safety Lock" called the **Hydration Gate**. You canno
 🛑 **IMPORTANT**: When you pick up an egg to check it, **NEVER TURN IT OVER.**
 Turtle eggs are not like chicken eggs. The embryo (the baby) is attached to the bottom of the shell. The air sac (the breathing room) is at the top. If you flip the egg, the baby will drown in its own yolk.
 
-![Egg Air Sac Diagram](assets/manual/egg_air_sac_diagram.png)
+![Egg Air Sac Diagram](../../assets/manual/egg_air_sac_diagram.png)
 
 ### 4.3 Using the Property Matrix (Batch Updating)
 Checking 100 eggs one-by-one is slow. WINC uses a **Property Matrix** to let you update whole groups at once.
@@ -205,7 +205,7 @@ WINC uses a specialized "Alpha-Numeric" code for every stage. Understanding thes
 | **S3M** | Stage 3 - **Medium** | The white chalking patch covers about half the egg. |
 | **S3J** | Stage 3 - **Joint-Covering** | The "Major" level. The white coating has joined together to cover the entire egg surface. |
 
-![Turtle Lifecycle Infographic](assets/manual/turtle_lifecycle_infographic.png)
+![Turtle Lifecycle Infographic](../../assets/manual/turtle_lifecycle_infographic.png)
 
 *   **S0 (Baseline)**: A brand new egg. It looks uniform and clear.
 *   **S1 (Early Development)**: A tiny "disk" or spot appears on the top of the egg.
