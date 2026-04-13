@@ -168,89 +168,92 @@ if btn_col2.button("SAVE", type="primary", use_container_width=True):
     def commit_all():
         st.session_state.is_submitting = True
         try:
-        if not is_valid_finder:
-            st.error(
-                "❌ Cannot Finalize: Finder/Turtle Name contains invalid characters."
-            )
-            st.stop()
+            if not is_valid_finder:
+                st.error(
+                    "❌ Cannot Finalize: Finder/Turtle Name contains invalid characters."
+                )
+                st.stop()
 
-        try:
-            with st.status("Saving Records...") as status:
-                finder_clean = str(re.sub(r"[^A-Z0-9]", "", finder_name.upper()))
-                bins_payload = []
-                for row_data in st.session_state.bin_rows:
-                    bid = (
-                        f"{selected_species['species_code']}{next_intake_number}-"
-                        f"{finder_clean}-{row_data['bin_num']}"
-                    )
-                    bins_payload.append(
-                        {
-                            "bin_id": bid,
-                            "bin_notes": row_data.get("notes", ""),
-                            "egg_count": row_data["egg_count"],
-                        }
-                    )
+            try:
+                with st.status("Saving Records...") as status:
+                    finder_clean = str(re.sub(r"[^A-Z0-9]", "", finder_name.upper()))
+                    bins_payload = []
+                    for row_data in st.session_state.bin_rows:
+                        bid = (
+                            f"{selected_species['species_code']}{next_intake_number}-"
+                            f"{finder_clean}-{row_data['bin_num']}"
+                        )
+                        bins_payload.append(
+                            {
+                                "bin_id": bid,
+                                "bin_notes": row_data.get("notes", ""),
+                                "egg_count": row_data["egg_count"],
+                            }
+                        )
 
-                rpc_payload = {
-                    "species_id": selected_species["species_id"],
-                    "next_intake_number": next_intake_number,
-                    "intake_date": str(intake_date),
-                    "session_id": st.session_state.session_id,
-                    "observer_id": str(st.session_state.observer_id),
-                    "mother": {
-                        "mother_name": case_number,
-                        "finder_turtle_name": finder_name,
+                    rpc_payload = {
                         "species_id": selected_species["species_id"],
+                        "next_intake_number": next_intake_number,
                         "intake_date": str(intake_date),
-                        "intake_condition": mother_condition,
-                        "extraction_method": extraction_method,
-                        "discovery_location": discovery_location,
-                        "carapace_length_mm": (
-                            carapace_length if carapace_length > 0 else None
-                        ),
-                    },
-                    "bins": bins_payload,
-                }
+                        "session_id": st.session_state.session_id,
+                        "observer_id": str(st.session_state.observer_id),
+                        "mother": {
+                            "mother_name": case_number,
+                            "finder_turtle_name": finder_name,
+                            "species_id": selected_species["species_id"],
+                            "intake_date": str(intake_date),
+                            "intake_condition": mother_condition,
+                            "extraction_method": extraction_method,
+                            "discovery_location": discovery_location,
+                            "carapace_length_mm": (
+                                carapace_length if carapace_length > 0 else None
+                            ),
+                        },
+                        "bins": bins_payload,
+                    }
 
-                try:
-                    rpc_result = supabase.rpc(
-                        "vault_finalize_intake", {"p_payload": rpc_payload}
-                    ).execute()
-                    out = rpc_result.data if rpc_result else None
-                    if isinstance(out, list) and len(out) == 1:
-                        out = out[0]
-                    if isinstance(out, str):
-                        out = json.loads(out)
+                    try:
+                        rpc_result = supabase.rpc(
+                            "vault_finalize_intake", {"p_payload": rpc_payload}
+                        ).execute()
+                        out = rpc_result.data if rpc_result else None
+                        if isinstance(out, list) and len(out) == 1:
+                            out = out[0]
+                        if isinstance(out, str):
+                            out = json.loads(out)
 
-                    if not out or not out.get("first_bin_id"):
-                        raise RuntimeError("RPC returned incomplete payload")
+                        if not out or not out.get("first_bin_id"):
+                            raise RuntimeError("RPC returned incomplete payload")
 
-                    status.update(
-                        label=f"Intake Successful! Case {case_number} established.",
-                        state="complete",
-                    )
-                    _intake_success_ui(out["first_bin_id"])
-                except Exception as rpc_err:
-                    import traceback
+                        status.update(
+                            label=f"Intake Successful! Case {case_number} established.",
+                            state="complete",
+                        )
+                        _intake_success_ui(out["first_bin_id"])
+                    except Exception as rpc_err:
+                        import traceback
 
-                    err_msg = str(rpc_err)
-                    # Extract the Postgres error if possible
-                    if hasattr(rpc_err, "message"):
-                        err_msg = rpc_err.message
+                        err_msg = str(rpc_err)
+                        # Extract the Postgres error if possible
+                        if hasattr(rpc_err, "message"):
+                            err_msg = rpc_err.message
 
-                    st.error(f"🔴 CRITICAL: Records could not be saved! {err_msg}")
-                    logger.error(
-                        "vault_finalize_intake RPC failed: %s", traceback.format_exc()
-                    )
-                    raise rpc_err
-        except Exception as error:
-            get_resilient_table(supabase, "system_log").insert(
-                {
-                    "session_id": st.session_state.session_id,
-                    "event_type": "ERROR",
-                    "event_message": f"CRITICAL: Incomplete Intake for Case {case_number}. Chain broke: {str(error)}",
-                }
-            ).execute()
-            raise error
+                        st.error(f"🔴 CRITICAL: Records could not be saved! {err_msg}")
+                        logger.error(
+                            "vault_finalize_intake RPC failed: %s", traceback.format_exc()
+                        )
+                        raise rpc_err
+            except Exception as error:
+                get_resilient_table(supabase, "system_log").insert(
+                    {
+                        "session_id": st.session_state.session_id,
+                        "event_type": "ERROR",
+                        "event_message": f"CRITICAL: Incomplete Intake for Case {case_number}. Chain broke: {str(error)}",
+                    }
+                ).execute()
+                raise error
+        except Exception as e:
+            logger.error(f"Commit error: {e}")
+            raise e
 
     safe_db_execute("Intake", commit_all)

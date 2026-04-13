@@ -1,4 +1,4 @@
-![WINC Manual Cover Poster](../../assets/manual/operators_manual_cover_page.png)
+![WINC Manual Cover Page](C:\Users\Kevin\.gemini\antigravity\brain\a0908a9b-25bb-4693-a303-8670a9a83009\winc_manual_cover_v10_5_1_1776042395008.png)
 
 ---
 
@@ -10,172 +10,170 @@
 
 ## 📖 PREFACE
 
-### Audience
-This guide is intended for clinical observers, field biologists, and system administrators responsible for the monitoring and health management of turtle embryos within the WINC Sovereign Vault.
+### Who is this for?
+This book is for **Observers** (people who check eggs), **Biologists** (science experts), and **Admins** (system helpers). It tells you how to use the WINC Vault to keep turtle eggs safe and healthy.
 
 ### Documentation Accessibility
-WINC is committed to providing accessible documentation. This manual is optimized for high-glare field environments and screen readers. For alternative formats, contact the System Administrator.
+We want everyone to be able to read this! This guide uses big pictures and simple words. If you need help, please ask your System Boss.
 
-### Related Information
-*   *WINC Maintenance and Deployment Guide*
-*   *Biological Field Protocol v2026.4*
+### Related Guides
+*   *WINC Maintenance Guide* (For technical setup)
+*   *Biological Field Sheet v2026* (For paper backup)
 
-### Conventions
-The following text conventions are used in this document:
-
-| Convention | Meaning |
+### How to use this Book
+| Style | What it means |
 | :--- | :--- |
-| **Boldface** | Indicates button names, menu items, or user interface fields. |
-| `Monospace` | Indicates system identifiers, egg IDs, or technical variables. |
-| *Italics* | Indicates emphasis, glossary terms, or references to other sections. |
-| > [!NOTE] | Provides additional information or helpful tips. |
-| > [!IMPORTANT] | Highlights critical clinical rules that must be followed. |
-| > [!CAUTION] | Indicates actions that may result in data loss or subject risk. |
+| **Bold Text** | A button you can click or a field name on the screen. |
+| `Monospace` | A system ID (like `BL1-HOWLAND-1`). |
+| 📘 **NOTE** | A helpful tip. |
+| 🛑 **IMPORTANT** | A rule you must NEVER break. |
+| ⚠️ **CAUTION** | An action that might change or delete data. |
 
 ---
 
-## 🏗️ 1. SYSTEM ARCHITECTURE
-
-The WINC Clinical Incubator System is a sovereign data environment designed for maximum reliability in remote clinical settings.
-
-*   **Clinical Vault (The Database)**: A hardened repository storing every biological signature and developmental transition.
-*   **The Workbench (The Application Tier)**: A responsive interface optimized for the "5th-Grader" intuitiveness standard, ensuring clinical excellence even under stress.
-*   **Audit Engine**: A background service that tracks every intake, observation, and state change to maintain case sovereignty.
-*   **Data Residency**: All clinical records are stored within the project's dedicated cloud instance, ensuring that WINC maintains 100% ownership and control over the biological data (Sovereign Residency).
-
----
-
-## 🏁 2. CORE OPERATIONS: IDENTITY AND SESSION
-
-### 2.1 Starting a Shift
-**Goal**: Establish an audit trail for clinical sessions and ensure data continuity.
-
-**Prerequisites**: Observer must be registered in the system.
-
-**Procedure**:
-1.  Locate the **Observer Name** selection list on the entry screen.
-2.  Select your name to initialize the session signature.
-3.  **The 4-Hour Rule**: If you return to the system within four hours of your last activity, the system will automatically resumed your previous session.
-    > [!NOTE]
-    > This rule ensures that a single day's work is consolidated into one clean report rather than fragmented logs.
-4.  Verify the status message: `"Session Active: [Your Name] is here."`
-
-### 2.2 The Clinical Pulse (Dashboard)
-**Goal**: Monitor real-time status and perform high-level resource management.
-
-The Home screen (Dashboard) displays key biological indicators (KPIs):
-*   **Active Subject Count**: Total embryos currently in the vault.
-*   **Success Rate (Hatched)**: Total subjects that have reached S6.
-*   **Critical Alerts**: A red indicator showing subjects with "Critical" (Level 3) Mold or Leaking observations.
-*   **Hydration Status**: Percentage of bins that have passed the **Hydration Gate** in the current 24-hour cycle.
-
-### 2.3 Season-End Archival (Cleanup)
-**Goal**: Decommission empty bins once all subjects have hatched or been transferred.
-
-**Procedure**:
-1.  Locate the **Remove Empty Bins** interface on the dashboard.
-2.  Select the target bin (Only bins with 0 active subjects are eligible).
-3.  Activate the **Confirm Archival** toggle.
-4.  Click **REMOVE BIN**.
-    > [!CAUTION]
-    > Archiving a bin removes it from the active workbench. Use the **Resurrection Vault** if a bin is archived prematurely.
+## 📑 TABLE OF CONTENTS
+1.  **[Introduction to the Vault](#-introduction-to-the-vault)**
+2.  **[Identity: Starting a Shift](#-identity-starting-a-shift)**
+3.  **[Intake: Adding New Turtles](#-intake-adding-new-turtles)**
+4.  **[Observations: Checking the Eggs](#-observations-checking-the-eggs)**
+5.  **[Lifecycle: The S0 to S6 Journey](#-lifecycle-the-s0-to-s6-journey)**
+6.  **[Admin: Fixing Mistakes](#-admin-fixing-mistakes)**
+7.  **[Reports: Reading the Data](#-reports-reading-the-data)**
+8.  **[Crisis: When the Internet Fails](#-crisis-when-the-internet-fails)**
+9.  **[Glossary & Icon Key](#-glossary--icon-key)**
 
 ---
 
-## 📥 3. CORE OPERATIONS: CLINICAL INTAKE
+## 🏗️ INTRODUCTION TO THE VAULT
 
-### 3.1 Establishing Case Sovereignty
-**Goal**: Transform a field discovery into a permanent clinical record.
-
-**Procedure**:
-1.  **Species Selection**: Select the subject species (e.g., *Blanding’s*, *Wood Turtle*).
-2.  **The Clue-Chain ID Generation**: The system dynamically creates a unique identifier (e.g., `BL14-HOWLAND-1`).
-    *   `BL`: Species Alpha-Code.
-    *   `14`: Seasonal Sequence.
-    *   `HOWLAND`: Finder/Case Holder Name.
-    *   `1`: Target Bin Assignment.
-3.  **Metric Documentation**: Record Mother's carapace length (mm) and extraction conditions.
-4.  **Finalization**: Click **ESTABLISH CASE**.
-    > [!CAUTION]
-    > Clicking Establish Case creates the Mother, Bin, and unique Egg records (Baseline S0) in a single atomic transaction. Ensure all intake data is accurate before clicking.
+The WINC System is like a high-tech "Vault" for turtle data. It has three main parts:
+1.  **The Vault (Database)**: Where every egg’s history is kept safe forever.
+2.  **The Workbench (App)**: The simple screen you use to record your work.
+3.  **The Audit Engine**: A robot that watches every change to make sure no data is lost.
 
 ---
 
-## 🔬 4. THE CLINICAL WORKBENCH: OBSERVATIONS
+## 🏁 1. IDENTITY: STARTING A SHIFT
 
-### 4.1 The Hydration Gate
-**Goal**: Ensure bin moisture levels are addressed before biological assessment begins.
+Before you work, the system needs to know who you are. This creates a "Digital Signature" on every egg you check.
 
-**Protocol**:
-1.  Access the Bin grid.
-2.  Input the **Total Mass (g)** of the bin.
-3.  Compare against the **Last Recorded Weight**.
-4.  Add water as required by clinical assessment.
-5.  Input the **Actual Water Added (ml)**.
-6.  Click **START WORKING** to unlock the individual egg grid.
+### Step-by-Step:
+1.  Find the **Observer Name** list on the start screen.
+2.  Click your name.
+3.  **The 4-Hour Rule**: If you take a short break (less than 4 hours), the system remembers you!
 
-### 4.2 Biological Lifecycle Assessment
-**Goal**: Record developmental markers and health indicators.
-
-> [!IMPORTANT]
-> **THE GOLDEN RULE: NEVER ROTATE EGGS.**
-> Embryos are oriented to the top of the shell. Rotating an egg can result in developmental failure or drowning of the subject. Maintain original orientation during all weighing and candling.
-
-**Procedures**:
-1.  **Stage Assignment**: Determine the developmental stage from **S0** (Baseline) to **S6** (Hatched).
-2.  **Property Matrix**: Record health sliders for **Mold**, **Leaking**, and **Denting** on a scale of 0 (Safe) to 3 (Critical).
-3.  **Signature**: Save your observation to apply your digital signature and timestamp.
+![Session Continuity Timeline](C:\Users\Kevin\.gemini\antigravity\brain\a0908a9b-25bb-4693-a303-8670a9a83009\session_continuity_timeline_1776042449924.png)
 
 ---
 
-## 🐣 5. TRANSITION AND HATCHING
+## 📥 2. INTAKE: ADDING NEW TURTLES
 
-### 5.1 S6 Transition (Vitality Records)
-**Goal**: Record the health markers at the moment of emergence.
+When a turtle is found in the field, we give her a place in the Vault. We call this "Establishing Case Sovereignty."
 
-**Procedure**:
-1.  Select the subject egg in the workbench grid.
-2.  Change the status to **S6 (Hatched)**.
-3.  Assign a **Vitality Score**:
-    *   **5 (Optimal)**: Strong, eyes open, active movement.
-    *   **3 (Guarded)**: Lethargic or large yolk sac present.
-    *   **0 (Failed)**: Death during pipping or emergence.
-4.  System will automatically log the **Incubation Duration** (Days).
+### Which Intake Path do I follow?
+Use this map to choose your path:
 
----
+![Intake Logic Flowchart](C:\Users\Kevin\.gemini\antigravity\brain\a0908a9b-25bb-4693-a303-8670a9a83009\intake_logic_flowchart_1776042423228.png)
 
-## ⚙️ 6. GOVERNANCE AND ADMINISTRATION
-
-### 6.1 Registry Protection (Mid-Season Lock)
-The **Mid-Season Lock** prevents accidental modifications to core registries (Species codes, Observer names) while active clinical work is in progress.
-
-### 6.2 Data Resurrection Vault
-If a bin or case is accidentally archived or deleted, use the **Resurrection Vault** to restore the subject record and its full history from the audit log.
-
-### 6.3 Bio-Analytics and WormD Export
-Navigate to the **REPORTS** module for:
-*   **Mortality Heatmaps**: Identification of critical loss windows.
-*   **WormD Export**: Standardized bundle generation (CSV/JSON) for data sharing with external biological agencies.
+### Step-by-Step:
+1.  **Species**: Click the box and pick the turtle type (e.g., *Blanding's*).
+2.  **WINC Case #**: Type the year and case number (e.g., `2026-001`).
+3.  **Who found the turtle?**: Type the finder's name. This creates the label for your physical bin!
+4.  **Condition**: Is the mother *Alive*, *Injured*, or *Dead*?
+5.  **Establishing Case**: Click the big **SAVE** button.
+    > ⚠️ **CAUTION**: Clicking Save creates the Mother, Bin, and all Egg records at once. Check your numbers first!
 
 ---
 
-## 🆘 7. CONTINUITY AND DISASTER RECOVERY
+## 🔬 3. OBSERVATIONS: CHECKING THE EGGS
 
-### 7.1 Crisis Mode (Connectivity Failure)
-In the event of network disruption:
-1.  **DO NOT REFRESH** the browser window.
-2.  Transition to **Physical Field Sheets** immediately.
-3.  Maintain subject identifiers as generated by the system.
-4.  Transcribe manual logs back into the system once the **Connectivity Restored** indicator is green.
+This is where you do the most important work. We call this screen "The Workbench."
+
+### 3.1 The Hydration Gate
+You cannot see the eggs until you weigh the bin. This keeps the environment perfect.
+1.  Type the current weight in the **Current Total Mass (g)** box.
+2.  Add water if the weight is too low.
+3.  Type the amount of water you added in **Actual Water Added (ml)**.
+4.  Click **START WORKING**.
+
+### 3.2 Biological Protocol: NEVER ROTATE
+🛑 **IMPORTANT**: **NEVER TURN A TURTLE EGG.**
+The baby turtle is on the bottom, and the air sac is at the top. If you flip the egg, the turtle will drown.
+
+![Egg Air Sac Diagram](C:\Users\Kevin\.gemini\antigravity\brain\a0908a9b-25bb-4693-a303-8670a9a83009\egg_air_sac_diagram_1776042408646.png)
+
+### 3.3 The Property Matrix (Batch Updating)
+Instead of clicking every egg one by one, you can "Batch Update" many at once!
+1.  Click the check-boxes for the eggs you want to change.
+2.  Choose the new **Stage** (S0-S6).
+3.  Choose the **Chalking** level: **Small**, **Medium**, or **Major**.
+4.  Use the sliders for **Mold**, **Leaking**, and **Denting**.
+5.  Click **SAVE** to sign your name to all of them at once.
+
+### 🔴 Bio-Critical Action Matrix
+| If you see... | Clinical Level | What to do |
+| :--- | :--- | :--- |
+| **Molding** | **Level 3 (Black)** | 🛑 STOP. Call a Senior Biologist. |
+| **Leaking** | **Level 3 (Rupture)** | 🛑 STOP. Do not touch. Call help. |
+| **Denting** | **Level 3 (Collapsed)** | 📘 NOTE. Add water immediately. |
 
 ---
 
-## 📖 8. GLOSSARY AND VOCABULARY
+## 🐣 4. LIFECYCLE: THE S0 TO S6 JOURNEY
 
-*   **Chalking**: The white calcification of the shell during subject development.
-*   **Mass Deficit**: Water loss through the shell membrane.
-*   **Pipping**: The initial break of the shell by the hatchling.
-*   **Sovereign Documentation**: Data that is archived locally and owner-controlled, preventing third-party platform lock-in.
+Every egg goes through 7 stages. Use this chart to identify the stage on your screen:
+
+![Turtle Lifecycle Infographic](C:\Users\Kevin\.gemini\antigravity\brain\a0908a9b-25bb-4693-a303-8670a9a83009\turtle_lifecycle_infographic_1776042434418.png)
+
+*   **S0 (Baseline)**: A brand new egg.
+*   **S5 (Pipping)**: The baby has used its "egg-tooth" to break the shell!
+*   **S6 (Hatched)**: The turtle is out and active.
+
+---
+
+## ⚙️ 5. ADMIN: FIXING MISTAKES
+
+We all make mistakes. Use **Correction Mode** to fix them surgically.
+
+### Surgical Correction Policy:
+1.  Click the **🛠️ Correction Mode** switch at the top.
+2.  Find the egg in the **Biological Timeline**.
+3.  Click **Void** on the bad entry.
+4.  **Mandatory Reason**: You MUST type why you are deleting it. This is a permanent audit record.
+
+---
+
+## 📈 6. REPORTS: READING THE DATA
+
+The system creates beautiful reports so we can help more turtles.
+
+*   **Mortality Heatmap**: This shows *when* eggs are most likely to fail. Red squares mean a "Critical Window."
+*   **WormD Export**: This creates a file you can send to other scientists. Click **WormD Export** and pick your format (CSV or JSON).
+
+---
+
+## 🆘 7. CRISIS: WHEN THE INTERNET FAILS
+
+If your screen stops responding or the "No Internet" bar turns red:
+
+1.  📘 **NOTE**: DO NOT refresh your browser. You might lose data in memory.
+2.  Use the **Physical Field Sheets** (Paper) to write down weights and health scores.
+3.  **The Double-Witness Rule**: Once the internet is back, type the data in. **A second person** must check your transcript to make sure there are no typos!
+
+---
+
+## 📖 8. GLOSSARY & ICON KEY
+
+### Vocabulary
+*   **Chalking**: White spots on the shell that show healthy growth. You can pick **Small**, **Medium**, or **Major** chalking depending on how much white you see.
+*   **Mass Deficit**: Water loss (needs more hydration).
+*   **Sovereign Documentation**: Data that stays in YOUR vault, not a third-party cloud.
+
+### Icon Key
+*   ⚪ **White Circle**: New/Not checked today.
+*   🟢 **Green Circle**: Finished for today.
+*   ✨ **Gold Stars**: Hatched (S6)!
+*   🛠️ **Wrench**: Correction Mode Active.
 
 ---
 

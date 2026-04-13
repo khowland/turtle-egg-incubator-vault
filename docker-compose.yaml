@@ -7,6 +7,7 @@ services:
       - ./devtools/expert.md:/a0/expert.md
       - ./devtools/qa_expert.md:/a0/qa_expert.md
       - ./.env:/a0/.env
+      - ./config:/a0/config
     ports:
       - 50081:80
     env_file: .env

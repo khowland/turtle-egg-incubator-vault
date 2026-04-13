@@ -28,19 +28,22 @@ DECLARE
   v_first_bin text;
 BEGIN
   v_species_id := p_payload->>'species_id';
-  v_next_intake := (p_payload->>'next_intake_number')::int;
   v_intake_date := (p_payload->>'intake_date')::date;
   v_session_id := p_payload->>'session_id';
   v_observer_id := (p_payload->>'observer_id')::uuid;
 
-  IF v_species_id IS NULL OR v_next_intake IS NULL OR v_session_id IS NULL OR v_observer_id IS NULL THEN
+  IF v_species_id IS NULL OR v_session_id IS NULL OR v_observer_id IS NULL THEN
     RAISE EXCEPTION 'vault_finalize_intake: missing required payload fields';
   END IF;
 
-  UPDATE public.species SET intake_count = v_next_intake WHERE species_id = v_species_id;
+  -- Atomic Lock & Increment (§35.5 - Fixes Race Condition)
+  SELECT intake_count INTO v_next_intake FROM public.species WHERE species_id = v_species_id FOR UPDATE;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'vault_finalize_intake: species_id % not found', v_species_id;
   END IF;
+  
+  v_next_intake := v_next_intake + 1;
+  UPDATE public.species SET intake_count = v_next_intake WHERE species_id = v_species_id;
 
   v_mother_id := 'M' || to_char(clock_timestamp(), 'YYYYMMDDHH24MS');
 
