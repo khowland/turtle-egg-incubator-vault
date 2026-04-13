@@ -47,7 +47,7 @@ class InstitutionalCompiler:
             canvas.setStrokeColor(colors.lightgrey)
             canvas.line(10*mm, 280*mm, 200*mm, 280*mm)
             canvas.setFillColor(colors.grey)
-            canvas.drawRightString(200*mm, 282*mm, "WINC CLINICAL INCUBATOR SYSTEM | v10.5.2")
+            canvas.drawRightString(200*mm, 282*mm, "WINC CLINICAL INCUBATOR SYSTEM | v10.6.0")
             canvas.setFont('Helvetica-Oblique', 8)
             canvas.drawCentredString(105*mm, 10*mm, f"Institutional Archive: 2026-SEASON-VOL | Page {doc.page} | Kevin Howland")
         canvas.restoreState()
@@ -79,7 +79,7 @@ class InstitutionalCompiler:
         self.elements.append(Paragraph("WINC Incubator System", self.styles['CentredTitle']))
         self.elements.append(Paragraph("Operator's Guide and Clinical Protocol", self.styles['H2']))
         self.elements.append(Spacer(1, 80*mm))
-        self.elements.append(Paragraph("Release v10.5.2 | Institutional Edition", self.styles['H3']))
+        self.elements.append(Paragraph("Release v10.6.0 | Institutional Edition", self.styles['H3']))
         self.elements.append(PageBreak())
         
         self.elements.append(Paragraph("Table of Contents", self.styles['H1']))
@@ -257,6 +257,6 @@ class InstitutionalCompiler:
         return None
 
 if __name__ == "__main__":
-    compiler = InstitutionalCompiler('./docs/user/OPERATOR_MANUAL_v10_5_1.pdf')
+    compiler = InstitutionalCompiler('./docs/user/OPERATOR_MANUAL_v10_6_0.pdf')
     compiler.compile('./docs/user/OPERATOR_MANUAL.md')
     print("ReportLab Adaptive Block Manual Compiled.")

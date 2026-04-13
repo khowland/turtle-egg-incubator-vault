@@ -28,7 +28,7 @@ To help you find information fast, we use a specific "Visual Logic" system:
 
 | Style | Clinical Meaning |
 | :--- | :--- |
-| **BRIGHT BOLD** | This is a real thing you see on the screen. It might be a button like **[SAVE]** or a field like **Mother Name**. |
+| **BRIGHT BOLD** | This is a real thing you see on the screen. It might be a button like **[SAVE]** or a field like **Intake ID**. |
 | `Monospace Code` | This is a computer-specific code (like a Subject ID `BL-2026-001`) that must be read exactly as written. |
 | 📘 **NOTE** | Helpful advice that makes your work faster or easier. |
 | 🛑 **IMPORTANT** | A **MANDATORY** rule. Breaking this rule may risk the life of an embryo. |
@@ -40,7 +40,7 @@ To help you find information fast, we use a specific "Visual Logic" system:
 
 ## 2. NEW INTAKE: ESTABLISHING CASES
 
-When a mother turtle is found and eggs are collected, we must add the new records to the database. This creates a permanent digital history for the mother, her plastic bin, and every individual egg (See Figure 3).
+When a turtle is found and eggs are collected, we must add the new records to the database. This creates a permanent digital history for the intake case, the plastic bin, and every individual egg (See Figure 3).
 
 ### 2.1 Clinical Logic: Choosing the Intake Path
 Not every turtle arrives in the same way. Use the flowchart below to decide which path to take before you touch the screen (See Figure 2).
@@ -55,8 +55,8 @@ Not every turtle arrives in the same way. Use the flowchart below to decide whic
 
 ### 2.1 The "Sovereign" Species ID
 1.  **Species Identification**: Click the **Species** box. Choose the correct turtle type (e.g., *Blanding’s* or *Wood Turtle*).
-2.  **Maternal Metrics**:
-    *   **Mother's Weight (g)**: Record the weight using the digital bench scale.
+2.  **Intake Metrics**:
+    *   **Intake Weight (g)**: Record the weight using the digital bench scale.
     *   **Carapace Length (mm)**: Measure the Straight Carapace Length (SCL). (See Figure 4).
     
     ![Figure 4: Carapace Measurement Technique Diagram](../../assets/manual/placeholder_screenshot.png)
@@ -65,18 +65,18 @@ Not every turtle arrives in the same way. Use the flowchart below to decide whic
 3.  **Assign WINC Case #**: Type the year and the sequence number (e.g., `2026-003`).
 
 ### 2.2 Supplemental Intake (Multiple Bins)
-Sometimes a mother turtle lays more eggs than will fit in one plastic bin. 
+Sometimes a turtle lays more eggs than will fit in one plastic bin. 
 
 **Scenario: Adding Bin 2 to an Existing Case**
 1.  Navigate to the **Daily Checks** screen.
 2.  In the Sidebar expansion, use the **Add a Bin to a Case** tool.
-3.  Choose the matching **Mother ID** and click **[ADD]**.
-4.  **Result**: The system links both bins to the same biological mother for seasonal tracking.
+3.  Choose the matching **Intake ID** and click **[ADD]**.
+4.  **Result**: The system links both bins to the same biological intake for seasonal tracking.
 
-> 🛑 **IMPORTANT: MOTHER ID VERIFICATION**: Before clicking **[SAVE]**, look at the physical tag on the mother turtle (See Figure 5). Ensure it matches the **Mother ID** you selected in the app. Choosing the wrong ID will link your 30 eggs to the wrong biological parent in the permanent cloud records.
+> 🛑 **IMPORTANT: INTAKE ID VERIFICATION**: Before clicking **[SAVE]**, look at the physical tag on the turtle (See Figure 5). Ensure it matches the **Intake ID** you selected in the app. Choosing the wrong ID will link your 30 eggs to the wrong biological parent in the permanent cloud records.
 
-![Figure 5: Maternal Tag Verification Protocol](../../assets/manual/placeholder_screenshot.png)
-*Figure 5: Maternal Tag Verification Protocol*
+![Figure 5: Intake Tag Verification Protocol](../../assets/manual/placeholder_screenshot.png)
+*Figure 5: Intake Tag Verification Protocol*
 
 ---
 
@@ -91,7 +91,7 @@ This screen is the core of our clinical workflow (See Figure 6). It ensures that
 
 ### 3.1 The Sidebar: Supplemental Tools
 Before starting your rounds, check if any supplemental data needs to be added via the **Sidebar** (left-hand panel).
-*   **Add a Bin to a Case**: Use this if a mother turtle laid a second clutch or if you are splitting a large clutch. Select the **Mother/Case**, type the **New Bin ID**, and click **[ADD]**.
+*   **Add a Bin to a Case**: Use this if a turtle laid a second clutch or if you are splitting a large clutch. Select the **Intake/Case**, type the **New Bin ID**, and click **[ADD]**.
 *   **Add Eggs to Existing Bin**: If missed eggs are found, select the **Target Bin**, enter the **Eggs to Add**, and record the **New Post-Append Mass (g)**. Click **[SAVE]** to recalibrate the bin's target weight.
 
 ### 3.2 The Weighing Protocol (Clinical Unlock)
@@ -138,17 +138,17 @@ Use this guide to assign the correct clinical status. The system now uses a **Mi
 | Milestone | Diagnostic | Clinical Description |
 | :--- | :--- | :--- |
 | **S1: Intake** | — | Initial date added to the system; baseline metabolic state. |
-| **S2: Spot** | `S2-S` | Initial whitening/chalking spot at the shell apex. |
-| **S2: Band** | `S2-B` | Chalking has expanded into a distinct horizontal band. |
-| **S2: Full** | `S2-F` | Maximum calcification; shell is matte white (Joint-Covering). |
+| **S2: Calcification** | `S2S` | Initial whitening/chalking spot at the shell apex (Spot). |
+| **S2: Calcification** | `S2B` | Chalking has expanded into a distinct horizontal band (Band). |
+| **S2: Calcification** | `S2F` | Maximum calcification; shell is matte white (Full / Joint-Covering). |
 | **S3: Veins** | — | **Vascularization**: Branching veins clearly visible via candling. |
-| **S4: C-Stage** | `S4-C` | Early embryonic curve visible; "shrimp" stage. |
-| **S4: Term** | `S4-T` | Advanced development; shell is largely occluded/dark. |
-| **S4: Motion** | `S4-M` | Internal somatic movement or twitching detected. |
+| **S4: Development** | `S4C` | Early embryonic curve visible; "shrimp" stage (C-Stage). |
+| **S4: Development** | `S4T` | Advanced development; shell is largely occluded/dark (Term). |
+| **S4: Development** | `S4M` | Internal somatic movement or twitching detected (Motion). |
 | **S5: Pipping** | — | **Eclosion**: First cracks or triangle breach in shell. |
-| **S6: YA1** | `S6-YA1` | Hatched; Full Yolk Sac external. |
-| **S6: YA2** | `S6-YA2` | Hatched; Half Yolk Sac absorbed. |
-| **S6: YA3** | `S6-YA3` | **Fully Absorbed** (Buttoned-up). **READY TO EXPORT**. |
+| **S6: Hatching** | `S6-YA1` | Hatched; Full Yolk Sac external. |
+| **S6: Hatching** | `S6-YA2` | Hatched; Half Yolk Sac absorbed. |
+| **S6: Hatching** | `S6-YA3` | **Fully Absorbed** (Buttoned-up). **READY TO EXPORT**. |
 
 > 🛑 **CRITICAL BIOSECURITY GATE: THE YA-3 REQUIREMENT**
 > Individual subjects are **STRICTLY PROHIBITED** from **WormD Export** or system retirement until the **S6-YA3** (Fully Absorbed / Buttoned-up) status is achieved. 
@@ -158,8 +158,9 @@ Use this guide to assign the correct clinical status. The system now uses a **Mi
 ### 3.5 The Property Matrix: Entering Clinical Data
 Once eggs are selected, the **Property Matrix** panel appears at the bottom of the screen.
 
-1.  **Milestone Selection**: Choose the Major Milestone (S1–S6).
-2.  **Diagnostic Marker**: If applicable, select the sub-stage code (e.g., `Band` for S2).
+1.  **Milestone Selection**: Choose the Major Milestone (e.g., **S2: Calcification**).
+2.  **Diagnostic Marker**: If applicable, select the sub-stage code (e.g., `S2B` for Band).
+3.  **Clinical Backdating**: Use the date selector if the observation occurred on a previous shift.
     *   **Note**: An egg is only eligible for **WormD Export** once it reaches the site-configured minimum (Default: **S6-YA3**).
 3.  **Chalking Rating**: Select **None**, **Small**, **Medium**, or **Major** based on white calcium coverage.
 4.  **Vascularity (+)**: Check this box if red veins are visible during candling.
@@ -198,7 +199,7 @@ Understanding the biological timeline is critical for survival (See Figure 7). T
 
 ### 4.1 The "Never Rotate" Mandate
 🛑 **IMPORTANT**
-Embryos attach to the top of the shell early. If you flip the egg, the embryo will be crushed or drowned by the yolk. Always maintain "Top-Up" orientation during S0 to S5.
+Embryos attach to the top of the shell early. If you flip the egg, the embryo will be crushed or drowned by the yolk. Always maintain "Top-Up" orientation during S1 to S5.
 
 ### 4.2 S6 Hatchling Vitality
 ![Figure 8: Hatchling Vitality Indicators Chart](../../assets/manual/health_scale_infographic_1775942070192.png)
@@ -267,7 +268,7 @@ Field tablets rely on Wi-Fi or Cellular data. If the connection drops in the mid
 
 ## 8. GLOSSARY
 
-*   **Automatic Record Creation**: The background system that creates egg records immediately after a Mother Intake is saved.
+*   **Automatic Record Creation**: The background system that creates egg records immediately after an Intake is saved.
 *   **Chalking**: The white calcium patches on the shell indicating embryo development.
 *   **Correction Mode**: A secure state that allows observers to void incorrect entries.
 *   **Local Data Storage**: The fact that our data lives in our local database, not a third-party commercial cloud.
