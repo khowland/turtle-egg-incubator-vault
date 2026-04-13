@@ -1,187 +1,143 @@
 import os
-import re
-from fpdf import FPDF
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, Paragraph, Spacer, Image, PageBreak, Table, TableStyle, KeepTogether
+from reportlab.lib.units import mm
+from reportlab.lib.enums import TA_CENTER
+from reportlab.platypus.tableofcontents import TableOfContents
 import markdown2
 from bs4 import BeautifulSoup
 
 def clean_text(text):
     return text.encode('ascii', 'ignore').decode('ascii')
 
-class ClinicalManualPDF(FPDF):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.toc_entries = [] # List of (level, text, page)
-
-    def header(self):
-        if self.page_no() > 2: # Skip header on cover and title pages
-            self.set_font('helvetica', 'B', 8)
-            self.set_text_color(180, 180, 180)
-            self.cell(0, 10, 'WINC SOVEREIGN CLINICAL INCUBATOR SYSTEM | RELEASE v10.5.1', border=False, align='R', new_x="LMARGIN", new_y="NEXT")
-            self.set_draw_color(220, 220, 220)
-            self.line(10, 18, 200, 18)
-            self.ln(5)
-
-    def footer(self):
-        if self.page_no() > 2:
-            self.set_y(-15)
-            self.set_font('helvetica', 'I', 8)
-            self.set_text_color(150, 150, 150)
-            self.cell(0, 10, f'Institutional Archive: 2026-SEASON-VOL | Page {self.page_no()}', align='C')
-
-    def add_toc_entry(self, level, text, page):
-        self.toc_entries.append((level, text, page))
-
-    def render_toc(self):
-        self.add_page()
-        self.set_font('helvetica', 'B', 20)
-        self.cell(0, 20, "Table of Contents", align='L', new_x="LMARGIN", new_y="NEXT")
-        self.ln(5)
-        self.set_font('helvetica', '', 11)
-        for level, text, page in self.toc_entries:
-            actual_page = page + 1
-            indent = (level - 1) * 10
-            self.set_x(10 + indent)
-            title = text or "Section"
-            if level == 1:
-                self.set_font('helvetica', 'B', 11)
-            else:
-                self.set_font('helvetica', '', 11)
-            
-            w_title = self.get_string_width(title)
-            w_page = self.get_string_width(str(actual_page)) + 5
-            dots_count = int((190 - indent - w_title - w_page) / (self.get_string_width(".") or 1))
-            leader = "." * max(0, dots_count - 2)
-            self.cell(0, 7, f"{title} {leader} {actual_page}", new_x="LMARGIN", new_y="NEXT")
+class InstitutionalDoc(BaseDocTemplate):
+    def __init__(self, filename, **kw):
+        self.allowSplitting = 1
+        BaseDocTemplate.__init__(self, filename, **kw)
         
-    def alert_box(self, text, type='NOTE'):
-        colors = {
-            'NOTE': (230, 240, 255, 0, 100, 255),
-            'IMPORTANT': (255, 230, 230, 255, 0, 0),
-            'CAUTION': (255, 250, 230, 255, 200, 0)
-        }
-        bg_r, bg_g, bg_b, b_r, b_g, b_b = colors.get(type, colors['NOTE'])
-        self.set_fill_color(bg_r, bg_g, bg_b)
-        self.set_draw_color(b_r, b_g, b_b)
-        self.set_line_width(0.5)
-        self.set_x(15)
-        self.multi_cell(180, 6, f"{type}: {text}", border=1, fill=True, align='L')
-        self.ln(5)
-        self.set_line_width(0.2)
+    # Standard TOC indexing for ReportLab
+    def afterFlowable(self, flowable):
+        if isinstance(flowable, Paragraph):
+            text = flowable.getPlainText()
+            style = flowable.style.name
+            if style == 'H1':
+                self.notify('TOCEntry', (0, text, self.page))
+            elif style == 'H2':
+                self.notify('TOCEntry', (1, text, self.page))
 
-    def get_block_height(self, text, width=180, line_height=7):
-        # Estimate height of multi_cell block
-        lines = self.multi_cell(width, line_height, text, dry_run=True, output="LINES")
-        return len(lines) * line_height
+class InstitutionalCompiler:
+    def __init__(self, output_path):
+        self.output_path = output_path
+        self.styles = getSampleStyleSheet()
+        self._setup_styles()
+        self.elements = []
+        
+    def _setup_styles(self):
+        self.styles.add(ParagraphStyle(name='H1', parent=self.styles['Heading1'], fontSize=24, leading=30, spaceAfter=20, fontName='Helvetica-Bold'))
+        self.styles.add(ParagraphStyle(name='H2', parent=self.styles['Heading2'], fontSize=18, leading=22, spaceBefore=20, spaceAfter=15, fontName='Helvetica-Bold'))
+        self.styles.add(ParagraphStyle(name='H3', parent=self.styles['Heading3'], fontSize=14, leading=18, spaceBefore=15, spaceAfter=10, fontName='Helvetica-Bold'))
+        self.styles.add(ParagraphStyle(name='InternalText', parent=self.styles['Normal'], fontSize=11, leading=14, spaceAfter=10, fontName='Helvetica'))
+        self.styles.add(ParagraphStyle(name='InstitutionalBullet', parent=self.styles['Normal'], fontSize=11, leading=14, leftIndent=20, firstLineIndent=-10, spaceAfter=5, fontName='Helvetica'))
+        self.styles.add(ParagraphStyle(name='CentredTitle', parent=self.styles['Normal'], fontSize=28, leading=40, alignment=TA_CENTER, fontName='Helvetica-Bold'))
 
-def process_element(pdf, element, first_img_skipped, md_path, capture_toc=False):
-    text = clean_text(element.get_text().strip())
-    if not text and element.name != 'hr' and not element.find('img'): return first_img_skipped
+    def header_footer(self, canvas, doc):
+        canvas.saveState()
+        if doc.page > 2:
+            canvas.setFont('Helvetica-Bold', 8)
+            canvas.setStrokeColor(colors.lightgrey)
+            canvas.line(10*mm, 280*mm, 200*mm, 280*mm)
+            canvas.setFillColor(colors.grey)
+            canvas.drawRightString(200*mm, 282*mm, "WINC SOVEREIGN CLINICAL INCUBATOR SYSTEM | v10.5.1")
+            canvas.setFont('Helvetica-Oblique', 8)
+            canvas.drawCentredString(105*mm, 10*mm, f"Institutional Archive: 2026-SEASON-VOL | Page {doc.page}")
+        canvas.restoreState()
 
-    # --- CONTINUITY CHECK ---
-    # We never want to start a heading or a paragraph if it triggers a lonely orphan line
-    remaining_space = 270 - pdf.get_y() # Total usable height roughly 270mm
+    def add_alert_box(self, text, alert_type='NOTE'):
+        color_map = {'NOTE': colors.HexColor('#E6F0FF'), 'IMPORTANT': colors.HexColor('#FFE6E6'), 'CAUTION': colors.HexColor('#FFFBE6')}
+        border_map = {'NOTE': colors.HexColor('#0064FF'), 'IMPORTANT': colors.red, 'CAUTION': colors.HexColor('#FFC800')}
+        data = [[Paragraph(f"<b>{alert_type}</b>: {text}", self.styles['InternalText'])]]
+        t = Table(data, colWidths=[170*mm])
+        t.setStyle(TableStyle([('BACKGROUND', (0,0), (-1,-1), color_map.get(alert_type, colors.white)), ('BOX', (0,0), (-1,-1), 1, border_map.get(alert_type, colors.black)), ('PADDING', (0,0), (-1,-1), 5*mm)]))
+        return t
 
-    if element.name == 'h1':
-        pdf.add_page()
-        pdf.set_font('helvetica', 'B', 22)
-        pdf.cell(0, 15, text, new_x="LMARGIN", new_y="NEXT")
-        if capture_toc: pdf.add_toc_entry(1, text, pdf.page_no())
-        pdf.ln(5)
-    elif element.name == 'h2':
-        if pdf.get_y() > 140:
-            pdf.add_page()
-        else:
-            pdf.set_draw_color(240, 240, 240)
-            pdf.line(10, pdf.get_y()+2, 200, pdf.get_y()+2)
-            pdf.ln(10)
-        pdf.set_font('helvetica', 'B', 16)
-        pdf.cell(0, 10, text, new_x="LMARGIN", new_y="NEXT")
-        if capture_toc: pdf.add_toc_entry(2, text, pdf.page_no())
-        pdf.ln(2)
-    elif element.name == 'h3':
-        if pdf.get_y() > 160:
-            pdf.add_page()
-        else:
-            pdf.ln(5)
-        pdf.set_font('helvetica', 'B', 12)
-        pdf.cell(0, 10, text, new_x="LMARGIN", new_y="NEXT")
-    elif element.name == 'p':
-        pdf.set_font('helvetica', '', 11)
-        img = element.find('img')
-        if img:
-            if not first_img_skipped: return True
-            src = img.get('src')
-            img_path = os.path.join(os.path.dirname(md_path), src.replace('/', os.sep))
-            if os.path.exists(img_path):
-                if pdf.get_y() > 200: pdf.add_page()
-                pdf.image(img_path, w=150, x=30)
-                pdf.ln(5)
-        else:
-            # Atomic Block Check: Dry run to prevent orphans
-            est_h = pdf.get_block_height(text, width=180, line_height=7)
-            if est_h > (remaining_space - 10): # 10mm buffer
-                pdf.add_page()
-            
-            if '**NOTE**' in text or 'NOTE:' in text:
-                pdf.alert_box(text.replace('**NOTE**', '').replace('NOTE:', '').replace('📘', '').strip(), 'NOTE')
-            elif '**IMPORTANT**' in text or 'IMPORTANT:' in text:
-                pdf.alert_box(text.replace('**IMPORTANT**', '').replace('IMPORTANT:', '').replace('🛑', '').strip(), 'IMPORTANT')
-            elif '**CAUTION**' in text or 'CAUTION:' in text:
-                pdf.alert_box(text.replace('**CAUTION**', '').replace('CAUTION:', '').replace('⚠️', '').strip(), 'CAUTION')
-            else:
-                pdf.multi_cell(0, 7, text)
-                pdf.ln(3)
-    elif element.name == 'li':
-        pdf.set_x(20)
-        pdf.set_font('helvetica', '', 11)
-        est_h = pdf.get_block_height(f"- {text}", width=170, line_height=7)
-        if est_h > (remaining_space - 5):
-            pdf.add_page()
-        pdf.multi_cell(0, 7, f"- {text}") 
-        pdf.ln(1)
-    elif element.name == 'hr':
-        pdf.ln(5)
-        pdf.set_draw_color(200, 200, 200)
-        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-        pdf.ln(5)
-    return first_img_skipped
+    def compile(self, md_path):
+        with open(md_path, 'r', encoding='utf-8') as f:
+            content = f.read()
 
-def generate_pdf(md_path, pdf_path):
-    print(f"Institutional Compiler: Reading {md_path}...")
-    with open(md_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+        html = markdown2.markdown(content, extras=["tables", "fenced-code-blocks"])
+        soup = BeautifulSoup(html, 'html.parser')
 
-    html = markdown2.markdown(content, extras=["tables", "fenced-code-blocks"])
-    soup = BeautifulSoup(html, 'html.parser')
-    elements = soup.find_all(['h1', 'h2', 'h3', 'p', 'li', 'table', 'blockquote', 'hr'])
+        # --- TITLE BLOCK ---
+        self.elements.append(Spacer(1, 80*mm))
+        self.elements.append(Paragraph("WINC Incubator System", self.styles['CentredTitle']))
+        self.elements.append(Paragraph("Operator's Guide and Clinical Protocol", self.styles['H2']))
+        self.elements.append(Spacer(1, 80*mm))
+        self.elements.append(Paragraph("Release v10.5.1 | Institutional Edition", self.styles['H3']))
+        self.elements.append(PageBreak())
 
-    # PASS 1: MAP
-    pdf = ClinicalManualPDF()
-    pdf.set_auto_page_break(auto=True, margin=20)
-    pdf.add_page(); pdf.add_page()
-    skipped = False
-    for el in elements: skipped = process_element(pdf, el, skipped, md_path, capture_toc=True)
+        # --- TOC PAGE ---
+        self.elements.append(Paragraph("Table of Contents", self.styles['H1']))
+        toc = TableOfContents()
+        toc.levelStyles = [
+            ParagraphStyle(name='TOCL1', fontSize=12, leading=16, fontName='Helvetica-Bold'),
+            ParagraphStyle(name='TOCL2', fontSize=10, leading=14, fontName='Helvetica', leftIndent=10)
+        ]
+        self.elements.append(toc)
+        self.elements.append(PageBreak())
 
-    # PASS 2: BUILD
-    final_pdf = ClinicalManualPDF()
-    final_pdf.toc_entries = pdf.toc_entries
-    final_pdf.add_page()
-    cover_path = os.path.join(os.getcwd(), "assets", "manual", "operators_manual_cover_page.png")
-    if os.path.exists(cover_path): final_pdf.image(cover_path, x=0, y=0, w=210, h=297)
-    final_pdf.add_page()
-    final_pdf.set_font('helvetica', 'B', 28); final_pdf.ln(80)
-    final_pdf.cell(0, 20, "WINC Incubator System", align='C', new_x="LMARGIN", new_y="NEXT")
-    final_pdf.set_font('helvetica', '', 18)
-    final_pdf.cell(0, 10, "Operator's Guide and Clinical Protocol", align='C', new_x="LMARGIN", new_y="NEXT")
-    final_pdf.ln(90); final_pdf.set_font('helvetica', '', 10)
-    final_pdf.cell(0, 10, "Copyright 2026 Wisconsin Incubator Network Consortium. All Rights Reserved.", align='C')
-    final_pdf.render_toc()
-    skipped = False
-    for el in elements: skipped = process_element(final_pdf, el, skipped, md_path, capture_toc=False)
+        # --- CONTENT ---
+        first_img_skipped = False
+        current_group = []
+        for element in soup.find_all(['h1', 'h2', 'h3', 'p', 'li']):
+            text = clean_text(element.get_text().strip())
+            if not text and not element.find('img'): continue
+            p_obj = None
+            if element.name == 'h1':
+                self.elements.append(PageBreak())
+                p_obj = Paragraph(text, self.styles['H1'])
+            elif element.name == 'h2':
+                self.elements.append(PageBreak())
+                p_obj = Paragraph(text, self.styles['H2'])
+            elif element.name == 'h3':
+                current_group = [Paragraph(text, self.styles['H3'])]
+                continue
+            elif element.name == 'p':
+                img = element.find('img')
+                if img:
+                    if not first_img_skipped: first_img_skipped = True; continue
+                    src = img.get('src')
+                    img_path = os.path.join(os.path.dirname(md_path), src.replace('/', os.sep))
+                    if os.path.exists(img_path):
+                        p_obj = Image(img_path, width=150*mm, height=100*mm, kind='proportional')
+                else:
+                    if '**NOTE**' in text or 'NOTE:' in text: p_obj = self.add_alert_box(text.replace('**NOTE**', '').replace('NOTE:', '').replace('📘', '').strip(), 'NOTE')
+                    elif '**IMPORTANT**' in text or 'IMPORTANT:' in text: p_obj = self.add_alert_box(text.replace('**IMPORTANT**', '').replace('IMPORTANT:', '').replace('🛑', '').strip(), 'IMPORTANT')
+                    elif '**CAUTION**' in text or 'CAUTION:' in text: p_obj = self.add_alert_box(text.replace('**CAUTION**', '').replace('CAUTION:', '').replace('⚠️', '').strip(), 'CAUTION')
+                    else: p_obj = Paragraph(text, self.styles['InternalText'])
+            elif element.name == 'li':
+                p_obj = Paragraph(f"&bull; {text}", self.styles['InstitutionalBullet'])
 
-    print(f"Institutional Compiler: Saving PDF to {pdf_path}...")
-    final_pdf.output(pdf_path)
-    print("Institutional Manual v10.5.1 Compiled Successfully.")
+            if p_obj:
+                if current_group:
+                    current_group.append(p_obj)
+                    self.elements.append(KeepTogether(current_group))
+                    current_group = []
+                else:
+                    self.elements.append(p_obj)
+
+        doc = InstitutionalDoc(self.output_path, pagesize=A4)
+        cover_frame = Frame(0, 0, 210*mm, 297*mm, id='cover_frame', leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
+        content_frame = Frame(20*mm, 20*mm, 170*mm, 257*mm, id='content_frame')
+        def draw_cover(canvas, doc):
+            cover_path = os.path.join(os.getcwd(), "assets", "manual", "operators_manual_cover_page.png")
+            if os.path.exists(cover_path): canvas.drawImage(cover_path, 0, 0, width=210*mm, height=297*mm)
+        doc.addPageTemplates([PageTemplate(id='Cover', frames=cover_frame, onPage=draw_cover), PageTemplate(id='Later', frames=content_frame, onPage=self.header_footer)])
+        # Multi-pass build for TOC
+        doc.multiBuild([PageBreak('Later')] + self.elements)
 
 if __name__ == "__main__":
-    generate_pdf('./docs/user/OPERATOR_MANUAL.md', './docs/user/OPERATOR_MANUAL_v10_5_1.pdf')
+    compiler = InstitutionalCompiler('./docs/user/OPERATOR_MANUAL_v10_5_1.pdf')
+    compiler.compile('./docs/user/OPERATOR_MANUAL.md')
+    print("ReportLab Multi-Pass Professional Manual Compiled.")
