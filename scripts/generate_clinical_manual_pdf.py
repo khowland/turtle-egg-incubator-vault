@@ -42,7 +42,7 @@ class ClinicalManualPDF(FPDF):
             actual_page = page + 1
             indent = (level - 1) * 10
             self.set_x(10 + indent)
-            title = text
+            title = text or "Section"
             if level == 1:
                 self.set_font('helvetica', 'B', 11)
             else:
@@ -69,6 +69,7 @@ class ClinicalManualPDF(FPDF):
         self.set_line_width(0.5)
         
         self.set_x(15)
+        # Use multi_cell for automatic wrapping
         self.multi_cell(180, 6, f"{type}: {text}", border=1, fill=True, align='L')
         self.ln(5)
         self.set_line_width(0.2)
@@ -84,17 +85,23 @@ def process_element(pdf, element, first_img_skipped, md_path, capture_toc=False)
         if capture_toc: pdf.add_toc_entry(1, text, pdf.page_no())
         pdf.ln(5)
     elif element.name == 'h2':
-        # ONLY PAGE BREAK IF WE ARE PAST THE MIDPOINT (Adaptive Layout)
-        if pdf.get_y() > 120:
+        # Adaptive Break: If more than half-full, start a fresh page for the major section
+        if pdf.get_y() > 140:
             pdf.add_page()
         else:
-            pdf.ln(10) # Add breathing room instead of a break
-            
+            pdf.set_draw_color(240, 240, 240)
+            pdf.line(10, pdf.get_y()+2, 200, pdf.get_y()+2)
+            pdf.ln(10)
         pdf.set_font('helvetica', 'B', 16)
         pdf.cell(0, 10, text, new_x="LMARGIN", new_y="NEXT")
         if capture_toc: pdf.add_toc_entry(2, text, pdf.page_no())
         pdf.ln(2)
     elif element.name == 'h3':
+        # Orphan Prevention: If near the bottom, don't leave the sub-header alone
+        if pdf.get_y() > 160:
+            pdf.add_page()
+        else:
+            pdf.ln(5)
         pdf.set_font('helvetica', 'B', 12)
         pdf.cell(0, 10, text, new_x="LMARGIN", new_y="NEXT")
     elif element.name == 'p':
@@ -106,6 +113,8 @@ def process_element(pdf, element, first_img_skipped, md_path, capture_toc=False)
             src = img.get('src')
             img_path = os.path.join(os.path.dirname(md_path), src.replace('/', os.sep))
             if os.path.exists(img_path):
+                # Ensure image doesn't crash through page end
+                if pdf.get_y() > 200: pdf.add_page()
                 pdf.image(img_path, w=150, x=30)
                 pdf.ln(5)
         else:
@@ -159,7 +168,7 @@ def generate_pdf(md_path, pdf_path):
     if os.path.exists(cover_path):
         final_pdf.image(cover_path, x=0, y=0, w=210, h=297)
     
-    # 2. Page 2: Technical Title Page
+    # 2. Page 2: Title
     final_pdf.add_page()
     final_pdf.set_font('helvetica', 'B', 28)
     final_pdf.ln(80)
@@ -173,10 +182,10 @@ def generate_pdf(md_path, pdf_path):
     final_pdf.set_font('helvetica', '', 10)
     final_pdf.cell(0, 10, "Copyright 2026 Wisconsin Incubator Network Consortium. All Rights Reserved.", align='C')
 
-    # 3. Page 3: Institutional Table of Contents
+    # 3. Page 3: TOC
     final_pdf.render_toc()
     
-    # 4. Page 4+: Scientific Content
+    # 4. Page 4+: Content
     skipped = False
     for el in elements:
         skipped = process_element(final_pdf, el, skipped, md_path, capture_toc=False)
