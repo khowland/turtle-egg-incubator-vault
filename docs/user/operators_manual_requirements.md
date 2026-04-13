@@ -1,4 +1,4 @@
-# Requirements for the WINC Sovereign Operator Manual Overhaul
+# Requirements for the WINC Clinical Operator Manual Overhaul
 
 ## 1. OBJECTIVE
 Produce a high-fidelity, comprehensive operator manual that empowers volunteer clinicians to manage turtle subjects with 100% accuracy. The manual must follow the **"Professional-Simplicity"** mandate: Enterprise-grade structure combined with 5th-grade level clarity and extensive visual logic.

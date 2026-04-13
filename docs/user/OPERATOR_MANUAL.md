@@ -1,4 +1,20 @@
+# WINC INCUBATOR SYSTEM: OFFICIAL OPERATOR MANUAL
+**Institutional Archive Edition | Version 10.5.1**
+
 ![WINC Manual Cover Page](../../assets/manual/operators_manual_cover_page.png)
+
+---
+
+## TABLE OF CONTENTS
+1. [Sign-In: Starting Your Shift](#1-sign-in-starting-your-shift)
+2. [Introduction to the Secure Data Network](#-introduction-to-the-secure-data-network)
+3. [Intake: Adding New Mothers and Eggs](#2-intake-adding-new-mothers-and-eggs)
+4. [Daily Checks: Recording Egg Health](#3-daily-checks-recording-egg-health)
+5. [Lifecycle: Egg Development Stages](#4-lifecycle-egg-development-stages-s0-to-s6)
+6. [Admin: Fixing Errors and Settings](#5-admin-fixing-errors-and-settings)
+7. [Reports: Reading the Clinical Data](#-6-reports-reading-the-clinical-data-analytics)
+8. [Crisis: When the Internet Fails](#-7-crisis-when-the-internet-fails-continuity)
+9. [Glossary](#8-glossary)
 
 ---
 
@@ -67,7 +83,7 @@ Follow these steps to register a new discovery:
 ### 2.2 Multiple Bins for one Mother
 If a mother turtle lays more eggs than will fit in one bin:
 1.  Complete the first intake for **Bin 1**.
-2.  Use the **Add Bin** function to link a second bin to the same Mother ID.
+2.  Use the **ADD** function in the sidebar to link a second bin to the same Mother ID.
 
 ### 3.1 Choosing the Intake Path
 Not every turtle arrives in the same way. Use the flowchart below to decide which path to take before you touch the screen.
@@ -87,7 +103,7 @@ Follow these steps to register a healthy discovery:
 
 ### 3.3 The DOA Salvage Protocol
 If a turtle is found deceased (Dead on Arrival) but the eggs are still viable, follow this path:
-1.  Set the **Condition** to **DOA**.
+1.  Set the **Condition** to **Dead (Salvage)**.
 2.  Complete the same steps as above, but add a 📘 **NOTE** in the **Intake Notes** field about the location of the recovery.
 3.  The system will flag this case as a **Salvage Recovery** in the final reports.
 
@@ -96,8 +112,8 @@ If a turtle is found deceased (Dead on Arrival) but the eggs are still viable, f
 ### 3.4 Multiple Bins for one Mother
 Sometimes a mother turtle lays so many eggs that they won't fit in one plastic bin. 
 1.  Complete the first intake for **Bin 1**.
-2.  Go to the **Supplemental Intake** screen (See Chapter 3).
-3.  Choose the same **Mother ID** and create **Bin 2**.
+2.  Go to the **Supplemental Intake** tools in the sidebar.
+3.  Choose the same **Mother ID** and click **[ADD]** to create **Bin 2**.
 
 > 🛑 **IMPORTANT: MOTHER ID VERIFICATION**: Before clicking **[SAVE]**, look at the physical tag on the mother turtle. Ensure it matches the **Mother ID** you selected in the app. Choosing the wrong ID will link your 30 eggs to the wrong biological parent in the permanent cloud records.
 
@@ -122,7 +138,7 @@ This screen is used for the daily monitoring of bin environment and individual e
 🛑 **IMPORTANT**: When you pick up an egg to check it, **NEVER TURN IT OVER.** Flip-risk: If you flip the egg, the embryo may drown in its own yolk.
 
 ### 3.3 Recording Health (The 0-3 Scale)
-1.  **Select Eggs**: Select individual eggs or use the "Select All" checkbox.
+1.  **Select Eggs**: Select individual eggs or use the **[START]** button to select all pending.
 2.  **Assign Stage**: Pick the current growth stage (e.g., S3M).
 3.  **Set Health Scores**: Rate health markers from 0 (Normal) to 3 (Critical).
 4.  **Save**: Click **[SAVE]** at the bottom to sign and record your work.
@@ -137,6 +153,8 @@ The database automatically flags bins that fall outside these safe ranges. Use t
 | **Blanding's** | 29.5°C | < 26°C / > 33°C | 85% |
 | **Wood Turtle** | 28.0°C | < 25°C / > 32°C | 90% |
 | **Painted** | 29.0°C | < 26°C / > 33°C | 80% |
+
+---
 
 ---
 
@@ -158,6 +176,8 @@ When an egg reaches S6, you must record a Vitality Score (0-5) to determine the 
 
 ---
 
+---
+
 ## 5. ADMIN: FIXING ERRORS AND SETTINGS
 
 ### 5.1 Correction Mode
@@ -169,6 +189,8 @@ To keep records accurate, the system never fully deletes an entry. It marks it a
 
 ### 5.2 Deleted Records Folder
 If a bin was accidentally deleted while still containing active eggs, it is moved to the **Deleted Records Folder**. Contact an Administrator to restore these records.
+
+---
 
 ---
 
@@ -188,6 +210,8 @@ WINC is part of a global network. We share our data with other turtle scientists
 1.  Go to the **Download Data** screen.
 2.  Select **WormD Export**.
 3.  The system will create a "Clean" file that removes sensitive location data but keeps the biological health scores.
+
+---
 
 ---
 
@@ -216,6 +240,8 @@ Field tablets rely on Wi-Fi or Cellular data. If the connection drops in the mid
 *   **Sign-In**: The process of identifying yourself to the database to start a shift.
 *   **Voiding**: Marking an entry as incorrect without deleting it from the audit log.
 *   **WormD**: The standard scientific format for exporting turtle health data.
+
+---
 
 ---
 
