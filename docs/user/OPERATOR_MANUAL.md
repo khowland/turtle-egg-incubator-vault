@@ -1,21 +1,8 @@
-# WINC INCUBATOR SYSTEM: OFFICIAL OPERATOR MANUAL
-**Institutional Archive Edition | Version 10.5.1**
-
 ![WINC Manual Cover Page](../../assets/manual/operators_manual_cover_page.png)
 
 ---
 
-## TABLE OF CONTENTS
-1. [Sign-In: Starting Your Shift](#1-sign-in-starting-your-shift)
-2. [Intake Workflow: Mothers and Eggs](#2-intake-workflow-mothers-and-eggs)
-3. [Daily Checks: Recording Egg Health](#3-daily-checks-recording-egg-health)
-4. [Lifecycle: Egg Development Stages](#4-lifecycle-egg-development-stages-s0-to-s6)
-5. [Admin: Fixing Errors and Settings](#5-admin-fixing-errors-and-settings)
-6. [Reports: Reading the Clinical Data](#-6-reports-reading-the-clinical-data-analytics)
-7. [Crisis: When the Internet Fails](#-7-crisis-when-the-internet-fails-continuity)
-8. [Glossary](#8-glossary)
 
----
 
 ## 1. SIGN-IN: STARTING YOUR SHIFT
 
