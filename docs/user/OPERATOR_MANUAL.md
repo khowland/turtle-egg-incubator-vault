@@ -32,21 +32,6 @@ To help you find information fast, we use a specific "Visual Logic" system:
 
 ---
 
-## 📑 TABLE OF CONTENTS (PHASED EXPANSION)
-*Note: This menu will grow as we expand each clinical chapter.*
-
-1.  **[Introduction to the Vault](#-introduction-to-the-vault)**
-2.  **[Identity: Starting a Shift](#-identity-starting-a-shift)**
-3.  **[Intake: Adding New Turtles](#-intake-adding-new-turtles)**
-4.  **[Observations: Checking the Eggs](#-observations-checking-the-eggs)**
-5.  **[Lifecycle: The S0 to S6 Journey](#-lifecycle-the-s0-to-s6-journey)**
-6.  **[Admin: Fixing Mistakes](#-admin-fixing-mistakes)**
-7.  **[Reports: Reading the Data](#-reports-reading-the-data)**
-8.  **[Crisis: When the Internet Fails](#-crisis-when-the-internet-fails)**
-9.  **[Glossary & Icon Key](#-glossary--icon-key)**
-
----
-
 ## 🏗️ INTRODUCTION TO THE VAULT ARCHITECTURE
 
 The WINC System is not just a website; it is a **Clinical Sovereignty Mesh**. This means we own our data, and it is protected from outside prying eyes.
