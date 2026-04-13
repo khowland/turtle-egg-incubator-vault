@@ -105,7 +105,7 @@ The baby turtle is on the bottom, and the air sac is at the top. If you flip the
 ### 3.3 The Property Matrix (Batch Updating)
 Instead of clicking every egg one by one, you can "Batch Update" many at once!
 1.  Click the check-boxes for the eggs you want to change.
-2.  Choose the new **Stage** (S0-S6).
+2.  Choose the new **Stage** (**S3S**, **S3M**, or **S3J** for Chalking).
 3.  Choose the **Chalking** level: **Small**, **Medium**, or **Major**.
 4.  Use the sliders for **Mold**, **Leaking**, and **Denting**.
 5.  Click **SAVE** to sign your name to all of them at once.
@@ -121,11 +121,12 @@ Instead of clicking every egg one by one, you can "Batch Update" many at once!
 
 ## 🐣 4. LIFECYCLE: THE S0 TO S6 JOURNEY
 
-Every egg goes through 7 stages. Use this chart to identify the stage on your screen:
+Every egg goes through several stages. Use this chart to identify the stage on your screen:
 
 ![Turtle Lifecycle Infographic](C:\Users\Kevin\.gemini\antigravity\brain\a0908a9b-25bb-4693-a303-8670a9a83009\turtle_lifecycle_infographic_1776042434418.png)
 
 *   **S0 (Baseline)**: A brand new egg.
+*   **S3S, S3M, S3J**: The three levels of Chalking.
 *   **S5 (Pipping)**: The baby has used its "egg-tooth" to break the shell!
 *   **S6 (Hatched)**: The turtle is out and active.
 
