@@ -1,4 +1,4 @@
-![WINC Manual Cover Page](../../assets/manual/cover_v10_5_1.png)
+![WINC Manual Cover Page](../../assets/manual/operators_manual_cover_page.png)
 
 ---
 
