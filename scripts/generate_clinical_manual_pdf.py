@@ -89,16 +89,19 @@ class InstitutionalCompiler:
 
         # --- CONTENT ---
         first_img_skipped = False
+        first_heading_processed = False
         current_group = []
         for element in soup.find_all(['h1', 'h2', 'h3', 'p', 'li']):
             text = clean_text(element.get_text().strip())
             if not text and not element.find('img'): continue
             p_obj = None
             if element.name == 'h1':
-                self.elements.append(PageBreak())
+                if first_heading_processed: self.elements.append(PageBreak())
+                first_heading_processed = True
                 p_obj = Paragraph(text, self.styles['H1'])
             elif element.name == 'h2':
-                self.elements.append(PageBreak())
+                if first_heading_processed: self.elements.append(PageBreak())
+                first_heading_processed = True
                 p_obj = Paragraph(text, self.styles['H2'])
             elif element.name == 'h3':
                 current_group = [Paragraph(text, self.styles['H3'])]
