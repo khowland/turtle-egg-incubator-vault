@@ -8,15 +8,15 @@ ALTER TABLE IF EXISTS public.bin RENAME COLUMN mother_id TO intake_id;
 ALTER TABLE IF EXISTS public.hatchling_ledger RENAME COLUMN mother_id TO intake_id;
 
 -- 2. Date Standardization
-ALTER TABLE IF EXISTS public.bin RENAME COLUMN harvest_date TO bin_date;
+ALTER TABLE IF EXISTS public.bin RENAME COLUMN bin_date TO bin_date;
 
 DO $$ 
 BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bin_observation' AND column_name = 'observation_date') THEN
-        ALTER TABLE public.bin_observation RENAME COLUMN observation_date TO bin_observation_date;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bin_observation' AND column_name = 'egg_observation_date') THEN
+        ALTER TABLE public.bin_observation RENAME COLUMN egg_observation_date TO bin_observation_date;
     END IF;
-    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'egg_observation' AND column_name = 'observation_date') THEN
-        ALTER TABLE public.egg_observation RENAME COLUMN observation_date TO egg_observation_date;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'egg_observation' AND column_name = 'egg_observation_date') THEN
+        ALTER TABLE public.egg_observation RENAME COLUMN egg_observation_date TO egg_observation_date;
     END IF;
 END $$;
 

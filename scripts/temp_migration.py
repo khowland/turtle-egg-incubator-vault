@@ -9,7 +9,7 @@ key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 supabase = create_client(url, key)
 
 sql = """
-ALTER TABLE public.bin DROP COLUMN IF EXISTS harvest_date CASCADE;
+ALTER TABLE public.bin DROP COLUMN IF EXISTS bin_date CASCADE;
 ALTER TABLE public.egg ADD COLUMN IF NOT EXISTS intake_date DATE NOT NULL DEFAULT CURRENT_DATE;
 """
 

@@ -61,7 +61,7 @@ Produce a high-fidelity, comprehensive operator manual that empowers volunteer c
 - **Primary Renaming Mandates**:
     - `mother` table → **`intake`**
     - `mother_id` → **`intake_id`**
-    - `harvest_date` → **`bin_date`**
+    - `bin_date` → **`bin_date`**
 - **Table-Specific Date Convention (Backdateable)**:
     - `intake_date` (In the `intake` table)
     - `bin_date` (In the `bin` table)

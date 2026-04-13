@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS public.egg_observation (
     bin_id TEXT REFERENCES public.bin(bin_id),
     observer_id UUID REFERENCES public.observer(observer_id),
     timestamp TIMESTAMPTZ DEFAULT NOW(),
-    observation_date DATE DEFAULT CURRENT_DATE, -- Clinical Backdating (§4.D)
+    egg_observation_date DATE DEFAULT CURRENT_DATE, -- Clinical Backdating (§4.D)
     vascularity BOOLEAN DEFAULT FALSE,
     chalking INTEGER DEFAULT 0,
     molding BOOLEAN DEFAULT FALSE,

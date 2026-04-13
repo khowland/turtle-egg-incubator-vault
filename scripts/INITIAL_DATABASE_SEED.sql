@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS public.mother (
 CREATE TABLE IF NOT EXISTS public.bin (
     bin_id TEXT PRIMARY KEY,
     mother_id TEXT REFERENCES public.mother(mother_id),
-    harvest_date DATE DEFAULT CURRENT_DATE,
+    bin_date DATE DEFAULT CURRENT_DATE,
     total_eggs INTEGER,
     target_total_weight_g NUMERIC,
     substrate TEXT,
