@@ -29,8 +29,8 @@ from utils.rbac import can_elevated_clinical_operations
 from utils.visuals import render_egg_icon
 
 # 1. Page Initialization
-supabase = bootstrap_page("Egg Checks", "🔬")
-st.title("🔬 Check on Eggs")
+supabase = bootstrap_page("Daily Checks", "🔬")
+st.title("🔬 Daily Checks")
 
 # 2. State Initialization
 if "workbench_bins" not in st.session_state:
@@ -453,6 +453,16 @@ if st.session_state.surgical_resurrection:
                             ).eq(
                                 "egg_observation_id", h["egg_observation_id"]
                             ).execute()
+                            
+                            # Standard §35: Forensic Audit Log
+                            try:
+                                get_resilient_table(supabase, "system_log").insert({
+                                    "session_id": st.session_state.session_id,
+                                    "event_type": "VOID",
+                                    "event_message": f"Biologist {st.session_state.observer_name} VOIDED observation {h['egg_observation_id']} for Egg {target_id}. Reason: {reason}"
+                                }).execute()
+                            except:
+                                pass
                             rem = (
                                 get_resilient_table(supabase, "egg_observation")
                                 .select("stage_at_observation")

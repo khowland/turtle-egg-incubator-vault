@@ -2,16 +2,13 @@
 
 ---
 
-## 📖 PREFACE: THE STANDARDS OF SOVEREIGNTY
+## 1. SIGN-IN: STARTING YOUR SHIFT
 
-### 1.1 Purpose of this Document
-This manual is the definitive "Rule Book" for the WINC Incubator Vault. It is designed to ensure that every turtle egg in our care has an accurate, permanent, and clinical record. By following these steps, you are contributing to the survival of Wisconsin’s biodiversity.
+Recording clinical data begins with identifying yourself to the database. This ensures that every entry is linked to a specific observer for accountability.
 
-### 1.2 The Team: Our Professional Roles
-In this manual, we talk to three different groups. Identify your role before following a workflow:
-*   **Observations Team (Volunteers/Staff)**: You are the daily "Subject Observers." You weigh bins, check hydration, and record healthy growth.
-*   **Clinical Biologists**: You handle complex intakes (Injured/DOA) and provide expert scores for pipping and hatching.
-*   **Vault Administrators**: You manage the system "Behind the Scenes," fixing mistakes and ensuring the data travels safely to the cloud.
+1.  **Select Your Name**: Pick your name from the observer registry.
+2.  **Sign-In**: Click **[START]** to begin your session.
+3.  **The 4-Hour Rule**: The system keeps you signed in for 4 hours. After 4 hours of inactivity, you must sign in again to start a new shift. This prevents unauthorized entries under your name if a tablet is left unattended.
 
 ### 1.3 Documentation Conventions
 To help you find information fast, we use a specific "Visual Logic" system:
@@ -26,70 +23,51 @@ To help you find information fast, we use a specific "Visual Logic" system:
 
 ---
 
-## 🏗️ INTRODUCTION TO THE VAULT ARCHITECTURE
+---
 
-The WINC System is not just a website; it is a **Clinical Sovereignty Mesh**. This means we own our data, and it is protected from outside prying eyes.
+## 🏗️ INTRODUCTION TO THE SECURE DATA NETWORK
+
+The WINC System is a secure, high-integrity database designed to protect turtle research data from loss or corruption.
 
 ### 1.4 The Three Pillars of the System
 To use WINC correctly, you must understand how the pieces fit together:
 
-#### Pillar A: The Vault (The Database)
-The "Vault" is where the actual records live. When you click Save, your data travels across the Internet and is locked inside a high-security container. Every piece of data has a "Timestamp" and a "Signature" (your name).
+#### Pillar A: The Database
+This is where the actual records live. When you click **[SAVE]**, your data travels to a high-security container. Every piece of data has a "Timestamp" and a "Signature" (your name).
 
-#### Pillar B: The Workbench (The App)
-This is what you see on your tablet or phone. It has been designed for **Field Simplicity**. It filters out the noise so you can focus only on the eggs in front of you.
+#### Pillar B: The Main App Screen
+This is the simple screen you use on your tablet or phone. It has been designed for **Field Simplicity**, filtering out the noise so you can focus only on the eggs in front of you.
 
-#### Pillar C: The Audit Engine
-A hidden "Observer" that watches every change. If you delete an entry (Voiding), the Audit Engine keeps a copy of what you deleted and why you deleted it. This is why we can always "Resurrect" data if a mistake is made.
+#### Pillar C: The Audit System
+A background system that logs all changes for accuracy. If you correct an entry, the audit system keeps a copy of what you changed and why you changed it.
 
 ### 1.5 System Hierarchy: From Machine to Egg
 WINC follows a "Family Tree" logic:
 1.  **The Incubator**: The large physical machine in the lab.
 2.  **The Bin**: The plastic box inside the machine.
 3.  **The Mother**: The turtle that provided the eggs.
-4.  **The Subject (Egg)**: The individual life we are protecting.
-
-> [Figure 1.1: System Logic Placeholder - Hierarchy Diagram]
+4.  **The Egg**: The individual life we are protecting.
 
 ---
 
-The WINC System is like a high-tech "Vault" for turtle data. It has three main parts:
-1.  **The Vault (Database)**: Where every egg’s history is kept safe forever.
-2.  **The Workbench (App)**: The simple screen you use to record your work.
-3.  **The Audit Engine**: A robot that watches every change to make sure no data is lost.
-
 ---
 
-## 🏁 1. IDENTITY: STARTING A CLINICAL SHIFT (THE HANDSHAKE)
+## 2. INTAKE: ADDING NEW MOTHERS AND EGGS
 
-Before any data can be recorded, the system must establish **Identity Context**. This means the Vault needs to know exactly who is handling the subjects to create a complete clinical audit trail.
+When a mother turtle is found and eggs are collected, we must add the new records to the database. This creates a permanent digital history for the mother, her plastic bin, and every individual egg.
 
-### 2.1 The Clinical Handshake
-When you first open the app, you will see the **Identity Gate**. This is where you tell the system you are present and ready to work.
+### 2.1 Standard Clinical Intake Workflow
+Follow these steps to register a new discovery:
 
-#### Step-by-Step Instructions:
-1.  **Locate your Name**: Look at the drop-down list labeled **Observer name**. 
-2.  **Select your Identity**: Scroll until you find your legal name. Click it.
-3.  **Confirm Selection**: Ensure the "Welcome" message appears. The system is now tracking every click you make as a "Digital Signature."
+1.  **Species Identification**: Select the correct turtle type (e.g., *Blanding’s* or *Wood Turtle*).
+2.  **Assign WINC Case #**: Type the year and the sequence number (e.g., `2026-003`).
+3.  **Discovery Details**: Type the **Finder's Name** and where they found the turtle.
+4.  **Automatic Record Creation**: Click **[SAVE]**. The database will automatically create 1 Mother record, 1 Bin record, and all individual egg records at once.
 
-### 2.2 The 4-Hour Continuity Rule
-WINC understands that field work is busy. You might need to step away for a lunch break or a biology meeting. 
-
-*   **The Adoption Path**: If you close the app but return within **4 hours**, the system will remember your name and your last session. This keeps the "Shift History" together in one clean file.
-*   **The Hand-off Path**: If a new observer logs in more than 4 hours after you, the system starts a brand new shift folder.
-
-> [Figure 2.1: Identity Screen Placeholder - Selecting Observer]
-
-### 2.3 Why is Identity Important?
-In a clinical environment, we must be able to go back and see who checked an egg if something goes wrong. If `Egg-04` was found leaking, the Lead Biologist needs to know who saw it first so they can ask questions about the room temperature or handling.
-
-> 🛑 **IMPORTANT**: NEVER log in as another person. If your name is not in the list, contact a **Vault Administrator** immediately.
-
----
-
-## 📥 2. INTAKE: ESTABLISHING CASE SOVEREIGNTY (ADDING NEW SUBJECTS)
-
-When a mother turtle is found and eggs are collected, we must "Establish the Case" in the software. This creates the permanent record for the mother, her plastic bin, and every individual egg.
+### 2.2 Multiple Bins for one Mother
+If a mother turtle lays more eggs than will fit in one bin:
+1.  Complete the first intake for **Bin 1**.
+2.  Use the **Add Bin** function to link a second bin to the same Mother ID.
 
 ### 3.1 Choosing the Intake Path
 Not every turtle arrives in the same way. Use the flowchart below to decide which path to take before you touch the screen.
@@ -113,7 +91,7 @@ If a turtle is found deceased (Dead on Arrival) but the eggs are still viable, f
 2.  Complete the same steps as above, but add a 📘 **NOTE** in the **Intake Notes** field about the location of the recovery.
 3.  The system will flag this case as a **Salvage Recovery** in the final reports.
 
-> [Figure 3.1: Intake Screen Placeholder - Filling in the Form]
+![New Intake Form Mockup](../../assets/manual/intake_form_mockup.png)
 
 ### 3.4 Multiple Bins for one Mother
 Sometimes a mother turtle lays so many eggs that they won't fit in one plastic bin. 
@@ -125,124 +103,72 @@ Sometimes a mother turtle lays so many eggs that they won't fit in one plastic b
 
 ---
 
-## 🔬 3. OBSERVATIONS: THE CLINICAL WORKBENCH (DAILY CHECKS)
+---
 
-The **Observations Workbench** is where you will spend 90% of your time. This screen is used to check the health of the eggs and ensure they are hydrated.
+## 3. DAILY CHECKS: RECORDING EGG HEALTH
 
-### 3.1 The Hydration Gate
-You cannot record observations for the eggs until you weigh the bin. The bin data captured here ensures later reporting is meaningful.
+This screen is used for the daily monitoring of bin environment and individual egg growth. Every bin must be weighed before individual eggs are handled.
 
-#### Step-by-Step Instructions:
-1.  **Mass Verification**: Take the physical bin to the scale. Type the mass in the **Current Total Mass (g)** box.
-2.  **Compare Weights**: Look at the **Target Weight** listed above the box. 
-    *   If your weight is **lower** than the Target, you must add water.
-    *   If your weight is **higher**, contact the Lead Biologist (this may mean the substrate is too wet).
-3.  **Record Hydration**: Type the exact amount of water you added (in ml) into the **Actual Water Added (ml)** box.
-4.  **Clinical Unlock**: Click the **[SAVE]** button. 
-    > 📘 **THE SAVE BUTTON**: This button acts as a **Clinical Unlock**. It is a biological safeguard that ensures the bin environment (weights and hydration) is recorded *before* any egg-specific health scores are entered. This creates a complete and accurate clinical timeline.
-
-> [Figure 3.1: Hydration Gate Placeholder - Weighing the Bin]
+### 3.1 The Weighing Protocol (Clinical Unlock)
+1.  **Mass Verification**: Take the physical bin to the scale. Type the weight in the **Current Total Mass (g)** box.
+2.  **Compare to Target**: Look at the **Target Weight** listed on the screen.
+3.  **Remediation Action**:
+    -   **Weight is Low**: Add water (ml) to match the Target. Enter the amount in **Water Added**.
+    -   **Weight is High (>5g Over)**: Do not add water. Open the bin lid for 2 hours for passive evaporation.
+    -   **Weight is Very High (>15g Over)**: Immediately notify the Lead Biologist for a substrate swap.
+4.  **Clinical Unlock**: Click **[SAVE]** to unlock the individual egg grid.
 
 ### 3.2 Biological Mandate: NEVER ROTATE
-🛑 **IMPORTANT**: When you pick up an egg to check it, **NEVER TURN IT OVER.**
-Turtle eggs are not like chicken eggs. The embryo (the baby) is attached to the bottom of the shell. The air sac (the breathing room) is at the top. If you flip the egg, the baby will drown in its own yolk.
+🛑 **IMPORTANT**: When you pick up an egg to check it, **NEVER TURN IT OVER.** Flip-risk: If you flip the egg, the embryo may drown in its own yolk.
 
-![Egg Air Sac Diagram](../../assets/manual/egg_air_sac_diagram.png)
+### 3.3 Recording Health (The 0-3 Scale)
+1.  **Select Eggs**: Select individual eggs or use the "Select All" checkbox.
+2.  **Assign Stage**: Pick the current growth stage (e.g., S3M).
+3.  **Set Health Scores**: Rate health markers from 0 (Normal) to 3 (Critical).
+4.  **Save**: Click **[SAVE]** at the bottom to sign and record your work.
 
-### 3.3 Using the Property Matrix (Batch Updating)
-Checking 100 eggs one-by-one is slow. WINC uses a **Property Matrix** to let you update whole groups at once.
+![Daily Checks Dashboard](../../assets/manual/daily_checks_dashboard.png)
 
-1.  **Select Subjects**: Click the little check-boxes on the left side of the Egg Grid. You can select all eggs in a bin or just a few.
-2.  **Assign Developmental Stage**: Use the **Stage** list to pick the current lifecycle (e.g., **S3M - Medium Chalking**).
-3.  **Set Health Scores**: Use the sliders to rate health markers from **0 (None/Healthy)** to **3 (Critical/Dangerous)**.
-4.  **Sign and Commit**: Click the big **[SAVE]** button at the bottom. The system will record your name and the current time for every egg you selected.
+### 3.4 Species-Specific Alert Thresholds
+The database automatically flags bins that fall outside these safe ranges. Use this table to double-check system alerts:
 
-### 3.4 Clinical Health Scales (The 0-3 Rule)
-| Marker | Level 0 | Level 1 | Level 2 | Level 3 |
-| :--- | :--- | :--- | :--- | :--- |
-| **Chalking** | No White | Small Spot | Half the Egg | Fully White |
-| **Molding** | Clean | Tiny Fuzzy Spot | Spreading | Black/Furry |
-| **Leaking** | Dry | Damp Shell | Active Drip | Ruptured |
-| **Denting** | Round | Tiny Dimple | Half Collapsed | Shriveled |
-
-> 🔴 **STOP AND CALL HELP**: If you record a **Level 3** for Mold or Leaking, you must stop immediately and notify a Senior Biologist.
+| Species | Optimal Temp | Critical Temp | Humidity Target |
+| :--- | :--- | :--- | :--- |
+| **Blanding's** | 29.5°C | < 26°C / > 33°C | 85% |
+| **Wood Turtle** | 28.0°C | < 25°C / > 32°C | 90% |
+| **Painted** | 29.0°C | < 26°C / > 33°C | 80% |
 
 ---
 
-## 🐣 4. LIFECYCLE: THE S0 TO S6 JOURNEY (DEVELOPMENT STAGES)
-
-Every turtle egg in the Vault follows a "Biological State Machine." This means it moves from Stage S0 (Just Laid) to Stage S6 (Hatched).
-
-### 4.1 Understanding the Stages (Anatomy of a Code)
-WINC uses a specialized "Alpha-Numeric" code for every stage. Understanding these letters helps you identify the subject's growth instantly.
-
-*   **The First Letter (S)**: Stands for **"Stage."**
-*   **The Number (0-6)**: Indicates the **Lifecycle Chapter**.
-*   **The Last Letter (S, M, J)**: Indicates the **Level of Progress** during that chapter.
-
-#### The Chalking Expansion (Stage 3):
-Stage 3 represents the "White Chalking" process where calcium is absorbed from the shell. It is tracked in three levels: **Small (S3S)**, **Medium (S3M)**, and **Joint-Covering (S3J)**.
+## 4. LIFECYCLE: EGG DEVELOPMENT STAGES (S0 TO S6)
 
 ![Turtle Lifecycle Infographic](../../assets/manual/turtle_lifecycle_infographic.png)
 
-*   **S0 (Baseline)**: A brand new egg. It looks uniform and clear.
-*   <img src="../../assets/icons/egg_s1.svg" width="24"> **S1 (Early Development)**: A tiny "disk" or spot appears on the top of the egg.
-*   <img src="../../assets/icons/egg_s2.svg" width="24"> **S2 (Vascular)**: You can see red veins. This is the heartbeat of the subject!
-*   <img src="../../assets/icons/egg_s3.svg" width="24"> **S3 (Chalking)**: Calcium patches appear. Tracked as **S3S** (Small), **S3M** (Medium), or **S3J** (Major/Joint-Covering).
-*   <img src="../../assets/icons/egg_s4.svg" width="24"> **S4 (Late Stage)**: The egg is dark. You might see the baby moving inside.
-*   <img src="../../assets/icons/egg_s5.svg" width="24"> **S5 (Pipping)**: The baby uses its specialized "egg-tooth" to cut the shell. You will see a small crack or hole.
-*   **S6 (Hatched)**: The turtle has fully emerged from the shell and is active in the bin.
+Turtle eggs move through seven development stages from "Just Laid" (S0) to "Hatched" (S6).
 
-### 4.2 Recording Hatching Vitality
-When an egg reaches **Stage S6**, the system will ask for a **Vitality Score**. This tells us how strong the baby is.
+### 4.1 Understanding Stage Codes
+*   **The Number (0-6)**: The lifecycle stage.
+*   **The Letter (S, M, J)**: The progress level (Small, Medium, or Major).
 
-1.  **Select the Egg**: In the workbench, change the **Stage** to **S6**.
-2.  **Assign Score**: Use the list to pick a health level:
-    -   **5 (Optimal)**: Strong, eyes open, running around.
-    -   **3 (Guarded)**: Slow movement, large yolk sac still attached.
-    -   **0 (Failed)**: The baby died during the hatching process.
-3.  **Incubation Duration**: The vault will automatically calculate how many days the egg was in the incubator. This is critical data for scientists!
-
-> [Figure 4.1: Lifecycle Chart Placeholder - Photo of each Stage]
+### 4.2 Recording Hatching Vitality (Stage S6)
+When an egg reaches S6, you must record a Vitality Score (0-5) to determine the next action:
+-   **Score 5 (Strong)**: Baby is fully active. **Action**: Ready for transfer to release bin.
+-   **Score 3 (Guarded)**: Slow movement or large yolk sac. **Action**: Move to Medical Observation.
+-   **Score 0 (Failed)**: Baby died during hatching. **Action**: Notify Senior Biologist immediately.
 
 ---
 
-## ⚙️ 5. ADMIN: GOVERNANCE AND FIXING MISTAKES (CORRECTION MODE)
+## 5. ADMIN: FIXING ERRORS AND SETTINGS
 
-We understand that clinical recording is fast-paced and typos happen. WINC provides a **Surgical Correction Mode** to fix data without breaking the "Chain of Custody."
+### 5.1 Correction Mode
+To keep records accurate, the system never fully deletes an entry. It marks it as **"Voided"** and saves a copy of the original for the background audit system.
 
-### 5.1 The Mandatory Void Policy
-In the WINC Vault, we never "Overwrite" or "Erase" data. Instead, we **Void** it. This means the old bad data is hidden, but the system keeps a secret copy for the Biologist to prove that no one "faked" the records.
+1.  Toggle **Correction Mode** to ON at the top of the screen.
+2.  Find the record and click **[VOID]**.
+3.  Type a reason for the change (Mandatory).
 
-#### Step-by-Step Instructions for Fixing a Typo:
-1.  **Unlock the Screen**: Find the **🛠️ Correction Mode** switch at the very top of the Workbench. Turn it **ON**.
-2.  **Locate the Bad entry**: Find the Egg in the list. You will see a button labeled **[VOID]** next to the wrong observation.
-3.  **Perform the Void**: Click **[VOID]**.
-4.  **Provide a Reason**: A box will appear. You **MUST** type why you are deleting the record (e.g., *"Typo in weight," "Checked wrong bin"*).
-    > 🛑 **IMPORTANT**: The system will block you if you leave the reason box empty.
-
-> [Figure 5.1: Correction Mode Placeholder - The Void Button]
-
-### 5.2 The Mid-Season Registry Lock
-To prevent accidents, the "Master Lists" (like Species names and Observer names) are locked during the active hatching season. 
-*   If you need to add a new volunteer name, contact a **Vault Administrator** to use the **Unlock Key**.
-
-### 5.3 The Resurrection Vault
-If a bin or a mother is deleted by mistake, the data is not gone! It is moved to the **Resurrection Vault**. Only the System Admin can "resurrect" these records.
-
-### 5.4 Registry Maintenance (Settings)
-Administrators use the **Vault Settings** to keep the system up to date.
-*   **Adding Observers**: Go to **User Registry**. Type the new name in the blank row at the bottom and click **[SAVE]**.
-*   **Species Config**: You can add new species codes (e.g., `PT` for Painted Turtle) in the **Species Config** tab.
-    > ⚠️ **CAUTION**: Changing a species code mid-season will change the "Optimal Temp" alerts for all existing eggs of that type. Always consult the Lead Biologist first.
-
-### 5.5 Season-End Cleanup (Bin Retirement)
-At the end of the hatching season, you must retire empty bins to keep the Dashboard clean.
-1.  Go to the **Summary Dashboard**.
-2.  Scroll to the **🧹 Remove Empty Bins** section.
-3.  Choose the Bin and click **[DELETE]**.
-
-> ⚠️ **KPI ACCURACY WARNING (GHOST DATA)**: Before removing a bin, ensure ALL eggs have reached Stage S6 (Hatched) and have been "Transferred." If you retire a bin that still contains "Active" eggs, those eggs will become **Ghost Data**. They will still exist in the database, but they will no longer appear in your daily counts or health alerts.
+### 5.2 Deleted Records Folder
+If a bin was accidentally deleted while still containing active eggs, it is moved to the **Deleted Records Folder**. Contact an Administrator to restore these records.
 
 ---
 
@@ -274,25 +200,24 @@ Field tablets rely on Wi-Fi or Cellular data. If the connection drops in the mid
 2.  **Switch to Paper**: Immediately pull out your **Physical Field Sheets** (v2026). Record all weights and health scores by hand.
 3.  **The Double-Witness Rule**: Once the internet is restored, you must type the paper logs into the software. **A second person** (the "Witness") must sit next to you and check your typing against the paper to ensure there are no Subject ID typos.
 
-> [Figure 7.1: Crisis Icon Placeholder - The "Offline" Indicator]
+![Crisis Offline Indicator](../../assets/manual/crisis_offline_indicator.png)
 
 ---
 
-## 📖 8. GLOSSARY & ICON KEY
+---
 
-### 8.1 Clinical Vocabulary
-*   **Chalking**: The white "calcification" of the shell that shows the embryo is pulling calcium for its bones.
-*   **Hydration Gate**: The software lock that ensures bin mass is checked before egg handling.
-*   **Sovereign Residency**: The fact that our data lives in OUR vault, not a third-party commercial cloud.
-*   **Subject**: We use this word instead of "egg" to remind us that these are living individuals.
+## 8. GLOSSARY
 
-### 8.2 Icon Key (Visual Language)
-*   ⚪ **Unchecked**: This egg has not been seen today.
-*   🟢 **Signature Applied**: You have successfully recorded an observation for this egg.
-*   ✨ **Gold Star**: This subject has reached Stage S6 (Hatched) and is a success!
-*   🛠️ **Wrench Icon**: Correction mode is Active. Be careful!
+*   **Automatic Record Creation**: The background system that creates egg records immediately after a Mother Intake is saved.
+*   **Chalking**: The white calcium patches on the shell indicating embryo development.
+*   **Correction Mode**: A secure state that allows observers to void incorrect entries.
+*   **Local Data Storage**: The fact that our data lives in our local database, not a third-party commercial cloud.
+*   **Egg**: An individual developing turtle subject.
+*   **Sign-In**: The process of identifying yourself to the database to start a shift.
+*   **Voiding**: Marking an entry as incorrect without deleting it from the audit log.
+*   **WormD**: The standard scientific format for exporting turtle health data.
 
 ---
 
-**WINC Sovereign Documentation © 2026**  
+**WINC Clinical Documentation © 2026**  
 *Platinum Rated. Clinical Excellence. Failure-Proof.*

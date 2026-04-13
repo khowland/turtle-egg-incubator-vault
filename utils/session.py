@@ -113,10 +113,19 @@ def show_splash_screen():
                                     "Z", "+00:00"
                                 )
                             )
+                            # Standard §36: Within 4 hours? Resume only if NOT terminated.
+                            is_terminated = False
+                            try:
+                                term_res = supabase_client.table("system_log").select("id").eq("session_id", last_session_query.data[0]["session_id"]).eq("event_type", "TERMINATE").execute()
+                                if term_res.data:
+                                    is_terminated = True
+                            except:
+                                pass
+
                             if (
                                 datetime.now().astimezone()
                                 - last_timestamp.astimezone()
-                            ) < timedelta(hours=4):
+                            ) < timedelta(hours=4) and not is_terminated:
                                 current_generated_id = last_session_query.data[0][
                                     "session_id"
                                 ]
@@ -171,9 +180,18 @@ def render_custom_sidebar():
     """Displays observer info at the top of the sidebar with Session ID."""
     st.sidebar.markdown(f"### 👤 {st.session_state.get('observer_name', 'User')}")
     st.sidebar.caption(f"Session ID: {st.session_state.get('session_id', 'Unknown')}")
-    if st.sidebar.button("Log Out", key="global_logout_btn", use_container_width=True):
+    if st.sidebar.button("SHIFT END", key="global_logout_btn", use_container_width=True, type="primary", help="Terminate your shift and password-lock the system."):
+        # Explicitly terminate the session identity
+        try:
+            get_supabase().table("system_log").insert({
+                "session_id": st.session_state.session_id,
+                "event_type": "TERMINATE",
+                "event_message": f"Biologist {st.session_state.observer_name} explicitly ended shift."
+            }).execute()
+        except:
+            pass
+            
         st.session_state.observer_id = None
-
         st.session_state.env_gate_synced = False
         st.rerun()
     st.sidebar.divider()

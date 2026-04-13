@@ -8,7 +8,7 @@ Produce a high-fidelity, comprehensive operator manual that empowers volunteer c
 ## 2. AESTHETIC & STRUCTURAL STANDARDS
 
 ### A. Cover Page (Institutional Excellence)
-- **Requirement**: A high-impact, full-page cover showing a clinical incubator, mother turtle, and hatchlings. Must include WINC identity and Version v10.5.1 labels.
+- **Requirement**: Use the asset **operators_manual_cover_page.png** for the high-impact, full-page cover unless instructed otherwise. This asset shows a clinical incubator, mother turtle, and hatchlings, and includes WINC identity and Version v10.5.1 labels.
 
 ### B. Navigation & Glossary
 - **Clickable TOC**: Must allow users to find any task in under 5 seconds.

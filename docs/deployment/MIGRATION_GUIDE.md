@@ -1,5 +1,5 @@
 # 🐢 WINC Incubator Vault: Master Migration & Handover Guide
-**Project: Incubator Vault v8.0.0 — Clinical Sovereignty Edition**
+**Project: Incubator Vault v8.0.0 — Institutional Clinical Edition**
 
 This guide provides the official, step-by-step procedures for transitioning the Incubator Vault from development to a Production-Ready state for the Wildlife In Need Center (WINC).
 

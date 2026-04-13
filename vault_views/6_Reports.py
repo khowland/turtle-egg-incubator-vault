@@ -406,21 +406,23 @@ else:
             st.info("Awaiting hatchling_ledger rows (S6 transitions).")
 
     with report_tabs[3]:
-        st.subheader("Recent EXPORT events")
-        exp = (
+        st.subheader("🛡️ Clinical Audit Trial")
+        st.caption("Forensic record of exports, shift ends, and clinical corrections.")
+        
+        audit_events = (
             supabase_client.table("system_log")
             .select("timestamp, event_type, event_message")
-            .eq("event_type", "EXPORT")
+            .in_("event_type", ["EXPORT", "VOID", "TERMINATE"])
             .order("timestamp", desc=True)
-            .limit(25)
+            .limit(100)
             .execute()
             .data
             or []
         )
-        if exp:
-            st.dataframe(pd.DataFrame(exp), use_container_width=True)
+        if audit_events:
+            st.dataframe(pd.DataFrame(audit_events), use_container_width=True)
         else:
-            st.caption("No export rows in system_log yet.")
+            st.caption("No audit events recorded.")
 
 st.sidebar.divider()
 if st.sidebar.button("📦 Export eggs (active bins) CSV"):

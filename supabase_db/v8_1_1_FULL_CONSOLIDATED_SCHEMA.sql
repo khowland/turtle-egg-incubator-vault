@@ -1,7 +1,7 @@
 -- =============================================================================
 -- SQL:        v8_1_1_FULL_PRODUCTION_SCHEMA.sql
 -- Project:    Incubator Vault v8.1.1 — WINC (Clinical Sovereignty Edition)
--- Standard:   Industry Best Practice (Sovereign Mesh v8.1.1)
+-- Standard:   Industry Best Practice (Secure Data Network v8.1.1)
 -- Description: Consolidated primary ledger schema and lookup seed data.
 -- =============================================================================
 

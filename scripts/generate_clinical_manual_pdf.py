@@ -45,7 +45,7 @@ class InstitutionalCompiler:
             canvas.setStrokeColor(colors.lightgrey)
             canvas.line(10*mm, 280*mm, 200*mm, 280*mm)
             canvas.setFillColor(colors.grey)
-            canvas.drawRightString(200*mm, 282*mm, "WINC SOVEREIGN CLINICAL INCUBATOR SYSTEM | v10.5.1")
+            canvas.drawRightString(200*mm, 282*mm, "WINC CLINICAL INCUBATOR SYSTEM | v10.5.1")
             canvas.setFont('Helvetica-Oblique', 8)
             canvas.drawCentredString(105*mm, 10*mm, f"Institutional Archive: 2026-SEASON-VOL | Page {doc.page}")
         canvas.restoreState()
@@ -78,31 +78,39 @@ class InstitutionalCompiler:
         self.elements.append(toc); self.elements.append(PageBreak())
 
         # --- SMART SECTION AGGREGATION ---
+        is_emergency = False
         first_img_skipped = False
         first_heading_processed = False
-        
-        # We parse the soup and create high-level 'Section Blocks'
         current_block = []
         
-        def flush_block(elements_list, target_list):
+        def flush_block(elements_list, target_list, emergency=False):
             if elements_list:
-                # If block is small, KeepTogether. If huge, allow splitting.
-                # Threshold ~ 1500 chars (approx 1 page)
-                total_len = sum(len(str(e)) for e in elements_list)
-                if total_len < 3000:
-                    target_list.append(KeepTogether(elements_list))
+                if emergency:
+                    # Wrap the entire emergency block in a Thick Red Box
+                    data = [[KeepTogether(elements_list)]]
+                    t = Table(data, colWidths=[175*mm])
+                    t.setStyle(TableStyle([
+                        ('BOX', (0,0), (-1,-1), 3, colors.red),
+                        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#FFF5F5')),
+                        ('PADDING', (0,0), (-1,-1), 10*mm),
+                    ]))
+                    target_list.append(t)
                 else:
-                    target_list.extend(elements_list)
+                    total_len = sum(len(str(e)) for e in elements_list)
+                    if total_len < 3000:
+                        target_list.append(KeepTogether(elements_list))
+                    else:
+                        target_list.extend(elements_list)
 
         for element in raw_elements:
             text = clean_text(element.get_text().strip())
             if not text and not element.find('img'): continue
             
             p_obj = None
-            # Major headings trigger a block flush and a New Page
             if element.name in ['h1', 'h2']:
-                flush_block(current_block, self.elements)
+                flush_block(current_block, self.elements, emergency=is_emergency)
                 current_block = []
+                is_emergency = "🆘" in text
                 if first_heading_processed: self.elements.append(PageBreak())
                 first_heading_processed = True
                 self.elements.append(Paragraph(text, self.styles['H1'] if element.name == 'h1' else self.styles['H2']))
@@ -133,13 +141,13 @@ class InstitutionalCompiler:
             if p_obj:
                 current_block.append(p_obj)
         
-        flush_block(current_block, self.elements) # Final flush
+        flush_block(current_block, self.elements, emergency=is_emergency) # Final flush
 
         doc = InstitutionalDoc(self.output_path, pagesize=A4)
         cover_frame = Frame(0, 0, 210*mm, 297*mm, id='cover_frame', leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
         content_frame = Frame(20*mm, 20*mm, 170*mm, 257*mm, id='content_frame')
         def draw_cover(canvas, doc):
-            cover_path = os.path.join(os.getcwd(), "assets", "manual", "operators_manual_cover_page.png")
+            cover_path = os.path.join(os.getcwd(), "assets", "manual", "operators_manual_cover_page_optimized.png")
             if os.path.exists(cover_path): canvas.drawImage(cover_path, 0, 0, width=210*mm, height=297*mm)
         doc.addPageTemplates([PageTemplate(id='Cover', frames=cover_frame, onPage=draw_cover), PageTemplate(id='Later', frames=content_frame, onPage=self.header_footer)])
         doc.multiBuild([PageBreak('Later')] + self.elements)

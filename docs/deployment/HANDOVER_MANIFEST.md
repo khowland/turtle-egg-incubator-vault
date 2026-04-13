@@ -26,4 +26,4 @@ Transfer ownership of the following to `tech@wildlifeinneed.org`:
 - **Mid-Season Lock**: Remind Staff that the Registry is immutable while eggs are active to ensure research integrity.
 
 ---
-*Signed, Antigravity (Sovereign Sprint Agent)*
+*Signed, Antigravity (WINC Lead Agent)*

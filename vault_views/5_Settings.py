@@ -242,20 +242,41 @@ with tabs[3]:
         sub_tabs = st.tabs(["Bins", "Case Intakes"])
 
         with sub_tabs[0]:
-            retired_bins = (
+            # Resilient client-side aggregation for Ghost Data detection
+            retired_bins_raw = (
                 supabase.table("bin")
-                .select("bin_id, bin_notes, modified_at")
+                .select("bin_id, bin_notes")
                 .eq("is_deleted", True)
                 .execute()
-                .data
+                .data or []
             )
+            
+            # Fetch all active eggs to map orphans
+            active_orphans = (
+                supabase.table("egg")
+                .select("bin_id")
+                .eq("is_deleted", False)
+                .in_("status", ["Active"]) # Specific check for active subjects
+                .execute()
+                .data or []
+            )
+            orphan_map = {}
+            for o in active_orphans:
+                bid = o["bin_id"]
+                orphan_map[bid] = orphan_map.get(bid, 0) + 1
+            
+            retired_bins = retired_bins_raw
+            
             if not retired_bins:
-                st.info("No retired bins in the vault.")
+                st.info("No retired bins in the database.")
             else:
                 for rb in retired_bins:
+                    ghost_count = orphan_map.get(rb["bin_id"], 0)
                     with st.container(border=True):
                         c1, c2 = st.columns([3, 1])
                         c1.write(f"**Bin ID: {rb['bin_id']}**")
+                        if ghost_count > 0:
+                            c1.error(f"⚠️ **GHOST DATA DETECTED**: {ghost_count} 'Active' eggs are trapped in this deleted bin.")
                         c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")
                         if c2.button("✨ Restore", key=f"res_bin_{rb['bin_id']}"):
 
