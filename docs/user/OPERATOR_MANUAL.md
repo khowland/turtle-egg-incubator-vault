@@ -7,14 +7,13 @@
 
 ## TABLE OF CONTENTS
 1. [Sign-In: Starting Your Shift](#1-sign-in-starting-your-shift)
-2. [Introduction to the Secure Data Network](#-introduction-to-the-secure-data-network)
-3. [Intake: Adding New Mothers and Eggs](#2-intake-adding-new-mothers-and-eggs)
-4. [Daily Checks: Recording Egg Health](#3-daily-checks-recording-egg-health)
-5. [Lifecycle: Egg Development Stages](#4-lifecycle-egg-development-stages-s0-to-s6)
-6. [Admin: Fixing Errors and Settings](#5-admin-fixing-errors-and-settings)
-7. [Reports: Reading the Clinical Data](#-6-reports-reading-the-clinical-data-analytics)
-8. [Crisis: When the Internet Fails](#-7-crisis-when-the-internet-fails-continuity)
-9. [Glossary](#8-glossary)
+2. [Intake Workflow: Mothers and Eggs](#2-intake-workflow-mothers-and-eggs)
+3. [Daily Checks: Recording Egg Health](#3-daily-checks-recording-egg-health)
+4. [Lifecycle: Egg Development Stages](#4-lifecycle-egg-development-stages-s0-to-s6)
+5. [Admin: Fixing Errors and Settings](#5-admin-fixing-errors-and-settings)
+6. [Reports: Reading the Clinical Data](#-6-reports-reading-the-clinical-data-analytics)
+7. [Crisis: When the Internet Fails](#-7-crisis-when-the-internet-fails-continuity)
+8. [Glossary](#8-glossary)
 
 ---
 
@@ -41,56 +40,16 @@ To help you find information fast, we use a specific "Visual Logic" system:
 
 ---
 
-## 🏗️ INTRODUCTION TO THE SECURE DATA NETWORK
-
-The WINC System is a secure, high-integrity database designed to protect turtle research data from loss or corruption.
-
-### 1.4 The Three Pillars of the System
-To use WINC correctly, you must understand how the pieces fit together:
-
-#### Pillar A: The Database
-This is where the actual records live. When you click **[SAVE]**, your data travels to a high-security container. Every piece of data has a "Timestamp" and a "Signature" (your name).
-
-#### Pillar B: The Main App Screen
-This is the simple screen you use on your tablet or phone. It has been designed for **Field Simplicity**, filtering out the noise so you can focus only on the eggs in front of you.
-
-#### Pillar C: The Audit System
-A background system that logs all changes for accuracy. If you correct an entry, the audit system keeps a copy of what you changed and why you changed it.
-
-### 1.5 System Hierarchy: From Machine to Egg
-WINC follows a "Family Tree" logic:
-1.  **The Incubator**: The large physical machine in the lab.
-2.  **The Bin**: The plastic box inside the machine.
-3.  **The Mother**: The turtle that provided the eggs.
-4.  **The Egg**: The individual life we are protecting.
-
----
-
----
-
-## 2. INTAKE: ADDING NEW MOTHERS AND EGGS
+## 2. INTAKE WORKFLOW: MOTHERS AND EGGS
 
 When a mother turtle is found and eggs are collected, we must add the new records to the database. This creates a permanent digital history for the mother, her plastic bin, and every individual egg.
 
-### 2.1 Standard Clinical Intake Workflow
-Follow these steps to register a new discovery:
-
-1.  **Species Identification**: Select the correct turtle type (e.g., *Blanding’s* or *Wood Turtle*).
-2.  **Assign WINC Case #**: Type the year and the sequence number (e.g., `2026-003`).
-3.  **Discovery Details**: Type the **Finder's Name** and where they found the turtle.
-4.  **Automatic Record Creation**: Click **[SAVE]**. The database will automatically create 1 Mother record, 1 Bin record, and all individual egg records at once.
-
-### 2.2 Multiple Bins for one Mother
-If a mother turtle lays more eggs than will fit in one bin:
-1.  Complete the first intake for **Bin 1**.
-2.  Use the **ADD** function in the sidebar to link a second bin to the same Mother ID.
-
-### 3.1 Choosing the Intake Path
+### 2.1 Choosing the Intake Path
 Not every turtle arrives in the same way. Use the flowchart below to decide which path to take before you touch the screen.
 
 ![Intake Logic Flowchart](../../assets/manual/intake_logic_flowchart.png)
 
-### 3.2 Standard Clinical Intake Workflow
+### 2.2 Standard Clinical Intake Workflow
 Follow these steps to register a healthy discovery:
 
 1.  **Species Identification**: Click the **Species** box. Choose the correct turtle type (e.g., *Blanding’s* or *Wood Turtle*). The system uses this to set the "Optimal Incubation Temp" alerts later.
@@ -101,7 +60,7 @@ Follow these steps to register a healthy discovery:
 
 > 📘 **NOTE**: When you click **[SAVE]**, the "Audit Robot" creates 1 Mother record, 1 Bin record, and up to 30 individual Egg records all at once. This is called an **Atomic Transaction**.
 
-### 3.3 The DOA Salvage Protocol
+### 2.3 The DOA Salvage Protocol
 If a turtle is found deceased (Dead on Arrival) but the eggs are still viable, follow this path:
 1.  Set the **Condition** to **Dead (Salvage)**.
 2.  Complete the same steps as above, but add a 📘 **NOTE** in the **Intake Notes** field about the location of the recovery.
@@ -109,7 +68,7 @@ If a turtle is found deceased (Dead on Arrival) but the eggs are still viable, f
 
 ![New Intake Form Mockup](../../assets/manual/intake_form_mockup.png)
 
-### 3.4 Multiple Bins for one Mother
+### 2.4 Multiple Bins for one Mother
 Sometimes a mother turtle lays so many eggs that they won't fit in one plastic bin. 
 1.  Complete the first intake for **Bin 1**.
 2.  Go to the **Supplemental Intake** tools in the sidebar.
