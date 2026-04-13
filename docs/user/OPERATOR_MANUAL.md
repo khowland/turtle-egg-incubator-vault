@@ -135,20 +135,21 @@ Once **[SAVED]**, you will see a visual representation of every egg in the bin, 
 **Clinical Legend: Developmental Milestones**
 Use this guide to assign the correct clinical status. The system now uses a **Milestone + Diagnostic Marker** model to track biological velocity (See Figure 6.1).
 
-| Milestone | Diagnostic | Clinical Description |
-| :--- | :--- | :--- |
-| **S1: Intake** | — | Initial date added to the system; baseline metabolic state. |
-| **S2: Calcification** | `S2S` | Initial whitening/chalking spot at the shell apex (Spot). |
-| **S2: Calcification** | `S2B` | Chalking has expanded into a distinct horizontal band (Band). |
-| **S2: Calcification** | `S2F` | Maximum calcification; shell is matte white (Full / Joint-Covering). |
-| **S3: Veins** | — | **Vascularization**: Branching veins clearly visible via candling. |
-| **S4: Development** | `S4C` | Early embryonic curve visible; "shrimp" stage (C-Stage). |
-| **S4: Development** | `S4T` | Advanced development; shell is largely occluded/dark (Term). |
-| **S4: Development** | `S4M` | Internal somatic movement or twitching detected (Motion). |
-| **S5: Pipping** | — | **Eclosion**: First cracks or triangle breach in shell. |
-| **S6: Hatching** | `S6-YA1` | Hatched; Full Yolk Sac external. |
-| **S6: Hatching** | `S6-YA2` | Hatched; Half Yolk Sac absorbed. |
-| **S6: Hatching** | `S6-YA3` | **Fully Absorbed** (Buttoned-up). **READY TO EXPORT**. |
+*   ![S1](../../assets/icons/egg_s1.png) **S1: Intake** (Diagnostic: —): Initial date added to the system; baseline metabolic state.
+*   ![S2](../../assets/icons/egg_s2.png) **S2: Calcification**: Initial calcification phase.
+    *   `S2S`: Initial whitening/chalking spot at the shell apex (Spot).
+    *   `S2B`: Chalking has expanded into a distinct horizontal band (Band).
+    *   `S2F`: Maximum calcification; shell is matte white (Full / Joint-Covering).
+*   ![S3](../../assets/icons/egg_s3.png) **S3: Veins** (Diagnostic: —): **Vascularization**: Branching veins clearly visible via candling.
+*   ![S4](../../assets/icons/egg_s3.png) **S4: Development**: Advanced embryonic growth.
+    *   `S4C`: Early embryonic curve visible; "shrimp" stage (C-Stage).
+    *   `S4T`: Advanced development; shell is largely occluded/dark (Term).
+    *   `S4M`: Internal somatic movement or twitching detected (Motion).
+*   ![S5](../../assets/icons/egg_s4.png) **S5: Pipping** (Diagnostic: —): **Eclosion**: First cracks or triangle breach in shell.
+*   ![S6](../../assets/icons/egg_s5.png) **S6: Hatching**: Final transition to animal status.
+    *   `S6-YA1`: Hatched; Full Yolk Sac external.
+    *   `S6-YA2`: Hatched; Half Yolk Sac absorbed.
+    *   `S6-YA3`: **Fully Absorbed** (Buttoned-up). **READY TO EXPORT**.
 
 > 🛑 **CRITICAL BIOSECURITY GATE: THE YA-3 REQUIREMENT**
 > Individual subjects are **STRICTLY PROHIBITED** from **WormD Export** or system retirement until the **S6-YA3** (Fully Absorbed / Buttoned-up) status is achieved. 
