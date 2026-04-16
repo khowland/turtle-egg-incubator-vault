@@ -38,7 +38,7 @@ else:
     pages.append(
         st.Page("vault_views/7_Diagnostic.py", title="System Check", icon="🩺")
     )
-    pages.append(st.Page("vault_views/8_Help.py", title="Manual & Help", icon="📚"))
+    pages.append(st.Page("vault_views/8_Help.py", title="Help", icon="📚"))
 
 pg = st.navigation(pages)
 pg.run()

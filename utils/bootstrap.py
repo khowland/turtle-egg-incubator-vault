@@ -94,7 +94,19 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
             color: #f8fafc !important;
         }}
 
-        footer {{ visibility: hidden !important; }}
+        footer { visibility: hidden !important; }
+
+        /* 📍 Pinned Help Button (§ISS-9) */
+        [data-testid="stSidebarNav"] ul {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+        [data-testid="stSidebarNav"] ul li:last-child {
+            margin-top: auto;
+            border-top: 1px solid #334155;
+            padding-top: 10px;
+        }
     </style>
     """,
         unsafe_allow_html=True,
@@ -165,6 +177,10 @@ def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs)
 
         return result
     except Exception as e:
+        # Standard §36.2: Ensure Streamlit control flow (rerun/stop/switch) is NOT swallowed.
+        if "streamlit" in str(type(e)).lower():
+            raise e
+        
         import traceback
 
         error_details = traceback.format_exc()

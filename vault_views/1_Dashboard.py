@@ -78,6 +78,7 @@ def fetch_key_performance_indicators():
     alerts_query = (
         get_resilient_table(supabase_client, "egg_observation")
         .select("egg_observation_id", count="exact")
+        .in_("bin_id", active_bin_identifiers)
         .or_("molding.gt.0,leaking.gt.0")
         .execute()
     )

@@ -43,9 +43,9 @@ ALTER TABLE public.egg ADD COLUMN IF NOT EXISTS created_by_id UUID REFERENCES pu
 ALTER TABLE public.egg ADD COLUMN IF NOT EXISTS modified_by_id UUID REFERENCES public.observer(observer_id);
 ALTER TABLE public.egg ADD COLUMN IF NOT EXISTS session_id TEXT REFERENCES public.session_log(session_id);
 
-ALTER TABLE public.mother ADD COLUMN IF NOT EXISTS created_by_id UUID REFERENCES public.observer(observer_id);
-ALTER TABLE public.mother ADD COLUMN IF NOT EXISTS modified_by_id UUID REFERENCES public.observer(observer_id);
-ALTER TABLE public.mother ADD COLUMN IF NOT EXISTS session_id TEXT REFERENCES public.session_log(session_id);
+ALTER TABLE public.intake ADD COLUMN IF NOT EXISTS created_by_id UUID REFERENCES public.observer(observer_id);
+ALTER TABLE public.intake ADD COLUMN IF NOT EXISTS modified_by_id UUID REFERENCES public.observer(observer_id);
+ALTER TABLE public.intake ADD COLUMN IF NOT EXISTS session_id TEXT REFERENCES public.session_log(session_id);
 
 ALTER TABLE public.egg_observation ADD COLUMN IF NOT EXISTS created_by_id UUID REFERENCES public.observer(observer_id);
 ALTER TABLE public.egg_observation ADD COLUMN IF NOT EXISTS modified_by_id UUID REFERENCES public.observer(observer_id);

@@ -686,46 +686,33 @@ else:
 
                     if new_stage == "S6":
                         hatch_date = datetime.date.today()
-                        vitality = (
-                            observation_notes or ""
-                        ).strip() or "pending_field_assessment"
-                        for rid in selected_real_ids:
-                            egg_one = (
-                                supabase.table("egg")
-                                .select("egg_id, bin_id, intake_timestamp")
-                                .eq("egg_id", rid)
-                                .execute()
-                            )
-                            if not egg_one.data:
-                                continue
-                            erow = egg_one.data[0]
-                            bin_one = (
-                                supabase.table("bin")
-                                .select("intake_id")
-                                .eq("bin_id", erow["bin_id"])
-                                .execute()
-                            )
-                            if not bin_one.data:
-                                continue
-                            intake_id = bin_one.data[0]["intake_id"]
+                        vitality = (observation_notes or "").strip() or "pending_field_assessment"
+                        
+                        # Fetch all relevant context for bulk operation
+                        egg_ctx = supabase.table("egg").select("egg_id, bin_id, intake_timestamp").in_("egg_id", selected_real_ids).execute().data
+                        bin_ids = list({e["bin_id"] for e in egg_ctx})
+                        bin_ctx = supabase.table("bin").select("bin_id, intake_id").in_("bin_id", bin_ids).execute().data
+                        bin_intake_map = {b["bin_id"]: b["intake_id"] for b in bin_ctx}
+                        
+                        hl_existing = supabase.table("hatchling_ledger").select("hatchling_ledger_id, egg_id").in_("egg_id", selected_real_ids).execute().data
+                        hl_existing_map = {h["egg_id"]: h["hatchling_ledger_id"] for h in hl_existing}
+                        
+                        hl_upsert_payload = []
+                        for erow in egg_ctx:
+                            rid = erow["egg_id"]
+                            intake_id = bin_intake_map.get(erow["bin_id"])
+                            if not intake_id: continue
+                            
                             incub_days = None
                             id_raw = erow.get("intake_timestamp")
                             if id_raw:
                                 try:
-                                    # Handle string or datetime object
-                                    dt_val = datetime.datetime.fromisoformat(
-                                        str(id_raw).replace("Z", "+00:00")
-                                    )
+                                    dt_val = datetime.datetime.fromisoformat(str(id_raw).replace("Z", "+00:00"))
                                     incub_days = (hatch_date - dt_val.date()).days
-                                except (ValueError, TypeError):
+                                except:
                                     incub_days = None
-                            hl_existing = (
-                                supabase.table("hatchling_ledger")
-                                .select("hatchling_ledger_id")
-                                .eq("egg_id", rid)
-                                .execute()
-                            )
-                            hl_row = {
+                            
+                            row = {
                                 "egg_id": rid,
                                 "intake_id": intake_id,
                                 "hatch_date": str(hatch_date),
@@ -733,23 +720,17 @@ else:
                                 "incubation_duration_days": incub_days,
                                 "notes": "Auto-recorded on S6 batch transition",
                                 "session_id": st.session_state.session_id,
-                                "created_by_id": st.session_state.observer_id,
                                 "modified_by_id": st.session_state.observer_id,
                             }
-                            if hl_existing.data:
-                                hid = hl_existing.data[0]["hatchling_ledger_id"]
-                                supabase.table("hatchling_ledger").update(
-                                    {
-                                        "hatch_date": str(hatch_date),
-                                        "vitality_score": vitality[:500],
-                                        "incubation_duration_days": incub_days,
-                                        "modified_by_id": st.session_state.observer_id,
-                                    }
-                                ).eq("hatchling_ledger_id", hid).execute()
+                            if rid in hl_existing_map:
+                                row["hatchling_ledger_id"] = hl_existing_map[rid]
                             else:
-                                supabase.table("hatchling_ledger").insert(
-                                    hl_row
-                                ).execute()
+                                row["created_by_id"] = st.session_state.observer_id
+                            
+                            hl_upsert_payload.append(row)
+                            
+                        if hl_upsert_payload:
+                            supabase.table("hatchling_ledger").upsert(hl_upsert_payload).execute()
 
                     st.success(
                         f"Finalized {len(selected_real_ids)} clinical signatures."

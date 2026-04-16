@@ -52,7 +52,7 @@ def audit_schema():
 
     # 3. Authorship Alignment Check (§35.4)
     print("\n✍️ Checking Authorship Standard (§35.4)...")
-    authorship_tables = ['mother', 'bin', 'egg', 'egg_observation', 'bin_observation']
+    authorship_tables = ['intake', 'bin', 'egg', 'egg_observation', 'bin_observation']
     for at in authorship_tables:
         try:
             res = supabase.table(at).select('created_by_id, modified_by_id').limit(1).execute()

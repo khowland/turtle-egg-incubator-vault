@@ -8,7 +8,7 @@ def mock_supabase():
     mock_client = MagicMock()
     # Mock species for intake
     mock_client.table.return_value.select.return_value.execute.return_value.data = [
-        {"species_id": "SN", "common_name": "Snapping Turtle", "intake_count": 5}
+        {"species_id": "SN", "species_code": "SN", "common_name": "Snapping Turtle", "intake_count": 5}
     ]
     return mock_client
 
@@ -23,7 +23,7 @@ def test_audit_log_capture_on_intake(mock_supabase):
         
         # Mock species for intake
         mock_supabase.table.return_value.select.return_value.execute.return_value.data = [
-            {"species_id": "SN", "common_name": "Snapping Turtle", "intake_count": 5}
+            {"species_id": "SN", "species_code": "SN", "common_name": "Snapping Turtle", "intake_count": 5}
         ]
         
         at.run()

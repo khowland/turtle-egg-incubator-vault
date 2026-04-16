@@ -17,8 +17,8 @@ import os
 from utils.bootstrap import bootstrap_page
 
 # 1. Page Initialization
-supabase = bootstrap_page("Help & Manual", "📚")
-st.title("📚 Clinical Help & Manual")
+supabase = bootstrap_page("Help", "📚")
+st.title("📚 Help")
 
 # 2. Render Path Detection
 # We use absolute project root paths now

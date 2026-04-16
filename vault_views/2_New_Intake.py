@@ -159,9 +159,11 @@ if btn_col2.button("SAVE", type="primary", use_container_width=True):
         st.error("❌ Validation Failed: You must add at least one box.")
         st.stop()
 
-    def _intake_success_ui(first_bin_identifier):
+    def _intake_success_ui(first_bin_identifier, intake_identifier=None):
         st.balloons()
         st.session_state.active_bin_id = first_bin_identifier
+        if intake_identifier:
+            st.session_state.active_case_id = intake_identifier
         st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
         st.switch_page("vault_views/3_Observations.py")
 
@@ -229,7 +231,7 @@ if btn_col2.button("SAVE", type="primary", use_container_width=True):
                             label=f"Intake Successful! Case {case_number} established.",
                             state="complete",
                         )
-                        _intake_success_ui(out["first_bin_id"])
+                        _intake_success_ui(out["first_bin_id"], out.get("intake_id"))
                     except Exception as rpc_err:
                         import traceback
 
