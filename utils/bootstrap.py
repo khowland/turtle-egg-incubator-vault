@@ -94,7 +94,7 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
             color: #f8fafc !important;
         }}
 
-        footer { visibility: hidden !important; }
+        footer {{ visibility: hidden !important; }}
 
         /* 📍 Pinned Help Button (§ISS-9) */
         [data-testid="stSidebarNav"] ul {
