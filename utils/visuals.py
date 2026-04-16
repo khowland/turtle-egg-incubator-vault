@@ -23,11 +23,12 @@ def render_egg_icon(stage, chalk, vasc, status, selected=False):
     # Mapping stages to custom files
     icon_map = {
         "S1": "egg_s1.svg",
-        "S1": "egg_s1.svg",
         "S2": "egg_s2.svg",
-        "S3": "egg_s3.svg",
-        "S4": "egg_s3.svg",
-        "S5": "egg_s4.svg",
+        "S3S": "egg_s3.svg",
+        "S3M": "egg_s3.svg",
+        "S3J": "egg_s3.svg",
+        "S4": "egg_s4.svg",
+        "S5": "egg_s5.svg",
         "S6": "egg_s5.svg",
     }
 

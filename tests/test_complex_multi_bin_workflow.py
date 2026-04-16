@@ -85,6 +85,9 @@ def test_multi_bin_and_egg_workflow(mock_db):
         # 3. ADD EGGS TO BIN-2
         # Mock that BIN-2 now exists in the next run
         db.table("bin").execute.return_value.data.append({"bin_id": "BIN-2", "intake_id": "I-EXISTING-001", "is_deleted": False})
+        
+        # We need to run again so the selectbox options are rebuilt with BIN-2
+        at.run()
         at.selectbox(key="sup_b").set_value("BIN-2").run()
         
         # Weight check for Bin 2

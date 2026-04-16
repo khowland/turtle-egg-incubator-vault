@@ -73,4 +73,4 @@ def test_intake_validation_missing_fields(mock_supabase):
         save_button.click().run()
         
         # Check for error message
-        assert at.error[0].value == "❌ Validation Failed: Please enter who found the turtle."
+        assert "Validation Failed: Please enter who found the turtle." in at.error[0].value

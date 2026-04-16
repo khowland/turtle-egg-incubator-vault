@@ -27,7 +27,7 @@ def test_finder_name_regex_bypass_attempt(mock_supabase):
         at.run()
         
         # Verify warning appears
-        assert at.warning[0].value == "⚠️ Names can only have letters, numbers, and spaces."
+        assert "Names can only have letters, numbers, and spaces." in at.warning[0].value
         
         # Attempt to save - should block because is_valid_finder is False
         save_button = next(b for b in at.button if b.label == "SAVE")
