@@ -18,9 +18,9 @@ def test_full_biological_cycle():
     at.run()
     
     # 1. Splash Screen / Identity
-    # We use markdown for the high-end splash header v7.9.4
+    # We use markdown for the high-end splash header
     all_markdown = "".join([m.value for m in at.markdown])
-    assert "WINC Incubator Vault" in all_markdown, "Splash screen failed to render branding."
+    assert "Welcome!" in all_markdown, "Splash screen failed to render branding."
     print("✅ Splash Screen Aesthetic Validated.")
 
 def test_database_persistence():

@@ -99,10 +99,11 @@ def show_splash_screen():
                     resuming_user_name = None
 
                     try:
-                        # Standard §36: Within 4 hours? Resume GLOBAL last session.
+                        # Standard §36: Within 4 hours? Resume personal last session.
                         last_session_query = (
                             supabase_client.table("session_log")
                             .select("*")
+                            .eq("user_name", st.session_state.observer_name)
                             .order("login_timestamp", desc=True)
                             .limit(1)
                             .execute()
@@ -133,22 +134,18 @@ def show_splash_screen():
                                     "user_name"
                                 ]
                                 logger.warning(
-                                    f"🔄 Global Resume: Adopting shift session {current_generated_id} from {resuming_user_name}"
+                                    f"🔄 Personal Resume: Adopting shift session {current_generated_id} for {resuming_user_name}"
                                 )
                     except Exception as error:
-                        logger.error(f"Global recovery failed: {error}")
+                        logger.error(f"Personal recovery failed: {error}")
 
                     st.session_state.session_id = current_generated_id
 
                     if resuming_user_name:
-                        st.session_state.resume_notice = f"📍 Resuming active shift started by **{resuming_user_name}**"
+                        st.session_state.resume_notice = f"📍 Resuming active shift for **{resuming_user_name}**"
 
                     try:
                         display_name = st.session_state.observer_name
-                        if resuming_user_name and resuming_user_name != display_name:
-                            display_name = (
-                                f"{resuming_user_name} (Shared with {display_name})"
-                            )
 
                         get_resilient_table(supabase_client, "session_log").upsert(
                             {

@@ -36,6 +36,28 @@ This application is containerized for stateless deployment on GCP.
 3. **Deploy to Cloud Run:**
    Deploy the image via the GCP Console or CLI. **Crucial:** You must inject the `SUPABASE_URL` and `SUPABASE_ANON_KEY` as environment variables or via Google Secret Manager during deployment. The container exposes port 8501 by default.
 
+### 🧪 Automated Testing (Streamlit AppTest)
+We use the Streamlit `AppTest` framework with `pytest` for functional UI and logic validation.
+
+1. **Test Location**: All tests reside in the `tests/` directory.
+2. **Run All Tests**:
+   ```bash
+   python -m pytest
+   ```
+3. **Continuous Testing (TDD)**:
+   Use `pytest-watcher` to automatically run tests on file changes:
+   ```bash
+   ptw .
+   ```
+4. **Mocking Methodology**:
+   Use `pytest-mock` to patch the `utils.bootstrap.bootstrap_page` function to return a mock Supabase client. This prevents tests from hitting the live production database.
+   Example pattern in `tests/test_intake_view.py`:
+   ```python
+   with patch("utils.bootstrap.bootstrap_page", return_value=mock_supabase):
+       at = AppTest.from_file("vault_views/2_New_Intake.py")
+       at.run()
+   ```
+
 ## 🛠️ Change Request Protocol
 1. **Creation:** New requests use: `ChangeRequest_MMDD_HHMM.txt`.
 2. **Categories:** `BUG`, `ENHANCEMENT`, `SECURITY`.

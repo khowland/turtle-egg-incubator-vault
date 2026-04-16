@@ -56,11 +56,26 @@ if st.button("RUN", help="Verify Intake Counter"):
             )
             st.success("✅ Sequence logic valid.")
 
-# --- Audit Layer Trace ---
+# --- Audit Layer Trace (§6.53)
 st.subheader("3. Audit Layer Trace (§6.53)")
-if st.button("RUN", help="Verify Active Session ID"):
-    st.write(f"Your session ID for this audit: `{st.session_state.session_id}`")
-    st.success("✅ Audit propagation active.")
+if st.button("RUN", help="Verify System Logs"):
+    st.write(f"Active Session ID: `{st.session_state.session_id}`")
+    
+    def fetch_logs():
+        return (
+            supabase_client.table("system_log")
+            .select("*")
+            .order("timestamp", desc=True)
+            .limit(10)
+            .execute()
+        )
+    
+    logs_result = safe_db_execute("Fetch Logs", fetch_logs)
+    if logs_result and logs_result.data:
+        st.table(logs_result.data)
+        st.success("✅ Audit propagation active.")
+    else:
+        st.warning("⚠️ No recent logs found in this context.")
 
 st.divider()
 st.caption("WINC Clinical Standard v8.1.0 — Diagnostic")

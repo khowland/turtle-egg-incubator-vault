@@ -31,7 +31,7 @@ else:
     pages = [
         st.Page("vault_views/1_Dashboard.py", title="Today's Summary", icon="📊"),
         st.Page("vault_views/2_New_Intake.py", title="New Intake", icon="🐣"),
-        st.Page("vault_views/3_Observations.py", title="Daily Checks", icon="🔍"),
+        st.Page("vault_views/3_Observations.py", title="Observations", icon="🔍"),
         st.Page("vault_views/5_Settings.py", title="Vault Administration", icon="⚙️"),
         st.Page("vault_views/6_Reports.py", title="Egg Reports & Analytics", icon="📈"),
     ]

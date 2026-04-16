@@ -72,7 +72,7 @@ if "bin_rows" not in st.session_state:
 
 # --- Step 1: Origin ---
 with st.container(border=True):
-    st.subheader("📁 Step 1: Where did she come from?")
+    st.subheader("📁 Step 1: Mother Turtle Info")
     col1, col2, col3 = st.columns([2, 1, 1])
     selected_label = col1.selectbox("Species", list(species_data_map.keys()))
     case_number = col2.text_input("WINC Case #", placeholder="2026-XXXX")
@@ -111,7 +111,7 @@ with st.container(border=True):
     next_intake_number = (selected_species["intake_count"] or 0) + 1
 
 # --- Step 2: Sorting ---
-st.subheader("📦 Step 2: How many boxes (bins)?")
+st.subheader("📦 Step 2: Bin Setup")
 with st.container(border=True):
     for i, row in enumerate(st.session_state.bin_rows):
         cols = st.columns([1, 1, 2, 0.5])

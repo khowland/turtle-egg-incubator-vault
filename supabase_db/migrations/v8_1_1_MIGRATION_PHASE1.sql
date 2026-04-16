@@ -8,7 +8,7 @@ ALTER TABLE IF EXISTS public.bin RENAME COLUMN mother_id TO intake_id;
 ALTER TABLE IF EXISTS public.hatchling_ledger RENAME COLUMN mother_id TO intake_id;
 
 -- 2. Date Standardization
-ALTER TABLE IF EXISTS public.bin RENAME COLUMN bin_date TO bin_date;
+ALTER TABLE IF EXISTS public.bin RENAME COLUMN harvest_date TO bin_date;
 
 DO $$ 
 BEGIN

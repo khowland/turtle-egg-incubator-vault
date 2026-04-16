@@ -128,31 +128,31 @@ if retirement_targets_list:
             "Select Bin to Remove", retirement_targets_list
         )
 
-            confirm_col, action_col = st.columns([2, 1])
-            confirmation_toggle = confirm_col.toggle(
-                f"Is **{selected_retirement_target}** empty and done for the year?"
+        confirm_col, action_col = st.columns([2, 1])
+        confirmation_toggle = confirm_col.toggle(
+            f"Is **{selected_retirement_target}** empty and done for the year?"
+        )
+
+        if action_col.button(
+            "DELETE",
+            disabled=not confirmation_toggle,
+            use_container_width=True,
+            type="primary",
+        ):
+
+            def retire_bin():
+                supabase_client.table("bin").update({"is_deleted": True}).eq(
+                    "bin_id", selected_retirement_target
+                ).execute()
+                return True
+
+            safe_db_execute(
+                "Remove Bin",
+                retire_bin,
+                success_message=f"Bin {selected_retirement_target} was removed.",
             )
-
-            if action_col.button(
-                "DELETE",
-                disabled=not confirmation_toggle,
-                use_container_width=True,
-                type="primary",
-            ):
-
-                def retire_bin():
-                    supabase_client.table("bin").update({"is_deleted": True}).eq(
-                        "bin_id", selected_retirement_target
-                    ).execute()
-                    return True
-
-                safe_db_execute(
-                    "Remove Bin",
-                    retire_bin,
-                    success_message=f"Bin {selected_retirement_target} was removed.",
-                )
-                st.success(f"Bin {selected_retirement_target} removed.")
-                st.rerun()
+            st.success(f"Bin {selected_retirement_target} removed.")
+            st.rerun()
 
 # --- Analytics ---
 left_column, right_column = st.columns(2)

@@ -17,7 +17,7 @@ DECLARE
   v_intake_date date;
   v_session_id text;
   v_observer_id uuid;
-  v_mother_id text;
+  v_intake_id text;
   v_bin jsonb;
   v_bin_id text;
   v_notes text;
@@ -45,11 +45,12 @@ BEGIN
   v_next_intake := v_next_intake + 1;
   UPDATE public.species SET intake_count = v_next_intake WHERE species_id = v_species_id;
 
-  v_mother_id := 'M' || to_char(clock_timestamp(), 'YYYYMMDDHH24MS');
+  -- Requirement §35: Generate Unique Clinical Identifier
+  v_intake_id := 'I' || to_char(clock_timestamp(), 'YYYYMMDDHH24MS');
 
-  INSERT INTO public.mother (
-    mother_id,
-    mother_name,
+  INSERT INTO public.intake (
+    intake_id,
+    intake_name,
     finder_turtle_name,
     species_id,
     intake_date,
@@ -61,15 +62,15 @@ BEGIN
     created_by_id,
     modified_by_id
   ) VALUES (
-    v_mother_id,
-    NULLIF(p_payload#>>'{mother,mother_name}', ''),
-    NULLIF(p_payload#>>'{mother,finder_turtle_name}', ''),
-    COALESCE(NULLIF(p_payload#>>'{mother,species_id}', '')::text, v_species_id),
-    COALESCE(NULLIF(p_payload#>>'{mother,intake_date}', '')::date, v_intake_date),
-    NULLIF(p_payload#>>'{mother,intake_condition}', ''),
-    NULLIF(p_payload#>>'{mother,extraction_method}', ''),
-    NULLIF(p_payload#>>'{mother,discovery_location}', ''),
-    NULLIF(p_payload#>>'{mother,carapace_length_mm}', '')::numeric,
+    v_intake_id,
+    NULLIF(p_payload#>>'{intake,intake_name}', ''), -- Map payload keys too
+    NULLIF(p_payload#>>'{intake,finder_turtle_name}', ''),
+    COALESCE(NULLIF(p_payload#>>'{intake,species_id}', '')::text, v_species_id),
+    COALESCE(NULLIF(p_payload#>>'{intake,intake_date}', '')::date, v_intake_date),
+    NULLIF(p_payload#>>'{intake,intake_condition}', ''),
+    NULLIF(p_payload#>>'{intake,extraction_method}', ''),
+    NULLIF(p_payload#>>'{intake,discovery_location}', ''),
+    NULLIF(p_payload#>>'{intake,carapace_length_mm}', '')::numeric,
     v_session_id,
     v_observer_id,
     v_observer_id
@@ -89,9 +90,9 @@ BEGIN
     END IF;
 
     INSERT INTO public.bin (
-      bin_id, mother_id, bin_notes, session_id, created_by_id, modified_by_id
+      bin_id, intake_id, bin_notes, session_id, created_by_id, modified_by_id
     ) VALUES (
-      v_bin_id, v_mother_id, v_notes, v_session_id, v_observer_id, v_observer_id
+      v_bin_id, v_intake_id, v_notes, v_session_id, v_observer_id, v_observer_id
     );
 
     SELECT count(*)::int INTO v_eggs_in_bin FROM public.egg WHERE bin_id = v_bin_id;
@@ -117,7 +118,7 @@ BEGIN
   END LOOP;
 
   RETURN jsonb_build_object(
-    'mother_id', v_mother_id,
+    'intake_id', v_intake_id,
     'first_bin_id', v_first_bin
   );
 END;

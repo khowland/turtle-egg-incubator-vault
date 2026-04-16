@@ -29,8 +29,8 @@ from utils.rbac import can_elevated_clinical_operations
 from utils.visuals import render_egg_icon
 
 # 1. Page Initialization
-supabase = bootstrap_page("Daily Checks", "🔬")
-st.title("🔬 Daily Checks")
+supabase = bootstrap_page("Observations", "🔬")
+st.title("🔬 Observations")
 
 # 2. State Initialization
 if "workbench_bins" not in st.session_state:

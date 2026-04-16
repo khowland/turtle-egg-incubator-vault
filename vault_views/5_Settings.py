@@ -91,7 +91,7 @@ with tabs[0]:
         .execute()
     )
 
-    # We physically hide the ID from the user UI, but allow editing names/roles
+    # We physically hide the ID from the user UI, but allow editing names
     edited_users = st.data_editor(
         pd.DataFrame(res_users.data),
         column_config={
@@ -131,7 +131,7 @@ with tabs[0]:
 
                 if to_upsert:
                     supabase.table("observer").upsert(to_upsert).execute()
-                    msg = f"User Registry Sync: Modified {len(to_upsert)} user profiles/roles."
+                    msg = f"User Registry Sync: Modified {len(to_upsert)} user profiles."
                     st.success(msg)
                     st.session_state.audit_msg = msg  # Internal relay
                     st.balloons()

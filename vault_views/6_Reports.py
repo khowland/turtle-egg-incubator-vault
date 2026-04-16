@@ -305,9 +305,6 @@ with st.sidebar:
                 mime="application/json",
                 use_container_width=True,
             )
-    else:
-        st.warning("Exports require Admin, Staff, or Biologist role.")
-
 st.divider()
 
 
