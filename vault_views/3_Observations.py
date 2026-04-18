@@ -644,8 +644,7 @@ else:
                 def commit_batch():
                     obs_payload = []
                     for rid in selected_real_ids:
-                        obs_payload.append(
-                            {
+                        payload = {
                                 "session_id": st.session_state.session_id,
                                 "egg_id": rid,
                                 "bin_id": active_bin_id,
@@ -661,7 +660,11 @@ else:
                                 "observation_notes": observation_notes,
                                 "is_deleted": False,
                             }
-                        )
+                        # §4: Clinical Audit Parity - Honor Backdating
+                        if st.session_state.get("backdate_obs"):
+                            payload["timestamp"] = st.session_state.backdate_obs.isoformat()
+                        
+                        obs_payload.append(payload)
 
                     status_val = "Active" if new_stage != "S6" else "Transferred"
                     update_fields = {
