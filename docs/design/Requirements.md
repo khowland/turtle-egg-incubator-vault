@@ -75,3 +75,18 @@ graph LR
 
 ---
 *Verified for the 2026 Turtle Season (Release v8.1.3).*
+
+## 6. Database State Management & Backup Protocols (Red Team Secured)
+To support both Day 1 Deployments and Mid-Season QA Testing, the system requires an administrative mechanism to alter the global database state from the **Settings** menu.
+
+### 6.1 State Definitions
+*   **State 1: New Deployment (Clean Start)**: All transactional tables (`intake`, `bin`, `egg`, `observations`, `hatchling_ledger`, `system_log`) are safely truncated. Lookup tables (`species`, `observer`) remain intact. Triggers are active. Designed for Day 1 production. Supports backlogged clinical data entry (user-facing dates can be backdated).
+*   **State 2: Test Deployment (Mid-Season Data)**: Database is dynamically seeded with synthetic mid-season data (active eggs, hatched eggs, non-viable eggs, retired bins). Clinical dates are dynamically generated relative to `CURRENT_DATE`.
+
+### 6.2 Security & Threat Mitigation (Red Team Constraints)
+A "Restore/Wipe" feature in the UI is highly dangerous. The following strict mitigations are mandatory:
+1.  **Mandatory Pre-Wipe Backup Gate**: If the database contains *any* transactional data, all "Restore" or "Seed" buttons must remain `disabled`. The user must first execute a complete DB Backup and explicitly download it.
+2.  **Destructive Confirmation**: Wiping the DB requires explicit typed confirmation (e.g., typing "OBLITERATE CURRENT DATA").
+3.  **Timestamp Sovereignty (Immutability)**: Users may explicitly backdate *clinical dates* (`intake_date`, `egg_observation_date`) for backlog entry. However, all *system timestamps* (`created_at`, `modified_at`, `intake_timestamp`) must be strictly controlled by the database using PostgreSQL `now()`. UI payloads attempting to inject system timestamps must be ignored to prevent timeline spoofing.
+4.  **Forensic Logging**: Backup and Restore actions must generate immediate `CRITICAL` entries in the `system_log` tracking the specific `session_id` and `observer_id`.
+5.  **Backend RPC Enforcement**: The UI must not execute raw SQL deletes. It must call designated, locked-down backend RPCs (e.g., `vault_admin_restore(target_state)`) to guarantee atomic transitions.

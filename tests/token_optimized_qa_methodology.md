@@ -42,3 +42,17 @@ When a Playwright test fails because a Streamlit element didn't appear, the defa
 
 ## Conclusion
 By shifting from "Bulk Ingestion" to "Targeted Retrieval" (Search) and from "Raw HTML" to "Semantic Ingestion" (Crawl4AI), the methodology retains absolute Sovereign QA confidence while drastically lowering the per-loop token burn, protecting the API budget across long development lifecycles.
+
+## 3. Phase 3: QA State Rehydration (Red Team Validation)
+To properly validate complex mid-season UI workflows without incurring massive token costs or manual data entry overhead, QA must utilize the Administrative Database State mechanisms defined in the requirements.
+
+### 3.1 Targeted State Provisioning
+Instead of blindly manipulating the UI step-by-step to create complex clinical scenarios (which explodes the context window), QA tests should:
+1.  Invoke the Mid-Season Data state (`State 2`) via the secure API/RPC prior to testing.
+2.  Validate the specific clinical workflow (e.g., advancing a pre-seeded S5 egg to S6) against this known baseline.
+3.  Revert the system to the Clean Deployment state (`State 1`) upon completion.
+
+### 3.2 UI Security & Backup Validation
+When performing QA on the Settings menu Backup/Restore logic:
+*   **Negative Testing Protocol**: The agent MUST verify that the Restore/Seed options are functionally locked if a mandatory backup has not been executed on a populated database.
+*   **Timestamp Fuzzing**: The QA agent MUST attempt to maliciously inject past system dates into `intake_timestamp` or `created_at` payloads to ensure the backend constraints successfully override them with `now()`, guaranteeing the integrity of the audit logs against UI tampering.
