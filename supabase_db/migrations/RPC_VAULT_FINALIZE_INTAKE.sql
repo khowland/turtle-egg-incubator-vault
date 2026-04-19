@@ -80,19 +80,65 @@ BEGIN
   FOR v_bin IN SELECT * FROM jsonb_array_elements(COALESCE(p_payload->'bins', '[]'::jsonb))
   LOOP
     v_bin_id := v_bin->>'bin_id';
-    v_notes := COALESCE(v_bin->>'bin_notes', '');
+    v_notes := COALESCE(v_bin->>'bin_notes', 'Clinical Intake Baseline');
     v_egg_count := COALESCE((v_bin->>'egg_count')::int, 0);
+    
     IF v_bin_id IS NULL OR v_egg_count < 1 THEN
-      RAISE EXCEPTION 'vault_finalize_intake: invalid bin entry';
+      RAISE EXCEPTION 'vault_finalize_intake: invalid bin entry (must have 1+ eggs)';
     END IF;
+
     IF v_first_bin IS NULL THEN
       v_first_bin := v_bin_id;
     END IF;
 
+    -- Standard v8.1.16: Capture mandatory bin metrics
     INSERT INTO public.bin (
-      bin_id, intake_id, bin_notes, session_id, created_by_id, modified_by_id
+      bin_id, 
+      intake_id, 
+      bin_notes, 
+      total_eggs,
+      target_total_weight_g,
+      incubator_temp_c,
+      substrate,
+      shelf_location,
+      session_id, 
+      created_by_id, 
+      modified_by_id
     ) VALUES (
-      v_bin_id, v_intake_id, v_notes, v_session_id, v_observer_id, v_observer_id
+      v_bin_id, 
+      v_intake_id, 
+      v_notes, 
+      v_egg_count,
+      (v_bin->>'bin_weight_g')::numeric,
+      (v_bin->>'incubator_temp_c')::numeric,
+      v_bin->>'substrate',
+      v_bin->>'shelf_location',
+      v_session_id, 
+      v_observer_id, 
+      v_observer_id
+    );
+
+    -- Create Baseline Bin Observation (§2 Compliance)
+    INSERT INTO public.bin_observation (
+      bin_observation_id,
+      session_id,
+      bin_id,
+      observer_id,
+      bin_weight_g,
+      incubator_temp_c,
+      env_notes,
+      created_by_id,
+      modified_by_id
+    ) VALUES (
+      'BO-' || v_bin_id || '-' || to_char(clock_timestamp(), 'YYYYMMDDHH24MISS'),
+      v_session_id,
+      v_bin_id,
+      v_observer_id,
+      (v_bin->>'bin_weight_g')::numeric,
+      (v_bin->>'incubator_temp_c')::numeric,
+      'Initial Clinical Intake Baseline',
+      v_observer_id,
+      v_observer_id
     );
 
     SELECT count(*)::int INTO v_eggs_in_bin FROM public.egg WHERE bin_id = v_bin_id;
@@ -115,6 +161,7 @@ BEGIN
         'S1', 'Clinical Intake Baseline', FALSE
       );
     END LOOP;
+
   END LOOP;
 
   RETURN jsonb_build_object(

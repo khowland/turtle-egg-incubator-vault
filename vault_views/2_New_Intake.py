@@ -69,7 +69,15 @@ with track_view_performance("New Intake"):
     # --- STATE ---
     if "bin_rows" not in st.session_state:
         st.session_state.bin_rows = [
-            {"bin_num": 1, "egg_count": 1, "notes": "Initial Intake"}
+            {
+                "bin_num": 1, 
+                "egg_count": 1, 
+                "notes": "Initial Intake",
+                "mass": 0.0,
+                "temp": 28.0,
+                "substrate": "Vermiculite",
+                "shelf": ""
+            }
         ]
 
     # --- Step 1: Origin ---
@@ -109,40 +117,72 @@ with track_view_performance("New Intake"):
         )
         carapace_length = loc_col2.number_input("Turtle Size (mm)", 0, 500, value=0)
 
-        selected_species = species_data_map[selected_label]
-        next_intake_number = (selected_species["intake_count"] or 0) + 1
+        selected_species = species_data_map.get(selected_label, {})
+        if not selected_species:
+            st.warning("Please select a valid species to continue.")
+            st.stop()
+        next_intake_number = (selected_species.get("intake_count") or 0) + 1
 
     # --- Step 2: Sorting ---
     st.subheader("📦 Step 2: Bin Setup")
     with st.container(border=True):
         for i, row in enumerate(st.session_state.bin_rows):
-            cols = st.columns([1, 1, 2, 0.5])
-            cols[0].markdown(f"**Bin #{i+1}**")
-            row["egg_count"] = cols[1].number_input(
+            st.markdown(f"#### Bin #{i+1}")
+            
+            # Row 1: Egg Count and Notes
+            c1, c2, c3 = st.columns([1, 1, 2])
+            row["egg_count"] = c1.number_input(
                 "Total Eggs", 1, 99, row["egg_count"], key=f"egg_{i}"
             )
-            row["notes"] = cols[2].text_input(
+            row["shelf"] = c2.text_input(
+                "Shelf Location", value=row.get("shelf", ""), key=f"shelf_{i}", placeholder="e.g. A1-South"
+            )
+            row["notes"] = c3.text_input(
                 "Setup Notes",
                 value=row["notes"],
                 key=f"note_{i}",
                 placeholder="e.g., 1:1 Vermiculite",
             )
-            if cols[3].button("REMOVE", key=f"del_{i}", help="REMOVE"):
+            
+            # Row 2: Clinical Metrics
+            m1, m2, m3, m4 = st.columns([1, 1, 1, 0.5])
+            row["mass"] = m1.number_input(
+                "Initial Mass (g)", 0.0, 5000.0, row.get("mass", 0.0), key=f"mass_{i}", help="Mandatory Weight check §2"
+            )
+            row["temp"] = m2.number_input(
+                "Incubator Temp (°C)", 15.0, 45.0, row.get("temp", 28.0), key=f"temp_{i}", step=0.1
+            )
+            row["substrate"] = m3.selectbox(
+                "Substrate", 
+                ["Vermiculite", "Perlite", "Soil", "Paper Towel", "Sand", "Other"],
+                index=0, 
+                key=f"sub_{i}",
+                help="Clinical Standard: Vermiculite"
+            )
+            
+            if m4.button("REMOVE", key=f"del_{i}", help="REMOVE"):
                 st.session_state.bin_rows.pop(i)
                 for idx, r in enumerate(st.session_state.bin_rows):
                     r["bin_num"] = idx + 1
                 st.rerun()
+            
+            st.divider()
 
-        if st.button("ADD", help="Add another bin", type="primary"):
+        if st.button("ADD", help="Add another bin", type="secondary"):
             if len(st.session_state.bin_rows) < 9:
                 st.session_state.bin_rows.append(
                     {
                         "bin_num": len(st.session_state.bin_rows) + 1,
                         "egg_count": 1,
                         "notes": "Initial Intake",
+                        "mass": 0.0,
+                        "temp": 28.0,
+                        "substrate": "Vermiculite",
+                        "shelf": ""
                     }
                 )
                 st.rerun()
+
 
     # --- ATOMIC COMMIT ---
     btn_col1, btn_col2 = st.columns([1, 4])
@@ -157,16 +197,38 @@ with track_view_performance("New Intake"):
         if not case_number.strip():
             st.error("❌ Validation Failed: Please enter a valid Case #.")
             st.stop()
+        
+        # Extended Validation for hardened requirements
         if len(st.session_state.bin_rows) == 0:
             st.error("❌ Validation Failed: You must add at least one box.")
             st.stop()
+            
+        for idx, brow in enumerate(st.session_state.bin_rows):
+            if brow["egg_count"] < 1:
+                st.error(f"❌ Bin #{idx+1}: Must contain at least 1 egg.")
+                st.stop()
+            if brow["mass"] <= 0:
+                st.error(f"❌ Bin #{idx+1}: Initial Mass is required (§2).")
+                st.stop()
 
         def _intake_success_ui(first_bin_identifier, intake_identifier=None):
             st.balloons()
             st.session_state.active_bin_id = first_bin_identifier
             if intake_identifier:
                 st.session_state.active_case_id = intake_identifier
-            st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
+            
+            # Reset state for next intake
+            st.session_state.bin_rows = [
+                {
+                    "bin_num": 1, 
+                    "egg_count": 1, 
+                    "notes": "Initial Intake",
+                    "mass": 0.0,
+                    "temp": 28.0,
+                    "substrate": "Vermiculite",
+                    "shelf": ""
+                }
+            ]
             st.switch_page("vault_views/3_Observations.py")
 
         def commit_all():
@@ -192,6 +254,10 @@ with track_view_performance("New Intake"):
                                     "bin_id": bid,
                                     "bin_notes": row_data.get("notes", ""),
                                     "egg_count": row_data["egg_count"],
+                                    "bin_weight_g": row_data["mass"],
+                                    "incubator_temp_c": row_data["temp"],
+                                    "substrate": row_data["substrate"],
+                                    "shelf_location": row_data["shelf"]
                                 }
                             )
 
@@ -217,6 +283,7 @@ with track_view_performance("New Intake"):
                             },
                             "bins": bins_payload,
                         }
+
 
                         try:
                             rpc_result = supabase.rpc(

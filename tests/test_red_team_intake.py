@@ -2,6 +2,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 from unittest.mock import MagicMock, patch
 import json
+import re
 
 @pytest.fixture
 def mock_supabase():
@@ -52,6 +53,8 @@ def test_rpc_failure_safe_state(mock_supabase):
         # Fill valid data
         at.text_input[0].set_value("2026-ERR")
         at.text_input[1].set_value("RedTeam")
+        at.text_input[3].set_value("A1") # Shelf
+        at.number_input[2].set_value(100.0) # Weight
         at.run()
         
         # Trigger SAVE
@@ -59,13 +62,11 @@ def test_rpc_failure_safe_state(mock_supabase):
         save_button.click().run(timeout=10) # Increase timeout for failure handling
         
         # Verify error message shows 'Safe-State' context (handled by safe_db_execute)
-        assert any("RPC failed" in err.value or "could not be saved" in err.value for err in at.error)
+        assert any("Ledger Error" in err.value or "Deadlock" in err.value for err in at.error)
 
 def test_missing_session_id_security_gate(mock_supabase):
     """
     ADV-3: Verifies that the app handles missing session_id gracefully.
-    We need to ensure the mock doesn't completely skip the session logic if we want to test it,
-    OR we test that the app re-initializes it when we call the REAL bootstrap.
     """
     import streamlit as st
     import uuid

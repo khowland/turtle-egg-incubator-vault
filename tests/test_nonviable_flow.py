@@ -1,10 +1,3 @@
-"""
-=============================================================================
-File:     tests/test_nonviable_flow.py
-Suite:    Phase 3.5 — Clinical Workflow: Non-Viable Eggs
-Coverage: §1.4 REMOVE vocabulary, status='Dead' lifecycle transition.
-=============================================================================
-"""
 import pytest
 from streamlit.testing.v1 import AppTest
 from unittest.mock import MagicMock, patch
@@ -35,8 +28,9 @@ def test_marking_egg_as_dead_removes_from_grid():
         at.run(timeout=15)
 
         # Select egg
-        egg_cb = next((cb for cb in at.checkbox if "1" in cb.label), None)
-        assert egg_cb is not None
+        egg_cb = next((cb for cb in at.checkbox if "1" in cb.label or "E1" in cb.label), None)
+        assert egg_cb is not None, f"Egg checkbox not found. Labels: {[cb.label for cb in at.checkbox]}"
+
         egg_cb.check().run(timeout=15)
 
         # Find Status selectbox and select Dead
@@ -44,11 +38,8 @@ def test_marking_egg_as_dead_removes_from_grid():
         assert status_sel is not None
         status_sel.select("Dead").run(timeout=15)
         
-        # BEFORE clicking SAVE, update the mock to reflect that the egg will be Dead in the next grid fetch
-        tables["egg"].select.return_value.eq.return_value.eq.return_value.eq.return_value.order.return_value.execute.return_value.data = []
-        
         # Click SAVE
-        save_btn = next((b for b in at.button if b.label == "SAVE" and "Append" not in (b.help or "")), None)
+        save_btn = next((b for b in at.button if b.label == "SAVE" and not b.help), None)
         assert save_btn is not None
         save_btn.click().run(timeout=15)
 
@@ -58,7 +49,10 @@ def test_marking_egg_as_dead_removes_from_grid():
         payload = egg_updates[-1][0][0]
         assert payload.get("status") == "Dead", f"Expected status='Dead', got {payload.get('status')}"
         
+        # NOW update the mock to reflect that the egg is gone for the final check
+        tables["egg"].execute.return_value.data = []
+        at.run(timeout=5)
+        
         # Verify it's gone from grid
-        cbs = [cb.label for cb in at.checkbox if "**1**" in cb.label]
+        cbs = [cb.label for cb in at.checkbox if "1" in cb.label]
         assert len(cbs) == 0, f"Egg still visible in grid after being marked Dead. Found: {cbs}"
-

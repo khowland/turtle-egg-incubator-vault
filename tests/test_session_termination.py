@@ -70,13 +70,13 @@ def test_shift_end_sets_terminate_flag():
     mock_supabase = MagicMock()
     mock_supabase.table.return_value.insert.return_value.execute.return_value = MagicMock()
 
-    with patch("utils.session.get_supabase", return_value=mock_supabase), \
-         patch("utils.bootstrap.bootstrap_page", return_value=mock_supabase):
+    with patch("utils.bootstrap.get_supabase", return_value=mock_supabase):
         at = AppTest.from_file("vault_views/7_Diagnostic.py")
         at.session_state.observer_id = "biologist-001"
         at.session_state.session_id = "active-shift-session"
         at.session_state.observer_name = "Kevin"
         at.run()
+
 
         shift_end_btn = next(
             (b for b in list(at.button) + list(at.sidebar.button) if b.label == "SHIFT END"), None
@@ -95,7 +95,7 @@ def test_shift_end_sets_terminate_flag():
         )
 
         # (b) Verify observer is cleared from session
-        assert at.session_state.get("observer_id") is None, (
+        assert getattr(at.session_state, "observer_id", None) is None, (
             "observer_id was NOT cleared after SHIFT END."
         )
 

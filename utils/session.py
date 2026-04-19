@@ -68,10 +68,14 @@ def show_splash_screen():
         st.error("No active observers found in registry or connection failed.")
         st.stop()
 
+    # Initialize client for recovery check Standard §36
+    supabase_client = get_supabase()
+
     try:
         columns = st.columns([1, 2, 1])
         with columns[1]:
             with st.form("login_form"):
+
                 observer_options = {
                     f"{o['display_name']}": o["observer_id"] for o in active_observers
                 }
@@ -137,9 +141,10 @@ def show_splash_screen():
                                 pass
 
                             if (
-                                datetime.now().astimezone()
-                                - last_timestamp.astimezone()
+                                datetime.now(timezone.utc)
+                                - last_timestamp
                             ) < timedelta(hours=4) and not is_terminated:
+
                                 current_generated_id = last_session_query.data[0][
                                     "session_id"
                                 ]

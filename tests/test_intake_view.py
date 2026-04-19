@@ -42,21 +42,27 @@ def test_intake_form_submission(mock_supabase):
         at.text_input[1].set_value("Kevin")     # Who found the turtle?
         at.text_input[2].set_value("Roadside")  # Where was she found?
         
+        # Fill Bin Setup (mandatory fields for v8.1.16)
+        at.number_input[1].set_value(1)         # egg_count (already 1, but set explicitly)
+        at.text_input[3].set_value("A1")         # shelf_location
+        at.number_input[2].set_value(150.5)     # mass
+        at.number_input[3].set_value(28.5)      # temp
+        
         # Select Species (SN - Snapping Turtle)
         # Check available options in the selectbox
         assert "SN - Snapping Turtle" in at.selectbox[0].options
         at.selectbox[0].select("SN - Snapping Turtle").run()
         
         # Submit the form
-        # Filter buttons by label
         save_button = next(b for b in at.button if b.label == "SAVE")
         save_button.click().run()
         
         # Verify RPC was called
         assert mock_supabase.rpc.called
         
-        # Verify redirect (switch_page calls often result in at.run() finishing or session state changes)
+        # Verify redirect
         assert at.session_state.active_bin_id == "SN6-KEVIN-1"
+
 
 def test_intake_validation_missing_fields(mock_supabase):
     """

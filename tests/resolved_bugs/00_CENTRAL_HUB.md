@@ -16,7 +16,11 @@ Welcome to the single source of truth for the **WINC Incubator System**. This hu
 - [[Bug-2_resolution|Bug-2: Atomic Intake Failure]]
 - [[Bug-P3-001_resolution|Bug-P3-001: Session Resumption Window]]
 - [[Bug-P3-002-005_resolution|Bug-P3-002-005: Clinical Logic Edge Cases]]
+- [[RCA_Phase4|RCA: Phase 4 Test Failures & Mock Stabilization]]
+
 
 ## 📐 Standards
 - [[Requirements.md|System Requirements]]
+- [[QA_METHODOLOGY.md|QA & Troubleshooting Methodology]]
 - [[DEVELOPMENT_MAINTENANCE_GUIDE.md|Dev Guide]]
+

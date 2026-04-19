@@ -48,21 +48,11 @@ def _make_observations_mock(observer_id="forensic-observer", session_id="forensi
             m.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value.data = [
                 {"session_id": session_id}
             ]
-        elif name == "egg_observation":
-            m.select.return_value.eq.return_value.eq.return_value.eq.return_value.execute.return_value.data = []
-            m.select.return_value.eq.return_value.eq.return_value.eq.return_value.order.return_value.execute.return_value.data = []
-        elif name == "intake":
-            m.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value.data = [
-                {"intake_id": "FOR-CASE", "intake_name": "CASE-FOR-001"}
-            ]
-            m.select.return_value.eq.return_value.execute.return_value.data = [
-                {"intake_id": "FOR-CASE", "intake_name": "CASE-FOR-001"}
-            ]
         table_clients[name] = m
         return m
 
     # Pre-warm common tables to avoid KeyError in test logic
-    for t in ["bin", "egg", "bin_observation", "egg_observation", "intake", "system_log"]:
+    for t in ["bin", "egg", "bin_observation", "egg_observation", "intake", "system_log", "species"]:
         get_table(t)
 
     mock_sb.table.side_effect = get_table
@@ -286,6 +276,11 @@ def test_intake_timestamp_is_timezone_aware():
 
         at.text_input[0].set_value("2026-TZ-001")
         at.text_input[1].set_value("TZ Biologist")
+        
+        # PROVIDE MANDATORY METRICS (§2, v8.1.16)
+        at.text_input[3].set_value("SHELF-TZ")
+        at.number_input[2].set_value(200.0) # mass
+        at.number_input[3].set_value(28.0)  # temp
         at.run()
 
         save_btn = next(b for b in at.button if b.label == "SAVE")
