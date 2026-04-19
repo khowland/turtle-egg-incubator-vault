@@ -92,3 +92,26 @@ This report tracks all audit findings, potential bugs, and enterprise-grade enha
 - **Impact:** The test harness expects get_table() with 2 arguments, but the current mock only supports 1. This prevents race condition verification.
 - **Senior Recommendation:** Refactor tests/mock_utils.py to match the current get_resilient_table signature.
 
+
+## 🐛 Potential Bugs & Logic Flaws (Phase 3 Append)
+
+### [B-011] Critical Credential Leak: Service Role Key in .env
+- **Component:** .env file
+- **Impact:** FATAL SECURITY RISK. The SUPABASE_ANON_KEY actually contains a Service Role JWT. This allows any frontend user to bypass all Row Level Security (RLS) and perform full CRUD/Drop operations on the database.
+- **Senior Recommendation:** Immediately rotate the Service Role Key. Update .env to use the correct Anon Key for frontend operations. Move the Service Role Key to a secure environment variable not accessible to the client.
+
+### [B-012] Decommissioned RBAC Logic
+- **Component:** utils/rbac.py, v8_1_5_DROP_ROLE.sql
+- **Impact:** HIGH. Role-based access has been completely disabled (role column dropped). All users now have "Admin" privileges by default. Clinical views like Settings and Diagnostics are unprotected.
+- **Senior Recommendation:** Restore the role column or implement a claim-based RBAC system. Update rbac.py to perform actual checks instead of returning True.
+
+### [B-013] Missing Row Level Security (RLS)
+- **Component:** Database Schema / Seed Scripts
+- **Impact:** HIGH. Initial seed scripts do not enable RLS on critical tables (observer, mother, bin, egg). Combined with [B-011], the database is fully exposed to external manipulation.
+- **Senior Recommendation:** Apply ALTER TABLE ... ENABLE ROW LEVEL SECURITY to all tables. Implement policies that restrict access based on the authenticated observer_id.
+
+### [B-014] Plaintext Secret Storage
+- **Component:** .env
+- **Impact:** MEDIUM. High-value keys (Google, GitHub, Cerebras) are stored in a plaintext file. This violates enterprise security standards for secret management.
+- **Senior Recommendation:** Integrate a secret management solution (e.g., GCP Secret Manager, Vault) or at least ensure .env is never committed to VCS (partially fixed in gitignore, but file exists in workdir).
+
