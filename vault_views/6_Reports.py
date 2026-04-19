@@ -424,7 +424,7 @@ with track_view_performance("Reports"):
                 st.caption("No audit events recorded.")
 
     st.sidebar.divider()
-    if st.sidebar.button("SAVE", help="Export eggs (active bins) to CSV", use_container_width=True):
+    if st.sidebar.button("SAVE", type="primary", help="Export eggs (active bins) to CSV", use_container_width=True):
 
         def audit_export():
             st.sidebar.download_button(

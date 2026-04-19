@@ -15,7 +15,7 @@ Description:   Session management, Session ID recovery, and Admin Handshake.
 import streamlit as st
 import uuid
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone, timezone
 from utils.db import get_supabase
 from utils.bootstrap import get_resilient_table
 from utils.logger import logger
@@ -141,7 +141,7 @@ def show_splash_screen():
                                 pass
 
                             diff = datetime.now(timezone.utc) - last_timestamp
-                            if diff.total_seconds() < (4 * 3600 + 5) and not is_terminated:
+                            if diff <= timedelta(hours=4) and not is_terminated:
 
                                 # SUCCESS: Resume session
                                 current_generated_id = last_session_query.data[0]["session_id"]

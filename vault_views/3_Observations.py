@@ -109,8 +109,7 @@ with track_view_performance("Observations"):
                 help="Record the new total weight after stabilization.",
             )
 
-            if st.button(
-                "SAVE",
+            if st.button("SAVE", type="primary",
                 help="Append & Recalibrate",
                 type="primary",
                 disabled=st.session_state.get("is_submitting", False),
@@ -327,7 +326,7 @@ with track_view_performance("Observations"):
                 )
 
                 st.info("💡 **Clinical Requirement**: Record weights then press **SAVE** to unlock the observation grid.")
-                if st.button("SAVE", type="primary", use_container_width=True, help="Record weights and unlock the Egg Observation grid"):
+                if st.button("SAVE", type="primary", type="primary", use_container_width=True, help="Record weights and unlock the Egg Observation grid"):
 
                     def unlock():
                         get_resilient_table(supabase, "bin_observation").insert(
@@ -713,7 +712,7 @@ with track_view_performance("Observations"):
                     placeholder="Describe unusual observations...",
                 )
 
-                if st.button("SAVE", type="primary", use_container_width=True, key="obs_matrix_save"):
+                if st.button("SAVE", type="primary", type="primary", use_container_width=True, key="obs_matrix_save"):
 
                     def commit_batch():
                         obs_payload = []
