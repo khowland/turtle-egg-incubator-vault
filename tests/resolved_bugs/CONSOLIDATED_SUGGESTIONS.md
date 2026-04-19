@@ -115,3 +115,23 @@ This report tracks all audit findings, potential bugs, and enterprise-grade enha
 - **Impact:** MEDIUM. High-value keys (Google, GitHub, Cerebras) are stored in a plaintext file. This violates enterprise security standards for secret management.
 - **Senior Recommendation:** Integrate a secret management solution (e.g., GCP Secret Manager, Vault) or at least ensure .env is never committed to VCS (partially fixed in gitignore, but file exists in workdir).
 
+
+## 🐛 Potential Bugs & Logic Flaws (Phase 4 Append)
+
+### [B-015] Intake View KeyError on Initialization
+- **Component:** `vault_views/2_New_Intake.py` (Line 112)
+- **Impact:** MEDIUM. Telemetry reveals a `KeyError: None` when `selected_label` is not yet set by the user. This causes the view to crash upon first load in some sessions.
+- **Senior Recommendation:** Use `species_data_map.get(selected_label)` or add a guard clause before accessing the map.
+
+---
+
+## 🚀 Enhancements & Mobile Optimizations (Phase 4 Append)
+
+### [E-005] Complete Standard §35 Header Documentation
+- **Context:** Modules currently have `[Pending - Describe practical usage here]` in headers.
+- **Suggestion:** Finalize all module headers with functional use cases to ensure project longevity and compliance with the 5th-Grader Standard.
+
+### [E-006] Telemetry Log Noise (RerunException)
+- **Context:** Telemetry logs are flooded with `RerunException` entries. While normal for Streamlit, it obscures real logic errors.
+- **Suggestion:** Filter out `RerunException` from the `ViewTimer` context manager in `utils/performance.py` to keep telemetry high-signal.
+
