@@ -16,13 +16,12 @@ Description:   Program analytics, hatchling trends, flattened CSV and versioned
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
-from utils.rbac import can_elevated_clinical_operations
-from utils.wormd_export import build_flat_case_csv, build_wormd_intake_json_bundle
+from utils.performance import track_view_performance
 
-supabase_client = bootstrap_page("Egg Reports & Analytics", "📈")
+with track_view_performance("Reports"):
+    supabase_client = bootstrap_page("Egg Reports & Analytics", "📈")
 
-st.title("🛡️ Egg Reports & Analytics")
+    st.title("🛡️ Egg Reports & Analytics")
 
 # =============================================================================
 # SIDEBAR: Filters & WormD export (ISS-2)
