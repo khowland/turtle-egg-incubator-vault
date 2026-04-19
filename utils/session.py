@@ -55,6 +55,9 @@ def fetch_active_observers():
 
 
 def show_splash_screen():
+    # Initialize client early to prevent NameError in exception blocks Standard §36
+    supabase_client = get_supabase()
+
     # Render static Welcome message FIRST for instant feedback
     st.markdown(
         "<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p></div>",
@@ -67,9 +70,6 @@ def show_splash_screen():
     if not active_observers:
         st.error("No active observers found in registry or connection failed.")
         st.stop()
-
-    # Initialize client for recovery check Standard §36
-    supabase_client = get_supabase()
 
     try:
         columns = st.columns([1, 2, 1])
@@ -99,7 +99,7 @@ def show_splash_screen():
                     "Select Your Name", options=names_list, index=default_index
                 )
 
-                if st.form_submit_button("START", use_container_width=True):
+                if st.form_submit_button("START", use_container_width=True, key="login_start"):
                     chosen_oid = observer_options[selected_observer]
                     st.session_state.observer_id = chosen_oid
 

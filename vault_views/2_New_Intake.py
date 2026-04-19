@@ -193,11 +193,11 @@ with track_view_performance("New Intake"):
 
     # --- ATOMIC COMMIT ---
     btn_col1, btn_col2 = st.columns([1, 4])
-    if btn_col1.button("CANCEL", use_container_width=True, type="secondary"):
+    if btn_col1.button("CANCEL", use_container_width=True, type="secondary", key="intake_cancel"):
         st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
         st.switch_page("vault_views/1_Dashboard.py")
 
-    if btn_col2.button("SAVE", type="primary", use_container_width=True):
+    if btn_col2.button("SAVE", type="primary", use_container_width=True, key="intake_save"):
         if not finder_name.strip():
             st.error("❌ Validation Failed: Please enter who found the turtle.")
             st.stop()

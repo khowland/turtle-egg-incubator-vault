@@ -49,8 +49,8 @@ def test_lifo_gate_prevents_intermediate_void():
         assert repair_sel is not None, "Select Egg for Surgery selectbox not found."
         repair_sel.set_value("🔍 SM-BIN-E1").run(timeout=15)
         
-        # Check buttons
-        btns = [b for b in at.button if b.label == "REMOVE"]
+        # Check buttons using keys instead of labels to satisfy §12.5
+        btns = [b for b in at.button if b.key and "void_" in b.key]
         assert len(btns) == 2, "Should show 2 REMOVE buttons in timeline."
         
         # The latest one

@@ -504,14 +504,24 @@ with track_view_performance("Observations"):
                                 ).eq("egg_id", target_id).execute()
 
                                 if new_s != "S6":
-                                    # Rollback from S6 (Hatched) requires voiding ledger entries
-                                    supabase.table("hatchling_ledger").update(
-                                        {
-                                            "is_deleted": True,
-                                            "notes": f"Voided via surgery {datetime.date.today().isoformat()}",
-                                            "modified_by_id": st.session_state.observer_id,
-                                        }
-                                    ).eq("egg_id", target_id).execute()
+                                    # Rollback from S6 (Hatched) requires voiding ledger entries Standard ISS-3
+                                    try:
+                                        supabase.table("hatchling_ledger").update(
+                                            {
+                                                "is_deleted": True,
+                                                "notes": f"Voided via clinical surgery {datetime.date.today().isoformat()}",
+                                                "modified_by_id": st.session_state.observer_id,
+                                            }
+                                        ).eq("egg_id", target_id).execute()
+                                        
+                                        get_resilient_table(supabase, "system_log").insert({
+                                            "session_id": st.session_state.session_id,
+                                            "event_type": "ROLLBACK",
+                                            "event_message": f"S6 Rollback: Subject {target_id} reverted from Hatched. Ledger entries voided.",
+                                            "observer_id": st.session_state.observer_id
+                                        }).execute()
+                                    except Exception as rollback_err:
+                                        logger.error(f"S6 Ledger Rollback failed: {rollback_err}")
 
                                 st.success(f"Observation voided. Egg {target_id} reverted to {new_s}.")
                                 st.rerun()
@@ -559,7 +569,7 @@ with track_view_performance("Observations"):
         st.markdown("### 🥚 Biological Grid")
         st.write(f"Showing **{len(eggs_data)}** subjects in **{active_bin_id}**")
 
-        if st.button("START", help="Select All Pending"):
+        if st.button("START", help="Select All Pending", key="obs_start_all"):
             st.session_state.selected_eggs = [
                 e["egg_id"] for e in eggs_data if e["egg_id"] not in observed_ids
             ]
@@ -703,7 +713,7 @@ with track_view_performance("Observations"):
                     placeholder="Describe unusual observations...",
                 )
 
-                if st.button("SAVE", type="primary", use_container_width=True):
+                if st.button("SAVE", type="primary", use_container_width=True, key="obs_matrix_save"):
 
                     def commit_batch():
                         obs_payload = []

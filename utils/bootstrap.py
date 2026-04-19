@@ -50,6 +50,10 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
             .stButton > button { border: 2px solid #000000 !important; font-weight: 800 !important; }
         """
 
+    # 4. Render Sidebar Clinical Context BEFORE style injections to ensure top-level precedence
+    if st.session_state.get("observer_id"):
+        render_custom_sidebar()
+
     st.markdown(
         f"""
     <style>
@@ -135,9 +139,6 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
         unsafe_allow_html=True,
     )
 
-    # 4. Render Sidebar Clinical Context
-    if st.session_state.get("observer_id"):
-        render_custom_sidebar()
 
     return get_supabase()
 
