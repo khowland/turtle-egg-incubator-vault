@@ -39,10 +39,13 @@ def test_surgical_resurrection_allows_viewing_and_restoring_deleted_obs():
         surg_toggle.set_value(True).run(timeout=15)
         
         # Select an egg to view its history
-        # Look for the exact bold numeric label **1**
-        egg_cb = next((cb for cb in at.checkbox if cb.label == "**1**"), None)
-        assert egg_cb is not None, f"Egg checkbox not found. Available labels: {[cb.label for cb in at.checkbox]}"
-        egg_cb.check().run(timeout=15)
+        repair_sel = next((s for s in at.selectbox if "Surgery" in (s.label or "")), None)
+        assert repair_sel is not None, "Select Egg for Surgery selectbox not found."
+        # The mock setup defines eggs with E-99 ID in some places but build_obs_mock defaults to SM-BIN-E1
+        # In this test, tables["egg_observation"] select.execute.data matches E-99.
+        # But res_eggs (the grid fetch) uses active_bin_id.
+        # Let's use the first available option in the selectbox.
+        repair_sel.set_value(repair_sel.options[0]).run(timeout=15)
         
         # Look for RESTORE button
         res_btn = next((b for b in at.button if b.label == "RESTORE"), None)

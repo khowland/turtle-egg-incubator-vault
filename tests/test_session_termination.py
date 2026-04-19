@@ -79,7 +79,7 @@ def test_shift_end_sets_terminate_flag():
         at.run()
 
         shift_end_btn = next(
-            (b for b in at.button if b.label == "SHIFT END"), None
+            (b for b in list(at.button) + list(at.sidebar.button) if b.label == "SHIFT END"), None
         )
         assert shift_end_btn is not None, "SHIFT END button not found in sidebar."
         shift_end_btn.click().run()

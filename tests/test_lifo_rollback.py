@@ -44,10 +44,10 @@ def test_lifo_gate_prevents_intermediate_void():
         print(f"DEBUG: Checkboxes: {[cb.label for cb in at.checkbox]}")
         
         # Select an egg to view its history
-        # Look for the exact bold numeric label **1**
-        egg_cb = next((cb for cb in at.checkbox if cb.label == "**1**"), None)
-        assert egg_cb is not None, f"Egg checkbox not found. Available checkboxes: {[cb.label for cb in at.checkbox]}"
-        egg_cb.check().run(timeout=15)
+        # In Surgical Mode, we use a selectbox
+        repair_sel = next((s for s in at.selectbox if "Surgery" in (s.label or "")), None)
+        assert repair_sel is not None, "Select Egg for Surgery selectbox not found."
+        repair_sel.set_value("🔍 SM-BIN-E1").run(timeout=15)
         
         # Check buttons
         btns = [b for b in at.button if b.label == "REMOVE"]

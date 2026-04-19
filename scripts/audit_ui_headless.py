@@ -8,14 +8,27 @@ def run_headless_audit():
     at = AppTest.from_file("app.py", default_timeout=30)
     at.run()
 
+    if at.error:
+        print(f"❌ App failed to load: {at.error}")
+        # Print the traceback if it's available in the error
+        return
+
     # 1. Login Simulation
     print("Logging in as Kevin...")
-    # Find the selectbox for observer
-    at.selectbox[0].select("Kevin Howland").run()
-    # Find the pin input
-    at.text_input[0].set_value("1234").run()
-    # Click START
-    at.button[0].click().run()
+    try:
+        if not at.selectbox:
+            print("❌ No selectboxes found!")
+            print(at)
+            return
+            
+        # Find the selectbox for observer
+        at.selectbox[0].select("Kevin Howland").run()
+        # Find the START button (it's a form submit button)
+        at.button[0].click().run()
+    except Exception as e:
+        print(f"❌ Login simulation failed: {e}")
+        print(at)
+        return
 
     if at.error:
         print(f"❌ Login failed: {at.error}")

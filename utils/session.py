@@ -186,22 +186,3 @@ def show_splash_screen():
         st.error(f"Vault Connection Failure: {error}")
 
 
-def render_custom_sidebar():
-    """Displays observer info at the top of the sidebar with Session ID."""
-    st.sidebar.markdown(f"### 👤 {st.session_state.get('observer_name', 'User')}")
-    st.sidebar.caption(f"Session ID: {st.session_state.get('session_id', 'Unknown')}")
-    if st.sidebar.button("SHIFT END", key="global_logout_btn", use_container_width=True, type="primary", help="Terminate your shift and password-lock the system."):
-        # Explicitly terminate the session identity
-        try:
-            get_supabase().table("system_log").insert({
-                "session_id": st.session_state.session_id,
-                "event_type": "TERMINATE",
-                "event_message": f"Biologist {st.session_state.observer_name} explicitly ended shift."
-            }).execute()
-        except:
-            pass
-            
-        st.session_state.observer_id = None
-        st.session_state.env_gate_synced = False
-        st.rerun()
-    st.sidebar.divider()

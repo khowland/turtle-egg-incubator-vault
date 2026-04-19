@@ -112,6 +112,7 @@ with track_view_performance("Observations"):
             if st.button(
                 "SAVE",
                 help="Append & Recalibrate",
+                type="primary",
                 disabled=st.session_state.get("is_submitting", False),
             ):
 
@@ -259,7 +260,7 @@ with track_view_performance("Observations"):
             icon = "🌓"
         wb_status_list.append(f"{icon} {b_id} ({done}/{total})")
 
-    active_wb_item = st.selectbox("Current Bin Focus", wb_status_list)
+    active_wb_item = st.selectbox("Current Bin Focus", wb_status_list, key="Current Bin Focus")
     active_bin_id = active_wb_item.split(" ")[1]
 
     # ------------------------------------------------------------------------------

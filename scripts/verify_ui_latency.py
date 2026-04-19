@@ -39,7 +39,7 @@ def analyze_performance(file_path):
         print(error_df[['timestamp', 'view']])
 
     # Splash Screen Check
-    splash_df = success_df[success_df['view'] == 'Splash']
+    splash_df = success_df[success_df['view'] == 'Login/Splash']
     if not splash_df.empty:
         avg_splash = splash_df['duration_s'].mean()
         print(f"\nAverage Splash Screen Load: {avg_splash:.3f}s")

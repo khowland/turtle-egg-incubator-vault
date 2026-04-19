@@ -96,6 +96,8 @@ def test_multi_bin_and_egg_workflow(mock_db):
         save_wt_btn.click().run() 
         
         # Add 5 eggs
+        ni_mass = next(n for n in at.number_input if "Post-Append Mass" in n.label)
+        ni_mass.set_value(600.0)
         ni_eggs = next(n for n in at.number_input if n.label == "Eggs to Add")
         ni_eggs.set_value(5) 
         save_eggs_btn = next(b for b in at.button if b.label == "SAVE" and "Append" in b.help)
@@ -116,7 +118,9 @@ def test_multi_bin_and_egg_workflow(mock_db):
         db.table("egg").execute.return_value.data = bin2_eggs # Switch focus fully for this run
         
         # Select Bin 2 in focus
-        at.selectbox(key="Current Bin Focus").set_value("⚪ BIN-2 (0/5)").run()
+        bin_focus_sel = at.selectbox(key="Current Bin Focus")
+        bin2_opt = next(o for o in bin_focus_sel.options if "BIN-2" in o)
+        bin_focus_sel.set_value(bin2_opt).run()
         
         # Check first 3 eggs in Bin 2
         cb1 = next(c for c in at.checkbox if "E1" in c.label or " 1 " in c.label or c.label.endswith("1"))

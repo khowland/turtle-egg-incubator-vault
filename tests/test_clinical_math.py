@@ -15,17 +15,20 @@ def test_incubation_duration_math():
     def mock_table(table_name):
         if table_name in table_mocks: return table_mocks[table_name]
         m = MagicMock()
-        if table_name == "bin":
-            m.select.return_value.eq.return_value.execute.return_value.data = [{"bin_id": "B1", "intake_id": "M1"}]
-        elif table_name == "egg":
-            # Grid select
+        if table_name == "egg":
+            # Support both individual and batch selects
             m.select.return_value.eq.return_value.eq.return_value.eq.return_value.order.return_value.execute.return_value.data = [
                 {"egg_id": "CALC-1", "bin_id": "B1", "current_stage": "S5", "status": "Active", "intake_timestamp": intake_date.isoformat()}
             ]
-            # Sidebar detail select
+            m.select.return_value.in_.return_value.execute.return_value.data = [
+                {"egg_id": "CALC-1", "bin_id": "B1", "intake_timestamp": intake_date.isoformat()}
+            ]
             m.select.return_value.eq.return_value.execute.return_value.data = [
                 {"egg_id": "CALC-1", "bin_id": "B1", "intake_timestamp": intake_date.isoformat()}
             ]
+        elif table_name == "bin":
+            m.select.return_value.eq.return_value.execute.return_value.data = [{"bin_id": "B1", "intake_id": "M1"}]
+            m.select.return_value.in_.return_value.execute.return_value.data = [{"bin_id": "B1", "intake_id": "M1"}]
         elif table_name == "species":
             m.select.return_value.execute.return_value.data = [{"species_id": 1, "species_code": "SN", "common_name": "Snapping Turtle"}]
         elif table_name == "intake":

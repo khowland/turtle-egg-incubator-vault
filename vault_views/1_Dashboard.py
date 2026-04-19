@@ -107,18 +107,27 @@ with track_view_performance("Dashboard"):
     )
     retirement_targets_list = []
 
-    for entry in bins_cleanup_result:
-        current_bin_id = entry["bin_id"]
-        active_entries_count = (
+    # Optimized Season-End Cleanup: Batch fetch active egg counts to avoid N+1
+    if bins_cleanup_result:
+        bin_ids_to_check = [entry["bin_id"] for entry in bins_cleanup_result]
+        
+        # Count active eggs per bin in one go
+        egg_counts_res = (
             supabase_client.table("egg")
-            .select("egg_id", count="exact")
-            .eq("bin_id", current_bin_id)
+            .select("bin_id")
+            .in_("bin_id", bin_ids_to_check)
             .eq("status", "Active")
             .execute()
-            .count
         )
-        if active_entries_count == 0:
-            retirement_targets_list.append(current_bin_id)
+        
+        # Calculate counts in Python
+        from collections import Counter
+        counts_map = Counter([e["bin_id"] for e in (egg_counts_res.data or [])])
+        
+        for entry in bins_cleanup_result:
+            current_bin_id = entry["bin_id"]
+            if counts_map[current_bin_id] == 0:
+                retirement_targets_list.append(current_bin_id)
 
     if retirement_targets_list:
         with st.container(border=True):
@@ -156,13 +165,13 @@ with track_view_performance("Dashboard"):
                     ).execute()
                     return True
 
-                safe_db_execute(
+                if safe_db_execute(
                     "Remove Bin",
                     retire_bin,
                     success_message=f"Bin {selected_retirement_target} was removed.",
-                )
-                st.success(f"Bin {selected_retirement_target} removed.")
-                st.rerun()
+                ):
+                    st.success(f"Bin {selected_retirement_target} removed.")
+                    st.rerun()
 
     # --- Analytics ---
     left_column, right_column = st.columns(2)
