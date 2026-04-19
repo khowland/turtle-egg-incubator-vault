@@ -17,20 +17,22 @@ import streamlit as st
 import pandas as pd
 from utils.bootstrap import bootstrap_page, safe_db_execute
 from utils.rbac import can_elevated_clinical_operations
+from utils.performance import track_view_performance
 
 supabase = bootstrap_page("Vault Administration", "⚙️")
 
-st.title("⚙️ Vault Administration")
+with track_view_performance("Settings"):
+    st.title("⚙️ Vault Administration")
 
-# =============================================================================
-# SECTION: 🔒 Administrative Editing Lock
-# =============================================================================
-st.markdown("### 🔒 Registry Protection")
-is_locked = st.toggle(
-    "Engage Mid-Season Lock",
-    value=False,
-    help="Enable this once the season has fully started to prevent accidental edits to foundational lookups.",
-)
+    # =============================================================================
+    # SECTION: 🔒 Administrative Editing Lock
+    # =============================================================================
+    st.markdown("### 🔒 Registry Protection")
+    is_locked = st.toggle(
+        "Engage Mid-Season Lock",
+        value=False,
+        help="Enable this once the season has fully started to prevent accidental edits to foundational lookups.",
+    )
 
 if is_locked:
     st.error("🔒 **LOCKED**: Lookup tables are in exact READ-ONLY mode.")

@@ -1,0 +1,28 @@
+{"timestamp": "2026-04-19T05:58:35Z", "view": "Login/Splash", "duration_s": 1.4413, "status": "SUCCESS", "session_id": "3c097047-4a4a-494e-bea5-a8118dbce3c1"}
+{"timestamp": "2026-04-19T05:58:43Z", "view": "Login/Splash", "duration_s": 0.0059, "status": "SUCCESS", "session_id": "4c9bf8bb-a8f3-44e7-ad7a-c8c6862e84ec"}
+{"timestamp": "2026-04-19T05:58:54Z", "view": "Login/Splash", "duration_s": 0.0146, "status": "ERROR", "session_id": "71e37a37-5a82-4b0c-a737-c337111def8a"}
+{"timestamp": "2026-04-19T05:58:57Z", "view": "Dashboard", "duration_s": 0.0, "status": "ERROR", "session_id": "71e37a37-5a82-4b0c-a737-c337111def8a"}
+{"timestamp": "2026-04-19T05:59:08Z", "view": "New Intake", "duration_s": 0.3642, "status": "SUCCESS", "session_id": "71e37a37-5a82-4b0c-a737-c337111def8a"}
+{"timestamp": "2026-04-19T05:59:14Z", "view": "Observations", "duration_s": 0.0033, "status": "SUCCESS", "session_id": "71e37a37-5a82-4b0c-a737-c337111def8a"}
+{"timestamp": "2026-04-19T05:59:19Z", "view": "Settings", "duration_s": 0.0063, "status": "SUCCESS", "session_id": "71e37a37-5a82-4b0c-a737-c337111def8a"}
+{"timestamp": "2026-04-19T05:59:27Z", "view": "Reports", "duration_s": 0.0, "status": "ERROR", "session_id": "71e37a37-5a82-4b0c-a737-c337111def8a"}
+{"timestamp": "2026-04-19T05:59:33Z", "view": "Diagnostic", "duration_s": 0.0094, "status": "SUCCESS", "session_id": "71e37a37-5a82-4b0c-a737-c337111def8a"}
+{"timestamp": "2026-04-19T05:59:43Z", "view": "Help", "duration_s": 1.4286, "status": "SUCCESS", "session_id": "71e37a37-5a82-4b0c-a737-c337111def8a"}
+{"timestamp": "2026-04-19T06:00:20Z", "view": "Observations", "duration_s": 0.0011, "status": "SUCCESS", "session_id": "71e37a37-5a82-4b0c-a737-c337111def8a"}
+{"timestamp": "2026-04-19T06:06:34Z", "view": "Login/Splash", "duration_s": 0.0282, "status": "SUCCESS", "session_id": "05ee3c2f-d4dd-4c27-9154-dbc83fbf1b76"}
+{"timestamp": "2026-04-19T06:06:47Z", "view": "Login/Splash", "duration_s": 0.0307, "status": "ERROR", "session_id": "191584e0-8dd8-4f7a-8d9b-e27768a50196"}
+{"timestamp": "2026-04-19T06:06:50Z", "view": "Dashboard", "duration_s": 2.5121, "status": "SUCCESS", "session_id": "191584e0-8dd8-4f7a-8d9b-e27768a50196"}
+{"timestamp": "2026-04-19T06:07:12Z", "view": "New Intake", "duration_s": 0.3922, "status": "SUCCESS", "session_id": "191584e0-8dd8-4f7a-8d9b-e27768a50196"}
+{"timestamp": "2026-04-19T06:07:54Z", "view": "Observations", "duration_s": 0.9296, "status": "ERROR", "session_id": "191584e0-8dd8-4f7a-8d9b-e27768a50196"}
+{"timestamp": "2026-04-19T06:10:30Z", "view": "Login/Splash", "duration_s": 0.3577, "status": "SUCCESS", "session_id": "fbe86b16-c093-4529-9953-b6f5cbc552bc"}
+{"timestamp": "2026-04-19T06:14:42Z", "view": "Login/Splash", "duration_s": 0.0111, "status": "SUCCESS", "session_id": "af71bf33-f9f7-445b-b7d6-4d2072e9109c"}
+{"timestamp": "2026-04-19T06:15:07Z", "view": "Login/Splash", "duration_s": 0.0115, "status": "ERROR", "session_id": "08a768c4-9a35-4c68-9f85-cdb038eff3d9"}
+{"timestamp": "2026-04-19T06:15:10Z", "view": "Dashboard", "duration_s": 1.9448, "status": "SUCCESS", "session_id": "08a768c4-9a35-4c68-9f85-cdb038eff3d9"}
+{"timestamp": "2026-04-19T06:15:29Z", "view": "New Intake", "duration_s": 0.3502, "status": "SUCCESS", "session_id": "08a768c4-9a35-4c68-9f85-cdb038eff3d9"}
+{"timestamp": "2026-04-19T06:16:21Z", "view": "Observations", "duration_s": 1.0504, "status": "ERROR", "session_id": "08a768c4-9a35-4c68-9f85-cdb038eff3d9"}
+{"timestamp": "2026-04-19T06:16:38Z", "view": "Settings", "duration_s": 0.0025, "status": "SUCCESS", "session_id": "08a768c4-9a35-4c68-9f85-cdb038eff3d9"}
+{"timestamp": "2026-04-19T06:16:54Z", "view": "Reports", "duration_s": 2.2143, "status": "SUCCESS", "session_id": "08a768c4-9a35-4c68-9f85-cdb038eff3d9"}
+{"timestamp": "2026-04-19T06:17:01Z", "view": "Diagnostic", "duration_s": 0.0406, "status": "SUCCESS", "session_id": "08a768c4-9a35-4c68-9f85-cdb038eff3d9"}
+{"timestamp": "2026-04-19T06:17:34Z", "view": "Dashboard", "duration_s": 1.9158, "status": "SUCCESS", "session_id": "08a768c4-9a35-4c68-9f85-cdb038eff3d9"}
+{"timestamp": "2026-04-19T06:17:48Z", "view": "Help", "duration_s": 1.5796, "status": "SUCCESS", "session_id": "08a768c4-9a35-4c68-9f85-cdb038eff3d9"}
+{"timestamp": "2026-04-19T06:18:45Z", "view": "Login/Splash", "duration_s": 0.0081, "status": "SUCCESS", "session_id": "f0017b61-1cd9-4e5a-aed1-28547d6c14e6"}

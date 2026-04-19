@@ -30,13 +30,17 @@ class ViewTimer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         duration = time.perf_counter() - self.start_time
         
+        import traceback
         telemetry_entry = {
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "view": self.view_name,
             "duration_s": round(duration, 4),
             "status": "SUCCESS" if exc_type is None else "ERROR",
-            "session_id": st.session_state.get("session_id", "UNKNOWN")
+            "session_id": st.session_state.get("session_id", "UNKNOWN"),
         }
+        if exc_type:
+            telemetry_entry["error"] = str(exc_val)
+            telemetry_entry["traceback"] = traceback.format_exc()
 
         # Log to system logger
         logger.info(f"⏱️ Performance: {self.view_name} loaded in {duration:.4f}s")

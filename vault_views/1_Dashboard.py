@@ -16,6 +16,7 @@ Description:   Biological Dashboard with Mortality Heatmap and Hydration Audit;
 import streamlit as st
 import plotly.express as px
 import pandas as pd
+from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
 from utils.performance import track_view_performance
 
 with track_view_performance("Dashboard"):
