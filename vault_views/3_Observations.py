@@ -26,15 +26,16 @@ from utils.bootstrap import (
     get_last_bin_weight,
 )
 from utils.rbac import can_elevated_clinical_operations
-from utils.visuals import render_egg_icon
+from utils.performance import track_view_performance
 
-# 1. Page Initialization
-supabase = bootstrap_page("Observations", "🔬")
-st.title("🔬 Observations")
+with track_view_performance("Observations"):
+    # 1. Page Initialization
+    supabase = bootstrap_page("Observations", "🔬")
+    st.title("🔬 Observations")
 
-# 2. State Initialization
-if "workbench_bins" not in st.session_state:
-    st.session_state.workbench_bins = set()
+    # 2. State Initialization
+    if "workbench_bins" not in st.session_state:
+        st.session_state.workbench_bins = set()
 if "observed_this_session" not in st.session_state:
     st.session_state.observed_this_session = set()
 
@@ -425,20 +426,25 @@ if st.session_state.surgical_resurrection:
         if not history_active and not history_voided:
             st.info("No clinical history detected for this subject.")
         else:
+            # Display Active Observations
             for h in history_active:
                 with st.container(border=True):
-                    ts = datetime.datetime.fromisoformat(
-                        str(h["timestamp"]).replace("Z", "+00:00")
-                    ).strftime("%Y-%m-%d %H:%M")
+                    ts = (
+                        datetime.datetime.fromisoformat(
+                            str(h["timestamp"]).replace("Z", "+00:00")
+                        ).strftime("%Y-%m-%d %H:%M")
+                    )
                     st.write(
-                        f"**{ts}** | Stage: {h['stage_at_observation']} | Observer: {h['observer_id'] or 'Unknown'}"
+                        f"**{ts}** | Stage: {h.get('stage_at_observation', 'N/A')} | Observer: {h.get('observer_id', 'Unknown')}"
                     )
                     cols = st.columns([4, 1])
                     cols[0].caption(
-                        f"Props: Chalk {h['chalking']} | Vasc {h['vascularity']} | "
-                        f"Mold {h['molding']} | Leak {h['leaking']}"
+                        f"Props: Chalk {h.get('chalking', 0)} | Vasc {h.get('vascularity', False)} | "
+                        f"Mold {h.get('molding', 0)} | Leak {h.get('leaking', 0)}"
                     )
-                    if cols[1].button("Void", key=f"void_{h['egg_observation_id']}"):
+                    # §4.2: LIFO Rollback Gate
+                    is_latest = (h["egg_observation_id"] == history_active[0]["egg_observation_id"])
+                    if cols[1].button("REMOVE", key=f"void_{h['egg_observation_id']}", disabled=not is_latest):
 
                         def surgical_void():
                             reason = (
@@ -455,14 +461,17 @@ if st.session_state.surgical_resurrection:
                             ).execute()
                             
                             # Standard §35: Forensic Audit Log
+                            # Standard §35: Forensic Audit Log
                             try:
                                 get_resilient_table(supabase, "system_log").insert({
                                     "session_id": st.session_state.session_id,
                                     "event_type": "VOID",
-                                    "event_message": f"Biologist {st.session_state.observer_name} VOIDED observation {h['egg_observation_id']} for Egg {target_id}. Reason: {reason}"
+                                    "event_message": f"Clinical Correction: Observation {h['egg_observation_id']} voided. Reason: {reason}",
+                                    "observer_id": st.session_state.observer_id
                                 }).execute()
-                            except:
-                                pass
+                            except: pass
+                            
+                            # Rollback state calculation
                             rem = (
                                 get_resilient_table(supabase, "egg_observation")
                                 .select("stage_at_observation")
@@ -488,7 +497,7 @@ if st.session_state.surgical_resurrection:
                             ).eq("egg_id", target_id).execute()
 
                             if new_s != "S6":
-                                # Rollback from S hatchling requires voiding ledger entries
+                                # Rollback from S6 (Hatched) requires voiding ledger entries
                                 supabase.table("hatchling_ledger").update(
                                     {
                                         "is_deleted": True,
@@ -497,25 +506,45 @@ if st.session_state.surgical_resurrection:
                                     }
                                 ).eq("egg_id", target_id).execute()
 
-                            st.success(
-                                f"Observation voided. Egg {target_id} reverted to {new_s} ({new_status})."
-                            )
+                            st.success(f"Observation voided. Egg {target_id} reverted to {new_s}.")
+                            st.rerun()
 
-                        audit_msg = f"Surgical void: egg_observation_id={h['egg_observation_id']} egg={target_id} reason={void_reason_input or 'n/a'}"
-                        safe_db_execute(
-                            "Surgical Void", surgical_void, success_message=audit_msg
-                        )
-                        st.rerun()
+                        safe_db_execute("Void Observation", surgical_void)
+
+            # §6.1 Surgical Resurrection: Display Voided Observations
             if history_voided:
-                with st.expander("Voided observations (audit trail)"):
-                    for h in history_voided:
-                        ts = datetime.datetime.fromisoformat(
-                            str(h["timestamp"]).replace("Z", "+00:00")
-                        ).strftime("%Y-%m-%d %H:%M")
-                        st.caption(
-                            f"{ts} | stage {h.get('stage_at_observation')} | "
-                            f"reason: {h.get('void_reason') or '—'}"
+                st.divider()
+                st.write("🗑️ **Voided Observations (Resurrection Eligible)**")
+                for hv in history_voided:
+                    with st.container(border=True):
+                        ts_v = (
+                            datetime.datetime.fromisoformat(
+                                str(hv["timestamp"]).replace("Z", "+00:00")
+                            ).strftime("%Y-%m-%d %H:%M")
                         )
+                        st.write(
+                            f"**{ts_v}** | Stage: {hv.get('stage_at_observation', 'N/A')} | Voided: {hv.get('void_reason', 'N/A')}"
+                        )
+                        if st.button("RESTORE", key=f"res_{hv['egg_observation_id']}", type="primary"):
+                            def resurrect():
+                                get_resilient_table(supabase, "egg_observation").update(
+                                    {"is_deleted": False, "modified_by_id": st.session_state.observer_id}
+                                ).eq("egg_observation_id", hv["egg_observation_id"]).execute()
+                                
+                                # Log resurrection
+                                try:
+                                    get_resilient_table(supabase, "system_log").insert({
+                                        "session_id": st.session_state.session_id,
+                                        "event_type": "RESTORE",
+                                        "event_message": f"Surgical Resurrection: Observation {hv['egg_observation_id']} restored.",
+                                        "observer_id": st.session_state.observer_id
+                                    }).execute()
+                                except: pass
+                                
+                                st.success(f"Observation {hv['egg_observation_id']} resurrected.")
+                                st.rerun()
+                            
+                            safe_db_execute("Resurrection", resurrect)
 else:
     # ------------------------------------------------------------------------------
     # 4. THE BIOLOGICAL GRID
@@ -599,6 +628,19 @@ else:
                 index=st_idx,
             )
 
+            # §3.5 Expansion: Status Selection (Active, Transferred, Dead)
+            # Mixed status logic
+            stat_opts = ["Active", "Transferred", "Dead"]
+            stats_found = {e["status"] for e in selected_eggs_state}
+            matrix_stat = next(iter(stats_found)) if len(stats_found) == 1 else "Active"
+            stat_idx = stat_opts.index(matrix_stat) if matrix_stat in stat_opts else 0
+            new_status = ac1.selectbox(
+                f"{'✅' if len(stats_found) == 1 else '➖'} Status",
+                stat_opts,
+                index=stat_idx,
+                help="Mark as Dead to remove from active grid and log mortality."
+            )
+
             chalks_found = {
                 o["chalking"] for o in obs_session if o["egg_id"] in selected_real_ids
             }
@@ -666,7 +708,7 @@ else:
                         
                         obs_payload.append(payload)
 
-                    status_val = "Active" if new_stage != "S6" else "Transferred"
+                    status_val = new_status
                     update_fields = {
                         "current_stage": new_stage,
                         "status": status_val,

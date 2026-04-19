@@ -65,12 +65,35 @@ def clear_vault_cache():
 # Returns: bool — True if connection is live
 # -----------------------------------------------------------------------------
 def check_connection(supabase: Client) -> bool:
-    """Verifies connectivity to the Supabase backend."""
+    """Verifies connectivity to the Supabase backend with Auto-Wake (Plan B)."""
     try:
         supabase.table("species").select("species_id").limit(1).execute()
         logger.info("✅ Supabase connection verified.")
         return True
     except Exception as e:
+        error_msg = str(e)
+        # Requirement: Detect Paused state (usually 503 or 404 in connection string)
+        if "503" in error_msg or "404" in error_msg or "Service Unavailable" in error_msg:
+            logger.warning("🐢 Project Hibernation Detected. Attempting Plan B Wake-up...")
+            
+            # Use Streamlit UI feedback if running in a browser context
+            try:
+                st.warning("🐢 **Project Hibernation Detected.** Waking up the Vault... Please wait 60 seconds.")
+            except:
+                pass
+            
+            from utils.supabase_mgmt import wake_supabase_project, wait_for_restoration
+            if wake_supabase_project():
+                # Internal helper for quiet checks during polling
+                def _check_quiet():
+                    try:
+                        supabase.table("species").select("species_id").limit(1).execute()
+                        return True
+                    except:
+                        return False
+                
+                return wait_for_restoration(_check_quiet)
+                
         logger.error(f"❌ Supabase connection failed: {e}")
         return False
 

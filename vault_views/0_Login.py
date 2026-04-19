@@ -14,6 +14,7 @@ Description:   Session Gateway and Splash Screen.
 
 import streamlit as st
 from utils.session import show_splash_screen
+from utils.performance import track_view_performance
 
 if "global_font_size" not in st.session_state:
     st.session_state.global_font_size = 18
@@ -28,4 +29,5 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-show_splash_screen()
+with track_view_performance("Login/Splash"):
+    show_splash_screen()

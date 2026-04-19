@@ -55,4 +55,23 @@ graph LR
 *   **Forensic Auditing**: Every clinical change must record the observer, the session, and the precise time.
 
 ---
+
+## 🚀 5. Performance & Responsiveness
+*   **Splash Screen Priority**: The "User Selection" splash screen is the most critical path. Time-to-First-Meaningful-Paint (TFMP) must be **< 1.0s**.
+*   **UI Fluidity**: Other view transitions should complete in **< 2.0s**. 
+*   **Simplicity Principle**: Favor architectural simplicity and robust caching over complex micro-optimizations.
+*   **Asynchronous Loading**: Where data fetching is heavy, display the static UI shell immediately and populate data in the background.
+
+---
+
+## 🏛️ 6. Infrastructure & Lifecycle
+*   **Auto-Pause (7-Day Rule)**: Free Tier projects are automatically paused after 7 days of inactivity (no API requests or dashboard access).
+*   **Permanent Deletion (90-Day Rule)**: Projects paused for >90 days may be permanently deleted.
+*   **Project States**:
+    *   **Active**: System is online and responsive.
+    *   **Paused**: System is dormant; triggers a programmatic "Wake" (Plan B) if accessed.
+    *   **Restoring**: Transition state (~30-60s) during project re-activation.
+*   **Resilience Protocol**: The system must detect a "Paused" state and attempt an automated restoration via the Supabase Management API.
+
+---
 *Verified for the 2026 Turtle Season (Release v8.1.3).*

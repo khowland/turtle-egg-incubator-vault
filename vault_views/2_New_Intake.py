@@ -125,13 +125,13 @@ with st.container(border=True):
             key=f"note_{i}",
             placeholder="e.g., 1:1 Vermiculite",
         )
-        if cols[3].button("DELETE", key=f"del_{i}", help="DELETE"):
+        if cols[3].button("REMOVE", key=f"del_{i}", help="REMOVE"):
             st.session_state.bin_rows.pop(i)
             for idx, r in enumerate(st.session_state.bin_rows):
                 r["bin_num"] = idx + 1
             st.rerun()
 
-    if st.button("ADD", help="Add another bin"):
+    if st.button("ADD", help="Add another bin", type="primary"):
         if len(st.session_state.bin_rows) < 9:
             st.session_state.bin_rows.append(
                 {
@@ -197,6 +197,7 @@ if btn_col2.button("SAVE", type="primary", use_container_width=True):
                         "species_id": selected_species["species_id"],
                         "next_intake_number": next_intake_number,
                         "intake_date": str(intake_date),
+                        "intake_timestamp": datetime.datetime.combine(intake_date, datetime.datetime.now().time()).isoformat() + "Z", # §3.3 Compliance
                         "session_id": st.session_state.session_id,
                         "observer_id": str(st.session_state.observer_id),
                         "intake": {
@@ -204,6 +205,7 @@ if btn_col2.button("SAVE", type="primary", use_container_width=True):
                             "finder_turtle_name": finder_name,
                             "species_id": selected_species["species_id"],
                             "intake_date": str(intake_date),
+                            "intake_timestamp": datetime.datetime.combine(intake_date, datetime.datetime.now().time()).isoformat() + "Z",
                             "intake_condition": intake_condition,
                             "extraction_method": extraction_method,
                             "discovery_location": discovery_location,

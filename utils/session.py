@@ -37,25 +37,38 @@ def init_session():
         st.session_state.env_gate_synced = False
 
 
-def show_splash_screen():
-    st.markdown(
-        "<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p></div>",
-        unsafe_allow_html=True,
-    )
-    supabase_client = get_supabase()
-
+@st.cache_data(ttl=600)
+def fetch_active_observers():
+    """Fetches the list of active observers from Supabase, cached for 10 minutes."""
     try:
-        active_observers = (
+        supabase_client = get_supabase()
+        response = (
             supabase_client.table("observer")
             .select("observer_id, display_name, is_active")
             .eq("is_active", True)
             .execute()
-            .data
         )
-        if not active_observers:
-            st.error("No active observers found in registry.")
-            st.stop()
+        return response.data
+    except Exception as e:
+        logger.error(f"Failed to fetch observers: {e}")
+        return []
 
+
+def show_splash_screen():
+    # Render static Welcome message FIRST for instant feedback
+    st.markdown(
+        "<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p></div>",
+        unsafe_allow_html=True,
+    )
+
+    # Use cached data to eliminate DB latency on repeated loads
+    active_observers = fetch_active_observers()
+
+    if not active_observers:
+        st.error("No active observers found in registry or connection failed.")
+        st.stop()
+
+    try:
         columns = st.columns([1, 2, 1])
         with columns[1]:
             with st.form("login_form"):

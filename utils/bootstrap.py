@@ -96,17 +96,40 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
 
         footer {{ visibility: hidden !important; }}
 
+        /* 🎨 Unified Branding Standard (§1) */
+        /* Mapping vocabulary to clinical colors for 5th-Grader Standard */
+        .stButton > button:has(p:contains("SAVE")), button[data-testid*="SAVE"] {{
+            background-color: #10b981 !important;
+            color: white !important;
+            border: none !important;
+        }}
+        .stButton > button:has(p:contains("CANCEL")), button[data-testid*="CANCEL"] {{
+            background-color: #ef4444 !important;
+            color: white !important;
+            border: none !important;
+        }}
+        .stButton > button:has(p:contains("ADD")), button[data-testid*="ADD"] {{
+            background-color: #3b82f6 !important;
+            color: white !important;
+            border: none !important;
+        }}
+        .stButton > button:has(p:contains("REMOVE")), button[data-testid*="REMOVE"] {{
+            background-color: #f87171 !important;
+            color: white !important;
+            border: none !important;
+        }}
+
         /* 📍 Pinned Help Button (§ISS-9) */
-        [data-testid="stSidebarNav"] ul {
+        [data-testid="stSidebarNav"] ul {{
             display: flex;
             flex-direction: column;
             height: calc(100vh - 40px);
-        }
-        [data-testid="stSidebarNav"] ul li:last-child {
+        }}
+        [data-testid="stSidebarNav"] ul li:last-child {{
             margin-top: auto;
             border-top: 1px solid #334155;
             padding-top: 10px;
-        }
+        }}
     </style>
     """,
         unsafe_allow_html=True,

@@ -109,7 +109,7 @@ with tabs[0]:
     )
 
     if not is_locked:
-        if st.button("SAVE", help="Synchronize Users"):
+        if st.button("SAVE", type="primary", help="Synchronize Users"):
 
             def sync_users():
                 to_upsert = []
@@ -180,7 +180,7 @@ with tabs[1]:
         key="species_editor",
     )
 
-    if not is_locked and st.button("SAVE", help="Synchronize Species Changes"):
+    if not is_locked and st.button("SAVE", type="primary", help="Synchronize Species Changes"):
 
         def sync_species():
             # Get only the modified rows from st.data_editor state
@@ -275,7 +275,7 @@ with tabs[3]:
                     if ghost_count > 0:
                         c1.error(f"⚠️ **GHOST DATA DETECTED**: {ghost_count} 'Active' eggs are trapped in this deleted bin.")
                     c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")
-                    if c2.button("✨ Restore", key=f"res_bin_{rb['bin_id']}"):
+                    if c2.button("ADD", key=f"res_bin_{rb['bin_id']}", help=f"Restore Bin {rb['bin_id']} to active workbench"):
 
                         def restore_bin():
                             supabase.table("bin").update({"is_deleted": False}).eq(
@@ -308,7 +308,7 @@ with tabs[3]:
                     c1, c2 = st.columns([3, 1])
                     c1.write(f"**Case: {rm['intake_name']}**")
                     c1.caption(f"ID: {rm['intake_id']}")
-                    if c2.button("✨ Restore", key=f"res_mom_{rm['intake_id']}"):
+                    if c2.button("ADD", key=f"res_mom_{rm['intake_id']}", help=f"Restore case {rm['intake_name']} to active circulation"):
 
                         def restore_mom():
                             supabase.table("intake").update(

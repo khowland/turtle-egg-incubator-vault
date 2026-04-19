@@ -22,7 +22,7 @@ st.caption("Perform these checks prior to a major influx of eggs.")
 
 # --- Connectivity Heartbeat ---
 st.subheader("1. Connectivity Heartbeat")
-if st.button("START", help="Run Connection Ping"):
+if st.button("START", help="Run Connection Ping", type="primary"):
     with st.spinner("Pinging Biological Ledger..."):
 
         def run_ping():
@@ -41,7 +41,7 @@ if st.button("START", help="Run Connection Ping"):
 
 # --- Sequence Logic Check ---
 st.subheader("2. Sequence Logic Check")
-if st.button("START", help="Verify Intake Counter"):
+if st.button("START", help="Verify Intake Counter", type="primary"):
     with st.spinner("Analyzing species sequence..."):
         bl_species_result = (
             supabase_client.table("species")
@@ -58,7 +58,7 @@ if st.button("START", help="Verify Intake Counter"):
 
 # --- Audit Layer Trace (§6.53)
 st.subheader("3. Audit Layer Trace (§6.53)")
-if st.button("START", help="Verify System Logs"):
+if st.button("START", help="Verify System Logs", type="primary"):
     st.write(f"Active Session ID: `{st.session_state.session_id}`")
     
     def fetch_logs():

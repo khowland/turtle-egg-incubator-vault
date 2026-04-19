@@ -128,8 +128,7 @@ def test_multi_bin_and_egg_workflow(mock_db):
         at.run()
         
         # Set stage to S2
-        # Fixed: The selectbox might not have a label if it's the 1st one in the container
-        sb_stage = next(s for s in at.selectbox if s.key is None and "Stage" in (s.label or ""))
+        sb_stage = next(s for s in at.selectbox if s.key is None and "Stage" in (s.label or "") or "✅ Stage" in (s.label or "") or "➖ Stage" in (s.label or ""))
         sb_stage.set_value("S2")
         
         # Save observation button (primary)
