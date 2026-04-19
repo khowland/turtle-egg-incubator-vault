@@ -69,3 +69,26 @@ This report tracks all audit findings, potential bugs, and enterprise-grade enha
 - **Context:** Several tests failed due to mocking inconsistencies (get_table vs get_resilient_table).
 - **Suggestion:** Refactor the test utility mocks to ensure a consistent interface across all unit tests to avoid "false negative" failures.
 
+
+## 📋 Phase 2 Test Suite Failures (Verified)
+
+### [B-007] UI Branding Violation: SAVE Button Type
+- **Test:** test_button_label_and_type_compliance
+- **Impact:** Requirement §1. The SAVE button in some views is using default 'button' type instead of 'primary'. This violates the Green branding requirement for primary actions.
+- **Senior Recommendation:** Change all primary SAVE buttons to type="primary".
+
+### [B-008] Intake Handoff Failure
+- **Test:** test_workflow_intake_to_observation_handoff
+- **Impact:** CRITICAL. The active_bin_id is missing from session state after a successful save in Intake. This breaks the automated transition to the Observations workbench.
+- **Senior Recommendation:** Verify state persistence in the _intake_success_ui helper function.
+
+### [B-009] Streamlit Multiselect Desync
+- **Test:** test_complex_multi_bin_workflow
+- **Impact:** StreamlitAPIException. The system attempts to set a default value in the bin multiselect that is not yet in the options list. This happens during rapid navigation or auto-transitions.
+- **Senior Recommendation:** Wrap multiselect defaults in a filter that ensures they exist in the current options list.
+
+### [B-010] Mocking Interface Mismatch (Test Debt)
+- **Test:** test_retire_bin_double_check_blocks_race_condition
+- **Impact:** The test harness expects get_table() with 2 arguments, but the current mock only supports 1. This prevents race condition verification.
+- **Senior Recommendation:** Refactor tests/mock_utils.py to match the current get_resilient_table signature.
+
