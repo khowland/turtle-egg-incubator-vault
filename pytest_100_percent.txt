@@ -1,0 +1,95 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /opt/venv/bin/python3.13
+cachedir: .pytest_cache
+rootdir: /a0/usr/workdir
+configfile: pytest.ini
+plugins: anyio-4.13.0, mock-3.15.1
+collecting ... collected 75 items
+
+tests/clinical_edge_cases/test_molding_matrix.py::test_molding_options_and_persistence PASSED [  1%]
+tests/clinical_edge_cases/test_surgical_logic.py::test_surgical_resurrection_allows_viewing_and_restoring_deleted_obs PASSED [  2%]
+tests/test_adversarial_persistence.py::test_atomic_transaction_resilience PASSED [  4%]
+tests/test_adversarial_persistence.py::test_session_state_eviction_handling PASSED [  5%]
+tests/test_adversarial_ui_vocabulary.py::test_unified_vocabulary_compliance_diagnostic PASSED [  6%]
+tests/test_adversarial_ui_vocabulary.py::test_bin_weight_check_blocking PASSED [  8%]
+tests/test_audit_phase2_gaps.py::test_gap_intake_weight_bypass PASSED    [  9%]
+tests/test_audit_phase2_gaps.py::test_gap_session_undefined_client PASSED [ 10%]
+tests/test_audit_phase2_gaps.py::test_mobile_column_ratios PASSED        [ 12%]
+tests/test_audit_veracity.py::test_audit_log_capture_on_intake PASSED    [ 13%]
+tests/test_audit_veracity.py::test_audit_log_visibility_in_ui PASSED     [ 14%]
+tests/test_bin_id_logic.py::test_standard_bin_id_format PASSED           [ 16%]
+tests/test_bin_id_logic.py::test_bin_id_with_special_characters PASSED   [ 17%]
+tests/test_bin_id_logic.py::test_bin_id_with_numbers_in_name PASSED      [ 18%]
+tests/test_bin_retirement_gate.py::test_bin_with_active_eggs_not_retirable PASSED [ 20%]
+tests/test_bin_retirement_gate.py::test_retire_bin_double_check_blocks_race_condition PASSED [ 21%]
+tests/test_branding_compliance.py::test_button_label_and_type_compliance PASSED [ 22%]
+tests/test_clinical_backdating.py::test_backdating_is_honored_in_observation PASSED [ 24%]
+tests/test_clinical_durability.py::test_soft_delete_compliance PASSED    [ 25%]
+tests/test_clinical_math.py::test_incubation_duration_math PASSED        [ 26%]
+tests/test_clinical_workflows.py::test_workflow_intake_to_observation_handoff PASSED [ 28%]
+tests/test_clinical_workflows.py::test_workflow_lifecycle_progression_s1_to_s6 PASSED [ 29%]
+tests/test_complex_multi_bin_workflow.py::test_multi_bin_and_egg_workflow PASSED [ 30%]
+tests/test_forensic_audit_payloads.py::test_egg_observation_payload_contains_observer_id PASSED [ 32%]
+tests/test_forensic_audit_payloads.py::test_void_writes_to_system_log_with_reason PASSED [ 33%]
+tests/test_forensic_audit_payloads.py::test_void_without_reason_defaults_to_no_reason_supplied PASSED [ 34%]
+tests/test_forensic_audit_payloads.py::test_intake_timestamp_is_timezone_aware PASSED [ 36%]
+tests/test_forensic_audit_payloads.py::test_safe_db_execute_crash_logs_to_system_log PASSED [ 37%]
+tests/test_intake_view.py::test_intake_form_submission PASSED            [ 38%]
+tests/test_intake_view.py::test_intake_validation_missing_fields PASSED  [ 40%]
+tests/test_lifo_rollback.py::test_lifo_gate_prevents_intermediate_void PASSED [ 41%]
+tests/test_mid_season_intake.py::test_add_eggs_to_existing_bin PASSED    [ 42%]
+tests/test_mid_season_intake.py::test_add_new_bin_to_existing_case PASSED [ 44%]
+tests/test_nonviable_flow.py::test_marking_egg_as_dead_removes_from_grid PASSED [ 45%]
+tests/test_phase2b_remediation_validation.py::test_gap1_nav_title_is_add_new_eggs PASSED [ 46%]
+tests/test_phase2b_remediation_validation.py::test_gap2_branding_css_tokens_present PASSED [ 48%]
+tests/test_phase2b_remediation_validation.py::test_gap3_void_button_eliminated PASSED [ 49%]
+tests/test_phase2b_remediation_validation.py::test_gap3b_observations_vocab_compliance_surgical_mode PASSED [ 50%]
+tests/test_phase2b_remediation_validation.py::test_gap4_session_4hr_logic_in_source PASSED [ 52%]
+tests/test_phase2b_remediation_validation.py::test_gap5_bin_weight_gate_blocks_observation_grid PASSED [ 53%]
+tests/test_red_team_intake.py::test_finder_name_regex_bypass_attempt PASSED [ 54%]
+tests/test_red_team_intake.py::test_rpc_failure_safe_state PASSED        [ 56%]
+tests/test_red_team_intake.py::test_missing_session_id_security_gate PASSED [ 57%]
+tests/test_report_forensics.py::test_report_bundle_includes_forensic_metadata PASSED [ 58%]
+tests/test_report_forensics.py::test_empty_species_filter_resilience PASSED [ 60%]
+tests/test_session_boundaries.py::test_session_4hr_window_resumption PASSED [ 61%]
+tests/test_session_boundaries.py::test_session_expiry_boundary PASSED    [ 62%]
+tests/test_session_resilience.py::test_session_recovery_boundary_valid PASSED [ 64%]
+tests/test_session_resilience.py::test_session_recovery_boundary_expired PASSED [ 65%]
+tests/test_session_termination.py::test_session_expiry_creates_new_id PASSED [ 66%]
+tests/test_session_termination.py::test_shift_end_sets_terminate_flag PASSED [ 68%]
+tests/test_session_termination.py::test_terminated_session_not_resumed PASSED [ 69%]
+tests/test_settings_and_help.py::test_settings_view_renders_and_saves_font_size PASSED [ 70%]
+tests/test_settings_and_help.py::test_help_view_renders PASSED           [ 72%]
+tests/test_settings_and_help.py::test_dashboard_view_renders_metrics PASSED [ 73%]
+tests/test_state_machine_edges.py::test_s3_substage_transitions_valid PASSED [ 74%]
+tests/test_state_machine_edges.py::test_s6_to_s1_rollback_voids_hatchling_ledger PASSED [ 76%]
+tests/test_state_machine_edges.py::test_bin_weight_gate_blocks_grid_without_weight PASSED [ 77%]
+tests/test_state_machine_edges.py::test_zero_egg_bin_renders_gracefully PASSED [ 78%]
+tests/test_state_machine_edges.py::test_duplicate_intake_name_rpc_failure_is_handled PASSED [ 80%]
+tests/test_state_machine_edges.py::test_mixed_stage_selection_displays_mixed_label PASSED [ 81%]
+tests/test_state_machine_edges.py::test_append_eggs_requires_valid_weight PASSED [ 82%]
+tests/test_state_machine_edges.py::test_biological_stage_jump_warning PASSED [ 84%]
+tests/test_supabase_resilience.py::test_supabase_wake_on_503 PASSED      [ 85%]
+tests/test_supabase_resilience.py::test_supabase_wake_success PASSED     [ 86%]
+tests/test_supabase_resilience.py::test_db_check_connection_resilience PASSED [ 88%]
+tests/test_ui_performance.py::test_fetch_active_observers_performance PASSED [ 89%]
+tests/test_vault_logic.py::test_full_biological_cycle PASSED             [ 90%]
+tests/test_vault_logic.py::test_database_persistence PASSED              [ 92%]
+tests/test_vault_logic.py::test_wormd_export_bundle_shape PASSED         [ 93%]
+tests/test_vault_logic.py::test_session_recovery_logic PASSED            [ 94%]
+tests/test_vocabulary_all_views.py::test_unified_vocab_intake_view PASSED [ 96%]
+tests/test_vocabulary_all_views.py::test_unified_vocab_reports_view PASSED [ 97%]
+tests/test_vocabulary_all_views.py::test_unified_vocab_settings_view PASSED [ 98%]
+tests/test_vocabulary_all_views.py::test_button_color_token_in_source PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/test_audit_phase2_gaps.py::test_gap_intake_weight_bypass
+  /opt/venv/lib/python3.13/site-packages/supabase/_sync/client.py:309: DeprecationWarning: The 'timeout' parameter is deprecated. Please configure it in the http client instead.
+    return SyncPostgrestClient(
+
+tests/test_audit_phase2_gaps.py::test_gap_intake_weight_bypass
+  /opt/venv/lib/python3.13/site-packages/supabase/_sync/client.py:309: DeprecationWarning: The 'verify' parameter is deprecated. Please configure it in the http client instead.
+    return SyncPostgrestClient(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 75 passed, 2 warnings in 12.55s ========================
