@@ -42,6 +42,10 @@ def test_session_recovery_boundary_valid():
             raise at.exception[0]
 
         # Must adopt the old session ID
+        # Wait for potential reruns
+        res = at.run(timeout=15)
+        
+        # In this recovery flow, the app shows a success toast
         actual_sid = at.session_state.session_id
         assert actual_sid == old_active_session, (
             f"Security Error: Failed to re-adopt valid session '{old_active_session}' within the 4-hour window. Found: {actual_sid}"

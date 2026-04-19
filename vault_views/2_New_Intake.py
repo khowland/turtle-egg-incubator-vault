@@ -126,45 +126,52 @@ with track_view_performance("New Intake"):
     # --- Step 2: Sorting ---
     st.subheader("📦 Step 2: Bin Setup")
     with st.container(border=True):
+        # B-015: Guard against None label on first load
+        selected_species = species_data_map.get(selected_label, {"intake_count": 0, "species_id": 1})
+        
+        # Determine case count (current + 1)
+        next_case_num = selected_species["intake_count"] + 1
+
+        # Configuration Loop (Mandatory Clinical Metrics §2)
         for i, row in enumerate(st.session_state.bin_rows):
             st.markdown(f"#### Bin #{i+1}")
+            cols = st.columns([1, 1, 2])
+            with cols[0]:
+                row["egg_count"] = st.number_input(
+                    "Total Eggs", 1, 99, row["egg_count"], key=f"egg_{i}"
+                )
+            with cols[1]:
+                row["shelf"] = st.text_input(
+                    "Shelf Location", row.get("shelf", ""), placeholder="e.g. A1-South", key=f"shelf_{i}"
+                )
+            with cols[2]:
+                row["notes"] = st.text_input(
+                    "Setup Notes", row["notes"], placeholder="e.g., 1:1 Vermiculite", key=f"note_{i}"
+                )
             
-            # Row 1: Egg Count and Notes
-            c1, c2, c3 = st.columns([1, 1, 2])
-            row["egg_count"] = c1.number_input(
-                "Total Eggs", 1, 99, row["egg_count"], key=f"egg_{i}"
-            )
-            row["shelf"] = c2.text_input(
-                "Shelf Location", value=row.get("shelf", ""), key=f"shelf_{i}", placeholder="e.g. A1-South"
-            )
-            row["notes"] = c3.text_input(
-                "Setup Notes",
-                value=row["notes"],
-                key=f"note_{i}",
-                placeholder="e.g., 1:1 Vermiculite",
-            )
-            
-            # Row 2: Clinical Metrics
-            m1, m2, m3, m4 = st.columns([1, 1, 1, 0.5])
-            row["mass"] = m1.number_input(
-                "Initial Mass (g)", 0.0, 5000.0, row.get("mass", 0.0), key=f"mass_{i}", help="Mandatory Weight check §2"
-            )
-            row["temp"] = m2.number_input(
-                "Incubator Temp (°C)", 15.0, 45.0, row.get("temp", 28.0), key=f"temp_{i}", step=0.1
-            )
-            row["substrate"] = m3.selectbox(
-                "Substrate", 
-                ["Vermiculite", "Perlite", "Soil", "Paper Towel", "Sand", "Other"],
-                index=0, 
-                key=f"sub_{i}",
-                help="Clinical Standard: Vermiculite"
-            )
-            
-            if m4.button("REMOVE", key=f"del_{i}", help="REMOVE"):
-                st.session_state.bin_rows.pop(i)
-                for idx, r in enumerate(st.session_state.bin_rows):
-                    r["bin_num"] = idx + 1
-                st.rerun()
+            # Row 2: Mass, Temp, Substrate (B-001)
+            c2 = st.columns([2, 2, 2, 1])
+            with c2[0]:
+                row["mass"] = st.number_input(
+                    "Initial Mass (g)", 0.0, 5000.0, row.get("mass", 0.0), step=0.01, 
+                    help="Mandatory Weight check §2", key=f"mass_{i}"
+                )
+            with c2[1]:
+                row["temp"] = st.number_input(
+                    "Incubator Temp (°C)", 15.0, 45.0, row.get("temp", 28.0), step=0.1, key=f"temp_{i}"
+                )
+            with c2[2]:
+                row["substrate"] = st.selectbox(
+                    "Substrate", ["Vermiculite", "Perlite", "Soil", "Paper Towel", "Sand", "Other"],
+                    index=["Vermiculite", "Perlite", "Soil", "Paper Towel", "Sand", "Other"].index(row["substrate"]),
+                    help="Clinical Standard: Vermiculite", key=f"sub_{i}"
+                )
+            with c2[3]:
+                if st.button("REMOVE", key=f"del_{i}", help="REMOVE"):
+                    st.session_state.bin_rows.pop(i)
+                    for idx, r in enumerate(st.session_state.bin_rows):
+                        r["bin_num"] = idx + 1
+                    st.rerun()
             
             st.divider()
 
@@ -213,7 +220,7 @@ with track_view_performance("New Intake"):
 
         def _intake_success_ui(first_bin_identifier, intake_identifier=None):
             st.balloons()
-            st.session_state.active_bin_id = first_bin_identifier
+            st.session_state.active_bin_id = str(first_bin_identifier)
             if intake_identifier:
                 st.session_state.active_case_id = intake_identifier
             

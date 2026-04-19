@@ -140,14 +140,13 @@ def show_splash_screen():
                             except:
                                 pass
 
-                            if (
-                                datetime.now(timezone.utc)
-                                - last_timestamp
-                            ) < timedelta(hours=4) and not is_terminated:
+                            diff = datetime.now(timezone.utc) - last_timestamp
+                            if diff.total_seconds() < (4 * 3600 + 5) and not is_terminated:
 
-                                current_generated_id = last_session_query.data[0][
-                                    "session_id"
-                                ]
+                                # SUCCESS: Resume session
+                                current_generated_id = last_session_query.data[0]["session_id"]
+                                st.session_state.session_id = current_generated_id
+                                st.success(f"Welcome back, {st.session_state.observer_name}! Resuming session {current_generated_id}")
                                 resuming_user_name = last_session_query.data[0][
                                     "user_name"
                                 ]
@@ -158,9 +157,9 @@ def show_splash_screen():
                         logger.error(f"Personal recovery failed: {error}")
 
                     st.session_state.session_id = current_generated_id
-
+                    
                     if resuming_user_name:
-                        st.session_state.resume_notice = f"📍 Resuming active shift for **{resuming_user_name}**"
+                        st.session_state.resume_notice = f"🔄 Resuming active shift for **{resuming_user_name}**"
 
                     try:
                         display_name = st.session_state.observer_name

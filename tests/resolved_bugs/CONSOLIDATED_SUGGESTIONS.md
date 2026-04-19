@@ -135,3 +135,37 @@ This report tracks all audit findings, potential bugs, and enterprise-grade enha
 - **Context:** Telemetry logs are flooded with `RerunException` entries. While normal for Streamlit, it obscures real logic errors.
 - **Suggestion:** Filter out `RerunException` from the `ViewTimer` context manager in `utils/performance.py` to keep telemetry high-signal.
 
+# 🎯 Implied System Objective: Turtle-DB (WINC)
+
+## ⚖️ Final Agreed Objective
+To provide a **forensic-grade biological ledger** where data integrity (S0-S6 lifecycle) and clinical transparency (Forensic Audit §36) are paramount. The system must maintain a **'5th-Grader Standard' UI** while enforcing **'Doctoral-Level' data constraints** via Atomic RPC transactions, ensuring no turtle egg is lost to a session crash or unauthorized modification.
+
+---
+
+## 🚩 Master Discrepancy List (Requirements vs. Physical System)
+
+### 1. Clinical Intake Mass Bypass (Req §2)
+- **Discrepancy:** Requirements mandate weight checks. The UI allows a value of 0.0 to pass initial setup, only gating it at the Observation phase.
+- **Root Cause:** UI/Logic Mismatch. The 2_New_Intake.py loop lacks a physical input box for mass, even though internal state expects it.
+- **Resolution:** Insert st.number_input for mass in the Intake bin-setup loop. Block SAVE if mass <= 0.
+
+### 2. Forensic Audit & RBAC Neutralization (Req §36)
+- **Discrepancy:** The requirement for forensic tracking of 'Elevated' operations is broken by a hardcoded return True in utils/rbac.py.
+- **Root Cause:** Decommissioned Security Layer. Role column was dropped in v8.1.5, neutralizing identity-based forensics.
+- **Resolution:** Implement clinical 'Shift Name' verification. Update system_log to include the clinical authority level for every write operation.
+
+### 3. Biological Lifecycle Gaps (S0-S1 Transition)
+- **Discrepancy:** System allows skipping S1 (Chalked) phase. Requirements imply a sequential progression.
+- **Root Cause:** Logic Flaw. No state-machine validation in 3_Observations.py restricts backward or non-sequential stage jumps.
+- **Resolution:** Implement a Python-side state machine validator before committing batch observations.
+
+### 4. Technical Documentation Debt (Standard §35)
+- **Discrepancy:** "5th-Grader Standard" for maintainability is violated by [Pending] headers in core modules.
+- **Root Cause:** Incomplete Refactor. Headers were templated but functional use cases were never populated.
+- **Resolution:** Fully document functional use cases in app.py, session.py, and all vault_views.
+
+### 5. Deterministic Testing Fragility
+- **Discrepancy:** High volume of assertions (~350) rely on static mocks. The system lacks deterministic verification of the Postgres/RPC layer.
+- **Root Cause:** Testing Methodology. Reliance on unittest.mock hides schema-level failures (verified by B-004).
+- **Resolution:** Transition to **Integration Testing** using a local Supabase/Docker container to verify RPC contracts.
+

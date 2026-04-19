@@ -212,61 +212,66 @@ with track_view_performance("Observations"):
             st.session_state.surgical_resurrection = False
             st.caption("Admin only.")
 
-    st.caption("Bins being checked:")
-
-    # Select bins to work on
+    # --- 2. THE FOCUS SELECTBOX (§35.5) ---
     available_bins = (
         supabase.table("bin").select("bin_id").eq("is_deleted", False).execute()
     )
     bin_options = sorted([b["bin_id"] for b in available_bins.data])
-    loaded_bins = st.multiselect(
-        "Select Bins to Check", bin_options, default=list(st.session_state.workbench_bins)
-    )
-    st.session_state.workbench_bins = set(loaded_bins)
 
-    if not st.session_state.workbench_bins:
+    # Pre-calculate stats for icons
+    bin_stats = {}
+    for b_id in bin_options:
+        eggs = supabase.table("egg").select("egg_id").eq("bin_id", b_id).eq("is_deleted", False).execute().data
+        obs = supabase.table("egg_observation").select("egg_id").in_("egg_id", [e["egg_id"] for e in eggs]).eq("session_id", st.session_state.session_id).execute().data if eggs else []
+        obs_ids = {o["egg_id"] for o in obs}
+        done = sum(1 for e in eggs if e["egg_id"] in obs_ids)
+        bin_stats[b_id] = {"done": done, "total": len(eggs)}
+
+    def get_bin_display_label(b_id):
+        stats = bin_stats.get(b_id, {"done": 0, "total": 0})
+        total = stats["total"]
+        done = stats["done"]
+        if total == 0: icon = "⚪"
+        elif total == done: icon = "✅"
+        else: icon = "🌓"
+        return f"{icon} {b_id} ({done}/{total})"
+
+    # Multiselect with raw IDs
+    bin_ids_in_db = set(bin_stats.keys())
+    valid_defaults = [b for b in st.session_state.workbench_bins if b in bin_ids_in_db]
+    
+    st.session_state.workbench_bins = st.multiselect(
+        "Observation Workbench",
+        options=bin_options,
+        default=valid_defaults,
+        format_func=get_bin_display_label,
+        help="Added bins from Intake appear here automatically."
+    )
+
+    # --- 2. THE FOCUS SELECTBOX (§35.5) ---
+    focus_options = sorted(list(st.session_state.workbench_bins))
+    
+    if not focus_options:
         st.info("No bins loaded. Use the search bar above or perform an Intake to begin.")
         st.stop()
+    
+    # B-008: Focus on the raw ID while showing the decorated label
+    active_focus_index = 0
+    if st.session_state.get("active_bin_id") in focus_options:
+        active_focus_index = focus_options.index(st.session_state.active_bin_id)
 
-    # Switcher with Status Icons
-    wb_status_list = []
-    for b_id in sorted(st.session_state.workbench_bins):
-        eggs = (
-            supabase.table("egg")
-            .select("egg_id")
-            .eq("bin_id", b_id)
-            .eq("status", "Active")
-            .eq("is_deleted", False)
-            .execute()
-            .data
-        )
-        obs = (
-            get_resilient_table(supabase, "egg_observation")
-            .select("egg_id")
-            .eq("session_id", st.session_state.session_id)
-            .eq("is_deleted", False)
-            .execute()
-            .data
-        )
-        observed_ids = {o["egg_id"] for o in obs}
-
-        done = sum(1 for e in eggs if e["egg_id"] in observed_ids)
-        total = len(eggs)
-
-        icon = "⚪"
-        if done == total and total > 0:
-            icon = "🟢"
-        elif done > 0:
-            icon = "🌓"
-        wb_status_list.append(f"{icon} {b_id} ({done}/{total})")
-
-    active_wb_item = st.selectbox("Current Bin Focus", wb_status_list, key="Current Bin Focus")
-    active_bin_id = active_wb_item.split(" ")[1]
+    active_bin_id = st.selectbox(
+        "Current Bin Focus", 
+        focus_options, 
+        index=active_focus_index,
+        format_func=get_bin_display_label,
+        key="Current Bin Focus",
+        help="Switch between selected bins to record observations."
+    )
 
     # ------------------------------------------------------------------------------
-    # 2. HYDRATION GATE (Bypass in Surgical Resurrection Mode)
+    # 3. HYDRATION GATE (Bypass in Surgical Resurrection Mode)
     # ------------------------------------------------------------------------------
-    # v8.0.0 Requirement: Grid restricted unless last bin_observation matches session_id
     if "env_gate_synced" not in st.session_state:
         st.session_state.env_gate_synced = {}
 
@@ -322,7 +327,7 @@ with track_view_performance("Observations"):
                 )
 
                 st.info("💡 **Clinical Requirement**: Record weights then press **SAVE** to unlock the observation grid.")
-                if st.button("SAVE", type="primary", help="Record weights and unlock the Egg Observation grid"):
+                if st.button("SAVE", type="primary", use_container_width=True, help="Record weights and unlock the Egg Observation grid"):
 
                     def unlock():
                         get_resilient_table(supabase, "bin_observation").insert(
@@ -622,13 +627,28 @@ with track_view_performance("Observations"):
                 st.markdown(f"#### 📐 Property Matrix: `[{csv_ids}]`")
                 ac1, ac2 = st.columns(2)
 
-                stage_opts = ["S1", "S1", "S2", "S3S", "S3M", "S3J", "S4", "S5", "S6"]
+                # §3.1 Biological Progression Validation
+                stage_opts = ["S1", "S2", "S3S", "S3M", "S3J", "S4", "S5", "S6"]
                 st_idx = stage_opts.index(matrix_stage) if matrix_stage in stage_opts else 0
                 new_stage = ac1.selectbox(
                     f"{'✅' if matrix_stage != 'MIXED' else '➖'} Stage",
                     stage_opts,
                     index=st_idx,
                 )
+
+                # Validation Gate: Within 1 Step Check
+                if (
+                    matrix_stage != "MIXED" 
+                    and not st.session_state.surgical_resurrection
+                    and matrix_stage in stage_opts
+                ):
+                    curr_idx = stage_opts.index(matrix_stage)
+                    next_idx = stage_opts.index(new_stage)
+                    if abs(next_idx - curr_idx) > 1:
+                        ac1.warning(
+                            f"⚠️ Unusual biological jump: {matrix_stage} → {new_stage}. "
+                            "Ensure this is medically intended."
+                        )
 
                 # §3.5 Expansion: Status Selection (Active, Transferred, Dead)
                 # Mixed status logic
