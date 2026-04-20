@@ -35,33 +35,23 @@ BEGIN
     RAISE EXCEPTION 'vault_finalize_intake: missing required payload fields';
   END IF;
 
-  -- Atomic Lock & Increment
-  SELECT intake_count INTO v_next_intake FROM public.species WHERE species_id = v_species_id FOR UPDATE;
-  IF NOT FOUND THEN
+  -- Atomic Lock & Increment (Fixed for Supabase Parser)
+  v_next_intake := (SELECT intake_count FROM public.species WHERE species_id = v_species_id FOR UPDATE);
+  IF v_next_intake IS NULL THEN
     RAISE EXCEPTION 'vault_finalize_intake: species_id % not found', v_species_id;
   END IF;
-  
+
   v_next_intake := v_next_intake + 1;
   UPDATE public.species SET intake_count = v_next_intake WHERE species_id = v_species_id;
 
   -- Generate Unique Clinical Identifier
   v_intake_id := 'I' || to_char(clock_timestamp(), 'YYYYMMDDHH24MS');
 
-  -- TIMESTAMP SOVEREIGNTY: 'created_at', 'modified_at', and 'intake_timestamp'
-  -- are strictly managed by Postgres Default or explicit now() overrides below.
+  -- TIMESTAMP SOVEREIGNTY
   INSERT INTO public.intake (
-    intake_id,
-    intake_name,
-    finder_turtle_name,
-    species_id,
-    intake_date,
-    intake_condition,
-    extraction_method,
-    discovery_location,
-    carapace_length_mm,
-    session_id,
-    created_by_id,
-    modified_by_id
+    intake_id, intake_name, finder_turtle_name, species_id, intake_date,
+    intake_condition, extraction_method, discovery_location, carapace_length_mm,
+    session_id, created_by_id, modified_by_id
   ) VALUES (
     v_intake_id,
     NULLIF(p_payload#>>'{intake,intake_name}', ''),
@@ -72,9 +62,7 @@ BEGIN
     NULLIF(p_payload#>>'{intake,extraction_method}', ''),
     NULLIF(p_payload#>>'{intake,discovery_location}', ''),
     NULLIF(p_payload#>>'{intake,carapace_length_mm}', '')::numeric,
-    v_session_id,
-    v_observer_id,
-    v_observer_id
+    v_session_id, v_observer_id, v_observer_id
   );
 
   v_first_bin := NULL;
@@ -83,7 +71,7 @@ BEGIN
     v_bin_id := v_bin->>'bin_id';
     v_notes := COALESCE(v_bin->>'bin_notes', 'Clinical Intake Baseline');
     v_egg_count := COALESCE((v_bin->>'egg_count')::int, 0);
-    
+
     IF v_bin_id IS NULL OR v_egg_count < 1 THEN
       RAISE EXCEPTION 'vault_finalize_intake: invalid bin entry (must have 1+ eggs)';
     END IF;
@@ -110,7 +98,9 @@ BEGIN
       (v_bin->>'incubator_temp_c')::numeric, 'Initial Clinical Intake Baseline', v_observer_id, v_observer_id
     );
 
-    SELECT count(*)::int INTO v_eggs_in_bin FROM public.egg WHERE bin_id = v_bin_id;
+    -- Fixed for Supabase Parser
+    v_eggs_in_bin := (SELECT count(*)::int FROM public.egg WHERE bin_id = v_bin_id);
+
     FOR v_i IN 1..v_egg_count LOOP
       v_egg_id := v_bin_id || '-E' || (v_eggs_in_bin + v_i);
       INSERT INTO public.egg (
