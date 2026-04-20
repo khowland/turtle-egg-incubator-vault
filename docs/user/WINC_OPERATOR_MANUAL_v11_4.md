@@ -1,6 +1,6 @@
-![Operator Manual Cover Page](../../assets/manual/turtle_pond_sunset_cover.png)
+I am reviewing operator manual, and i thought we had change requests![Operator Manual Cover Page](../../assets/manual/turtle_pond_sunset_cover.png)
 
-# 🐢 WINC Clinical Operator Manual (v11.3)
+# 🐢 WINC Clinical Operator Manual (v11.4)
 **Author:** Kevin Howland | **Target Audience:** Volunteer Clinicians | **Level:** Beginner
 
 Welcome to the **WINC Turtle Incubator Vault**! 
