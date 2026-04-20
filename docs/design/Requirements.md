@@ -17,7 +17,14 @@ To ensure long-term maintainability for nonprofit staff, the following standards
 3.  **Atomic Transactions**: Multi-table clinical writes (e.g., Intake) **must** utilize a single database transaction via the `vault_finalize_intake` RPC.
 4.  **Unified Vocabulary (UI Standard)**: All interactive buttons must follow the standardized labels: **SAVE**, **CANCEL**, **ADD**, **REMOVE**, and **START**.
 
-### 🎨 Visual Branding (5th-Grader Standard)
+### 🎨 Visual Branding & UI Font Case Standards
+To ensure consistent legibility and professional aesthetic:
+- **Menu Options**: Title Case (e.g., `New Intake`, `Vault Administration`)
+- **Screen Titles**: Title Case with Emojis (e.g., `⚙️ Settings`)
+- **Field Labels**: Title Case (e.g., `Intake Circumstances`, `Mother's Weight (g)`)
+- **Action Buttons**: UPPERCASE (e.g., `SAVE`, `START`, `ADD NEW BIN`)
+- **Database Columns**: `singular_snake_case` (e.g., `mother_weight_g`)
+
 Consistent color-coding is required to minimize user error:
 
 ```mermaid

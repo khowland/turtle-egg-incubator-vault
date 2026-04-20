@@ -1,0 +1,11 @@
+CR:
+1) Mother's Size should be called Mother's Weight (g) (not mm). 
+2) Ensure Font case for all objects labelled in the system are consistent for that object type throughout the entire system (e.g. Menu options, screen titles, column names, etc.) each object type should have its case specified in the requirements.md under naming conventions (camel, upper, lower?) 
+3) "Where was she found" should simply say "Intake Circumstances"
+4) "How were they collected" should say "Collection Method", and "Post-mortem Salvage" should say "Harvested"
+5) Bin setup screen
+remove is too long to fit in narrow column and it wraps strangely. Change the word "REMOVE" to a small red X icon, the universal delete symbol.
+6) Client wants to know on Observation screen what "Correction Mode" means. It's not mentioned in the operator manual.
+7) Add "Kylie Kroscher" to the user list.
+8) Backup and Restore options did not seem to be showing on Vault Admin screen or anywhere else.
+9) Fix generic error messages for data entry validation.

@@ -106,16 +106,16 @@ with track_view_performance("New Intake"):
             "Condition of Intake", ["Alive", "Injured", "Dead (Salvage)"], index=0
         )
         extraction_method = l_col3.selectbox(
-            "How were they collected?",
+            "Collection Method",
             ["Natural", "Induced", "Surgery", "Post-Mortem Salvage"],
             index=0,
         )
 
         loc_col1, loc_col2 = st.columns([2, 1])
         discovery_location = loc_col1.text_input(
-            "Where was she found?", placeholder="Roadside, Backyard, Wetland, etc."
+            "Intake Circumstances", placeholder="Roadside, Backyard, Wetland, etc."
         )
-        carapace_length = loc_col2.number_input("Turtle Size (mm)", 0, 500, value=0)
+        carapace_length = loc_col2.number_input("Mother's Weight (g)", 0, 500, value=0)
 
         selected_species = species_data_map.get(selected_label, {})
         if not selected_species:
@@ -167,7 +167,7 @@ with track_view_performance("New Intake"):
                     help="Clinical Standard: Vermiculite", key=f"sub_{i}"
                 )
             with c2[3]:
-                if st.button("REMOVE", key=f"del_{i}", help="REMOVE"):
+                if st.button("❌", key=f"del_{i}", help="REMOVE"):
                     st.session_state.bin_rows.pop(i)
                     for idx, r in enumerate(st.session_state.bin_rows):
                         r["bin_num"] = idx + 1
@@ -199,23 +199,23 @@ with track_view_performance("New Intake"):
 
     if btn_col2.button("SAVE", type="primary", use_container_width=True, key="intake_save"):
         if not finder_name.strip():
-            st.error("❌ Validation Failed: Please enter who found the turtle.")
+            st.error("❌ Missing Information: The 'Finder/Turtle Name' field is required. Please enter the name of the person or turtle.")
             st.stop()
         if not case_number.strip():
-            st.error("❌ Validation Failed: Please enter a valid Case #.")
+            st.error("❌ Missing Information: The 'Case Number' field is required to uniquely identify this intake.")
             st.stop()
         
         # Extended Validation for hardened requirements
         if len(st.session_state.bin_rows) == 0:
-            st.error("❌ Validation Failed: You must add at least one box.")
+            st.error("❌ Missing Information: An intake must have at least one Bin. Please click 'ADD NEW BIN'.")
             st.stop()
             
         for idx, brow in enumerate(st.session_state.bin_rows):
             if brow["egg_count"] < 1:
-                st.error(f"❌ Bin #{idx+1}: Must contain at least 1 egg.")
+                st.error(f"❌ Bin #{idx+1} Error: A bin cannot be empty. Please enter the number of eggs (1 or more).")
                 st.stop()
             if brow["mass"] <= 0:
-                st.error(f"❌ Bin #{idx+1}: Initial Mass is required (§2).")
+                st.error(f"❌ Bin #{idx+1} Error: The 'Bin Weight (g)' is a mandatory clinical mass gate. Please enter a valid weight greater than 0.")
                 st.stop()
 
         def _intake_success_ui(first_bin_identifier, intake_identifier=None):

@@ -78,7 +78,7 @@ tabs = st.tabs(
         "📊 Stages & Icons",
         "📦 Resurrection Vault",
         "📜 Audit Log",
-        "🛡️ Database State",
+        "🛡️ Backup & Restore (Red Team)",
     ]
 )
 
@@ -341,7 +341,7 @@ with tabs[4]:
     st.dataframe(pd.DataFrame(logs), use_container_width=True)
 
 with tabs[5]:
-    st.subheader("🛡️ Database State Management (Red Team)")
+    st.subheader("🛡️ Backup & Restore (Red Team)")
     st.error("⚠️ **DANGER ZONE**: Destructive Database Operations")
 
     # Check dirty state safely

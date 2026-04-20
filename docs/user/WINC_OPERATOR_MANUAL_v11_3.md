@@ -1,6 +1,6 @@
 ![Operator Manual Cover Page](../../assets/manual/turtle_pond_sunset_cover.png)
 
-# 🐢 WINC Clinical Operator Manual (v11.2)
+# 🐢 WINC Clinical Operator Manual (v11.3)
 **Author:** Kevin Howland | **Target Audience:** Volunteer Clinicians | **Level:** Beginner
 
 Welcome to the **WINC Turtle Incubator Vault**! 
@@ -74,6 +74,10 @@ Click **Observations** on the left menu.
 
 ### 🛑 THE "NEVER ROTATE" MANDATE
 > **CRITICAL RULE:** When observing an egg, **NEVER ROTATE IT**.
+
+### 🛠️ Correction Mode (Fixing Mistakes)
+If you accidentally log an incorrect observation, turn on the **"🛠️ Correction Mode"** toggle at the top of the screen. 
+This mode highlights previously locked records and allows you to use the "Last-In, First-Out" (LIFO) rollback buttons (often marked as **"UNDO LAST ENTRY"** or **SHIFT END**) to safely erase the mistake from the biological ledger without destroying the database history.
 
 ### Visual Stage Identification
 *   ![Stage 1](../../assets/icons/egg_s1.png) **Stage 1 (S1):** Early Identification (Chalking).
