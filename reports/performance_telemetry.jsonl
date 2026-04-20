@@ -4223,3 +4223,4 @@
 {"timestamp": "2026-04-20T04:33:41Z", "view": "Login/Splash", "duration_s": 0.0186, "status": "SUCCESS", "session_id": "UNKNOWN"}
 {"timestamp": "2026-04-20T04:33:46Z", "view": "Login/Splash", "duration_s": 0.013, "status": "SUCCESS", "session_id": "UNKNOWN"}
 {"timestamp": "2026-04-20T04:57:18Z", "view": "Login/Splash", "duration_s": 2.0615, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:57:59Z", "view": "Login/Splash", "duration_s": 0.6076, "status": "SUCCESS", "session_id": "UNKNOWN"}
