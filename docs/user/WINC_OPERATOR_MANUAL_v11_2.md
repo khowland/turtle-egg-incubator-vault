@@ -23,7 +23,7 @@ This manual is your complete, step-by-step guide to using the system. It is desi
 ## Chapter 1: Getting Started (Login)
 *Focus: Signing in securely and understanding shift handovers.*
 
-![Figure 1: Login Screen](../../assets/manual/placeholder_screenshot.png)
+![Figure 1: Login Screen](../../assets/manual/screen_login.png)
 *Figure 1: The Secure Login Interface*
 
 ### Step-by-Step: How to Sign In
@@ -39,7 +39,7 @@ This manual is your complete, step-by-step guide to using the system. It is desi
 ## Chapter 2: The Dashboard
 *Focus: Checking the pulse of the incubator room.*
 
-![Figure 2: The Dashboard](../../assets/manual/placeholder_screenshot.png)
+![Figure 2: The Dashboard](../../assets/manual/screen_dashboard.png)
 *Figure 2: The Active Dashboard Overview*
 
 When you log in, you will land on the **Dashboard**.
@@ -49,7 +49,7 @@ When you log in, you will land on the **Dashboard**.
 ## Chapter 3: New Intake (Establishing a Case)
 *Focus: Bringing a new turtle mother and her eggs into the system.*
 
-![Figure 3: Intake Screen](../../assets/manual/placeholder_screenshot.png)
+![Figure 3: Intake Screen](../../assets/manual/screen_intake.png)
 *Figure 3: Establishing a new clinical case*
 
 When a new turtle arrives, click **New Intake** on the left menu.
@@ -67,7 +67,7 @@ When a new turtle arrives, click **New Intake** on the left menu.
 ## Chapter 4: Daily Observations & Biology
 *Focus: Updating egg stages, vitality, and fixing mistakes.*
 
-![Figure 4: Observations](../../assets/manual/placeholder_screenshot.png)
+![Figure 4: Observations](../../assets/manual/screen_observations.png)
 *Figure 4: The Daily Observation grid*
 
 Click **Observations** on the left menu.
@@ -87,7 +87,7 @@ Click **Observations** on the left menu.
 ## Chapter 5: Reports & Analytics
 *Focus: Exporting data for the Lead Scientists.*
 
-![Figure 5: Analytics Dashboard](../../assets/manual/placeholder_screenshot.png)
+![Figure 5: Analytics Dashboard](../../assets/manual/screen_reports.png)
 *Figure 5: The Analytics and Reporting Dashboard*
 
 Click **Reports** on the left menu.
@@ -99,7 +99,7 @@ Click **Reports** on the left menu.
 
 Click **Settings** on the left menu. 
 
-![Figure 6: System Settings](../../assets/manual/placeholder_screenshot.png)
+![Figure 6: System Settings](../../assets/manual/screen_settings.png)
 *Figure 6: The System Settings and Disaster Recovery tools*
 
 ### Bi-Directional JSON Disaster Recovery

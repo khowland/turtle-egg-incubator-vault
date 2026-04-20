@@ -4208,3 +4208,12 @@
 {"timestamp": "2026-04-20T01:50:00Z", "view": "Settings", "duration_s": 0.0008, "status": "SUCCESS", "session_id": "test-session"}
 {"timestamp": "2026-04-20T01:50:01Z", "view": "Settings", "duration_s": 0.0007, "status": "SUCCESS", "session_id": "test-session"}
 {"timestamp": "2026-04-20T04:05:18Z", "view": "Login/Splash", "duration_s": 1.967, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:05:20Z", "view": "Login/Splash", "duration_s": 0.0201, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:05:24Z", "view": "Login/Splash", "duration_s": 0.018, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:05:29Z", "view": "Login/Splash", "duration_s": 0.0497, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:06:31Z", "view": "Login/Splash", "duration_s": 0.5976, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:06:34Z", "view": "Login/Splash", "duration_s": 0.0152, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:06:38Z", "view": "Login/Splash", "duration_s": 0.0219, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:06:42Z", "view": "Login/Splash", "duration_s": 0.0127, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:06:46Z", "view": "Login/Splash", "duration_s": 0.0136, "status": "SUCCESS", "session_id": "UNKNOWN"}
+{"timestamp": "2026-04-20T04:06:52Z", "view": "Login/Splash", "duration_s": 0.0835, "status": "SUCCESS", "session_id": "UNKNOWN"}
