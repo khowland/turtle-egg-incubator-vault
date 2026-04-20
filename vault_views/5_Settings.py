@@ -19,10 +19,10 @@ from utils.bootstrap import bootstrap_page, safe_db_execute
 from utils.rbac import can_elevated_clinical_operations
 from utils.performance import track_view_performance
 
-supabase = bootstrap_page("Vault Administration", "⚙️")
+supabase = bootstrap_page("Settings", "⚙️")
 
 with track_view_performance("Settings"):
-    st.title("⚙️ Vault Administration")
+    st.title("⚙️ Settings")
 
     # =============================================================================
     # SECTION: 🔒 Administrative Editing Lock

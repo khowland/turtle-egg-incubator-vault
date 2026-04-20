@@ -4207,3 +4207,4 @@
 {"timestamp": "2026-04-20T01:49:59Z", "view": "Settings", "duration_s": 0.0013, "status": "SUCCESS", "session_id": "test-session"}
 {"timestamp": "2026-04-20T01:50:00Z", "view": "Settings", "duration_s": 0.0008, "status": "SUCCESS", "session_id": "test-session"}
 {"timestamp": "2026-04-20T01:50:01Z", "view": "Settings", "duration_s": 0.0007, "status": "SUCCESS", "session_id": "test-session"}
+{"timestamp": "2026-04-20T04:05:18Z", "view": "Login/Splash", "duration_s": 1.967, "status": "SUCCESS", "session_id": "UNKNOWN"}
