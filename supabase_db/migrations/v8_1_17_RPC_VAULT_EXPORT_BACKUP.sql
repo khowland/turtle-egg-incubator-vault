@@ -13,7 +13,9 @@ AS $$
 DECLARE
     v_result jsonb;
 BEGIN
-    SELECT jsonb_build_object(
+    -- Using explicit PL/pgSQL assignment (:=) to prevent Supabase SQL Editor 
+    -- from confusing 'SELECT INTO' with table creation/relation errors.
+    v_result := jsonb_build_object(
         'intake', (SELECT COALESCE(jsonb_agg(row_to_json(i)), '[]'::jsonb) FROM public.intake i),
         'bin', (SELECT COALESCE(jsonb_agg(row_to_json(b)), '[]'::jsonb) FROM public.bin b),
         'egg', (SELECT COALESCE(jsonb_agg(row_to_json(e)), '[]'::jsonb) FROM public.egg e),
@@ -22,7 +24,7 @@ BEGIN
         'hatchling_ledger', (SELECT COALESCE(jsonb_agg(row_to_json(hl)), '[]'::jsonb) FROM public.hatchling_ledger hl),
         'system_log', (SELECT COALESCE(jsonb_agg(row_to_json(sl)), '[]'::jsonb) FROM public.system_log sl),
         'timestamp', now()
-    ) INTO v_result;
+    );
     
     RETURN v_result;
 END;
