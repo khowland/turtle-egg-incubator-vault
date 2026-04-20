@@ -105,3 +105,9 @@ Bin IDs must strictly follow the format: `{2-char species code}{species_intake_c
 - **Finder Name**: Uppercase, alphanumeric only.
 - **Bin Number**: Sequential starting at 1 for the current intake.
 *Example*: `SN1-HOWLAND-1`
+
+
+### Update (April 2026): Intake Data Changes
+- Added `mother_weight_g` (numeric) to track maternal mass.
+- Added `days_in_care` (int) to track retention duration before formal intake.
+- Dynamic Bin Coding Format updated to `SN1-HOWLAND-1` (Strictly: `{SpeciesCode}{NextIntakeNumber}-{CleanFinderName}-{BinNum}`).

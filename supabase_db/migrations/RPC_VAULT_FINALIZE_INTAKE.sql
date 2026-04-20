@@ -57,7 +57,8 @@ BEGIN
     intake_condition,
     extraction_method,
     discovery_location,
-    carapace_length_mm,
+    mother_weight_g,
+    days_in_care,
     session_id,
     created_by_id,
     modified_by_id
@@ -70,7 +71,8 @@ BEGIN
     NULLIF(p_payload#>>'{intake,intake_condition}', ''),
     NULLIF(p_payload#>>'{intake,extraction_method}', ''),
     NULLIF(p_payload#>>'{intake,discovery_location}', ''),
-    NULLIF(p_payload#>>'{intake,carapace_length_mm}', '')::numeric,
+    NULLIF(p_payload#>>'{intake,mother_weight_g}', '')::numeric,
+    (p_payload#>>'{intake,days_in_care}')::int,
     v_session_id,
     v_observer_id,
     v_observer_id

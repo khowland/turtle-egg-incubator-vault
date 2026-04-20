@@ -252,10 +252,7 @@ with track_view_performance("New Intake"):
                         finder_clean = str(re.sub(r"[^A-Z0-9]", "", finder_name.upper()))
                         bins_payload = []
                         for row_data in st.session_state.bin_rows:
-                            bid = (
-                                f"{selected_species['species_code']}-{next_intake_number}-"
-                                f"{finder_clean}-{row_data['bin_num']}"
-                            )
+                            bid = f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}"
                             bins_payload.append(
                                 {
                                     "bin_id": bid,
@@ -283,6 +280,8 @@ with track_view_performance("New Intake"):
                                 "intake_timestamp": datetime.datetime.combine(intake_date, datetime.datetime.now().time()).isoformat() + "Z",
                                 "intake_condition": intake_condition,
                                 "extraction_method": extraction_method,
+                                "mother_weight_g": mother_weight_g,
+                                "days_in_care": days_in_care,
                                 "discovery_location": discovery_location,
                                 "carapace_length_mm": (
                                     carapace_length if carapace_length > 0 else None

@@ -1,0 +1,40 @@
+c0495ef feat(ui): resolve all 9 client change requests including labels, naming conventions, and doc updates
+3e4363c docs(user): Fix manual v11.2 UI image links and update intake conditions
+f614eb0 chore(deploy): Authorize Phase 4 Pre-Flight & Final Remediation
+2ba6365 Final Sprint Baseline: Pre-Phase 1 UX & Documentation
+ce2f7fd Phase 4: Auditing KB and preliminary remediations. Integrated a0 findings.
+518db9a Phase 2 Audit: Baseline state before remediation
+833f408 Phase 4: Complete UI instrumentation, clinical bin_id fix, and headless audit suite
+99ad445 Phase 4: Instrument clinical views (Login, Dashboard, Observations) and add Supabase auto-wake logic
+d7dc621 Automated rebuild and clinical architecture sync
+37833e6 chore: snapshot before clinical refactor fixes and lifecycle validation
+86e5b67 Phase 3 Complete: Global Clinical Refactor and Date Logic Standardization
+b6af290 docs: finalized button standardization (SAVE/DELETE/RUN) and updated manual with clinical unlock protocol
+3cd8cf3 docs: finalized operator manual with visual infographics and chalking expansion; documented CR 0412_2009
+7f43a3c Initial commit: WINC Incubator System full refactor and optimization
+4011fcb v8.1.3: Universal Terminology Purge. Replaced Vault/Ledger with Incubator/Records across all docs and UI for volunteer clarity.
+bec28a9 v8.1.3: Simplicity Sprint & HD Visual Alignment
+921d652 feat: Enhance session management and clinical operations with observer role integration
+af26ac9 v8.0.0 Sovereign Alignment: Production Hardening Refactor complete. Normalized codebase, standardized naming, and decoupled clinical rendering.
+9d81b7c [Hardening][v7.9.9] Implement Global Shift Awareness and enforce §35 Naming Standards across entire stack
+7134429 v7.9.8_GOLD - feat: Finalized clinical workbench with forensic auditing, biological icons, and resilience vault. Includes 100% pass on automated QA battery.
+bced839 feat(egg): v7.5.0 Egg Sovereignty. Moves intake_date to egg level. Updates supplemental tools and master schema.
+cca3948 feat(audit): v7.3.0 Resilient Audit Architecture & Master Schema Consolidation. Implements 4-hour session recovery and standardized session_id/identity tracking across biological ledger.
+211e98b [UI] Fix Streamlit state trap memoization on Intake Bin Code and remove aggressive session warning
+dad9c3d [Bugfix] Remove false positive active session warnings and fix schema mismatch on Analytics hub
+8106a0c [Audit] Apply Enterprise Header Blocks and lock down Missing-Field Form execution
+d03e0ea [Refactor] Strip brittle CSS hacks and prioritize native components for long-term maintainability
+7fa8232 [UX/Lock] Implement dirty state routing lock and MAIN menu label
+b4f311d [UX] Add hard-coded contextual Help Expanders to major transaction screens
+c3177c5 [UX] Add descriptive tooltips and biological stage formatting to Intake and Observation UI
+dc1af95 [Feature/UX] Auto-transition with first bin context mapped and Regression Suite expanded
+857630f [Feature/UX] Auto-transition to Observation screen after successful intake
+28b3879 [Feature/Docs] Implement numeric-only entry with hidden UI spinners for Egg Count
+81c0831 [Feature/Docs] Implement 1-99 strictly bounded numeric spinner for Egg Count UI
+2f706c6 [Gold Master] v7.2.1 Total Integration & Clinical Hardening
+ed5916a [Final] Synchronizing Master SQL and Requirements with 2002 Logic
+52a3092 [Safe] Checkpoint before Major Intake Re-architecture (CR 2002)
+2399767 [Phase-B] Complete v7.2.0 Pivot: Hydration Gate, Neonate Pivot, and Mid-Season Lock
+54c89b2 [v6.4.2] Fix: Restored Dashboard and added Mother Condition to Intake
+3ea3897 [v6.4.1] Recovery: Finalized Streamlit standards update after system crash
+2ed6ff4 [v6.4.0] The Final Stabilizer: Resolved Windows navigation bug and restored full biological logic

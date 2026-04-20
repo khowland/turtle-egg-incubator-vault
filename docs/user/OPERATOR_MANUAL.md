@@ -286,3 +286,6 @@ Field tablets rely on Wi-Fi or Cellular data. If the connection drops in the mid
 
 **WINC Clinical Documentation © 2026**  
 *Release v10.6.0 | April 13, 2026 - 03:25 | Clinical Excellence. Failure-Proof.*
+
+
+> **Note on New Intake Fields (Update):** When processing a new intake, operators must now record the **Mother's Weight (g)** and the number of **Days in Care** prior to formal facility admission.
