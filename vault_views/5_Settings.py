@@ -78,6 +78,7 @@ tabs = st.tabs(
         "📊 Stages & Icons",
         "📦 Resurrection Vault",
         "📜 Audit Log",
+        "🛡️ Database State",
     ]
 )
 
@@ -338,3 +339,91 @@ with tabs[4]:
         .data
     )
     st.dataframe(pd.DataFrame(logs), use_container_width=True)
+
+with tabs[5]:
+    st.subheader("🛡️ Database State Management (Red Team)")
+    st.error("⚠️ **DANGER ZONE**: Destructive Database Operations")
+
+    # Check dirty state safely
+    is_dirty = False
+    try:
+        intake_check = supabase.table("intake").select("intake_id").limit(1).execute().data
+        is_dirty = len(intake_check) > 0
+    except Exception:
+        pass
+
+    if "backup_verified" not in st.session_state:
+        st.session_state.backup_verified = False
+
+    def set_backup_verified():
+        st.session_state.backup_verified = True
+
+    if is_dirty:
+        st.warning("The database is currently populated with clinical data. You MUST export a full backup before destructive operations are unlocked.")
+
+        if st.button("GENERATE FULL BACKUP PAYLOAD", help="Compiles all transactional data into a JSON file"):
+            with st.spinner("Compiling database backup..."):
+                try:
+                    backup_res = supabase.rpc("vault_export_full_backup", {}).execute()
+                    import json
+                    st.session_state.backup_payload = json.dumps(backup_res.data, indent=2)
+                    st.success("Payload generated. You may now download.")
+                except Exception as e:
+                    st.error(f"Backup generation failed: {e}")
+
+        if "backup_payload" in st.session_state:
+            st.download_button(
+                label="💾 EXPORT FULL BACKUP (.json)",
+                data=st.session_state.backup_payload,
+                file_name="winc_vault_full_backup.json",
+                mime="application/json",
+                on_click=set_backup_verified,
+                type="primary"
+            )
+    else:
+        st.session_state.backup_verified = True
+        st.info("Database is currently clean. Operations unlocked.")
+
+    st.divider()
+    st.markdown("### Destructive Operations")
+
+    can_destroy = not is_dirty or st.session_state.backup_verified
+
+    if not can_destroy:
+        st.error("🔒 Operations locked pending backup download.")
+
+    confirmation = st.text_input(
+        "Type 'OBLITERATE CURRENT DATA' to confirm destructive operations:", 
+        disabled=not can_destroy
+    )
+
+    st.write("") # Spacing
+
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("WIPE & SET CLEAN START (DAY 1)", disabled=not can_destroy or confirmation != "OBLITERATE CURRENT DATA", type="primary"):
+            def execute_state_1():
+                supabase.rpc("vault_admin_restore", {
+                    "p_state_id": 1,
+                    "p_session_id": st.session_state.get("session_id", "ui-session"),
+                    "p_observer_id": st.session_state.get("observer_id", "00000000-0000-0000-0000-000000000000")
+                }).execute()
+                st.session_state.backup_verified = False
+                if "backup_payload" in st.session_state:
+                    del st.session_state.backup_payload
+            safe_db_execute("Day 1 Reset", execute_state_1, success_message="Database wiped. Day 1 Clean Start initialized.")
+            st.rerun()
+
+    with c2:
+        if st.button("WIPE & SEED MID-SEASON TEST DATA", disabled=not can_destroy or confirmation != "OBLITERATE CURRENT DATA", type="primary"):
+            def execute_state_2():
+                supabase.rpc("vault_admin_restore", {
+                    "p_state_id": 2,
+                    "p_session_id": st.session_state.get("session_id", "ui-session"),
+                    "p_observer_id": st.session_state.get("observer_id", "00000000-0000-0000-0000-000000000000")
+                }).execute()
+                st.session_state.backup_verified = False
+                if "backup_payload" in st.session_state:
+                    del st.session_state.backup_payload
+            safe_db_execute("Mid-Season Seed", execute_state_2, success_message="Database wiped and seeded with synthetic Mid-Season data.")
+            st.rerun()
