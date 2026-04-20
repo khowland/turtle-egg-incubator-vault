@@ -33,7 +33,8 @@ BEGIN
 
     -- STATE 2: MID-SEASON SEED
     IF p_state_id = 2 THEN
-        SELECT species_id INTO v_species_id FROM public.species LIMIT 1;
+        -- Explicit assignment to prevent Supabase dashboard parser errors (42P01)
+        v_species_id := (SELECT species_id FROM public.species LIMIT 1);
         
         IF v_species_id IS NULL THEN
             RAISE EXCEPTION 'Species lookup table is empty. Cannot seed.';

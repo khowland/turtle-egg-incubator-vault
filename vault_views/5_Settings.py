@@ -427,3 +427,29 @@ with tabs[5]:
                     del st.session_state.backup_payload
             safe_db_execute("Mid-Season Seed", execute_state_2, success_message="Database wiped and seeded with synthetic Mid-Season data.")
             st.rerun()
+
+    st.divider()
+    st.markdown("### Disaster Recovery (JSON Restore)")
+    st.caption("Upload a previously exported backup file to restore historical WINC data.")
+
+    uploaded_file = st.file_uploader("Upload WINC Backup JSON", type=["json"])
+    if uploaded_file is not None:
+        import json
+        try:
+            restore_payload = json.loads(uploaded_file.getvalue().decode("utf-8"))
+            st.success("Backup file parsed successfully. Ready for restoration.")
+
+            if st.button("RESTORE FROM UPLOADED BACKUP", disabled=not can_destroy or confirmation != "OBLITERATE CURRENT DATA", type="primary"):
+                def execute_restore():
+                    supabase.rpc("vault_restore_from_backup", {
+                        "p_payload": restore_payload,
+                        "p_session_id": st.session_state.get("session_id", "ui-session"),
+                        "p_observer_id": str(st.session_state.get("observer_id", "00000000-0000-0000-0000-000000000000"))
+                    }).execute()
+                    st.session_state.backup_verified = False
+                    if "backup_payload" in st.session_state:
+                        del st.session_state.backup_payload
+                safe_db_execute("JSON Restore", execute_restore, success_message="Disaster Recovery complete. Historical data restored.")
+                st.rerun()
+        except Exception as e:
+            st.error(f"Invalid JSON file: {e}")
