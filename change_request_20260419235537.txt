@@ -1,0 +1,5 @@
+CR 20260419235537:
+1) Fix manual screenshots: Streamlit showing 'Running...' and identical screens due to full page reloads. Need to click sidebar links instead.
+2) Fix QA methodologies: Simulate basic user entry and workflow conditions to prevent overly reaching/incorrect warning dialogues.
+3) Bin coding format: {2 char species code}{species intake_count}-{finder name}-{bin numbner, starting at 1}
+   e.g., SN1-HOWLAND-1. Read intake_count, increment in memory for UI, apply to bin coding, increment in DB upon save.

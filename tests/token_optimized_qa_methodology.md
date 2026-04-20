@@ -56,3 +56,11 @@ Instead of blindly manipulating the UI step-by-step to create complex clinical s
 When performing QA on the Settings menu Backup/Restore logic:
 *   **Negative Testing Protocol**: The agent MUST verify that the Restore/Seed options are functionally locked if a mandatory backup has not been executed on a populated database.
 *   **Timestamp Fuzzing**: The QA agent MUST attempt to maliciously inject past system dates into `intake_timestamp` or `created_at` payloads to ensure the backend constraints successfully override them with `now()`, guaranteeing the integrity of the audit logs against UI tampering.
+
+
+## Section 4: End-to-End Persona Testing (UI Constraints)
+All automated UI tests must simulate real-world data entry (character-by-character typing) and validate the exact text of error dialogues. Generic 'State not saved' assertions are banned. Tests must prove that valid workflows pass without triggering overly aggressive logic gates.
+
+
+## Section 4: End-to-End Persona Testing (UI Constraints)
+All automated UI tests must precisely simulate real-world data entry (character-by-character typing) and validate the exact text of error dialogues. Generic assertions are banned. Tests must prove that valid workflows pass without triggering overly aggressive logic gates or false positives.

@@ -97,3 +97,11 @@ A "Restore/Wipe" feature in the UI is highly dangerous. The following strict mit
 3.  **Timestamp Sovereignty (Immutability)**: Users may explicitly backdate *clinical dates* (`intake_date`, `egg_observation_date`) for backlog entry. However, all *system timestamps* (`created_at`, `modified_at`, `intake_timestamp`) must be strictly controlled by the database using PostgreSQL `now()`. UI payloads attempting to inject system timestamps must be ignored to prevent timeline spoofing.
 4.  **Forensic Logging**: Backup and Restore actions must generate immediate `CRITICAL` entries in the `system_log` tracking the specific `session_id` and `observer_id`.
 5.  **Backend RPC Enforcement**: The UI must not execute raw SQL deletes. It must call designated, locked-down backend RPCs (e.g., `vault_admin_restore(target_state)`) to guarantee atomic transitions.
+
+### 🏷️ Bin Nomenclature (Bin Coding)
+Bin IDs must strictly follow the format: `{2-char species code}{species_intake_count}-{finder_name}-{bin_number}`
+- **Species Code**: First 2 characters of the species code, uppercase (e.g., Snapper = SN).
+- **Intake Count**: The current `intake_count` from the `species` table + 1.
+- **Finder Name**: Uppercase, alphanumeric only.
+- **Bin Number**: Sequential starting at 1 for the current intake.
+*Example*: `SN1-HOWLAND-1`
