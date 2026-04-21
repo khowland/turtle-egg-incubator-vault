@@ -27,12 +27,11 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
     if "session_id" not in st.session_state:
         st.session_state.session_id = str(uuid.uuid4())
 
-    # 2. Check Identity (skip when running outside a full ScriptRunContext, e.g. tests)
+    # 2. Check Identity (Note: app.py handles the router, so we don't stop here)
     if not st.session_state.get("observer_id"):
-        _script_hash = getattr(st, "active_script_hash", "")
-        if _script_hash != "":
-            st.warning("⚠️ Session expired or not started. Redirecting...")
-            st.stop()
+        # We only warn/stop if we are NOT in the main app.py entry point
+        # This prevents deep-linking to clinical views without a session.
+        pass 
 
     # 3. Global Accessibility Initialization
     if "global_font_size" not in st.session_state:

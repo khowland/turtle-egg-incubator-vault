@@ -31,8 +31,15 @@ load_dotenv()
 @st.cache_resource
 def get_supabase_client() -> Client:
     """Initializes and returns a cached Supabase client instance."""
+    # 1. Try Environment Variables (Local dev or Railway)
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_ANON_KEY")
+
+    # 2. Try Streamlit Secrets (Community Cloud)
+    if not url and "SUPABASE_URL" in st.secrets:
+        url = st.secrets["SUPABASE_URL"]
+    if not key and "SUPABASE_ANON_KEY" in st.secrets:
+        key = st.secrets["SUPABASE_ANON_KEY"]
 
     # Requirement: Fail fast with clear error if credentials are missing
     if not url or not key:
