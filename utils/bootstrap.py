@@ -18,7 +18,7 @@ import datetime
 from utils.db import get_supabase
 
 
-def bootstrap_page(title="Incubator Vault", icon="🐢"):
+def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
     """
     Standardized page initialization.
     Ensures Session IDs and Database clients are ready.
@@ -50,7 +50,7 @@ def bootstrap_page(title="Incubator Vault", icon="🐢"):
         """
 
     # 4. Render Sidebar Clinical Context BEFORE style injections to ensure top-level precedence
-    if st.session_state.get("observer_id"):
+    if st.session_state.get("observer_id") and render_sidebar:
         render_custom_sidebar()
 
     st.markdown(

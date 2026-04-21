@@ -19,7 +19,8 @@ from utils.bootstrap import bootstrap_page
 from utils.rbac import can_elevated_clinical_operations
 
 # v8.0.0 Global Entry: Mount CSS Early to eliminate flickering
-bootstrap_page("WINC Incubator", "🐢")
+# Router run: Suppress sidebar here, as individual pages will render it during pg.run()
+bootstrap_page("WINC Incubator", "🐢", render_sidebar=False)
 init_session()
 
 # Navigation definition
