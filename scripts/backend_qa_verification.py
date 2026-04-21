@@ -1,10 +1,14 @@
+import os
 import sys
 import uuid
 import datetime
+from dotenv import load_dotenv
 from supabase import create_client, Client
 
-url = "https://kxfkfeuhkdopgmkpdimo.supabase.co"
-key = "sb_secret_2MySm8mTjXFt8fx5oeKvtg_Od6DD6J2"
+load_dotenv()
+
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
 supabase: Client = create_client(url, key)
 
 print("=== WINC BACKEND REFERENTIAL INTEGRITY VERIFICATION ===")
