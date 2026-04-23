@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="60" height="90" viewBox="0 0 60 90">
-  <defs>
-    <clipPath id="eggClipS3">
-      <path d="M30,5 C15,5 5,30 5,50 C5,75 15,85 30,85 C45,85 55,75 55,50 C55,30 45,5 30,5 Z" />
-    </clipPath>
-  </defs>
-  <path d="M30,5 C15,5 5,30 5,50 C5,75 15,85 30,85 C45,85 55,75 55,50 C55,30 45,5 30,5 Z" fill="#E3C586" stroke="#D1D5DB" stroke-width="1"/>
-  <rect x="0" y="40" width="60" height="20" fill="#FFFFFF" clip-path="url(#eggClipS3)" />
-</svg>
