@@ -172,30 +172,13 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
 
 
 def render_custom_sidebar():
-    """Renders a compact sidebar header with observer identity and version.
-    Layout: WINC logo → user name + version at top, SHIFT END pinned at bottom.
-    CR-20260423-111948: Simplified from previous layout that had version
-    at bottom of sidebar (off-screen on smaller displays).
-    Logo: assets/winc-logo2.png (360x91px RGBA) — constrained to 160px wide
-    so it sits cleanly at top-left without overwhelming the sidebar."""
+    """Renders the SHIFT END logout button in the sidebar.
+    Logo and user/version identity are now handled in app.py using st.logo()
+    and st.sidebar.markdown() BEFORE st.navigation() — this ensures they
+    appear ABOVE the navigation links, not below them.
+    CR-20260423: Moved logo/identity to app.py to fix st.navigation() ordering.
+    This function now only renders the SHIFT END button per page."""
 
-    # --- Logo: WINC branding at very top of sidebar ---
-    import os
-    _logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "winc-logo2.png")
-    if os.path.exists(_logo_path):
-        st.sidebar.image(_logo_path, width=160)
-
-    # --- Top: Compact identity + version block ---
-    st.sidebar.markdown(
-        f"<div style='padding: 0.25rem 0; margin-bottom: 0.25rem;'>"
-        f"<span style='font-size: 0.95em; font-weight: 600;'>👤 {st.session_state.get('observer_name', 'User')}</span><br>"
-        f"<span style='font-size: 0.75em; color: #64748b;'>{VERSION}</span>"
-        f"</div>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.divider()
-
-    # --- Bottom: SHIFT END button (rendered after nav auto-populates) ---
     if st.sidebar.button(
         "SHIFT END",
         key="global_logout_btn",
@@ -217,7 +200,6 @@ def render_custom_sidebar():
         st.session_state.observer_id = None
         st.session_state.env_gate_synced = False
         st.rerun()
-
 
 @st.cache_resource(ttl=3600)
 def get_last_bin_weight(bin_id):
