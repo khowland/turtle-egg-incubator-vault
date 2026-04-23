@@ -159,6 +159,7 @@ with track_view_performance("Intake"):
         for r in st.session_state.bin_rows:
             if "mass" not in r: r["mass"] = 0.0
             if "new_egg_count" not in r: r["new_egg_count"] = 0
+            r["bin_id_preview"] = f"{selected_species['species_code']}{next_intake_number}-{str(re.sub(r"[^A-Z0-9]", "", finder_name.upper()))}-{r['bin_num']}" if finder_name else "PENDING"
             if "is_new_bin" not in r: r["is_new_bin"] = True
             if "temp" not in r: r["temp"] = 28.0
             if "substrate" not in r: r["substrate"] = "Vermiculite"
@@ -172,6 +173,7 @@ with track_view_performance("Intake"):
             num_rows="dynamic",
             use_container_width=True,
             column_config={
+                "bin_id_preview": st.column_config.TextColumn("Bin ID (Auto)", disabled=True),
                 "bin_num": st.column_config.NumberColumn("Bin #", disabled=True),
                 "egg_count": st.column_config.NumberColumn("Total Eggs", min_value=1, max_value=99, required=True),
                 "shelf": st.column_config.TextColumn("Shelf Location"),
@@ -198,10 +200,10 @@ with track_view_performance("Intake"):
 
     if btn_col2.button("SAVE", type="primary", use_container_width=True, key="intake_save"):
         if not finder_name.strip():
-            st.error("❌ Missing Information: The 'Finder/Turtle Name' field is required. Please enter the name of the person or turtle.")
+            st.error("❌ Missing Information: The Finder or Turtle Name is required to track the origin of the clutch.")
             st.stop()
         if not case_number.strip():
-            st.error("❌ Missing Information: The 'Case Number' field is required to uniquely identify this intake.")
+            st.error("❌ Missing Information: The Please provide a WINC Case Number for the mother turtle.")
             st.stop()
         
         # Extended Validation for hardened requirements
@@ -211,7 +213,7 @@ with track_view_performance("Intake"):
             
         for idx, brow in enumerate(st.session_state.bin_rows):
             if brow["egg_count"] < 1:
-                st.error(f"❌ Bin #{idx+1} Error: A bin cannot be empty. Please enter the number of eggs (1 or more).")
+                st.error(f"❌ Bin #{idx+1} Error: Every bin must contain at least 1 egg.")
                 st.stop()
             if brow["mass"] <= 0:
                 st.error(f"❌ Bin #{idx+1} Error: The 'Bin Weight (g)' is a mandatory clinical mass gate. Please enter a valid weight greater than 0.")

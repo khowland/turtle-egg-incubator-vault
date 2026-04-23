@@ -1,69 +1,38 @@
-from streamlit.testing.v1 import AppTest
+from playwright.sync_api import sync_playwright
 import time
-import json
-from pathlib import Path
+import os
 
-def run_headless_audit():
-    print("🚀 STARTING HEADLESS UI PERFORMANCE AUDIT (AppTest)...")
-    at = AppTest.from_file("app.py", default_timeout=30)
-    at.run()
+def run_playwright_screenshots():
+    print("🚀 STARTING PLAYWRIGHT SCREENSHOTS...")
+    os.makedirs("docs/assets/manual", exist_ok=True)
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        page.set_viewport_size({"width": 1280, "height": 800})
 
-    if at.error:
-        print(f"❌ App failed to load: {at.error}")
-        # Print the traceback if it's available in the error
-        return
+        print("Navigating to app...")
+        page.goto("http://localhost:8501")
+        page.wait_for_selector("text=Login", timeout=10000)
+        page.screenshot(path="docs/assets/manual/screen_login.png")
 
-    # 1. Login Simulation
-    print("Logging in as Kevin...")
-    try:
-        if not at.selectbox:
-            print("❌ No selectboxes found!")
-            print(at)
-            return
-            
-        # Find the selectbox for observer
-        at.selectbox[0].select("Kevin Howland").run()
-        # Find the START button (it's a form submit button)
-        at.button[0].click().run()
-    except Exception as e:
-        print(f"❌ Login simulation failed: {e}")
-        print(at)
-        return
+        print("Logging in...")
+        # Just try to click a user and login
+        page.locator("text=Elisa Fosco").click()
+        page.locator("text=START SHIFT").click()
+        time.sleep(3)
+        page.screenshot(path="docs/assets/manual/screen_dashboard.png")
 
-    if at.error:
-        print(f"❌ Login failed: {at.error}")
-        return
-
-    print("✅ Logged in. Navigating views...")
-
-    # 2. Sequential Navigation
-    # Note: st.navigation pages can be switched via switch_page if we are in the script,
-    # but AppTest simulates the user. We need to find the navigation widgets.
-    # However, AppTest.from_file("app.py") will run app.py which renders the sidebar.
-    
-    views = [
-        "vault_views/1_Dashboard.py",
-        "vault_views/2_New_Intake.py",
-        "vault_views/3_Observations.py",
-        "vault_views/5_Settings.py",
-        "vault_views/6_Reports.py",
-        "vault_views/7_Diagnostic.py",
-        "vault_views/8_Help.py"
-    ]
-
-    for view in views:
-        print(f"Switching to {view}...")
-        # In AppTest, we can simulate switch_page by setting the internal state or clicking nav
-        # For simplicity in this audit, we'll try to trigger the rerun for each file
-        at.switch_page(view).run()
-        if at.error:
-            print(f"❌ Error in {view}: {at.error}")
-        else:
-            print(f"✅ {view} responsive.")
-        time.sleep(0.5)
-
-    print("\n=== Audit Simulation Complete ===")
-    print("Check reports/performance_telemetry.jsonl for latency data.")
+        print("Navigating via Sidebar...")
+        links = ["New Intake", "Observations", "Settings", "Reports"]
+        for link in links:
+            try:
+                page.locator(f"text={link}").first.click()
+                time.sleep(2) # wait for render
+                page.screenshot(path=f"docs/assets/manual/screen_{link.lower().replace(' ', '_')}.png")
+                print(f"Screenshot {link} done.")
+            except Exception as e:
+                print(f"Could not click {link}: {e}")
+        browser.close()
 
 if __name__ == "__main__":
-    run_headless_audit()
+    run_playwright_screenshots()
