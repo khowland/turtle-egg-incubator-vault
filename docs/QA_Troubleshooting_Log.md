@@ -49,8 +49,8 @@ tags: [qa, testing]
 - **Original (INACCURATE) Entry**: Claimed a hidden `time.sleep` bomb was in `utils/performance.py` and was excised in commit `0265b8b`. **This was incorrect.** Git forensic analysis of all 6 commits touching `utils/performance.py` confirmed it **never** contained a sleep call. Commit `0265b8b` only changed test file timeouts, not application code.
 - **Actual Root Cause**: A **blocking CSS `@import url()` for Google Fonts** in `utils/bootstrap.py` line 62. Per CSS spec, `@import` is synchronous and render-blocking. In Docker containers or network-restricted environments, the browser waits ~120 seconds for the TCP connection timeout before rendering the page. This manifested as a ~2-minute delay that appeared to be a Python "sleep bomb" but was actually a browser-level network timeout.
 - **Contributing Factor**: `utils/supabase_mgmt.py` → `wait_for_restoration()` has a 90-second polling loop triggered by Supabase hibernation, which could compound the CSS delay.
-- **Actual Fix**: Removed the blocking `@import`, replaced with non-blocking `<link>` tags using `preconnect` and `media="print" onload` async pattern, and added comprehensive system font fallback stack.
-- **Why It "Kept Coming Back"**: Python-only remediations never touched the CSS layer where the actual blocking occurred.
+- **Actual Fix**: Removed all blocking `@import` statements. Standardized on a "System Font Only" stack (Segoe UI, -apple-system, etc.) in `utils/bootstrap.py` and `vault_views/0_Login.py`. This avoids ALL outbound network triggers during initial render.
+- **Quarantine**: `hydration_page.html` (which contained a residual blocking `@import`) has been moved to the `quarantine/` directory.
 - **Full Documentation**: See `tests/resolved_bugs/Bug-PERF-001_resolution.md`
 
 ### 🔒 Security Note: `apply_and_test.py` Quarantined

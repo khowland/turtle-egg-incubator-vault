@@ -22,7 +22,7 @@ if "global_font_size" not in st.session_state:
 st.markdown(
     f"""
     <style>
-        .stApp {{ font-family: 'Inter', sans-serif; }}
+        .stApp {{ font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif, sans-serif !important; }}
         [data-testid='stHeader'] {{ background: transparent !important; opacity: 0.8; }}
     </style>
 """,

@@ -57,18 +57,13 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
         render_custom_sidebar()
 
     # Bug-PERF-001 FINAL FIX (2026-04-23): Remove ALL external font references.
-    # HISTORY: Original @import url(fonts.googleapis.com) caused ~120s blocking delay.
-    # ATTEMPTED FIX: Replaced with preconnect + async <link> — still caused ~120s delay
-    #   in local Docker because preconnect hints themselves trigger outbound TCP connections
-    #   that time out after 2 minutes in Docker NAT networking on Windows.
     # ROOT CAUSE: ANY outbound connection to fonts.googleapis.com or fonts.gstatic.com
     #   causes the Docker browser client to wait for TCP timeout (~120s) before giving up.
     # FINAL FIX: Remove ALL Google Fonts references entirely. Use system font stack only.
     #   System fonts (Segoe UI, -apple-system, Roboto) are visually identical to Inter
     #   and require zero network requests.
-    # WHY STREAMLIT CLOUD WAS FAST: Cloud servers have full internet access, fonts loaded
-    #   in <100ms. Local Docker has restricted outbound networking, causing 2min timeout.
     # DO NOT re-add any fonts.googleapis.com or fonts.gstatic.com references.
+
 
 
     st.markdown(
@@ -77,20 +72,11 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
         /* ============================================================= */
         /* FIX: Bug-PERF-001 — Adversarial Sleep Bomb Remediation        */
         /* DATE: 2026-04-23                                              */
-        /* PROBLEM: The original @import url() for Google Fonts caused   */
-        /*   a BLOCKING network request during CSS parsing. In Docker    */
-        /*   containers or environments with restricted/slow internet,   */
-        /*   the browser waits for the full connection timeout (~120s)   */
-        /*   before rendering the page. This was the root cause of the  */
-        /*   "adversarial sleep bomb" — a hidden ~2-minute startup       */
-        /*   delay that persisted across multiple Python-only            */
-        /*   remediation attempts because the delay was in the CSS       */
-        /*   rendering layer, not in Python code.                        */
-        /* SOLUTION: Use <link> preconnect + font-display: swap so the   */
-        /*   page renders immediately with fallback fonts, then swaps    */
-        /*   to Inter when available. No blocking network dependency.    */
+        /* SOLUTION: System Font Only. We prioritize local system fonts  */
+        /*   to avoid blocking outbound network requests during render.  */
         /* SEE: tests/resolved_bugs/Bug-PERF-001_resolution.md           */
         /* ============================================================= */
+
 
         /* v8.0.0 Global Standard: Eliminate Technical Drift and Visual Flickering */
         html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"], .stApp {{
