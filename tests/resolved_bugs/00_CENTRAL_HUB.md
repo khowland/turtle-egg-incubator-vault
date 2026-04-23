@@ -20,6 +20,7 @@ Welcome to the single source of truth for the **WINC Incubator System**. This hu
 - [[Bug-ENV-001_resolution|Bug-ENV-001: E2E Environment Dependency Blocker]]
 - [[Bug-ENV-002_resolution|Bug-ENV-002: E2E Runner Port/Readiness Defect]]
 - [[Bug-UI-001_resolution|Bug-UI-001: Intake Page Syntax Crash]]
+- [[Bug-ENV-003_resolution|Bug-ENV-003: E2E Stale Port Ownership]]
 
 
 ## 📐 Standards
