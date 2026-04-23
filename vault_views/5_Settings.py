@@ -1,7 +1,7 @@
 """
 =============================================================================
 Module:        vault_views/5_Settings.py
-Project:       Incubator Vault v8.1.0 — WINC (Clinical Sovereignty Edition)
+Project:       Incubator Vault v8.1.1 — WINC (Clinical Sovereignty Edition)
 Requirement:   Matches Standard [§35, §36]; Resurrection Vault RBAC (ISS-7)
 Upstream:      None (Entry point or dynamic)
 Downstream:    utils.bootstrap, utils.rbac
@@ -347,12 +347,13 @@ with tabs[4]:
     )
     
     if logs_raw:
-        df_logs = pd.DataFrame(logs_raw)
-        df_logs['created_at'] = pd.to_datetime(df_logs['created_at']).dt.strftime('%Y-%m-%d %H:%M:%S')
-        
-        # Filter by date range
-        mask = (pd.to_datetime(df_logs['created_at']).dt.date >= start_date) & (pd.to_datetime(df_logs['created_at']).dt.date <= end_date)
-        df_filtered = df_logs.loc[mask]
+        df_logs = pd.DataFrame(logs_raw.data if hasattr(logs_raw, "data") else logs_raw)
+        if not df_logs.empty and 'timestamp' in df_logs.columns:
+            df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
+            mask = (pd.to_datetime(df_logs['timestamp']).dt.date >= start_date) & (pd.to_datetime(df_logs['timestamp']).dt.date <= end_date)
+            df_filtered = df_logs.loc[mask]
+        else:
+            df_filtered = pd.DataFrame()
         
         st.dataframe(df_filtered, use_container_width=True, hide_index=True)
         

@@ -80,4 +80,4 @@ with track_view_performance("Diagnostic"):
             st.warning("⚠️ No recent logs found in this context.")
 
     st.divider()
-    st.caption("WINC Clinical Standard v8.1.0 — Diagnostic")
+    st.caption("WINC Clinical Standard v8.1.1 — Diagnostic")

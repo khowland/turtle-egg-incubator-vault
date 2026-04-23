@@ -60,7 +60,7 @@ def show_splash_screen():
 
     # Render static Welcome message FIRST for instant feedback
     st.markdown(
-        "<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p></div>",
+        "<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p><p style='color: #475569; font-size: 0.8em; margin-top: 20px;'>Clinical Standard v8.1.1</p></div>",
         unsafe_allow_html=True,
     )
 
@@ -146,7 +146,11 @@ def show_splash_screen():
                                 # SUCCESS: Resume session
                                 current_generated_id = last_session_query.data[0]["session_id"]
                                 st.session_state.session_id = current_generated_id
-                                st.success(f"Welcome back, {st.session_state.observer_name}! Resuming session {current_generated_id}")
+                                
+                                # Enhanced Mobile Resilience Notice (§36.2)
+                                st.success(f"📟 **BIO-RECOVERY**: Welcome back, {st.session_state.observer_name}. Clinical shift resumed.")
+                                st.info("💡 **Note**: If you just switched back from another app, your last recorded action is saved in the **Activity Log**.")
+                                
                                 resuming_user_name = last_session_query.data[0][
                                     "user_name"
                                 ]
@@ -159,7 +163,7 @@ def show_splash_screen():
                     st.session_state.session_id = current_generated_id
                     
                     if resuming_user_name:
-                        st.session_state.resume_notice = f"🔄 Resuming active shift for **{resuming_user_name}**"
+                        st.session_state.resume_notice = f"🔄 **BIO-RECOVERY**: Resuming active shift for **{resuming_user_name}**"
 
                     try:
                         display_name = st.session_state.observer_name

@@ -248,8 +248,8 @@ When an egg pips, it is no longer an "Egg" but an "Animal" (See Figure 8). Use t
 
 ## 5. VAULT ADMINISTRATION: MAINTENANCE
 
-![Figure 9: Vault Administration Dashboard - Observer Registry](../assets/manual/placeholder_screenshot.png)
-*Figure 9: Vault Administration Dashboard - Observer Registry*
+![Figure 9: Settings Dashboard - Observer Registry](../assets/manual/placeholder_screenshot.png)
+*Figure 9: Settings Dashboard - Observer Registry*
 
 The WINC Vault is an "Immutable Archive" (See Figure 9). Error correction requires a forensic audit trail to ensure data remains scientific-grade.
 
