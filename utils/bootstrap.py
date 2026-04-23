@@ -17,7 +17,7 @@ import uuid
 import datetime
 from utils.db import get_supabase
 
-VERSION = "v8.1.1"
+VERSION = "v8.1.2"
 
 
 
