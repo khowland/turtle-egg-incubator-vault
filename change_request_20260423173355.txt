@@ -1,0 +1,51 @@
+CHANGE REQUEST
+==============
+ID:        CR-20260423-173355
+Date:      2026-04-23 17:33 CST
+Requested: Kevin Howland
+Status:    IMPLEMENTED — 2026-04-23 17:34 CST
+Priority:  Low
+LOE:       Minimal
+
+TITLE
+-----
+Add WINC Logo to Login/Splash Screen Welcome Block
+
+DESCRIPTION
+-----------
+Place the WINC logo (assets/winc-logo2.png) directly above the
+"🐢 Welcome!" heading on the login splash screen. The logo should
+be horizontally centered and match the approximate visual width
+of the Welcome heading text.
+
+RATIONALE
+---------
+Branding consistency — WINC logo now appears in sidebar and PDF
+covers. The login screen is the first thing any user sees and
+should reinforce the WINC identity before authentication.
+
+FILES AFFECTED
+--------------
+- utils/session.py (show_splash_screen — Welcome HTML block)
+
+IMPLEMENTATION
+--------------
+- Logo loaded as base64-encoded inline image for Streamlit Cloud
+  compatibility (no static file serving required)
+- Embedded in existing welcome <div> above the <h1> tag
+- Width set to 220px to match approximate visual width of "Welcome!"
+  heading; centered via margin: 0 auto
+- Graceful fallback: if logo file is missing, welcome renders normally
+
+TEST PLAN
+---------
+1. Launch app, verify WINC logo appears above "Welcome!" on login page
+2. Verify logo is centered and proportional (not too large/small)
+3. Verify login form still functions normally after logo addition
+4. Verify no regression in performance telemetry on Login/Splash view
+5. Verify on mobile viewport that logo doesn't overflow
+
+DEPENDENCIES
+------------
+- assets/winc-logo2.png must exist (360x91px RGBA)
+- No new Python packages required (base64 is stdlib)

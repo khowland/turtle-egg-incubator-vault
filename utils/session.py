@@ -59,8 +59,18 @@ def show_splash_screen():
     supabase_client = get_supabase()
 
     # Render static Welcome message FIRST for instant feedback
+    # CR-20260423-173355: WINC logo displayed above Welcome heading
+    # Logo loaded as base64 inline for Streamlit Cloud compatibility (no static file server)
+    import base64
+    from pathlib import Path
+    _logo_path = Path(__file__).parent.parent / "assets" / "winc-logo2.png"
+    _logo_html = ""
+    if _logo_path.exists():
+        _b64 = base64.b64encode(_logo_path.read_bytes()).decode()
+        _logo_html = f"<img src='data:image/png;base64,{_b64}' style='width:220px; max-width:100%; display:block; margin:0 auto 12px auto;' alt='Wildlife In Need Center' />"
+
     st.markdown(
-        f"<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p><p style='color: #475569; font-size: 0.8em; margin-top: 20px;'>Clinical Standard {VERSION}</p></div>",
+        f"<div style='text-align: center; padding: 50px;'>{_logo_html}<h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p><p style='color: #475569; font-size: 0.8em; margin-top: 20px;'>Clinical Standard {VERSION}</p></div>",
         unsafe_allow_html=True,
     )
 
