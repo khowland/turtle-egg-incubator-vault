@@ -60,7 +60,16 @@ def show_splash_screen():
 
     # Render static Welcome message FIRST for instant feedback
     st.markdown(
-        f"<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p><p style='color: #475569; font-size: 0.8em; margin-top: 20px;'>Clinical Standard {VERSION}</p></div>",
+        f"""<div style='
+            text-align: center;
+            padding: 6vh 2rem 1rem 2rem;
+            max-width: 480px;
+            margin: 0 auto;
+        '>
+        <h1 style='color: #10B981; margin-bottom: 0.4rem;'>🐢 Welcome!</h1>
+        <p style='color: #94A3B8; margin: 0.2rem 0;'>Let's get started. Who is working today?</p>
+        <p style='color: #94a3b8; font-size: 0.78em; margin-top: 0.6rem; letter-spacing: 0.04em;'>Clinical Standard {VERSION}</p>
+        </div>""",
         unsafe_allow_html=True,
     )
 
