@@ -81,6 +81,25 @@ with track_view_performance("Intake"):
         ]
 
     # --- Step 1: Origin ---
+    
+    # --- INTAKE MODE ---
+    st.markdown("### Intake Mode")
+    intake_mode = st.radio("Select Workflow", ["Initial Intake (New Case)", "Supplemental Intake (Add to Existing Mother)"], horizontal=True)
+
+    if intake_mode == "Supplemental Intake (Add to Existing Mother)":
+        st.info("🔵 Supplemental Mode Active: Bins and eggs will be appended to the selected case. Original eggs will remain untouched.")
+        # Fetch existing cases for dropdown
+        res_cases = supabase.table("intake").select("intake_id, intake_name, finder_turtle_name").execute()
+        if res_cases.data:
+            case_options = {f"{c['intake_name']} ({c['finder_turtle_name']})": c['intake_id'] for c in res_cases.data}
+            selected_case_id = st.selectbox("Select Existing Mother", list(case_options.keys()))
+            supp_date = st.date_input("Supplemental Date")
+            st.session_state.supp_intake_id = case_options[selected_case_id]
+            st.session_state.supp_date = str(supp_date)
+        else:
+            st.warning("No existing cases found.")
+            st.stop()
+
     with st.container(border=True):
         st.subheader("📁 Step 1: Mother Turtle Info")
         col1, col2, col3 = st.columns([2, 1, 1])
@@ -107,7 +126,7 @@ with track_view_performance("Intake"):
         )
         extraction_method = l_col3.selectbox(
             "Collection Method",
-            ["Natural", "Induced", "Surgery", "Post-Mortem Salvage"],
+            ["Natural", "Induced", "Surgery", "Harvested"],
             index=0,
         )
 
@@ -139,6 +158,8 @@ with track_view_performance("Intake"):
         # Ensure data is consistent for DataFrame
         for r in st.session_state.bin_rows:
             if "mass" not in r: r["mass"] = 0.0
+            if "new_egg_count" not in r: r["new_egg_count"] = 0
+            if "is_new_bin" not in r: r["is_new_bin"] = True
             if "temp" not in r: r["temp"] = 28.0
             if "substrate" not in r: r["substrate"] = "Vermiculite"
             if "shelf" not in r: r["shelf"] = ""
@@ -258,6 +279,10 @@ with track_view_performance("Intake"):
                                 "intake_timestamp": datetime.datetime.combine(intake_date, datetime.datetime.now().time()).isoformat() + "Z",
                                 "intake_condition": intake_condition,
                                 "extraction_method": extraction_method,
+                                "clinical_metadata": {
+                                    "condition": intake_condition,
+                                    "collection_method": extraction_method
+                                },
                                 "mother_weight_g": mother_weight_g,
                                 "days_in_care": days_in_care,
                                 "discovery_location": discovery_location,

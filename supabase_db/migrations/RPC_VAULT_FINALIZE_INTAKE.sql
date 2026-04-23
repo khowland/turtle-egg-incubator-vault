@@ -59,6 +59,7 @@ BEGIN
     discovery_location,
     mother_weight_g,
     days_in_care,
+    clinical_metadata,
     session_id,
     created_by_id,
     modified_by_id
@@ -73,6 +74,7 @@ BEGIN
     NULLIF(p_payload#>>'{intake,discovery_location}', ''),
     NULLIF(p_payload#>>'{intake,mother_weight_g}', '')::numeric,
     (p_payload#>>'{intake,days_in_care}')::int,
+    COALESCE((p_payload#>>'{intake,clinical_metadata}')::jsonb, '{}'::jsonb),
     v_session_id,
     v_observer_id,
     v_observer_id
