@@ -19,6 +19,7 @@ Welcome to the single source of truth for the **WINC Incubator System**. This hu
 - [[RCA_Phase4|RCA: Phase 4 Test Failures & Mock Stabilization]]
 - [[Bug-ENV-001_resolution|Bug-ENV-001: E2E Environment Dependency Blocker]]
 - [[Bug-ENV-002_resolution|Bug-ENV-002: E2E Runner Port/Readiness Defect]]
+- [[Bug-UI-001_resolution|Bug-UI-001: Intake Page Syntax Crash]]
 
 
 ## 📐 Standards
