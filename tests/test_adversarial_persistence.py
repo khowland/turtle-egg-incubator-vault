@@ -25,10 +25,10 @@ def test_atomic_transaction_resilience(mock_db):
         at.text_input[0].set_value("Adversarial-2026")
         at.text_input[1].set_value("John Doe")
         
-        # Mandatory Clinical Data (§2 compliance)
-        at.number_input[2].set_value(150.0) # Mass
-        at.number_input[3].set_value(28.5) # Temp
-        at.text_input[2].set_value("X1") # Shelf
+        # Mandatory Clinical Data (§2 compliance) via session state
+        at.session_state.bin_rows[0]["mass"] = 150.0
+        at.session_state.bin_rows[0]["temp"] = 28.5
+        at.session_state.bin_rows[0]["shelf"] = "X1"
         
         at.run()
         

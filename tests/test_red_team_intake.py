@@ -53,8 +53,8 @@ def test_rpc_failure_safe_state(mock_supabase):
         # Fill valid data
         at.text_input[0].set_value("2026-ERR")
         at.text_input[1].set_value("RedTeam")
-        at.text_input[3].set_value("A1") # Shelf
-        at.number_input[2].set_value(100.0) # Weight
+        at.session_state.bin_rows[0]["shelf"] = "A1"
+        at.session_state.bin_rows[0]["mass"] = 100.0
         at.run()
         
         # Trigger SAVE

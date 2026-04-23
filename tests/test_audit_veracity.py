@@ -27,10 +27,10 @@ def test_audit_log_capture_on_intake(mock_db):
         at.text_input[0].set_value("2026-AUDIT") # Case #
         at.text_input[1].set_value("Audit Tester") # Finder
         
-        # Fill Bin Metrics (Mandatory §2)
-        at.number_input[2].set_value(150.0) # Mass
-        at.number_input[3].set_value(28.5) # Temp
-        at.text_input[2].set_value("A1") # Shelf
+        # Fill Bin Metrics via session state (data_editor fallback)
+        at.session_state.bin_rows[0]["mass"] = 150.0
+        at.session_state.bin_rows[0]["temp"] = 28.5
+        at.session_state.bin_rows[0]["shelf"] = "A1"
         
         at.run()
         

@@ -130,11 +130,13 @@ with track_view_performance("Intake"):
             index=0,
         )
 
-        loc_col1, loc_col2 = st.columns([2, 1])
+        loc_col1, loc_col2, loc_col3 = st.columns([2, 1, 1])
         discovery_location = loc_col1.text_input(
             "Intake Circumstances", placeholder="Roadside, Backyard, Wetland, etc."
         )
-        carapace_length = loc_col2.number_input("Mother's Weight (g)", 0, 500, value=0)
+        mother_weight_g = loc_col2.number_input("Mother's Weight (g)", 0.0, 50000.0, value=0.0)
+        days_in_care = loc_col3.number_input("Days in Care", 0, 365, value=0)
+        carapace_length = 0 # Explicitly zero to avoid NameError since it was replaced by weight in UI
 
         selected_species = species_data_map.get(selected_label, {})
         if not selected_species:

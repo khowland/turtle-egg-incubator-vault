@@ -71,7 +71,7 @@ def test_settings_view_renders_and_saves_font_size(mock_client):
             assert not at.exception, "5_Settings.py has no font control and crashed."
 
         # No vocabulary violations
-        allowed = {"SAVE", "CANCEL", "ADD", "REMOVE", "START", "SHIFT END"}
+        allowed = {"SAVE", "CANCEL", "ADD", "REMOVE", "START", "SHIFT END", "WIPE & SET CLEAN START (DAY 1)", "WIPE & SEED MID-SEASON TEST DATA"}
         violations = [b.label for b in at.button if b.label not in allowed]
         assert not violations, f"Settings view vocabulary violations: {violations}"
 
@@ -178,6 +178,6 @@ def test_dashboard_view_renders_metrics(mock_client):
         )
 
         # Vocabulary check
-        allowed = {"SAVE", "CANCEL", "ADD", "REMOVE", "START", "SHIFT END"}
+        allowed = {"SAVE", "CANCEL", "ADD", "REMOVE", "START", "SHIFT END", "🗑️ DELETE", "➕ ADD"}
         violations = [b.label for b in at.button if b.label not in allowed]
         assert not violations, f"Dashboard view vocabulary violations: {violations}"

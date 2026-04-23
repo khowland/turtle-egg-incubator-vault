@@ -95,10 +95,10 @@ def test_intake_timestamp_is_timezone_aware():
         at.text_input[0].set_value("2026-TZ-001")
         at.text_input[1].set_value("TZ Biologist")
         
-        # PROVIDE MANDATORY METRICS (§2, v8.1.16)
-        at.text_input[3].set_value("SHELF-TZ")
-        at.number_input[2].set_value(200.0) # mass
-        at.number_input[3].set_value(28.0)  # temp
+        # PROVIDE MANDATORY METRICS (§2, v8.1.16) via session state due to data_editor change
+        at.session_state.bin_rows[0]["shelf"] = "SHELF-TZ"
+        at.session_state.bin_rows[0]["mass"] = 200.0
+        at.session_state.bin_rows[0]["temp"] = 28.0
         at.run()
 
         save_btn = next(b for b in at.button if b.label == "SAVE")
