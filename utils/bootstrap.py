@@ -56,20 +56,46 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
     if st.session_state.get("observer_id") and render_sidebar:
         render_custom_sidebar()
 
+    # Bug-PERF-001: Non-blocking font loading via preconnect + async link
+    # This replaces the old blocking @import url() that caused ~120s delays
+    # in Docker/network-restricted environments. See: tests/resolved_bugs/Bug-PERF-001_resolution.md
+    st.markdown(
+        '<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>'
+        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+        '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" media="print" onload="this.media=\'all\'">',
+        unsafe_allow_html=True,
+    )
+
     st.markdown(
         f"""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        
+        /* ============================================================= */
+        /* FIX: Bug-PERF-001 — Adversarial Sleep Bomb Remediation        */
+        /* DATE: 2026-04-23                                              */
+        /* PROBLEM: The original @import url() for Google Fonts caused   */
+        /*   a BLOCKING network request during CSS parsing. In Docker    */
+        /*   containers or environments with restricted/slow internet,   */
+        /*   the browser waits for the full connection timeout (~120s)   */
+        /*   before rendering the page. This was the root cause of the  */
+        /*   "adversarial sleep bomb" — a hidden ~2-minute startup       */
+        /*   delay that persisted across multiple Python-only            */
+        /*   remediation attempts because the delay was in the CSS       */
+        /*   rendering layer, not in Python code.                        */
+        /* SOLUTION: Use <link> preconnect + font-display: swap so the   */
+        /*   page renders immediately with fallback fonts, then swaps    */
+        /*   to Inter when available. No blocking network dependency.    */
+        /* SEE: tests/resolved_bugs/Bug-PERF-001_resolution.md           */
+        /* ============================================================= */
+
         /* v8.0.0 Global Standard: Eliminate Technical Drift and Visual Flickering */
         html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"], .stApp {{
-            font-family: 'Inter', sans-serif !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             font-size: {st.session_state.global_font_size}px !important;
         }}
 
         /* Sidebar Persistence Guard (§35.1) */
         [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarNav"] span {{
-            font-family: 'Inter', sans-serif !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             font-size: {st.session_state.global_font_size}px !important;
         }}
         

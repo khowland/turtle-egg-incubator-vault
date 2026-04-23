@@ -1,3 +1,27 @@
+# =============================================================================
+# ⚠️  QUARANTINED — DO NOT EXECUTE ⚠️
+# =============================================================================
+# Date: 2026-04-23
+# Reason: This script dynamically rewrites production source files at runtime
+#         using regex substitution and injects backdoor hooks into Intake UI.
+#         It also contains HARDCODED DATABASE CREDENTIALS in plaintext.
+#         Identified during Bug-PERF-001 adversarial sleep bomb investigation
+#         as a potential reintroduction vector for adversarial code.
+#
+# Security Issues Found:
+#   1. Lines 6-14:  Regex-rewrites all e2e test files without backup
+#   2. Lines 17-18: Hardcoded DB host and password in plaintext
+#   3. Lines 39-47: Injects a "FORENSIC" backdoor hook into 2_New_Intake.py
+#
+# This file is preserved for forensic reference only.
+# See: tests/resolved_bugs/Bug-PERF-001_resolution.md
+# See: docs/QA_Troubleshooting_Log.md
+# =============================================================================
+import sys
+print("❌ QUARANTINED: This script has been disabled for security reasons.")
+print("   See: tests/resolved_bugs/Bug-PERF-001_resolution.md")
+sys.exit(1)
+
 import os
 import psycopg2
 import re

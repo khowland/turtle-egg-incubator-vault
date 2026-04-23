@@ -22,6 +22,7 @@ Welcome to the single source of truth for the **WINC Incubator System**. This hu
 - [[Bug-UI-001_resolution|Bug-UI-001: Intake Page Syntax Crash]]
 - [[Bug-ENV-003_resolution|Bug-ENV-003: E2E Stale Port Ownership]]
 - [[Bug-ENV-004_resolution|Bug-ENV-004: Dynamic E2E Harness Base URL]]
+- [[Bug-PERF-001_resolution|Bug-PERF-001: Adversarial Sleep Bomb (CSS @import Blocking Delay) — CRITICAL]]
 
 
 ## 📐 Standards
