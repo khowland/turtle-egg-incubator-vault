@@ -17,7 +17,19 @@ import uuid
 import datetime
 from utils.db import get_supabase
 
-VERSION = "v8.1.2"
+@st.cache_data(ttl=0) # ZERO TTL ensures live database sync for v8.1.5 audit
+def get_app_version():
+    """Fetches the application version from the system_config table."""
+    try:
+        supabase = get_supabase()
+        response = supabase.table("system_config").select("config_value").eq("config_key", "APP_VERSION").execute()
+        if response.data:
+            return response.data[0]["config_value"]
+    except Exception:
+        pass
+    return "v8.1.5" # Fallback
+
+# VERSION = get_app_version() # Deprecated in favor of dynamic calls to get_app_version()
 
 
 
@@ -52,9 +64,9 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
             .stButton > button { border: 2px solid #000000 !important; font-weight: 800 !important; }
         """
 
-    # 4. Render Sidebar Clinical Context BEFORE style injections to ensure top-level precedence
-    if st.session_state.get("observer_id") and render_sidebar:
-        render_custom_sidebar()
+    # 4. Render Sidebar Clinical Context
+    # REMOVED: render_custom_sidebar() is now called once in app.py to avoid key conflicts
+    # when using st.navigation.
 
     # Bug-PERF-001 FINAL FIX (2026-04-23): Remove ALL external font references.
     # ROOT CAUSE: ANY outbound connection to fonts.googleapis.com or fonts.gstatic.com
@@ -88,19 +100,11 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
         [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarNav"] span {{
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             font-size: {st.session_state.global_font_size}px !important;
+        }}
 
-        /* CR-20260423: Force WINC logo (st.logo) to fill full sidebar width */
-        [data-testid="stLogo"] {{
-            padding: 8px 0.5rem 4px 0.5rem !important;
-            width: 100% !important;
-        }}
-        [data-testid="stLogo"] img {{
-            width: 100% !important;
-            max-width: 100% !important;
-            height: auto !important;
-            object-fit: contain !important;
-            display: block !important;
-        }}
+        /* Standard §35: Performance and UI Recovery */
+        /* Removed custom sidebar widths to allow Streamlit's native responsive sliding */
+
         
         .stMarkdown, p, label, .stButton > button, .stSelectbox, .stTextInput, .stNumberInput, .stTextArea {{
             font-size: {st.session_state.global_font_size}px !important;
@@ -113,6 +117,69 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
             background: transparent !important;
             visibility: visible !important;
         }}
+
+        /* 🐢 Hatching Turtle Loading Icon Replacement */
+        [data-testid="stStatusWidget"] {{
+            visibility: hidden !important;
+            width: 2rem !important;
+        }}
+        [data-testid="stStatusWidget"]::after {{
+            content: "🐢";
+            visibility: visible !important;
+            position: absolute;
+            top: 0.1rem !important;
+            right: 0.5rem !important;
+            font-size: 2.5rem !important;
+            color: #10B981 !important;
+            animation: turtle-hatch 1.2s infinite ease-in-out !important;
+            z-index: 999999 !important;
+            cursor: wait;
+        }}
+        @keyframes turtle-hatch {{
+            0%   {{ transform: scale(0.8) rotate(-10deg); opacity: 0.7; }}
+            50%  {{ transform: scale(1.2) rotate(10deg);  opacity: 1.0; }}
+            100% {{ transform: scale(0.8) rotate(-10deg); opacity: 0.7; }}
+        }}
+
+        /* 📱 Mobile Ergonomics: Tight-Fit Alignment and Top-Flush Body */
+        [data-testid="block-container"], 
+        [data-testid="stAppViewBlockContainer"], 
+        .main .block-container {{
+            padding-top: 2rem !important; /* Safe clearance from top edge */
+            margin-top: -5rem !important; /* Aggressively pull the entire block up to align with sidebar */
+            padding-bottom: 1rem !important;
+            padding-left: 1.5rem !important; /* Close boundary padding */
+            padding-right: 1.5rem !important;
+            margin-left: 0 !important; /* Cancel Streamlit default centering */
+            margin-right: 0 !important;
+            min-width: 100% !important; /* Force it to stretch across the main flex channel */
+            max-width: 100% !important; 
+        }}
+
+        [data-testid="block-container"] h1:first-of-type,
+        [data-testid="stAppViewBlockContainer"] h1:first-of-type,
+        .main .block-container h1:first-of-type,
+        [data-testid="stAppViewBlockContainer"] [data-testid="stHeadingContainer"]:first-of-type {{
+            margin-top: -1rem !important; /* Fine-tune pulling main title */
+            padding-top: 0rem !important;
+        }}
+        [data-testid="stAppViewContainer"] {{
+            padding-top: 0rem !important;
+        }}
+        [data-testid="stHeader"] {{
+            height: 0rem !important; /* Fully suppress unused upper generic header */
+            visibility: hidden !important;
+            min-height: 0rem !important;
+        }}
+
+        /* CRITICAL: Eliminate phantom DOM blocks created by our own global <style> inject */
+        div:has(> div[data-testid="stMarkdownContainer"] > style) {{
+            display: none !important;
+            height: 0px !important;
+            margin: 0px !important;
+            padding: 0px !important;
+            gap: 0px !important;
+        }}
         
         /* 🥚 Incubator Tray: High-Contrast Grid for Biological Clarity */
         .egg-tray {{
@@ -124,13 +191,15 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
             box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
             margin-bottom: 10px;
         }}
-        
-        .egg-tray p, .egg-tray b, .egg-tray span {{
+        .egg-tray b, .egg-tray span {{
             color: #f8fafc !important;
+            font-weight: 600 !important;
         }}
-
-        footer {{ visibility: hidden !important; }}
-
+        
+        .egg-tray p {{
+            margin: 2px 0 !important;
+        }}
+        
         /* 🎨 Unified Branding Standard (§1) */
         /* Mapping vocabulary to clinical colors for 5th-Grader Standard */
         .stButton > button:has(p:contains("SAVE")), button[data-testid*="SAVE"] {{
@@ -154,16 +223,14 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
             border: none !important;
         }}
 
-        /* 📍 Pinned Help Button (§ISS-9) */
-        [data-testid="stSidebarNav"] ul {{
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - 40px);
+        /* Center st.image within our custom splash container */
+        [data-testid="stMarkdownContainer"] + div[data-testid="stImage"] {{
+            display: flex !important;
+            justify-content: center !important;
+            margin-bottom: 1.5rem !important;
         }}
-        [data-testid="stSidebarNav"] ul li:last-child {{
-            margin-top: auto;
-            border-top: 1px solid #334155;
-            padding-top: 10px;
+        [data-testid="stImage"] img {{
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1)) !important;
         }}
     </style>
     """,
@@ -291,3 +358,5 @@ def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs)
         with st.expander("🔍 Differential Diagnosis (Technical Details)"):
             st.code(error_details)
         return None
+ 
+

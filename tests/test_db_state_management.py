@@ -20,8 +20,9 @@ def test_backup_gate_locks_destructive_actions(mock_get_supabase):
     at.session_state.line_height = 1.6
     at.session_state.high_contrast = False
     at.run(timeout=10)
-
-    text_input = at.text_input[0]
+    
+    # Tabs don't need manual selection in AppTest; elements are parsed globally
+    text_input = [t for t in at.text_input if "OBLITERATE" in t.label][0]
     assert text_input.disabled == True, "Text input must be locked before backup"
 
     wipe_clean_btn = [b for b in at.button if "WIPE & SET CLEAN START" in b.label][0]
@@ -47,8 +48,9 @@ def test_backup_gate_unlocks_after_backup_and_confirmation(mock_get_supabase):
     at.session_state.line_height = 1.6
     at.session_state.high_contrast = False
     at.run(timeout=10)
-
-    text_input = at.text_input[0]
+    
+    # Tabs don't need manual selection in AppTest; elements are parsed globally
+    text_input = [t for t in at.text_input if "OBLITERATE" in t.label][0]
     assert text_input.disabled == False, "Text input should unlock after backup"
 
     wipe_clean_btn = [b for b in at.button if "WIPE & SET CLEAN START" in b.label][0]

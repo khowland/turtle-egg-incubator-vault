@@ -1,0 +1,13 @@
+DATE: 2026-04-23 17:47:01
+REQUESTOR: Kevin
+OBJECTIVE: Mobile-First Ergonomic Optimization (v8.1.5)
+
+REQUIREMENTS:
+1. Page body text must be vertically aligned with the top of the first navigation menu item.
+2. Page body text must be left-alligned much closer to the sidebar menu to maximize screen real estate on mobile devices.
+3. Page body must dynamically slide left horizontally when the sidebar menu is collapsed, maintaining its "Tight-Fit" relationship with the edge of the viewport/sidebar.
+
+TECHNICAL SPECS:
+- Target File: utils/bootstrap.py (CSS Block)
+- Target Element: .main .block-container
+- CSS properties to modify: padding-top, padding-left, transition behavior.

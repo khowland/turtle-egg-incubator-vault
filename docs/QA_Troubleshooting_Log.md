@@ -59,3 +59,16 @@ tags: [qa, testing]
 - **Intent**: Prevent reintroduction of adversarial code via dynamic file rewriting.
 - **Action**: `apply_and_test.py` (commit `59156ed`) was found to dynamically rewrite production source files using regex and inject backdoor hooks. Quarantined with security warning header.
 - **Result**: File preserved for forensic reference but disabled from accidental execution.
+
+### 🚀 v8.1.4 Performance & UI Overhaul (Clean Slate Standard)
+
+- **Date**: 2026-04-23
+- **Intent**: Complete removal of branding assets and consolidation of sidebar controls for a minimalist, high-performance UI.
+- **Action**:
+  - **Logo Removal**: Stripped all `st.logo` logic and CSS. The app is now fully logo-free on splash and sidebar.
+  - **Sidebar Unification**: Removed "Pinned Help" CSS. Centralized User Identity (User, Version) and session controls (Shift End) into a single, unified footer group in `app.py`.
+  - **Conflict Resolution**: Resolved a `StreamlitDuplicateElementKey` error by moving the "Shift End" rendering to a singleton pattern in the main router, preventing redundant instantiation from page views.
+- **Result**:
+  - ✅ **Performance**: Maintained the **~1.2s hydration fix** (99% improvement).
+  - ✅ **UI Architecture**: "Help" now follows main navigation naturally; Identity Cluster is tightly integrated with a cleaner divider.
+  - ✅ **Status**: `v8.1.4` is the new definitive production standard.

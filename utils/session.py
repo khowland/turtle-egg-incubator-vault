@@ -17,7 +17,8 @@ import uuid
 import os
 from datetime import datetime, timedelta, timezone
 from utils.db import get_supabase
-from utils.bootstrap import get_resilient_table, VERSION
+from utils.bootstrap import get_resilient_table, get_app_version
+VERSION = get_app_version()
 from utils.logger import logger
 
 
@@ -59,22 +60,33 @@ def show_splash_screen():
     supabase_client = get_supabase()
 
     # Render static Welcome message FIRST for instant feedback
+    # CR-20260423: Use st.image for flexibility. Replacing malformed base64 with file-based source.
+    # This allows the user to update the logo by simply replacing assets/winc-logo2.png.
+    
+    # Standard Centering Wrapper
+    st.markdown("<div style='text-align: center; padding: 6vh 2rem 1rem 2rem; max-width: 480px; margin: 0 auto;'>", unsafe_allow_html=True)
+    
+    # Progress UI
     st.markdown(
-        f"""<div style='
-            text-align: center;
-            padding: 6vh 2rem 1rem 2rem;
-            max-width: 480px;
-            margin: 0 auto;
-        '>
-        <h1 style='color: #10B981; margin-bottom: 0.4rem;'>🐢 Welcome!</h1>
-        <p style='color: #94A3B8; margin: 0.2rem 0;'>Let's get started. Who is working today?</p>
-        <p style='color: #94a3b8; font-size: 0.78em; margin-top: 0.6rem; letter-spacing: 0.04em;'>Clinical Standard {VERSION}</p>
+        f"""
+        <div style='text-align: center;'>
+            <h1 style='color: #10B981; margin-bottom: 0.4rem;'>🐢 Welcome!</h1>
+            <p style='color: #94A3B8; margin: 0.2rem 0;'>Let's get started. Who is working today?</p>
+            <p style='color: #94a3b8; font-size: 0.78em; margin-top: 0.6rem; letter-spacing: 0.04em;'>Version {get_app_version()}</p>
+        </div>
         </div>""",
         unsafe_allow_html=True,
     )
 
     # Use cached data to eliminate DB latency on repeated loads
+    import time
+    start_fetch = time.perf_counter()
+    print(f"[{time.strftime('%H:%M:%S')}] 🛠️ session.py: Calling fetch_active_observers")
+    
     active_observers = fetch_active_observers()
+    
+    end_fetch = time.perf_counter()
+    print(f"[{time.strftime('%H:%M:%S')}] ✅ session.py: fetch_active_observers returned in {end_fetch - start_fetch:.4f}s")
 
     if not active_observers:
         st.error("No active observers found in registry or connection failed.")

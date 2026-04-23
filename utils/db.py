@@ -50,7 +50,17 @@ def get_supabase_client() -> Client:
         st.stop()
 
     logger.info(f"🔌 Initializing Supabase Connection: {url[:40]}...")
-    return create_client(url, key)
+    
+    import time
+    start_init = time.perf_counter()
+    print(f"[{time.strftime('%H:%M:%S')}] 🛠️ db.py: Calling create_client")
+    
+    client = create_client(url, key)
+    
+    end_init = time.perf_counter()
+    print(f"[{time.strftime('%H:%M:%S')}] ✅ db.py: create_client returned in {end_init - start_init:.4f}s")
+    
+    return client
 
 
 # =============================================================================

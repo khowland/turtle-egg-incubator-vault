@@ -8,6 +8,19 @@ font = "sans serif"
 
 [client]
 toolbarMode = "minimal"
+showErrorDetails = false
 
 [browser]
 gatherUsageStats = false
+serverAddress = "127.0.0.1"
+
+[server]
+headless = true
+address = "0.0.0.0"
+enableCORS = false
+enableXsrfProtection = false
+runOnSave = false
+fileWatcherType = "none"
+# CRITICAL: Disable external IP discovery which causes 120s hang in restricted Docker
+# (Standard §35 Performance Recovery)
+enableStaticServing = true

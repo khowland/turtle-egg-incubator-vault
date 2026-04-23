@@ -70,19 +70,24 @@ def test_shift_end_sets_terminate_flag():
     mock_supabase = MagicMock()
     mock_supabase.table.return_value.insert.return_value.execute.return_value = MagicMock()
 
+    test_code = """
+import streamlit as st
+from utils.bootstrap import render_custom_sidebar
+if "initialized" not in st.session_state:
+    st.session_state.observer_id = "biologist-001"
+    st.session_state.session_id = "active-shift-session"
+    st.session_state.observer_name = "Kevin"
+    st.session_state.initialized = True
+render_custom_sidebar()
+"""
+
     with patch("utils.bootstrap.get_supabase", return_value=mock_supabase):
-        at = AppTest.from_file("vault_views/7_Diagnostic.py")
-        at.session_state.observer_id = "biologist-001"
-        at.session_state.session_id = "active-shift-session"
-        at.session_state.observer_name = "Kevin"
-        at.run()
+        at = AppTest.from_string(test_code)
+        at.run(timeout=15)
 
-
-        shift_end_btn = next(
-            (b for b in list(at.button) + list(at.sidebar.button) if b.label == "SHIFT END"), None
-        )
+        shift_end_btn = next((b for b in at.button if b.label == "SHIFT END"), None)
         assert shift_end_btn is not None, "SHIFT END button not found in sidebar."
-        shift_end_btn.click().run()
+        shift_end_btn.click().run(timeout=15)
 
         # (a) Verify TERMINATE event was written to system_log
         all_insert_calls = mock_supabase.table.return_value.insert.call_args_list

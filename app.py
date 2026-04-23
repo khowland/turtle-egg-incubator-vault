@@ -14,43 +14,55 @@ Description:   Core router mapping the session states to Views; Diagnostics for
 """
 
 import os
+import time
 from pathlib import Path
 import streamlit as st
+
+st.set_page_config(
+    page_title="WINC Incubator",
+    page_icon="🐢",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# SURGICAL DIAGNOSTIC: Start timing before any imports
+print(f"[{time.strftime('%H:%M:%S')}] 🔥 app.py: Starting absolute top-level execution")
+
 from utils.session import init_session
-from utils.bootstrap import bootstrap_page, VERSION
+from utils.bootstrap import bootstrap_page, get_app_version
+# VERSION = get_app_version() # No longer used as a top-level constant to avoid stale cache
 from utils.rbac import can_elevated_clinical_operations
 
+print(f"[{time.strftime('%H:%M:%S')}] 🚀 app.py: Core modules imported")
+
 # v8.0.0 Global Entry: Mount CSS Early to eliminate flickering
+print(f"[{time.strftime('%H:%M:%S')}] 🛠️ app.py: Calling bootstrap_page")
 bootstrap_page("WINC Incubator", "🐢", render_sidebar=False)
+print(f"[{time.strftime('%H:%M:%S')}] ✅ app.py: bootstrap_page complete")
+
+print(f"[{time.strftime('%H:%M:%S')}] 🛠️ app.py: Calling init_session")
 init_session()
+print(f"[{time.strftime('%H:%M:%S')}] ✅ app.py: init_session complete")
 
-# --- WINC Logo: pinned to top-left of sidebar via st.logo() ---
-# Prefers .jpg (opaque background) over .png (transparent) — CR-20260423
-_assets_dir = Path(__file__).parent / "assets"
-_logo_path = next(
-    (p for p in [_assets_dir / "winc-logo2.jpg", _assets_dir / "winc-logo2.png"] if p.exists()),
-    None
-)
-if _logo_path:
-    st.logo(str(_logo_path))
+# v8.1.4: Minimalist Clinical Standard (No Logo)
 
-# --- Bottom sidebar: user identity + version + SHIFT END ---
-# NOTE: With st.navigation(), ALL st.sidebar.* content appears BELOW nav links
-# regardless of call order. This is Streamlit's intended behaviour.
-# The spacer below pushes the identity block visually away from the last nav item
-# (~3 invisible menu-item heights + horizontal rule) per CR-20260423.
+# --- Sidebar Footer: User Identity + Version + Logout ---
 if st.session_state.get("observer_id"):
     st.sidebar.markdown(
         "<div style='"
-        "margin-top: 7rem;"
-        "padding-top: 0.75rem;"
+        "margin-top: 1rem;"
+        "padding-top: 1rem;"
         "border-top: 1px solid #334155;"
         "'>"
-        f"<span style='font-size: 0.88em; font-weight: 600; color: #e2e8f0;'>👤 {st.session_state.get('observer_name', 'User')}</span><br>"
-        f"<span style='font-size: 0.70em; color: #475569; letter-spacing: 0.03em;'>{VERSION}</span>"
+        f"<span style='font-size: 0.88em; font-weight: 600; color: #f8fafc;'>👤 {st.session_state.get('observer_name', 'User')}</span><br>"
+        f"<span style='font-size: 0.70em; color: #cbd5e1; letter-spacing: 0.03em; text-transform: lowercase;'>version {get_app_version()}</span><br><br>"
         "</div>",
         unsafe_allow_html=True,
     )
+    
+    # Render the consolidated Shift End button
+    from utils.bootstrap import render_custom_sidebar
+    render_custom_sidebar()
 
 # Navigation definition
 if not st.session_state.get("observer_id"):

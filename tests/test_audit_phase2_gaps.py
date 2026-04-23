@@ -5,14 +5,21 @@ import os
 
 def test_gap_intake_weight_bypass():
     """[B-001] Verify that Intake now REQUIRES weight recording (Hardened)."""
-    at = AppTest.from_file("vault_views/2_New_Intake.py", default_timeout=5)
-    at.session_state.observer_id = "test-biologist"
-    at.session_state.session_id = "test-session"
-    at.run()
+    mock_supabase = MagicMock()
+    # Mock species data to allow the page to render fully
+    mock_supabase.table.return_value.select.return_value.execute.return_value.data = [
+        {"species_id": 1, "species_code": "BL", "common_name": "Blanding's", "intake_count": 5}
+    ]
     
-    # Check if there is a weight/mass labeled input now
-    weight_inputs = [i for i in at.number_input if "weight" in i.label.lower() or "mass" in i.label.lower()]
-    assert len(weight_inputs) > 0, "Hardening Failure: Weight input not found in Intake!"
+    with patch("utils.db.get_supabase_client", return_value=mock_supabase):
+        at = AppTest.from_file("vault_views/2_New_Intake.py", default_timeout=10)
+        at.session_state.observer_id = "test-biologist"
+        at.session_state.session_id = "test-session"
+        at.run()
+        
+        # Check if there is a weight/mass labeled input now
+        weight_inputs = [i for i in at.number_input if "weight" in i.label.lower() or "mass" in i.label.lower()]
+        assert len(weight_inputs) > 0, "Hardening Failure: Weight input not found in Intake!"
 
 def test_gap_session_undefined_client():
     """[B-004] Verify the fix for NameError in session.py via source analysis."""

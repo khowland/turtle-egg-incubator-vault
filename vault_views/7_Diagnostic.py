@@ -13,11 +13,13 @@ Description:   System health checks prior to peak intake; navigation gated in ap
 """
 
 import streamlit as st
-from utils.bootstrap import bootstrap_page, safe_db_execute, VERSION
+from utils.bootstrap import bootstrap_page, safe_db_execute, get_app_version
 
 from utils.performance import track_view_performance
+from utils.bootstrap import render_custom_sidebar
 
 supabase_client = bootstrap_page("Diagnostics", "🛡️")
+render_custom_sidebar()
 
 with track_view_performance("Diagnostic"):
     st.title("🛡️ System Health & Diagnostic Suite")
