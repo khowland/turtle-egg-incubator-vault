@@ -1,0 +1,59 @@
+# =============================================================================
+# Workflow:  supabase_heartbeat.yml
+# Project:   WINC Incubator Vault
+# Purpose:   Prevents Supabase free-tier project from auto-pausing.
+#            Supabase pauses projects after 7 days of zero DB activity.
+#            This workflow runs a lightweight DB query daily to keep it alive.
+#
+# Schedule:  Daily at 08:17 UTC (off-hour to avoid predictable bot detection)
+#            Additional ping Wednesday 14:43 UTC for resilience
+#
+# Secrets:   Repository must have these secrets configured:
+#            Settings → Secrets and variables → Actions → New repository secret
+#              SUPABASE_URL              → your project URL
+#              SUPABASE_SERVICE_ROLE_KEY → service role key (NOT anon key)
+#
+# Script:    scripts/heartbeat_ping.py — performs a lightweight read on the
+#            species table and optionally writes a HEARTBEAT event to system_log
+# =============================================================================
+
+name: Supabase Heartbeat
+
+on:
+  schedule:
+    - cron: '17 8 * * *'    # Daily 08:17 UTC — off-hour, unpredictable
+    - cron: '43 14 * * 3'   # Wednesday 14:43 UTC — extra mid-week ping
+
+  # Allow manual trigger from GitHub Actions UI for immediate wake-up
+  workflow_dispatch:
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install supabase python-dotenv
+
+      - name: Run Supabase heartbeat ping
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python scripts/heartbeat_ping.py
+
+      - name: Report result
+        if: failure()
+        run: |
+          echo "⚠️  Heartbeat FAILED — Supabase may be paused."
+          echo "Manual recovery: log in to database.supabase.com and click Resume Project."
+          exit 1

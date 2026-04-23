@@ -1,0 +1,69 @@
+# =============================================================================
+# Workflow:  regenerate_pdf.yml
+# Project:   WINC Incubator Vault
+# Purpose:   Auto-regenerates the Operator Manual PDF whenever the source
+#            markdown file is updated. Keeps docs/user/OPERATOR_MANUAL_v*.pdf
+#            in sync with docs/user/OPERATOR_MANUAL.md at all times.
+#
+# Trigger:   Push to main that touches OPERATOR_MANUAL.md
+# Output:    Commits updated OPERATOR_MANUAL_v10_6_0.pdf back to main
+#
+# Note:      PDF generation requires reportlab, markdown2, beautifulsoup4.
+#            These are installed in the CI environment only (not in production
+#            requirements.txt) since PDF gen is a dev/doc task, not runtime.
+# =============================================================================
+
+name: Regenerate Operator Manual PDF
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/user/OPERATOR_MANUAL.md'
+      - 'scripts/generate_clinical_manual_pdf.py'
+      - 'assets/winc-logo2.png'
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  regenerate-pdf:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to commit the PDF back to the repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PDF generation dependencies
+        run: |
+          pip install reportlab markdown2 beautifulsoup4 Pillow
+
+      - name: Regenerate Operator Manual PDF
+        run: |
+          python scripts/generate_clinical_manual_pdf.py
+          echo "PDF generation complete"
+
+      - name: Commit updated PDF if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Only commit if the PDF actually changed
+          if git diff --quiet docs/user/OPERATOR_MANUAL_v10_6_0.pdf; then
+            echo "PDF unchanged — no commit needed"
+          else
+            git add docs/user/OPERATOR_MANUAL_v10_6_0.pdf
+            git commit -m "docs(auto): Regenerate Operator Manual PDF [skip ci]"
+            git push
+            echo "Updated PDF committed and pushed"
+          fi
