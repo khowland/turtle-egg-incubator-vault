@@ -56,15 +56,20 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
     if st.session_state.get("observer_id") and render_sidebar:
         render_custom_sidebar()
 
-    # Bug-PERF-001: Non-blocking font loading via preconnect + async link
-    # This replaces the old blocking @import url() that caused ~120s delays
-    # in Docker/network-restricted environments. See: tests/resolved_bugs/Bug-PERF-001_resolution.md
-    st.markdown(
-        '<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>'
-        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-        '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" media="print" onload="this.media=\'all\'">',
-        unsafe_allow_html=True,
-    )
+    # Bug-PERF-001 FINAL FIX (2026-04-23): Remove ALL external font references.
+    # HISTORY: Original @import url(fonts.googleapis.com) caused ~120s blocking delay.
+    # ATTEMPTED FIX: Replaced with preconnect + async <link> — still caused ~120s delay
+    #   in local Docker because preconnect hints themselves trigger outbound TCP connections
+    #   that time out after 2 minutes in Docker NAT networking on Windows.
+    # ROOT CAUSE: ANY outbound connection to fonts.googleapis.com or fonts.gstatic.com
+    #   causes the Docker browser client to wait for TCP timeout (~120s) before giving up.
+    # FINAL FIX: Remove ALL Google Fonts references entirely. Use system font stack only.
+    #   System fonts (Segoe UI, -apple-system, Roboto) are visually identical to Inter
+    #   and require zero network requests.
+    # WHY STREAMLIT CLOUD WAS FAST: Cloud servers have full internet access, fonts loaded
+    #   in <100ms. Local Docker has restricted outbound networking, causing 2min timeout.
+    # DO NOT re-add any fonts.googleapis.com or fonts.gstatic.com references.
+
 
     st.markdown(
         f"""
