@@ -1,18 +1,23 @@
 # CURRENT AGENT HANDOFF STATE & BREADCRUMBS
-**Last Updated:** Session Transition
+**Last Updated:** 2026-04-23
 **Methodology Alignment:** Strict adherence to `implied_system_objective.md` and "Zero-Defect Red Team Testing".
 
 ## 📍 Where We Are
-We have successfully implemented ALL items from the recent Change Requests (CR #1 through CR #9). 
-The database schema has been successfully updated by the user in the live Supabase instance (JSONB column added, and `vault_supplemental_intake` / `vault_finalize_intake` RPCs updated/created).
-The legacy mocked `AppTest` suite has been completely replaced with a true End-to-End (E2E) Playwright suite combined with direct PostgreSQL forensic assertions.
+We resumed the authorized pytest + Playwright verification flow from the prior handoff checkpoint.
+The first execution attempt of `./scripts/run_e2e_tests.sh` did **not** reach application assertions because the active Linux interpreter (`/opt/venv/bin/python3`) was missing required testing packages.
+That environment blocker has now been remediated by installing the repository's declared test dependencies from `requirements.txt` and provisioning the Playwright Chromium browser in the active container environment.
 
 ## 🧠 What Was Accomplished This Session
-1. **Clinical JSONB Metadata:** Added extensible tracking for covariates (Condition, Collection Method).
-2. **Supplemental Intake Workflow:** Handled laying mothers via an atomic RPC that locks the DB, increments eggs safely, and inserts S1 baselines without overwriting existing eggs.
-3. **Zero-Defect Testing Migration:** Built Playwright + DB assertion tests (`tests/e2e_playwright/test_adversarial_forensic.py`) to stop false-positive passes.
-4. **Database Blockers Resolved:** The user manually executed the required SQL migrations in Supabase, removing the 403 API blockers.
+1. **KB-First Triage:** Confirmed the QA methodology and central hub before treating the failure as novel.
+2. **Root Cause Isolation:** Identified the failure as an environment/dependency blocker rather than a UI-to-database application regression.
+3. **Environment Remediation:** Installed the repo-declared test stack into the active Linux runtime:
+   - `pytest`
+   - `pytest-playwright`
+   - associated Python dependencies from `requirements.txt`
+   - Playwright Chromium browser via `python3 -m playwright install chromium`
+4. **Persistent Documentation:** Logged the blocker and remediation in `tests/resolved_bugs/Bug-ENV-001_resolution.md` and linked it from `tests/resolved_bugs/00_CENTRAL_HUB.md`.
 
 ## ⏭️ Next Steps for the Next Agent (NEW SESSION)
-1. **Execute E2E Tests:** Use the automated bash script `./scripts/run_e2e_tests.sh` to boot Streamlit on port 8501, run the new E2E Playwright suite (`tests/e2e_playwright/test_adversarial_forensic.py`), and automatically tear down the server.
-2. **Fix Genuine Defects:** If the E2E tests fail, it means there is a true UI-to-Database desync. Read the traceback, fix the application logic, and re-run until a perfect, zero-defect pass is achieved.
+1. **Review the latest E2E run output** from the post-install execution of `./scripts/run_e2e_tests.sh`.
+2. **Treat any remaining failures as genuine defects** now that the environment blocker is resolved.
+3. **If code changes are required**, localize the defect, patch minimally, rerun the affected suite, and document the fix in `tests/resolved_bugs/` plus the central hub.
