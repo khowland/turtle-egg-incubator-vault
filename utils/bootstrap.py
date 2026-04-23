@@ -102,6 +102,18 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
         [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarNav"] span {{
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             font-size: {st.session_state.global_font_size}px !important;
+
+        /* CR-20260423: Force WINC logo (st.logo) to fill full sidebar width */
+        [data-testid="stLogo"] {{
+            padding: 8px 0.5rem 4px 0.5rem !important;
+            width: 100% !important;
+        }}
+        [data-testid="stLogo"] img {{
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            object-fit: contain !important;
+            display: block !important;
         }}
         
         .stMarkdown, p, label, .stButton > button, .stSelectbox, .stTextInput, .stNumberInput, .stTextArea {{

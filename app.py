@@ -37,14 +37,17 @@ if _logo_path:
 # --- Bottom sidebar: user identity + version + SHIFT END ---
 # NOTE: With st.navigation(), ALL st.sidebar.* content appears BELOW nav links
 # regardless of call order. This is Streamlit's intended behaviour.
-# The user/version block is intentionally at the bottom, tucked below nav,
-# with a spacer for visual breathing room (per CR-20260423).
+# The spacer below pushes the identity block visually away from the last nav item
+# (~3 invisible menu-item heights + horizontal rule) per CR-20260423.
 if st.session_state.get("observer_id"):
-    # Spacer pushes identity block visually away from nav items
     st.sidebar.markdown(
-        "<div style='margin-top: 2rem; padding-top: 0.5rem; border-top: 1px solid #1e293b;'>"
-        f"<span style='font-size: 0.9em; font-weight: 600;'>👤 {st.session_state.get('observer_name', 'User')}</span><br>"
-        f"<span style='font-size: 0.72em; color: #475569;'>{VERSION}</span>"
+        "<div style='"
+        "margin-top: 7rem;"
+        "padding-top: 0.75rem;"
+        "border-top: 1px solid #334155;"
+        "'>"
+        f"<span style='font-size: 0.88em; font-weight: 600; color: #e2e8f0;'>👤 {st.session_state.get('observer_name', 'User')}</span><br>"
+        f"<span style='font-size: 0.70em; color: #475569; letter-spacing: 0.03em;'>{VERSION}</span>"
         "</div>",
         unsafe_allow_html=True,
     )
