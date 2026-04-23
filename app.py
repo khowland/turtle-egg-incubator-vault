@@ -31,10 +31,10 @@ else:
     # Full menu visible when logged in
     pages = [
         st.Page("vault_views/1_Dashboard.py", title="Today's Summary", icon="📊"),
-        st.Page("vault_views/2_New_Intake.py", title="Add New Eggs", icon="🐣"),
+        st.Page("vault_views/2_New_Intake.py", title="Intake", icon="🐣"),
         st.Page("vault_views/3_Observations.py", title="Observations", icon="🔍"),
-        st.Page("vault_views/5_Settings.py", title="Vault Administration", icon="⚙️"),
-        st.Page("vault_views/6_Reports.py", title="Egg Reports & Analytics", icon="📈"),
+        st.Page("vault_views/5_Settings.py", title="Settings", icon="⚙️"),
+        st.Page("vault_views/6_Reports.py", title="Reports", icon="📈"),
     ]
     pages.append(
         st.Page("vault_views/7_Diagnostic.py", title="System Check", icon="🩺")
