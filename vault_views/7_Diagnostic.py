@@ -13,7 +13,8 @@ Description:   System health checks prior to peak intake; navigation gated in ap
 """
 
 import streamlit as st
-from utils.bootstrap import bootstrap_page, safe_db_execute
+from utils.bootstrap import bootstrap_page, safe_db_execute, VERSION
+
 from utils.performance import track_view_performance
 
 supabase_client = bootstrap_page("Diagnostics", "🛡️")
@@ -80,4 +81,4 @@ with track_view_performance("Diagnostic"):
             st.warning("⚠️ No recent logs found in this context.")
 
     st.divider()
-    st.caption("WINC Clinical Standard v8.1.1 — Diagnostic")
+    st.caption(f"WINC Clinical Standard {VERSION} — Diagnostic")

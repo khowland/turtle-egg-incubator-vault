@@ -191,9 +191,11 @@ ON CONFLICT (stage_id) DO NOTHING;
 
 -- Populate Initial Clinical Observers (Seed Users)
 -- Note: Replace these with official WINC Staff Registry during first log-in.
-INSERT INTO public.observer (observer_name) VALUES
-('WINC Staff'),
-('Volunteer Biologist')
+INSERT INTO public.observer (observer_name)
+VALUES 
+    ('Elisa Fosco'),
+    ('Kevin Howland'),
+    ('Kylie Kroscher')
 ON CONFLICT DO NOTHING;
 
 COMMIT;

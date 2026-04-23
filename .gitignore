@@ -52,3 +52,6 @@ data/v1_backup.sql
 
 # Production Release: Ignore local devtools
 devtools/
+deploy_and_test.py
+
+secrets.toml

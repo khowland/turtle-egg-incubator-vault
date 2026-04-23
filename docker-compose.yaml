@@ -35,6 +35,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: TurtleDB_Production_Vault
+    volumes:
+      - .:/app
     ports:
       - "${AXIS_PORT:-8080}:8080"
     env_file: .env

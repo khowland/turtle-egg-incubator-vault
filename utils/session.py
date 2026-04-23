@@ -17,7 +17,7 @@ import uuid
 import os
 from datetime import datetime, timedelta, timezone
 from utils.db import get_supabase
-from utils.bootstrap import get_resilient_table
+from utils.bootstrap import get_resilient_table, VERSION
 from utils.logger import logger
 
 
@@ -60,7 +60,7 @@ def show_splash_screen():
 
     # Render static Welcome message FIRST for instant feedback
     st.markdown(
-        "<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p><p style='color: #475569; font-size: 0.8em; margin-top: 20px;'>Clinical Standard v8.1.1</p></div>",
+        f"<div style='text-align: center; padding: 50px;'><h1 style='color: #10B981;'>🐢 Welcome!</h1><p style='color: #94A3B8;'>Let's get started. Who is working today?</p><p style='color: #475569; font-size: 0.8em; margin-top: 20px;'>Clinical Standard {VERSION}</p></div>",
         unsafe_allow_html=True,
     )
 

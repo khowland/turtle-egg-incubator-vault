@@ -1,0 +1,28 @@
+site_name: Incubator Vault (WINC)
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: teal
+    accent: cyan
+  features:
+    - navigation.tabs
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          setup_python_path: True
+          import_dirs: [ "." ]
+
+nav:
+  - Home: index.md
+  - Operator Manual: user/OPERATOR_MANUAL.md
+  - Engineering Standards: tests/resolved_bugs/QA_METHODOLOGY.md
+  - API Reference:
+      - Bootstrap: api/bootstrap.md
+      - Database: api/db.md

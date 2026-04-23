@@ -17,6 +17,9 @@ import uuid
 import datetime
 from utils.db import get_supabase
 
+VERSION = "v8.1.1"
+
+
 
 def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
     """
@@ -169,6 +172,7 @@ def render_custom_sidebar():
         st.session_state.env_gate_synced = False
         st.rerun()
     st.sidebar.divider()
+    st.sidebar.caption(f"Clinical Standard {VERSION}")
 
 
 @st.cache_resource(ttl=3600)
