@@ -15,6 +15,7 @@ Description:   Program analytics, hatchling trends, flattened CSV and versioned
 
 import streamlit as st
 import pandas as pd
+import datetime
 import plotly.express as px
 from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
 from utils.rbac import can_elevated_clinical_operations
@@ -22,9 +23,9 @@ from utils.wormd_export import build_flat_case_csv, build_wormd_intake_json_bund
 from utils.performance import track_view_performance
 
 with track_view_performance("Reports"):
-    supabase_client = bootstrap_page("Egg Reports & Analytics", "📈")
+    supabase_client = bootstrap_page("Reports", "📈")
 
-    st.title("🛡️ Egg Reports & Analytics")
+    st.title("🛡️ Reports")
 
     # =============================================================================
     # SIDEBAR: Filters & WormD export (ISS-2)
@@ -405,21 +406,44 @@ with track_view_performance("Reports"):
                 st.info("Awaiting hatchling_ledger rows (S6 transitions).")
 
         with report_tabs[3]:
-            st.subheader("🛡️ Clinical Audit Trial")
+            st.subheader("🛡️ Clinical Activity History")
             st.caption("Forensic record of exports, shift ends, and clinical corrections.")
             
+            col_rf1, col_rf2 = st.columns(2)
+            with col_rf1:
+                start_date_r = st.date_input("From", datetime.date.today() - datetime.timedelta(days=7), key="rep_start_date")
+            with col_rf2:
+                end_date_r = st.date_input("To", datetime.date.today(), key="rep_end_date")
+
             audit_events = (
                 supabase_client.table("system_log")
                 .select("timestamp, event_type, event_message")
-                .in_("event_type", ["EXPORT", "VOID", "TERMINATE"])
+                .in_("event_type", ["EXPORT", "VOID", "TERMINATE", "AUDIT", "ROLLBACK", "RESTORE"])
                 .order("timestamp", desc=True)
-                .limit(100)
                 .execute()
                 .data
                 or []
             )
+            
             if audit_events:
-                st.dataframe(pd.DataFrame(audit_events), use_container_width=True)
+                df_audit = pd.DataFrame(audit_events)
+                df_audit['timestamp'] = pd.to_datetime(df_audit['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
+                
+                # Filter by date range
+                mask_r = (pd.to_datetime(df_audit['timestamp']).dt.date >= start_date_r) & (pd.to_datetime(df_audit['timestamp']).dt.date <= end_date_r)
+                df_filtered_r = df_audit.loc[mask_r]
+                
+                st.dataframe(df_filtered_r, use_container_width=True, hide_index=True)
+                
+                if not df_filtered_r.empty:
+                    st.download_button(
+                        "💾 Download Export Activity (CSV)",
+                        df_filtered_r.to_csv(index=False),
+                        f"clinical_activity_{start_date_r}_to_{end_date_r}.csv",
+                        "text/csv",
+                        use_container_width=True,
+                        key="rep_dl_btn"
+                    )
             else:
                 st.caption("No audit events recorded.")
 

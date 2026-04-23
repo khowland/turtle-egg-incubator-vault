@@ -22,10 +22,10 @@ from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
 from utils.logger import logger
 from utils.performance import track_view_performance
 
-supabase = bootstrap_page("New Intake", "🛡️")
+supabase = bootstrap_page("Intake", "🛡️")
 
-with track_view_performance("New Intake"):
-    st.title("🛡️ New Intake")
+with track_view_performance("Intake"):
+    st.title("🛡️ Intake")
 
     with st.sidebar.expander("ℹ️ Screen Help - Step-by-Step"):
         st.markdown("""
@@ -90,7 +90,7 @@ with track_view_performance("New Intake"):
 
         l_col1, l_col2, l_col3 = st.columns(3)
         finder_name = l_col1.text_input(
-            "Who found the turtle?", help="Letters and numbers only."
+            "Finder", help="Letters and numbers only."
         )
 
         # Validation Gate: Ensure no special characters in identity prefix
@@ -103,7 +103,7 @@ with track_view_performance("New Intake"):
             st.warning("⚠️ Names can only have letters, numbers, and spaces.")
 
         intake_condition = l_col2.selectbox(
-            "Condition of Intake", ["Alive", "Injured", "Dead (Salvage)"], index=0
+            "Condition", ["Alive", "Injured", "Dead (Salvage)"], index=0
         )
         extraction_method = l_col3.selectbox(
             "Collection Method",
@@ -133,65 +133,43 @@ with track_view_performance("New Intake"):
         next_case_num = selected_species["intake_count"] + 1
 
         # Configuration Loop (Mandatory Clinical Metrics §2)
-        for i, row in enumerate(st.session_state.bin_rows):
-            st.markdown(f"#### Bin #{i+1}")
-            cols = st.columns([1, 1, 2])
-            with cols[0]:
-                row["egg_count"] = st.number_input(
-                    "Total Eggs", 1, 99, row["egg_count"], key=f"egg_{i}"
-                )
-            with cols[1]:
-                row["shelf"] = st.text_input(
-                    "Shelf Location", row.get("shelf", ""), placeholder="e.g. A1-South", key=f"shelf_{i}"
-                )
-            with cols[2]:
-                row["notes"] = st.text_input(
-                    "Setup Notes", row["notes"], placeholder="e.g., 1:1 Vermiculite", key=f"note_{i}"
-                )
-            
-            # Row 2: Mass, Temp, Substrate (B-001)
-            c2 = st.columns([2, 2, 2, 1])
-            with c2[0]:
-                row["mass"] = st.number_input(
-                    "Initial Mass (g)", 0.0, 5000.0, row.get("mass", 0.0), step=0.01, 
-                    help="Mandatory Weight check §2", key=f"mass_{i}"
-                )
-            with c2[1]:
-                row["temp"] = st.number_input(
-                    "Incubator Temp (°C)", 15.0, 45.0, row.get("temp", 28.0), step=0.1, key=f"temp_{i}"
-                )
-            with c2[2]:
-                row["substrate"] = st.selectbox(
-                    "Substrate", ["Vermiculite", "Perlite", "Soil", "Paper Towel", "Sand", "Other"],
-                    index=["Vermiculite", "Perlite", "Soil", "Paper Towel", "Sand", "Other"].index(row["substrate"]),
-                    help="Clinical Standard: Vermiculite", key=f"sub_{i}"
-                )
-            with c2[3]:
-                if st.button("❌", key=f"del_{i}", help="REMOVE"):
-                    st.session_state.bin_rows.pop(i)
-                    for idx, r in enumerate(st.session_state.bin_rows):
-                        r["bin_num"] = idx + 1
-                    st.rerun()
-            
-            st.divider()
+        st.markdown("#### Bin Configuration")
+        import pandas as pd
 
-        if st.button("ADD", help="Add another bin", type="secondary"):
-            if len(st.session_state.bin_rows) < 9:
-                st.session_state.bin_rows.append(
-                    {
-                        "bin_num": len(st.session_state.bin_rows) + 1,
-                        "egg_count": 1,
-                        "notes": "Initial Intake",
-                        "mass": 0.0,
-                        "temp": 28.0,
-                        "substrate": "Vermiculite",
-                        "shelf": ""
-                    }
-                )
-                st.rerun()
+        # Ensure data is consistent for DataFrame
+        for r in st.session_state.bin_rows:
+            if "mass" not in r: r["mass"] = 0.0
+            if "temp" not in r: r["temp"] = 28.0
+            if "substrate" not in r: r["substrate"] = "Vermiculite"
+            if "shelf" not in r: r["shelf"] = ""
+            if "notes" not in r: r["notes"] = "Initial Intake"
 
+        df = pd.DataFrame(st.session_state.bin_rows)
 
-    # --- ATOMIC COMMIT ---
+        edited_df = st.data_editor(
+            df,
+            num_rows="dynamic",
+            use_container_width=True,
+            column_config={
+                "bin_num": st.column_config.NumberColumn("Bin #", disabled=True),
+                "egg_count": st.column_config.NumberColumn("Total Eggs", min_value=1, max_value=99, required=True),
+                "shelf": st.column_config.TextColumn("Shelf Location"),
+                "notes": st.column_config.TextColumn("Setup Notes"),
+                "mass": st.column_config.NumberColumn("Initial Mass (g)", min_value=0.0, format="%.2f", required=True),
+                "temp": st.column_config.NumberColumn("Incubator Temp (°C)", min_value=15.0, max_value=45.0, format="%.1f"),
+                "substrate": st.column_config.SelectboxColumn("Substrate", options=["Vermiculite", "Perlite", "Soil", "Paper Towel", "Sand", "Other"], required=True)
+            },
+            key="bin_data_editor"
+        )
+
+        # Synchronize back to session state
+        st.session_state.bin_rows = edited_df.to_dict("records")
+        # Ensure bin_num remains sequential after any native row additions/deletions
+        for idx, r in enumerate(st.session_state.bin_rows):
+            r["bin_num"] = idx + 1
+
+        # --- ATOMIC COMMIT ---
+
     btn_col1, btn_col2 = st.columns([1, 4])
     if btn_col1.button("CANCEL", use_container_width=True, type="secondary", key="intake_cancel"):
         st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
@@ -207,7 +185,7 @@ with track_view_performance("New Intake"):
         
         # Extended Validation for hardened requirements
         if len(st.session_state.bin_rows) == 0:
-            st.error("❌ Missing Information: An intake must have at least one Bin. Please click 'ADD NEW BIN'.")
+            st.error("❌ Missing Information: An intake must have at least one Bin. Please click the '➕' icon.")
             st.stop()
             
         for idx, brow in enumerate(st.session_state.bin_rows):

@@ -15,6 +15,7 @@ Description:   Hardened lookup CRUD, accessibility controls, Resurrection Vault
 
 import streamlit as st
 import pandas as pd
+import datetime
 from utils.bootstrap import bootstrap_page, safe_db_execute
 from utils.rbac import can_elevated_clinical_operations
 from utils.performance import track_view_performance
@@ -35,9 +36,9 @@ with track_view_performance("Settings"):
     )
 
 if is_locked:
-    st.error("🔒 **LOCKED**: Lookup tables are in exact READ-ONLY mode.")
+    st.error("🔒 **LOCKED**: Registry Protection is active. Historical records are protected from accidental edits.")
 else:
-    st.success("🔓 **MAINTENANCE MODE**: Lookups are freely editable.")
+    st.success("🔓 **EDITING ENABLED**: Registry Protection is OFF (Lookups are freely editable).")
 
 # =============================================================================
 # REQ: High-Visibility Accessibility Suite v7.8.2
@@ -77,7 +78,7 @@ tabs = st.tabs(
         "🐢 Species Config",
         "📊 Stages & Icons",
         "📦 Resurrection Vault",
-        "📜 Audit Log",
+        "📜 Activity Log",
         "🛡️ Backup & Restore (Red Team)",
     ]
 )
@@ -278,7 +279,7 @@ with tabs[3]:
                     if ghost_count > 0:
                         c1.error(f"⚠️ **GHOST DATA DETECTED**: {ghost_count} 'Active' eggs are trapped in this deleted bin.")
                     c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")
-                    if c2.button("ADD", key=f"res_bin_{rb['bin_id']}", help=f"Restore Bin {rb['bin_id']} to active workbench"):
+                    if c2.button("➕", key=f"res_bin_{rb['bin_id']}", help=f"Restore Bin {rb['bin_id']} to active workbench"):
 
                         def restore_bin():
                             supabase.table("bin").update({"is_deleted": False}).eq(
@@ -311,7 +312,7 @@ with tabs[3]:
                     c1, c2 = st.columns([3, 1])
                     c1.write(f"**Case: {rm['intake_name']}**")
                     c1.caption(f"ID: {rm['intake_id']}")
-                    if c2.button("ADD", key=f"res_mom_{rm['intake_id']}", help=f"Restore case {rm['intake_name']} to active circulation"):
+                    if c2.button("➕", key=f"res_mom_{rm['intake_id']}", help=f"Restore case {rm['intake_name']} to active circulation"):
 
                         def restore_mom():
                             supabase.table("intake").update(
@@ -329,16 +330,42 @@ with tabs[3]:
                         st.rerun()
 
 with tabs[4]:
-    st.subheader("📜 System Audit History")
-    logs = (
+    st.subheader("📜 System Activity History")
+    
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        start_date = st.date_input("From", datetime.date.today() - datetime.timedelta(days=7))
+    with col_f2:
+        end_date = st.date_input("To", datetime.date.today())
+
+    logs_raw = (
         supabase.table("system_log")
-        .select("*")
+        .select("timestamp, event_type, event_message")
         .order("timestamp", desc=True)
-        .limit(50)
         .execute()
         .data
     )
-    st.dataframe(pd.DataFrame(logs), use_container_width=True)
+    
+    if logs_raw:
+        df_logs = pd.DataFrame(logs_raw)
+        df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Filter by date range
+        mask = (pd.to_datetime(df_logs['timestamp']).dt.date >= start_date) & (pd.to_datetime(df_logs['timestamp']).dt.date <= end_date)
+        df_filtered = df_logs.loc[mask]
+        
+        st.dataframe(df_filtered, use_container_width=True, hide_index=True)
+        
+        if not df_filtered.empty:
+            st.download_button(
+                "💾 Download Activity Log (CSV)",
+                df_filtered.to_csv(index=False),
+                f"activity_log_{start_date}_to_{end_date}.csv",
+                "text/csv",
+                use_container_width=True
+            )
+    else:
+        st.info("No activity recorded in the database.")
 
 with tabs[5]:
     st.subheader("🛡️ Backup & Restore (Red Team)")

@@ -145,7 +145,7 @@ with track_view_performance("Dashboard"):
             )
 
             if action_col.button(
-                "REMOVE",
+                "🗑️ DELETE",
                 disabled=not confirmation_toggle,
                 use_container_width=True,
                 type="primary",

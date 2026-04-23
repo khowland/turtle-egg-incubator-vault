@@ -15,7 +15,7 @@ To ensure long-term maintainability for nonprofit staff, the following standards
 1.  **Project Organization**: All technical documentation, migration guides, and specifications must reside in the `/docs` folder.
 2.  **Naming Convention (§35)**: Strict adherence to `singular_snake_case` for all database columns and code variables.
 3.  **Atomic Transactions**: Multi-table clinical writes (e.g., Intake) **must** utilize a single database transaction via the `vault_finalize_intake` RPC.
-4.  **Unified Vocabulary (UI Standard)**: All interactive buttons must follow the standardized labels: **SAVE**, **CANCEL**, **ADD**, **REMOVE**, and **START**.
+4.  **Unified Vocabulary (UI Standard)**: Form action buttons must follow the standardized labels: **SAVE**, **CANCEL**, and **START**. For tabular row operations, the system must prioritize native `st.data_editor` controls. If manual tables are absolutely necessary, they must match native iconography: **➕ (Add)** and **🗑️ (Delete)**, strictly avoiding text-based buttons like "REMOVE" or "ADD NEW".
 
 ### 🎨 Visual Branding & UI Font Case Standards
 To ensure consistent legibility and professional aesthetic:
@@ -31,13 +31,8 @@ Consistent color-coding is required to minimize user error:
 graph LR
     SAVE["SAVE (Green)"]
     CANCEL["CANCEL (Red)"]
-    ADD["ADD (Blue)"]
-    REMOVE["REMOVE (X)"]
-
     style SAVE fill:#10b981,color:#fff
     style CANCEL fill:#ef4444,color:#fff
-    style ADD fill:#3b82f6,color:#fff
-    style REMOVE fill:#f87171,color:#fff
 ```
 
 ---

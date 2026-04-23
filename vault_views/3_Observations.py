@@ -68,7 +68,7 @@ with track_view_performance("Observations"):
             m_map = {m["intake_name"]: m["intake_id"] for m in all_mothers.data}
             target_m = st.selectbox("Select Intake/Case", list(m_map.keys()), key="sup_m")
             new_bin_code = st.text_input("New Bin ID", placeholder="OB1-NAME-2")
-            if st.button("ADD", help="Create Supplemental Bin"):
+            if st.button("➕", help="Create Supplemental Bin"):
 
                 def create_sup_bin():
                     supabase.table("bin").insert(
@@ -111,7 +111,6 @@ with track_view_performance("Observations"):
 
             if st.button("SAVE", type="primary",
                 help="Append & Recalibrate",
-                type="primary",
                 disabled=st.session_state.get("is_submitting", False),
             ):
 
@@ -326,7 +325,7 @@ with track_view_performance("Observations"):
                 )
 
                 st.info("💡 **Clinical Requirement**: Record weights then press **SAVE** to unlock the observation grid.")
-                if st.button("SAVE", type="primary", type="primary", use_container_width=True, help="Record weights and unlock the Egg Observation grid"):
+                if st.button("SAVE", type="primary", use_container_width=True, help="Record weights and unlock the Egg Observation grid"):
 
                     def unlock():
                         get_resilient_table(supabase, "bin_observation").insert(
@@ -450,7 +449,7 @@ with track_view_performance("Observations"):
                         )
                         # §4.2: LIFO Rollback Gate
                         is_latest = (h["egg_observation_id"] == history_active[0]["egg_observation_id"])
-                        if cols[1].button("REMOVE", key=f"void_{h['egg_observation_id']}", disabled=not is_latest):
+                        if cols[1].button("🗑️", key=f"void_{h['egg_observation_id']}", disabled=not is_latest):
 
                             def surgical_void():
                                 reason = (
@@ -712,7 +711,7 @@ with track_view_performance("Observations"):
                     placeholder="Describe unusual observations...",
                 )
 
-                if st.button("SAVE", type="primary", type="primary", use_container_width=True, key="obs_matrix_save"):
+                if st.button("SAVE", type="primary", use_container_width=True, key="obs_matrix_save"):
 
                     def commit_batch():
                         obs_payload = []
@@ -822,7 +821,7 @@ with track_view_performance("Observations"):
     # 5. DIAGNOSTIC LOG
     # ------------------------------------------------------------------------------
     if not st.session_state.surgical_resurrection:
-        with st.expander("📊 Live Session Audit"):
+        with st.expander("📊 Activity Log"):
             logs = (
                 get_resilient_table(supabase, "egg_observation")
                 .select("*")
