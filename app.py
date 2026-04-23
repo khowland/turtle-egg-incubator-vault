@@ -14,45 +14,44 @@ Description:   Core router mapping the session states to Views; Diagnostics for
 """
 
 import os
+from pathlib import Path
 import streamlit as st
 from utils.session import init_session
 from utils.bootstrap import bootstrap_page, VERSION
 from utils.rbac import can_elevated_clinical_operations
 
 # v8.0.0 Global Entry: Mount CSS Early to eliminate flickering
-# render_sidebar=False: sidebar identity rendered here in app.py instead,
-# so it appears ABOVE st.navigation() links (not below them)
 bootstrap_page("WINC Incubator", "🐢", render_sidebar=False)
 init_session()
 
-# --- WINC Logo: pinned to absolute top-left of sidebar via st.logo() ---
-# st.logo() is the official Streamlit API for top-of-nav logo placement.
-# It renders ABOVE all navigation items, unlike st.sidebar.image() which
-# gets pushed below nav links when st.navigation() is active.
-# CR-20260423: Fixes logo/user not appearing at top of sidebar.
-_logo_path = os.path.join(os.path.dirname(__file__), "assets", "winc-logo2.png")
-if os.path.exists(_logo_path):
-    st.logo(_logo_path)
+# --- WINC Logo: pinned to top-left of sidebar via st.logo() ---
+# Uses Path(__file__).parent for absolute path resolution on Streamlit Cloud.
+# st.logo() is the ONLY official Streamlit API for placing content above
+# st.navigation() links. st.sidebar.image() and st.sidebar.markdown() always
+# render BELOW nav links when st.navigation() is active (by design).
+_logo_path = Path(__file__).parent / "assets" / "winc-logo2.png"
+if _logo_path.exists():
+    st.logo(str(_logo_path))
 
-# --- User identity + version: added to sidebar BEFORE st.navigation() ---
-# Content added to st.sidebar before st.navigation() appears between the
-# logo and the navigation links — exactly where we want it.
+# --- Bottom sidebar: user identity + version + SHIFT END ---
+# NOTE: With st.navigation(), ALL st.sidebar.* content appears BELOW nav links
+# regardless of call order. This is Streamlit's intended behaviour.
+# The user/version block is intentionally at the bottom, tucked below nav,
+# with a spacer for visual breathing room (per CR-20260423).
 if st.session_state.get("observer_id"):
+    # Spacer pushes identity block visually away from nav items
     st.sidebar.markdown(
-        f"<div style='padding: 0.15rem 0 0.5rem 0;'>"
-        f"<span style='font-size: 0.95em; font-weight: 600;'>👤 {st.session_state.get('observer_name', 'User')}</span><br>"
-        f"<span style='font-size: 0.75em; color: #64748b;'>{VERSION}</span>"
-        f"</div>",
+        "<div style='margin-top: 2rem; padding-top: 0.5rem; border-top: 1px solid #1e293b;'>"
+        f"<span style='font-size: 0.9em; font-weight: 600;'>👤 {st.session_state.get('observer_name', 'User')}</span><br>"
+        f"<span style='font-size: 0.72em; color: #475569;'>{VERSION}</span>"
+        "</div>",
         unsafe_allow_html=True,
     )
-    st.sidebar.divider()
 
 # Navigation definition
 if not st.session_state.get("observer_id"):
-    # ONLY Login page visible when not logged in
     pages = [st.Page("vault_views/0_Login.py", title="Welcome", icon="🐢")]
 else:
-    # Full menu visible when logged in
     pages = [
         st.Page("vault_views/1_Dashboard.py", title="Today's Summary", icon="📊"),
         st.Page("vault_views/2_New_Intake.py", title="Intake", icon="🐣"),
@@ -60,9 +59,7 @@ else:
         st.Page("vault_views/5_Settings.py", title="Settings", icon="⚙️"),
         st.Page("vault_views/6_Reports.py", title="Reports", icon="📈"),
     ]
-    pages.append(
-        st.Page("vault_views/7_Diagnostic.py", title="System Check", icon="🩺")
-    )
+    pages.append(st.Page("vault_views/7_Diagnostic.py", title="System Check", icon="🩺"))
     pages.append(st.Page("vault_views/8_Help.py", title="Help", icon="📚"))
 
 pg = st.navigation(pages)
