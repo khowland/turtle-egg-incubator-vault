@@ -147,8 +147,8 @@ def show_splash_screen():
                                 current_generated_id = last_session_query.data[0]["session_id"]
                                 st.session_state.session_id = current_generated_id
                                 
-                                # Enhanced Mobile Resilience Notice (§36.2)
-                                st.success(f"📟 **BIO-RECOVERY**: Welcome back, {st.session_state.observer_name}. Clinical shift resumed.")
+                                # CR-20260423-111948: Standardized audit vocabulary
+                                st.success(f"✅ **Session resumed**: Welcome back, {st.session_state.observer_name}.")
                                 st.info("💡 **Note**: If you just switched back from another app, your last recorded action is saved in the **Activity Log**.")
                                 
                                 resuming_user_name = last_session_query.data[0][
@@ -163,7 +163,7 @@ def show_splash_screen():
                     st.session_state.session_id = current_generated_id
                     
                     if resuming_user_name:
-                        st.session_state.resume_notice = f"🔄 **BIO-RECOVERY**: Resuming active shift for **{resuming_user_name}**"
+                        st.session_state.resume_notice = f"🔄 Session resumed: {resuming_user_name}"
 
                     try:
                         display_name = st.session_state.observer_name
@@ -183,7 +183,7 @@ def show_splash_screen():
                             {
                                 "session_id": st.session_state.session_id,
                                 "event_type": "ACCESS",
-                                "event_message": f"Biologist {st.session_state.observer_name} clocked in.",
+                                "event_message": f"Session started: {st.session_state.observer_name}",
                             }
                         ).execute()
                     except:

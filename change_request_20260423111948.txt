@@ -1,0 +1,227 @@
+===============================================================================
+CHANGE REQUEST — CR-20260423-111948
+Date:      2026-04-23 11:19 CST
+Author:    Agent Zero / User
+Status:    PENDING APPROVAL
+Priority:  Medium
+Estimate:  ~2 hours implementation + testing
+===============================================================================
+
+## CR-1: Sidebar User/Version Display Repositioning & Simplification
+
+CURRENT STATE:
+- User name displayed as large `### 👤 {name}` header at top of sidebar
+- Session ID displayed as caption below the name
+- "SHIFT END" button below that
+- Version stamp (`Clinical Standard v8.1.1`) shown as caption BELOW the
+  divider at the very bottom of the sidebar — often scrolled off-screen
+  or below the visible area on smaller displays
+- Version also appears on: Login splash screen, Diagnostic page footer,
+  Help page footer
+
+PROBLEM:
+- Version stamp at bottom of sidebar falls below visible screen area
+- User identity and version are separated by the full navigation menu
+- Session ID is technical noise for the end user
+- Inconsistent placement across pages (some have footers, some don't)
+
+REQUESTED CHANGE:
+- Move user/observer display and version stamp to the TOP of the sidebar,
+  above the navigation links
+- Simplify to a single compact block:
+    {observer_name}
+    {VERSION}          (smaller muted font)
+- Remove Session ID display from the sidebar (keep it in system_log only)
+- Keep the SHIFT END button but move it to the bottom of the sidebar
+- Remove redundant version captions from individual page footers
+  (Diagnostic, Help) since it will always be visible in the sidebar
+
+FILES AFFECTED:
+  1. utils/bootstrap.py   — render_custom_sidebar() function (lines 174-201)
+  2. vault_views/7_Diagnostic.py — footer caption (line 84)
+  3. vault_views/8_Help.py — footer caption (line 144)
+  4. utils/session.py — Login splash screen version display (line 63)
+
+BEST PRACTICE NOTES:
+- Streamlit sidebar renders top-to-bottom; placing identity at top ensures
+  it's always visible regardless of menu length or screen size
+- Industry standard: user identity + app version in sidebar header area
+  (similar to Jira, GitHub, Notion sidebar patterns)
+- The SHIFT END button should remain near bottom for safety (prevents
+  accidental clicks when navigating)
+
+
+## CR-2: Standardize Audit Log Vocabulary
+
+CURRENT STATE (inconsistent phrasing):
+  - "Biologist {name} clocked in."                (session.py:186)
+  - "Biologist {name} explicitly ended shift."     (bootstrap.py:191)
+  - "Session Active: {name} is here."              (1_Dashboard.py:35)
+  - "SUCCESS: {event_type} (Entries: N)"           (audit.py:34)
+  - "FAILURE: {event_type} - {error}"              (audit.py:42)
+  - "CRITICAL: Incomplete Intake for Case {case}. Chain broke: {error}"
+                                                    (2_New_Intake.py:342)
+  - "Clinical Correction: Observation {id} voided. Reason: {reason}"
+                                                    (3_Observations.py:474)
+  - "S6 Rollback: Subject {id} reverted from Hatched. Ledger entries voided."
+                                                    (3_Observations.py:518)
+  - "Surgical Resurrection: Observation {id} restored."
+                                                    (3_Observations.py:554)
+  - "Forensic Export: Observer {name} downloaded egg CSV."
+                                                    (6_Reports.py:465)
+  - Various emoji-prefixed logger messages throughout
+
+PROBLEM:
+- Mixed vocabulary: "Biologist", "Observer", "Session Active", "is here"
+- Non-standard phrasing: "clocked in", "explicitly ended shift"
+- Inconsistent structure: some messages are sentences, some are fragments
+- "Surgical Resurrection" and "BIO-RECOVERY" are jargon not useful for
+  auditing or incident response
+
+REQUESTED CHANGE:
+Standardize ALL system_log event_messages to the following format:
+
+  Pattern: "{action_verb}: {subject} — {details}"
+
+  Event Type    | Standard Message Format
+  --------------|----------------------------------------------------
+  ACCESS        | "Session started: {user_name}"
+  TERMINATE     | "Session ended: {user_name}"
+  AUDIT         | "Data committed: {operation} ({count} records)"
+  ERROR         | "Operation failed: {operation} — {error_summary}"
+  EXPORT        | "Data exported: {format} by {user_name} ({details})"
+  VOID          | "Record voided: {record_type} {id} — Reason: {reason}"
+  ROLLBACK      | "State reverted: {subject} {id} — {details}"
+  RESTORE       | "Record restored: {record_type} {id}"
+  INTAKE_ERROR  | "Intake failed: Case {case_number} — {error_summary}"
+
+  Key vocabulary standardization:
+  - "Biologist" → "user" or simply use the observer_name
+  - "clocked in" → "Session started"
+  - "explicitly ended shift" → "Session ended"
+  - "is here" → remove (redundant with session start)
+  - "Surgical Resurrection" → "Record restored"
+  - "BIO-RECOVERY" → "Session resumed" (in st.success messages)
+  - "Chain broke" → "Transaction failed"
+
+FILES AFFECTED:
+  1. utils/session.py        — lines 151, 186 (login messages)
+  2. utils/bootstrap.py      — line 191 (shift end message)
+  3. utils/audit.py          — lines 34, 42 (generic audit wrapper)
+  4. vault_views/1_Dashboard.py — line 35 (session active message)
+  5. vault_views/2_New_Intake.py — line 342 (intake error)
+  6. vault_views/3_Observations.py — lines 474, 518, 554 (void/rollback/restore)
+  7. vault_views/6_Reports.py — lines 282, 292, 465 (export messages)
+
+BEST PRACTICE NOTES:
+- NIST SP 800-92 (Guide to Computer Security Log Management) recommends:
+  structured, consistent, machine-parseable log messages
+- Pattern "Action: Subject — Details" is grep-friendly and sort-friendly
+- Avoid colloquial language in audit logs ("clocked in", "is here")
+- Avoid emojis in database-stored audit messages (keep emojis for UI only)
+
+
+===============================================================================
+IMPLEMENTATION PLAN
+===============================================================================
+
+Phase 1: Sidebar Restructure (CR-1)
+  Step 1.1: Modify render_custom_sidebar() in utils/bootstrap.py
+    - Reorder elements: user name → version → divider → (nav auto-renders) → SHIFT END
+    - Use st.sidebar.markdown() with smaller font for version
+    - Remove Session ID caption from sidebar
+    - Test: Visual inspection on Login, Dashboard, and at least 2 other pages
+
+  Step 1.2: Remove redundant version footers
+    - vault_views/7_Diagnostic.py: Remove line 84 caption
+    - vault_views/8_Help.py: Remove line 144 caption
+    - Test: Verify pages render without footer and sidebar shows version
+
+  Step 1.3: Simplify Login splash version display
+    - utils/session.py: Keep version on splash but ensure it matches sidebar style
+    - Test: Verify Login page shows version correctly
+
+Phase 2: Audit Log Standardization (CR-2)
+  Step 2.1: Create a constants file or section for standard log messages
+    - Add AUDIT_MESSAGES dict to utils/audit.py with template strings
+    - This centralizes all audit vocabulary in one place
+
+  Step 2.2: Update session lifecycle messages
+    - utils/session.py: "Biologist {name} clocked in." → "Session started: {name}"
+    - utils/bootstrap.py: "Biologist {name} explicitly ended shift." → "Session ended: {name}"
+    - utils/session.py: "BIO-RECOVERY" → "Session resumed: {name}"
+
+  Step 2.3: Update Dashboard
+    - vault_views/1_Dashboard.py: Remove "is here" message, or change to
+      "Session active: {name}"
+
+  Step 2.4: Update clinical operation messages
+    - vault_views/2_New_Intake.py: Standardize intake error
+    - vault_views/3_Observations.py: Standardize void/rollback/restore
+    - vault_views/6_Reports.py: Standardize export messages
+
+  Step 2.5: Update audit.py wrapper messages
+    - Generic SUCCESS/FAILURE patterns
+
+
+===============================================================================
+TEST PLAN
+===============================================================================
+
+1. VISUAL INSPECTION (Manual)
+   - [ ] Login splash: Version displays correctly
+   - [ ] Sidebar (logged in): User name at top, version below, SHIFT END at bottom
+   - [ ] Sidebar: No Session ID visible to user
+   - [ ] Diagnostic page: No duplicate version footer
+   - [ ] Help page: No duplicate version footer
+   - [ ] Sidebar visible without scrolling on 1080p screen
+
+2. AUDIT LOG VERIFICATION (Manual or Script)
+   - [ ] Login → check system_log for "Session started: {name}"
+   - [ ] Shift End → check system_log for "Session ended: {name}"
+   - [ ] Session Resume → check system_log for "Session resumed: {name}"
+   - [ ] Navigate to Dashboard → verify no "is here" in system_log
+   - [ ] Submit Intake → check for standardized AUDIT message
+   - [ ] Void an observation → check for "Record voided: ..." format
+   - [ ] Export CSV → check for "Data exported: ..." format
+
+3. EXISTING TEST SUITE
+   - [ ] Run full pytest suite to check for regressions
+   - [ ] Key tests to watch:
+         - test_session_termination.py (shift end flow)
+         - test_session_resilience.py (session resume)
+         - test_audit_veracity.py (audit log content)
+         - test_branding_compliance.py (UI element verification)
+         - test_adversarial_persistence.py (intake flow)
+         - test_forensic_audit_payloads.py (audit message format)
+
+4. DEPENDENCY ANALYSIS
+   - tests/test_audit_veracity.py: May assert on specific event_message strings
+     → MUST update test assertions to match new vocabulary
+   - tests/test_forensic_audit_payloads.py: May check audit message format
+     → MUST update test assertions
+   - tests/test_session_termination.py: May check for "TERMINATE" event_type
+     → event_type stays the same, only event_message changes — should be safe
+   - tests/test_branding_compliance.py: May check for version display
+     → MUST update if it looks for specific DOM placement
+   - vault_views/5_Settings.py: Activity Log tab displays system_log entries
+     → No code change needed, but displayed format will change naturally
+   - Any external monitoring or log parsing tools that grep for specific
+     audit message strings will need updating
+
+
+===============================================================================
+RISK ASSESSMENT
+===============================================================================
+
+- LOW RISK: Sidebar restructure is cosmetic; no data flow changes
+- MEDIUM RISK: Audit log vocabulary changes could break tests that assert
+  on specific message strings. Mitigation: Update all test assertions in
+  the same commit.
+- LOW RISK: Removing Session ID from sidebar has no functional impact
+  (it remains in system_log for tracing)
+
+
+===============================================================================
+STATUS: AWAITING USER APPROVAL TO PROCEED
+===============================================================================

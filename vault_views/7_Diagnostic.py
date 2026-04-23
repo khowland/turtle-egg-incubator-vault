@@ -80,5 +80,4 @@ with track_view_performance("Diagnostic"):
         else:
             st.warning("⚠️ No recent logs found in this context.")
 
-    st.divider()
-    st.caption(f"WINC Clinical Standard {VERSION} — Diagnostic")
+    # CR-20260423-111948: Version display removed; now shown in sidebar header

@@ -140,5 +140,4 @@ with track_view_performance("Help"):
         st.header("🖇️ Quick Resources")
         st.write("[PostgreSQL Schema](docs/design/db_schema_export.txt)")
         st.write("[System Design Spec](docs/design/SYSTEM_DESIGN_SPEC.md)")
-        st.divider()
-        st.caption("WINC-Vault v10.5.1 | Support: clinical@winc.org")
+        # CR-20260423-111948: Version display removed; now shown in sidebar header

@@ -32,7 +32,7 @@ with track_view_performance("Dashboard"):
         safe_db_execute(
             "Handshake",
             lambda: True,
-            success_message=f"Session Active: {st.session_state.observer_name} is here.",
+            success_message=f"Session active: {st.session_state.observer_name}",
         )
         st.session_state.handshake_complete = True
 

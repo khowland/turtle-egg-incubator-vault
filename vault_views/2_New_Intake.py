@@ -339,7 +339,7 @@ with track_view_performance("Intake"):
                         {
                             "session_id": st.session_state.session_id,
                             "event_type": "ERROR",
-                            "event_message": f"CRITICAL: Incomplete Intake for Case {case_number}. Chain broke: {str(error)}",
+                            "event_message": f"Intake failed: Case {case_number} — Transaction failed: {str(error)}",
                         }
                     ).execute()
                     raise error

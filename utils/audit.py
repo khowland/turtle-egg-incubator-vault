@@ -31,7 +31,7 @@ def logged_write(
             {
                 "session_id": session_id,
                 "event_type": event_type,
-                "event_message": f"SUCCESS: {event_type} (Entries: {len(payload_dictionary) if isinstance(payload_dictionary, list) else 1})",
+                "event_message": f"Data committed: {event_type} ({len(payload_dictionary) if isinstance(payload_dictionary, list) else 1} records)",
                 "metadata": {"payload": payload_dictionary},
             }
         ).execute()
@@ -39,7 +39,7 @@ def logged_write(
         return execution_result
 
     except Exception as error:
-        error_message = f"FAILURE: {event_type} - {str(error)}"
+        error_message = f"Operation failed: {event_type} — {str(error)}"
         logger.error(f"❌ Audit: {error_message}")
 
         try:

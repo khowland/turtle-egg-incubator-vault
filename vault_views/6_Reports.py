@@ -280,8 +280,8 @@ with track_view_performance("Reports"):
                             "session_id": st.session_state.session_id,
                             "event_type": "EXPORT",
                             "event_message": (
-                                f"WormD intake bundle preview: cases={meta.get('cases')} "
-                                f"csv_rows={meta.get('rows')} observer={st.session_state.observer_name}"
+                                f"Data exported: WormD bundle by {st.session_state.observer_name} "
+                                f"(cases={meta.get('cases')}, rows={meta.get('rows')})"
                             ),
                         }
                     ).execute()
@@ -289,7 +289,7 @@ with track_view_performance("Reports"):
                 safe_db_execute(
                     "Export Preview",
                     _log_export,
-                    success_message="Export preview logged to system_log.",
+                    success_message="Data exported: WormD bundle preview generated",
                 )
                 st.rerun()
 
@@ -462,5 +462,5 @@ with track_view_performance("Reports"):
         safe_db_execute(
             "Export Data",
             audit_export,
-            success_message=f"Forensic Export: Observer {st.session_state.observer_name} downloaded egg CSV.",
+            success_message=f"Data exported: CSV by {st.session_state.observer_name}",
         )

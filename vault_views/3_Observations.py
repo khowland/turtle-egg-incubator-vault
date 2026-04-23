@@ -471,7 +471,7 @@ with track_view_performance("Observations"):
                                     get_resilient_table(supabase, "system_log").insert({
                                         "session_id": st.session_state.session_id,
                                         "event_type": "VOID",
-                                        "event_message": f"Clinical Correction: Observation {h['egg_observation_id']} voided. Reason: {reason}",
+                                        "event_message": f"Record voided: Observation {h['egg_observation_id']} — Reason: {reason}",
                                         "observer_id": st.session_state.observer_id
                                     }).execute()
                                 except: pass
@@ -515,7 +515,7 @@ with track_view_performance("Observations"):
                                         get_resilient_table(supabase, "system_log").insert({
                                             "session_id": st.session_state.session_id,
                                             "event_type": "ROLLBACK",
-                                            "event_message": f"S6 Rollback: Subject {target_id} reverted from Hatched. Ledger entries voided.",
+                                            "event_message": f"State reverted: Subject {target_id} — Hatched status reversed, ledger entries voided",
                                             "observer_id": st.session_state.observer_id
                                         }).execute()
                                     except Exception as rollback_err:
@@ -551,7 +551,7 @@ with track_view_performance("Observations"):
                                         get_resilient_table(supabase, "system_log").insert({
                                             "session_id": st.session_state.session_id,
                                             "event_type": "RESTORE",
-                                            "event_message": f"Surgical Resurrection: Observation {hv['egg_observation_id']} restored.",
+                                            "event_message": f"Record restored: Observation {hv['egg_observation_id']}",
                                             "observer_id": st.session_state.observer_id
                                         }).execute()
                                     except: pass

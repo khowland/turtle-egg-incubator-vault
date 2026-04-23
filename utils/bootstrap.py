@@ -172,9 +172,22 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
 
 
 def render_custom_sidebar():
-    """Displays observer info at the top of the sidebar with Session ID."""
-    st.sidebar.markdown(f"### 👤 {st.session_state.get('observer_name', 'User')}")
-    st.sidebar.caption(f"Session ID: {st.session_state.get('session_id', 'Unknown')}")
+    """Renders a compact sidebar header with observer identity and version.
+    Layout: user name + version at top, SHIFT END pinned at bottom.
+    CR-20260423-111948: Simplified from previous layout that had version
+    at bottom of sidebar (off-screen on smaller displays)."""
+
+    # --- Top: Compact identity + version block ---
+    st.sidebar.markdown(
+        f"<div style='padding: 0.25rem 0; margin-bottom: 0.25rem;'>"
+        f"<span style='font-size: 0.95em; font-weight: 600;'>👤 {st.session_state.get('observer_name', 'User')}</span><br>"
+        f"<span style='font-size: 0.75em; color: #64748b;'>{VERSION}</span>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+    st.sidebar.divider()
+
+    # --- Bottom: SHIFT END button (rendered after nav auto-populates) ---
     if st.sidebar.button(
         "SHIFT END",
         key="global_logout_btn",
@@ -182,13 +195,12 @@ def render_custom_sidebar():
         type="primary",
         help="Terminate your shift and password-lock the system.",
     ):
-        # Explicitly terminate the session identity
         try:
             get_supabase().table("system_log").insert(
                 {
                     "session_id": st.session_state.session_id,
                     "event_type": "TERMINATE",
-                    "event_message": f"Biologist {st.session_state.observer_name} explicitly ended shift.",
+                    "event_message": f"Session ended: {st.session_state.observer_name}",
                 }
             ).execute()
         except:
@@ -197,8 +209,6 @@ def render_custom_sidebar():
         st.session_state.observer_id = None
         st.session_state.env_gate_synced = False
         st.rerun()
-    st.sidebar.divider()
-    st.sidebar.caption(f"Clinical Standard {VERSION}")
 
 
 @st.cache_resource(ttl=3600)
