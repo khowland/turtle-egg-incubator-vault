@@ -142,11 +142,15 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
         }}
 
         /* 📱 Mobile Ergonomics: Tight-Fit Alignment and Top-Flush Body */
+        [data-testid="stMain"] {{
+            padding-top: 0rem !important;
+        }}
+
         [data-testid="block-container"], 
         [data-testid="stAppViewBlockContainer"], 
         .main .block-container {{
-            padding-top: 2rem !important; /* Safe clearance from top edge */
-            margin-top: -5rem !important; /* Aggressively pull the entire block up to align with sidebar */
+            padding-top: 1rem !important; /* Absolute minimal clearance from top edge */
+            margin-top: -3rem !important; /* Aggressively pull the entire block up to align with sidebar */
             padding-bottom: 1rem !important;
             padding-left: 1.5rem !important; /* Close boundary padding */
             padding-right: 1.5rem !important;
@@ -154,6 +158,11 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
             margin-right: 0 !important;
             min-width: 100% !important; /* Force it to stretch across the main flex channel */
             max-width: 100% !important; 
+        }}
+
+        /* Universal Catch-All to pull the top header up further if Streamlit traps it */
+        [data-testid="stAppViewBlockContainer"] > div:first-child {{
+            margin-top: -2rem !important;
         }}
 
         [data-testid="block-container"] h1:first-of-type,
