@@ -25,12 +25,13 @@ bootstrap_page("WINC Incubator", "🐢", render_sidebar=False)
 init_session()
 
 # --- WINC Logo: pinned to top-left of sidebar via st.logo() ---
-# Uses Path(__file__).parent for absolute path resolution on Streamlit Cloud.
-# st.logo() is the ONLY official Streamlit API for placing content above
-# st.navigation() links. st.sidebar.image() and st.sidebar.markdown() always
-# render BELOW nav links when st.navigation() is active (by design).
-_logo_path = Path(__file__).parent / "assets" / "winc-logo2.png"
-if _logo_path.exists():
+# Prefers .jpg (opaque background) over .png (transparent) — CR-20260423
+_assets_dir = Path(__file__).parent / "assets"
+_logo_path = next(
+    (p for p in [_assets_dir / "winc-logo2.jpg", _assets_dir / "winc-logo2.png"] if p.exists()),
+    None
+)
+if _logo_path:
     st.logo(str(_logo_path))
 
 # --- Bottom sidebar: user identity + version + SHIFT END ---

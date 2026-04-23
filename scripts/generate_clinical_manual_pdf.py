@@ -177,9 +177,9 @@ class InstitutionalCompiler:
             if os.path.exists(cover_path):
                 canvas.drawImage(cover_path, 0, 0, width=210*mm, height=297*mm, preserveAspectRatio=False, mask='auto')
             # WINC Logo — superimposed top-left corner of cover page
-            # Logo: assets/winc-logo2.png 360x91px RGBA, displayed at 50mm wide
+            # Logo: assets/winc-logo2.jpg 360x91px RGBA, displayed at 50mm wide
             # CR-20260423: Added to match sidebar and HTML cover page branding
-            logo_path = os.path.join(os.getcwd(), "assets", "winc-logo2.png")
+            logo_path = os.path.join(os.getcwd(), "assets", "winc-logo2.jpg")
             if os.path.exists(logo_path):
                 logo_w = 50*mm
                 logo_h = logo_w * (91 / 360)  # preserve aspect ratio
