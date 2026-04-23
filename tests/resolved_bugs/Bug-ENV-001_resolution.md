@@ -10,12 +10,9 @@ resolved: true
 **Root Cause**: The repository's active Linux Python environment was not provisioned with the project's testing dependencies. The existing `.venv` directory is Windows-style (`.venv/Scripts/...`) and was not usable as the runtime for this Kali/Linux container. As a result, the bash runner's direct `python3 -m pytest` invocation could not execute.
 
 **Resolution**:
-1. Installed project dependencies into the active interpreter using:
-   - `python3 -m pip install -r /a0/usr/workdir/requirements.txt`
-2. Installed the Playwright Chromium browser required by `pytest-playwright` using:
-   - `python3 -m playwright install chromium`
-3. Re-ran the authorized E2E suite via:
-   - `/a0/usr/workdir/scripts/run_e2e_tests.sh`
+1. Installed project dependencies into the active interpreter using `python3 -m pip install -r /a0/usr/workdir/requirements.txt`.
+2. Installed the Playwright Chromium browser required by `pytest-playwright` using `python3 -m playwright install chromium`.
+3. Re-ran the authorized E2E suite via `/a0/usr/workdir/scripts/run_e2e_tests.sh`.
 
 **Forensic Notes**:
 - This blocker was environmental, not an application logic failure.
@@ -27,7 +24,3 @@ resolved: true
 - `/a0/usr/workdir/requirements.txt`
 - `/a0/usr/workdir/tests/resolved_bugs/QA_METHODOLOGY.md`
 - `/a0/usr/workdir/tests/resolved_bugs/00_CENTRAL_HUB.md`
-
-**Verification**:
-- Verified dependency presence in the active environment after installation.
-- Re-executed the E2E runner immediately after provisioning to move from environment validation into real suite execution.
