@@ -4,17 +4,19 @@
 
 ## 📍 Where We Are
 We resumed the authorized pytest + Playwright verification flow from the prior handoff checkpoint.
-The first execution attempt of `./scripts/run_e2e_tests.sh` did **not** reach application assertions because the active Linux interpreter (`/opt/venv/bin/python3`) was missing required testing packages.
-That environment blocker has now been remediated by installing the repository's declared test dependencies from `requirements.txt` and provisioning the Playwright Chromium browser in the active container environment.
+The initial blocker was an environment dependency gap (`pytest` / `playwright` missing in `/opt/venv/bin/python3`), which was remediated from `requirements.txt`.
+After that, the first Playwright test still failed before app assertions because the E2E runner did not force Streamlit onto port `8501`; Streamlit auto-bound to `8502`, while the tests navigated to `http://localhost:8501`.
+That harness defect has now been patched in `scripts/run_e2e_tests.sh` by forcing `--server.port 8501`, adding active readiness probing, and ensuring trap-based cleanup.
 
 ## 🧠 What Was Accomplished This Session
-1. **KB-First Triage:** Confirmed the QA methodology and central hub before treating the failure as novel.
-2. **Root Cause Isolation:** Identified the failure as an environment/dependency blocker rather than a UI-to-database application regression.
-3. **Environment Remediation:** Installed the repo-declared test stack into the active Linux runtime and provisioned Playwright Chromium.
-4. **Persistent Documentation:** Logged the blocker and remediation in `tests/resolved_bugs/Bug-ENV-001_resolution.md` and linked it from `tests/resolved_bugs/00_CENTRAL_HUB.md`.
-5. **Verification Progression:** Re-ran the E2E test entrypoint after environment remediation.
+1. **Environment Remediation:** Installed the declared Python test stack and Playwright Chromium into the active Linux runtime.
+2. **Focused Reproduction:** Isolated the first failing test to `test_layer1_adversarial_ui_rejections[chromium]`.
+3. **Root Cause Isolation:** Confirmed `ERR_CONNECTION_REFUSED` was caused by Streamlit binding to `8502`, not by application logic.
+4. **Harness Fix:** Patched `/a0/usr/workdir/scripts/run_e2e_tests.sh` to force port `8501`, probe readiness, and clean up reliably.
+5. **Persistent Documentation:** Logged `Bug-ENV-001` and `Bug-ENV-002` in `tests/resolved_bugs/` and linked them from the central hub.
 
 ## ⏭️ Next Steps for the Next Agent (NEW SESSION)
-1. Review the latest E2E run output from the post-install execution of `./scripts/run_e2e_tests.sh`.
-2. Treat any remaining failures as genuine defects now that the environment blocker is resolved.
-3. If code changes are required, patch minimally, rerun, and document the fix in `tests/resolved_bugs/` and the hub.
+1. Re-run the focused adversarial Playwright test to confirm the port/readiness harness defect is resolved.
+2. Re-run the full E2E suite using `./scripts/run_e2e_tests.sh`.
+3. Treat any remaining failures as genuine UI, selector, workflow, or DB defects and patch minimally.
+4. Document each resolved defect in `tests/resolved_bugs/` and update `00_CENTRAL_HUB.md`.
