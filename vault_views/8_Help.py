@@ -124,18 +124,25 @@ with track_view_performance("Help"):
     # 3. Supplemental WINC Resources
     with st.sidebar:
         st.header("🖨️ Clinical Printing")
-        pdf_path = os.path.join(os.getcwd(), "docs", "user", "OPERATOR_MANUAL_v10_5_1.pdf")
-        if os.path.exists(pdf_path):
-            with open(pdf_path, "rb") as f:
+        # Find the most recent OPERATOR_MANUAL PDF dynamically
+        # (avoids hardcoded version strings becoming stale)
+        _manual_dir = os.path.join(os.getcwd(), "docs", "user")
+        _pdfs = sorted(
+            [f for f in os.listdir(_manual_dir) if f.startswith("OPERATOR_MANUAL") and f.endswith(".pdf")],
+            reverse=True  # latest version first (lexicographic sort works for v10_x_y)
+        )
+        if _pdfs:
+            _pdf_path = os.path.join(_manual_dir, _pdfs[0])
+            with open(_pdf_path, "rb") as f:
                 st.sidebar.download_button(
-                    label="Download Full PDF (Printing)",
+                    label=f"⬇️ Download PDF Manual",
                     data=f,
-                    file_name="WINC_OPERATOR_MANUAL_v10_5_1.pdf",
+                    file_name=_pdfs[0],
                     mime="application/pdf",
-                    help="Download the institutional-grade paged version for physical lab binders."
+                    help=f"Download the institutional-grade paged version for physical lab binders. ({_pdfs[0]})"
                 )
         else:
-            st.sidebar.error("PDF not found. Admin must run generation script.")
+            st.sidebar.error("PDF not found. Run: python scripts/generate_clinical_manual_pdf.py")
 
         st.header("🖇️ Quick Resources")
         st.write("[PostgreSQL Schema](docs/design/db_schema_export.txt)")
