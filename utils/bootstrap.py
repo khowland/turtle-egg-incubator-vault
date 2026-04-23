@@ -173,9 +173,17 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
 
 def render_custom_sidebar():
     """Renders a compact sidebar header with observer identity and version.
-    Layout: user name + version at top, SHIFT END pinned at bottom.
+    Layout: WINC logo → user name + version at top, SHIFT END pinned at bottom.
     CR-20260423-111948: Simplified from previous layout that had version
-    at bottom of sidebar (off-screen on smaller displays)."""
+    at bottom of sidebar (off-screen on smaller displays).
+    Logo: assets/winc-logo2.png (360x91px RGBA) — constrained to 160px wide
+    so it sits cleanly at top-left without overwhelming the sidebar."""
+
+    # --- Logo: WINC branding at very top of sidebar ---
+    import os
+    _logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "winc-logo2.png")
+    if os.path.exists(_logo_path):
+        st.sidebar.image(_logo_path, width=160)
 
     # --- Top: Compact identity + version block ---
     st.sidebar.markdown(
