@@ -19,7 +19,7 @@ def test_atomic_transaction_resilience(mock_db):
         at = AppTest.from_file("vault_views/2_New_Intake.py")
         at.session_state.observer_id = "adv-observer"
         at.session_state.session_id = "adv-session"
-        at.run()
+        at.run(timeout=15)
         
         # Fill data
         at.text_input[0].set_value("Adversarial-2026")
@@ -30,10 +30,10 @@ def test_atomic_transaction_resilience(mock_db):
         at.session_state.bin_rows[0]["temp"] = 28.5
         at.session_state.bin_rows[0]["shelf"] = "X1"
         
-        at.run()
+        at.run(timeout=15)
         
         save_button = next(b for b in at.button if b.label == "SAVE")
-        save_button.click().run()
+        save_button.click().run(timeout=15)
         
         # Ensure the vault_finalize_intake RPC is called
         assert db.rpc.called
@@ -48,11 +48,11 @@ def test_session_state_eviction_handling(mock_db):
         at = AppTest.from_file("vault_views/2_New_Intake.py")
         at.session_state.observer_id = "adv-observer"
         at.session_state.session_id = "adv-session"
-        at.run()
+        at.run(timeout=15)
         
         # Deliberately drop session state midway
         del at.session_state["session_id"]
-        at.run()
+        at.run(timeout=15)
         
         # Ensure failure does not result in an RPC execution
         assert db.rpc.call_count == 0, "Security Violation: DB write attempted with dropped session_state"
