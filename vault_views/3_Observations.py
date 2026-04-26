@@ -217,13 +217,19 @@ with track_view_performance("Observations"):
     bin_options = sorted([b["bin_id"] for b in available_bins.data])
 
     # Pre-calculate stats for icons
+    # CR-20260426 Lo-4: Wrap per-bin query in try/except.
+    # A bin ID containing invalid chars (e.g. '/' in legacy records like Snapper_Val_0/16)
+    # breaks the Supabase REST URL path and returns a non-data object, causing AttributeError.
     bin_stats = {}
     for b_id in bin_options:
-        eggs = supabase.table("egg").select("egg_id").eq("bin_id", b_id).eq("is_deleted", False).execute().data
-        obs = supabase.table("egg_observation").select("egg_id").in_("egg_id", [e["egg_id"] for e in eggs]).eq("session_id", st.session_state.session_id).execute().data if eggs else []
-        obs_ids = {o["egg_id"] for o in obs}
-        done = sum(1 for e in eggs if e["egg_id"] in obs_ids)
-        bin_stats[b_id] = {"done": done, "total": len(eggs)}
+        try:
+            eggs = supabase.table("egg").select("egg_id").eq("bin_id", b_id).eq("is_deleted", False).execute().data
+            obs = supabase.table("egg_observation").select("egg_id").in_("egg_id", [e["egg_id"] for e in eggs]).eq("session_id", st.session_state.session_id).execute().data if eggs else []
+            obs_ids = {o["egg_id"] for o in obs}
+            done = sum(1 for e in eggs if e["egg_id"] in obs_ids)
+            bin_stats[b_id] = {"done": done, "total": len(eggs)}
+        except Exception:
+            bin_stats[b_id] = {"done": 0, "total": 0}
 
     def get_bin_display_label(b_id):
         stats = bin_stats.get(b_id, {"done": 0, "total": 0})

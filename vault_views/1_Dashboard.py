@@ -49,15 +49,16 @@ with track_view_performance("Dashboard"):
 
         if not active_bin_identifiers:
             return (
-                0,
-                0,
-                get_resilient_table(supabase_client, "egg_observation")
-                .select("egg_observation_id", count="exact")
-                .or_("molding.gt.0,leaking.gt.0")
-                .execute()
-                .count
-                or 0,
-            )
+            0,
+            0,
+            0,
+            get_resilient_table(supabase_client, "egg_observation")
+            .select("egg_observation_id", count="exact")
+            .or_("molding.gt.0,leaking.gt.0")
+            .execute()
+            .count
+            or 0,
+        )
 
         active_eggs = (
             supabase_client.table("egg")
@@ -75,6 +76,15 @@ with track_view_performance("Dashboard"):
             .in_("bin_id", active_bin_identifiers)
             .execute()
         )
+        # CR-20260426 Ac-7: Add deceased/nonviable count
+        dead_eggs = (
+            supabase_client.table("egg")
+            .select("egg_id", count="exact")
+            .eq("status", "Dead")
+            .eq("is_deleted", False)
+            .in_("bin_id", active_bin_identifiers)
+            .execute()
+        )
 
         alerts_query = (
             get_resilient_table(supabase_client, "egg_observation")
@@ -83,21 +93,23 @@ with track_view_performance("Dashboard"):
             .or_("molding.gt.0,leaking.gt.0")
             .execute()
         )
-        return active_eggs.count or 0, hatched_eggs.count or 0, alerts_query.count or 0
+        return active_eggs.count or 0, hatched_eggs.count or 0, dead_eggs.count or 0, alerts_query.count or 0
 
 
-    active_count, hatched_count, alert_count = fetch_key_performance_indicators()
+    active_count, hatched_count, dead_count, alert_count = fetch_key_performance_indicators()
 
+    # CR-20260426 Ac-6/7/8: Updated metrics — Still Incubating, Deceased/Nonviable,
+    # Hatched/Transferred added; Water Check removed (relegated to standalone Report).
     metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
-    metric_col1.metric("Active Eggs", active_count, "Live")
-    metric_col2.metric("Hatched", hatched_count, "Season Total")
-    metric_col3.metric(
+    metric_col1.metric("Still Incubating", active_count, "Active")
+    metric_col2.metric("Deceased / Nonviable", dead_count, "Season Total")
+    metric_col3.metric("Hatched / Transferred", hatched_count, "Season Total")
+    metric_col4.metric(
         "Help Needed",
         alert_count,
         "Alerts" if alert_count > 0 else "All Good",
         delta_color="inverse" if alert_count > 0 else "normal",
     )
-    metric_col4.metric("Water Check", "100%", "Target Reached")
 
     st.divider()
 

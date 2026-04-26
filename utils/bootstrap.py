@@ -208,6 +208,16 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
         .egg-tray p {{
             margin: 2px 0 !important;
         }}
+
+        /* CR-20260426 Ac-4: Visual differentiation for read-only (disabled) data_editor cells */
+        /* Muted background + subdued text distinguishes non-editable columns (e.g. Intake Count) */
+        [data-testid="stDataEditorCell"][aria-readonly="true"],
+        [data-testid="stDataEditorCell"][aria-disabled="true"] {{
+            background-color: #1e293b !important;
+            color: #64748b !important;
+            opacity: 1 !important;
+            cursor: not-allowed !important;
+        }}
         
         /* 🎨 Unified Branding Standard (§1) */
         /* Mapping vocabulary to clinical colors for 5th-Grader Standard */

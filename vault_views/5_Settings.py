@@ -40,6 +40,13 @@ if is_locked:
 else:
     st.success("🔓 **EDITING ENABLED**: Registry Protection is OFF (Lookups are freely editable).")
 
+# CR-20260426 Lo-2: Unit system global toggle stub (Imperial only; future i18n hook)
+if "unit_system" not in st.session_state:
+    st.session_state.unit_system = "imperial"
+st.sidebar.header("🌡️ Unit System")
+st.sidebar.radio("Units", ["Imperial (°F)"], index=0, disabled=True,
+    help="Imperial Fahrenheit is the clinical standard. Additional unit support is planned.")
+
 # =============================================================================
 # REQ: High-Visibility Accessibility Suite v7.8.2
 # =============================================================================
@@ -99,13 +106,18 @@ with tabs[0]:
     edited_users = st.data_editor(
         pd.DataFrame(res_users.data),
         column_config={
-            "observer_id": None,  # Physically hides the column from rendering
+            "observer_id": None,  # Physically hides the ID from rendering
             "display_name": st.column_config.TextColumn("Display Name", required=True),
             "is_active": st.column_config.CheckboxColumn(
                 "Login Allowed",
                 default=True,
                 help="If checked, this user can access the field app.",
             ),
+            # CR-20260426 Ac-3: Hide audit columns from user-facing view
+            "created_at": None,
+            "modified_at": None,
+            "is_deleted": None,
+            "observer_name": None,
         },
         hide_index=True,
         use_container_width=True,
@@ -160,6 +172,9 @@ with tabs[1]:
 
     # Use st.data_editor with strict disable logic
     # REQ: Hide species_id (internal PK) and emphasize species_code (user-facing)
+    # CR-20260426 Ac-2: Streamlit >= 1.35 has native column sorting on st.dataframe.
+    # Read-only species view uses st.dataframe; editable mode uses data_editor.
+    # CR-20260426 Ac-3: created_at / modified_at hidden via column_config = None.
     edited_df = st.data_editor(
         df,
         column_config={
@@ -172,6 +187,9 @@ with tabs[1]:
             "common_name": "Common Name",
             "scientific_name": "Scientific Name",
             "vulnerability_status": "Status",
+            # CR-20260426 Ac-3: Hide audit columns
+            "created_at": None,
+            "modified_at": None,
         },
         disabled=(
             list(df.columns)

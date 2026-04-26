@@ -27,8 +27,8 @@ def test_finder_name_regex_bypass_attempt(mock_supabase):
         at.text_input[1].set_value("<script>alert('xss')</script>")
         at.run()
         
-        # Verify warning appears
-        assert "Names can only have letters, numbers, and spaces." in at.warning[0].value
+        # Verify warning appears (CR-20260426 St-1: message updated to reflect new valid chars)
+        assert "Names can only have letters, numbers, spaces, apostrophes, hyphens, and periods." in at.warning[0].value
         
         # Attempt to save - should block because is_valid_finder is False
         save_button = next(b for b in at.button if b.label == "SAVE")

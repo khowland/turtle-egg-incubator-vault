@@ -74,7 +74,7 @@ with track_view_performance("Intake"):
                 "egg_count": 1, 
                 "notes": "Initial Intake",
                 "mass": 0.0,
-                "temp": 28.0,
+                "temp": 82.0,  # CR-20260426: Fahrenheit (Lo-2)
                 "substrate": "Vermiculite",
                 "shelf": ""
             }
@@ -109,17 +109,18 @@ with track_view_performance("Intake"):
 
         l_col1, l_col2, l_col3 = st.columns(3)
         finder_name = l_col1.text_input(
-            "Finder", help="Letters and numbers only."
+            "Finder", help="Letters, numbers, spaces, apostrophes, hyphens, and periods allowed."
         )
 
         # Validation Gate: Ensure no special characters in identity prefix
+        # CR-20260426 St-1: Permit apostrophes, hyphens, and periods for names like O'Connell
         import re
 
         is_valid_finder = (
-            bool(re.match(r"^[A-Za-z0-9 ]+$", finder_name)) if finder_name else True
+            bool(re.match(r"^[A-Za-z0-9 '\-.]+$", finder_name)) if finder_name else True
         )
         if not is_valid_finder:
-            st.warning("⚠️ Names can only have letters, numbers, and spaces.")
+            st.warning("⚠️ Names can only have letters, numbers, spaces, apostrophes, hyphens, and periods.")
 
         intake_condition = l_col2.selectbox(
             "Condition", ["Alive", "Injured", "Dead (Salvage)"], index=0
@@ -130,12 +131,13 @@ with track_view_performance("Intake"):
             index=0,
         )
 
-        loc_col1, loc_col2, loc_col3 = st.columns([2, 1, 1])
+        # CR-20260426 Ac-5: Mother's Weight removed from UI (UI-only; DB column retained as NULL)
+        loc_col1, loc_col2 = st.columns([2, 1])
         discovery_location = loc_col1.text_input(
             "Intake Circumstances", placeholder="Roadside, Backyard, Wetland, etc."
         )
-        mother_weight_g = loc_col2.number_input("Mother's Weight (g)", 0.0, 50000.0, value=0.0)
-        days_in_care = loc_col3.number_input("Days in Care", 0, 365, value=0)
+        days_in_care = loc_col2.number_input("Days in Care", 0, 365, value=0)
+        mother_weight_g = None  # Not collected; DB column accepts NULL
         carapace_length = 0 # Explicitly zero to avoid NameError since it was replaced by weight in UI
 
         selected_species = species_data_map.get(selected_label, {})
@@ -143,6 +145,9 @@ with track_view_performance("Intake"):
             st.warning("Please select a valid species to continue.")
             st.stop()
         next_intake_number = (selected_species.get("intake_count") or 0) + 1
+        # CR-20260426 Lo-1: Persist Step 1 values so bin preview survives Step 2 reruns
+        st.session_state["_intake_finder"] = finder_name
+        st.session_state["_intake_label"] = selected_label
 
     # --- Step 2: Sorting ---
     st.subheader("📦 Step 2: Bin Setup")
@@ -164,7 +169,7 @@ with track_view_performance("Intake"):
             finder_clean_preview = re.sub(r"[^A-Z0-9]", "", finder_name.upper()) if finder_name else ""
             r["bin_id_preview"] = f"{selected_species['species_code']}{next_intake_number}-{finder_clean_preview}-{r['bin_num']}" if finder_name else "PENDING"
             if "is_new_bin" not in r: r["is_new_bin"] = True
-            if "temp" not in r: r["temp"] = 28.0
+            if "temp" not in r: r["temp"] = 82.0  # CR-20260426 Lo-2: Fahrenheit default
             if "substrate" not in r: r["substrate"] = "Vermiculite"
             if "shelf" not in r: r["shelf"] = ""
             if "notes" not in r: r["notes"] = "Initial Intake"
@@ -179,11 +184,16 @@ with track_view_performance("Intake"):
                 "bin_id_preview": st.column_config.TextColumn("Bin ID (Auto)", disabled=True),
                 "bin_num": st.column_config.NumberColumn("Bin #", disabled=True),
                 "egg_count": st.column_config.NumberColumn("Total Eggs", min_value=1, max_value=99, required=True),
-                "shelf": st.column_config.TextColumn("Shelf Location"),
+                # CR-20260426 Ac-1: Shelf Location and Substrate hidden from UI view
+                "shelf": None,
+                "substrate": None,
+                # CR-20260426 St-3: Single decimal precision on mass
                 "notes": st.column_config.TextColumn("Setup Notes"),
-                "mass": st.column_config.NumberColumn("Initial Mass (g)", min_value=0.0, format="%.2f", required=True),
-                "temp": st.column_config.NumberColumn("Incubator Temp (°C)", min_value=15.0, max_value=45.0, format="%.1f"),
-                "substrate": st.column_config.SelectboxColumn("Substrate", options=["Vermiculite", "Perlite", "Soil", "Paper Towel", "Sand", "Other"], required=True)
+                "mass": st.column_config.NumberColumn("Initial Mass (g)", min_value=0.0, format="%.1f", required=True),
+                # CR-20260426 Lo-2: Fahrenheit; range 60-113°F
+                # NOTE: DB column incubator_temp_c retains its name (internal only).
+                #       Values stored are Fahrenheit. See CR-20260426-145540.
+                "temp": st.column_config.NumberColumn("Incubator Temp (°F)", min_value=60.0, max_value=113.0, format="%.1f"),
             },
             key="bin_data_editor"
         )
@@ -239,7 +249,7 @@ with track_view_performance("Intake"):
                     "egg_count": 1, 
                     "notes": "Initial Intake",
                     "mass": 0.0,
-                    "temp": 28.0,
+                    "temp": 82.0,  # CR-20260426 Lo-2: Fahrenheit default
                     "substrate": "Vermiculite",
                     "shelf": ""
                 }
@@ -260,7 +270,9 @@ with track_view_performance("Intake"):
                         finder_clean = str(re.sub(r"[^A-Z0-9]", "", finder_name.upper()))
                         bins_payload = []
                         for row_data in st.session_state.bin_rows:
-                            bid = f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}"
+                            # CR-20260426 Lo-4: Final sanitization pass strips any invalid chars
+                            # (e.g., '/' from species code edge cases) that would break Supabase REST URLs
+                            bid = re.sub(r"[^A-Z0-9\-]", "", f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}")
                             bins_payload.append(
                                 {
                                     "bin_id": bid,

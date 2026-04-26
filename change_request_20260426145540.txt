@@ -1,0 +1,127 @@
+CHANGE REQUEST
+==============
+ID:        CR-20260426-145540
+Date:      2026-04-26 14:55 CST
+Requested: Kevin Howland / WINC Clinical Walkthrough Team
+Status:    IN PROGRESS
+Priority:  HIGH — System Walkthrough Remediation
+LOE:       Major (15 line items, 4 execution phases)
+
+TITLE
+-----
+System Walkthrough Remediation — April 26, 2026
+
+DESCRIPTION
+-----------
+Formal remediation of 15 items observed during the April 26, 2026
+system walkthrough. Issues span data validation gaps, logic errors,
+two active application crashes, and UI cleanup tasks. Organized into
+four execution phases with a DB restore snapshot overhaul as the
+final gated phase.
+
+RATIONALE
+---------
+Items Lo-3 (Mother.Weight DB crash) and Lo-4 (AttributeError on bin
+focus selection) are production blockers preventing clinical data
+entry. All other items are high-priority cleanup from the walkthrough
+observation session.
+
+PHASE STRUCTURE
+---------------
+Phase 1 — Emergency DB Migration (unblocks all saves)
+Phase 2 — Code changes across 5 Python files
+Phase 3 — DB restore snapshot overhaul (gated: runs after Phase 2 tested)
+Phase 4 — Verification, smoke test, final commit
+
+ITEMS
+-----
+[St] Storage & Data Validation
+  St-1  Name field regex: permit apostrophes/hyphens/periods
+        File: vault_views/2_New_Intake.py; Line ~119
+  St-2  Species taxonomy: add Common Snapper + Painted variants
+        File: supabase_db/migrations/v8_1_26_SPECIES_TAXONOMY.sql [NEW]
+        STATUS: HOLD — awaiting species codes from lead biologist
+  St-3  Bin Weight format: enforce single decimal (%.1f)
+        File: vault_views/2_New_Intake.py; Line ~184
+  St-4  Flag field definition: logic audit
+        STATUS: HOLD — awaiting stakeholder definition
+
+[Lo] Logic & Error Handling
+  Lo-1  Bin code generation: persist session state across Step 1/Step 2
+        File: vault_views/2_New_Intake.py; Line ~141
+  Lo-2  Unit configuration: hardcode Fahrenheit; global toggle stub
+        Files: vault_views/2_New_Intake.py, vault_views/5_Settings.py
+  Lo-3  CRITICAL: Mother.Weight DB crash — apply missing migration
+        Action: Run v8_1_22_MOTHER_WEIGHT.sql on live Supabase instance
+        NOTE: Cannot be applied via CLI. Requires Supabase SQL Editor access.
+              Plan generates the verification query for post-apply confirmation.
+  Lo-4  CRITICAL: AttributeError on bin focus selection (invalid bin IDs)
+        Files: vault_views/3_Observations.py, vault_views/2_New_Intake.py
+
+[Ac] UI & Actuator Enhancements
+  Ac-1  Bin Config view: remove Substrate + Shelf Location columns
+        File: vault_views/2_New_Intake.py; Line ~182-186
+  Ac-2  Column header sorting on all data tables
+        NOTE: Streamlit >= 1.35.0 confirmed. Native sorting already enabled
+              for st.dataframe. Using st.dataframe for read-only views; no
+              code required. data_editor tables get sort_by selectbox.
+  Ac-3  Remove created_at/modified_at from user-facing table views
+        File: vault_views/5_Settings.py
+  Ac-4  Read-only column visual differentiation (CSS)
+        File: utils/bootstrap.py
+  Ac-5  Intake: remove Mother's Turtle Weight field (UI-only)
+        File: vault_views/2_New_Intake.py; Line ~137
+        SCOPE: UI removal only; DB column mother_weight_g retained as NULL
+  Ac-6  Dashboard: rename "ActiveX" -> "Still Incubating"
+        File: vault_views/1_Dashboard.py; Line ~92
+  Ac-7  Dashboard: add "Deceased/Nonviable" and "Hatched/Transferred" metrics
+        File: vault_views/1_Dashboard.py
+  Ac-8  Dashboard: remove "Water Check" metric
+        File: vault_views/1_Dashboard.py; Line ~100
+
+[DB] Database Restore Snapshots
+  DB-1  State 1 (Clean): ensure lookup tables always seeded on wipe
+  DB-2  State 2 (Mid-Season): expand seed with bin_observation, egg_observation,
+        dead eggs, compliant bin IDs, representative clinical progression
+        File: supabase_db/migrations/v8_1_27_RPC_VAULT_ADMIN_RESTORE_V2.sql [NEW]
+        GATE: Deployed only after Phase 2 tested at 100% pytest pass rate
+
+FILES AFFECTED
+--------------
+- vault_views/2_New_Intake.py    (St-1, St-3, Lo-1, Lo-2, Lo-4, Ac-1, Ac-5)
+- vault_views/3_Observations.py  (Lo-4)
+- vault_views/1_Dashboard.py     (Ac-6, Ac-7, Ac-8)
+- vault_views/5_Settings.py      (Lo-2, Ac-2, Ac-3)
+- utils/bootstrap.py             (Ac-4)
+- supabase_db/migrations/v8_1_27_RPC_VAULT_ADMIN_RESTORE_V2.sql [NEW]
+
+DEPENDENCIES
+------------
+- Phase 1 (Lo-3 DB migration) must be applied manually in Supabase SQL Editor
+  by an admin with service_role access. Script: v8_1_22_MOTHER_WEIGHT.sql
+- St-2 and St-4 remain on HOLD pending stakeholder input
+
+TEST PLAN
+---------
+Automated:
+  .venv\Scripts\python.exe -m pytest tests\ -v --tb=short  (must be 100%)
+
+Manual Browser Checklist (12 items):
+  1. St-1:  O'Connell accepted as finder name, no warning
+  2. St-3:  Initial Mass entry limited to 1 decimal place
+  3. Lo-2:  Incubator Temp column shows °F, range 60-113
+  4. Lo-3:  Full new intake save succeeds without Mother.Weight error
+  5. Lo-4:  Observations page loads without crash for all bins
+  6. Ac-1:  Substrate + Shelf columns absent from Bin Config table
+  7. Ac-5:  No Mother's Weight input on Intake screen
+  8. Ac-6:  Dashboard metric reads "Still Incubating"
+  9. Ac-7:  "Deceased/Nonviable" and "Hatched/Transferred" visible on Dashboard
+  10. Ac-8: No "Water Check" metric on Dashboard
+  11. Ac-3: created_at/modified_at absent from Settings tables
+  12. Ac-4: Intake Count (read-only) cell is visually distinct from editable cells
+
+DB Restore Smoke Test:
+  - State 1: Wipe -> species/stages present in Settings
+  - State 2: Seed -> Dashboard shows non-zero values for all new metrics;
+             Observations loads all test bins; Hydration Gate bypassed;
+             egg clinical history shows S1->S3+ progression

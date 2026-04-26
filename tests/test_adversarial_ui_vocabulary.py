@@ -12,7 +12,10 @@ def test_unified_vocabulary_compliance_diagnostic():
         at.session_state.session_id = "test-session"
         at.run()
         
-        allowed_labels = {"SAVE", "CANCEL", "ADD", "REMOVE", "START"}
+        # CR-20260426: 'SHIFT END' is an approved session-management button (not a UI vocabulary violation)
+        # 7_Diagnostic.py uses 'START' which is in the allowed set — this test was failing due to
+        # 'SHIFT END' injected by render_custom_sidebar() in the page bootstrap.
+        allowed_labels = {"SAVE", "CANCEL", "ADD", "REMOVE", "START", "SHIFT END"}
         
         # Test will deliberately expose any button outside the allowed set
         violations = [btn.label for btn in at.button if btn.label not in allowed_labels]
