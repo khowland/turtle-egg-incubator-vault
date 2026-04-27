@@ -97,6 +97,7 @@ with track_view_performance("Dashboard"):
 
 
     active_count, hatched_count, dead_count, alert_count = fetch_key_performance_indicators()
+    alert_count = int(alert_count or 0)
 
     # CR-20260426 Ac-6/7/8: Updated metrics — Still Incubating, Deceased/Nonviable,
     # Hatched/Transferred added; Water Check removed (relegated to standalone Report).
@@ -141,6 +142,9 @@ with track_view_performance("Dashboard"):
             if counts_map[current_bin_id] == 0:
                 retirement_targets_list.append(current_bin_id)
 
+    from vault_views.utils_dashboard import can_retire_bin
+    from utils.rbac import require_elevated_clinical
+
     if retirement_targets_list:
         with st.container(border=True):
             st.subheader("🧹 Remove Empty Bins")
@@ -157,7 +161,7 @@ with track_view_performance("Dashboard"):
             )
 
             if action_col.button(
-                "🗑️ DELETE",
+                "REMOVE",
                 disabled=not confirmation_toggle,
                 use_container_width=True,
                 type="primary",
@@ -214,17 +218,20 @@ with track_view_performance("Dashboard"):
 
         if dead_eggs_data:
             dead_eggs_dataframe = pd.DataFrame(dead_eggs_data)
-            stage_counts = dead_eggs_dataframe["current_stage"].value_counts().reset_index()
-            stage_counts.columns = ["Stage", "Losses"]
-            mortality_chart = px.bar(
-                stage_counts,
-                x="Stage",
-                y="Losses",
-                color="Losses",
-                color_continuous_scale="Reds",
-                title="Critical Window Analysis",
-            )
-            st.plotly_chart(mortality_chart, use_container_width=True)
+            if "current_stage" in dead_eggs_dataframe.columns:
+                stage_counts = dead_eggs_dataframe["current_stage"].value_counts().reset_index()
+                stage_counts.columns = ["Stage", "Losses"]
+                mortality_chart = px.bar(
+                    stage_counts,
+                    x="Stage",
+                    y="Losses",
+                    color="Losses",
+                    color_continuous_scale="Reds",
+                    title="Critical Window Analysis",
+                )
+                st.plotly_chart(mortality_chart, use_container_width=True)
+            else:
+                st.warning("Mortality data available, but stage information is missing.")
         else:
             st.success("No mortalities recorded this season!")
 

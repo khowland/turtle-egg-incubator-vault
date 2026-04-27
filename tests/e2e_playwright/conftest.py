@@ -5,7 +5,7 @@ from playwright.sync_api import Page, expect
 
 @pytest.fixture(scope='session')
 def e2e_base_url() -> str:
-    return os.environ.get('E2E_BASE_URL', 'http://127.0.0.1:8501')
+    return os.environ.get('E2E_BASE_URL', 'http://127.0.0.1:8599')
 
 
 @pytest.fixture()

@@ -27,7 +27,7 @@ def get_app_version():
             return response.data[0]["config_value"]
     except Exception:
         pass
-    return "v8.1.5" # Fallback
+    return "v8.2.0" # Fallback
 
 # VERSION = get_app_version() # Deprecated in favor of dynamic calls to get_app_version()
 
@@ -175,10 +175,22 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
         [data-testid="stAppViewContainer"] {{
             padding-top: 0rem !important;
         }}
-        [data-testid="stHeader"] {{
-            height: 0rem !important; /* Fully suppress unused upper generic header */
-            visibility: hidden !important;
-            min-height: 0rem !important;
+        /* CR-20260426-173831: Responsive stHeader — preserve Tight-Fit on desktop,
+           restore hamburger toggle on mobile. Desktop: suppress header entirely.
+           Mobile (<768px): restore so sidebar collapse/expand toggle is reachable. */
+        @media (min-width: 768px) {{
+            [data-testid="stHeader"] {{
+                height: 0rem !important;
+                visibility: hidden !important;
+                min-height: 0rem !important;
+            }}
+        }}
+        @media (max-width: 767px) {{
+            [data-testid="stHeader"] {{
+                height: auto !important;
+                visibility: visible !important;
+                min-height: auto !important;
+            }}
         }}
 
         /* CRITICAL: Eliminate phantom DOM blocks created by our own global <style> inject */
@@ -279,6 +291,7 @@ def render_custom_sidebar():
             get_supabase().table("system_log").insert(
                 {
                     "session_id": st.session_state.session_id,
+                    "observer_id": st.session_state.get("observer_id"),
                     "event_type": "TERMINATE",
                     "event_message": f"Session ended: {st.session_state.observer_name}",
                 }
@@ -343,6 +356,7 @@ def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs)
                 get_resilient_table(get_supabase(), "system_log").insert(
                     {
                         "session_id": st.session_state.get("session_id", "SYSTEM"),
+                        "observer_id": st.session_state.get("observer_id"),
                         "event_type": "AUDIT",
                         "event_message": success_message,
                     }
@@ -367,6 +381,7 @@ def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs)
             get_resilient_table(get_supabase(), "system_log").insert(
                 {
                     "session_id": st.session_state.get("session_id", "UNKNOWN_ERR"),
+                    "observer_id": st.session_state.get("observer_id"),
                     "event_type": "ERROR",
                     "event_message": f"[{operation_name}] CRASH: {str(e)}",
                 }

@@ -193,22 +193,21 @@ with track_view_performance("Observations"):
                 safe_db_execute("Append", append_eggs, success_message=audit_msg)
                 st.rerun()
 
-    # ------------------------------------------------------------------------------
-    # 1. THE WORKBENCH CONFIG & SURGICAL RESURRECTION TOGGLE
-    # ------------------------------------------------------------------------------
-    if "surgical_resurrection" not in st.session_state:
+    # Finding 6: Reset Correction Mode if Bin changes
+    if "last_active_bin_id" not in st.session_state:
+        st.session_state.last_active_bin_id = active_bin_id
+    
+    if st.session_state.last_active_bin_id != active_bin_id:
         st.session_state.surgical_resurrection = False
+        st.session_state.last_active_bin_id = active_bin_id
 
     _col_h1, col_h2 = st.columns([2, 1])
     with col_h2:
-        if can_elevated_clinical_operations():
-            st.session_state.surgical_resurrection = st.toggle(
-                "🛠️ Correction Mode",
-                help="Enable this to fix mistakes or undo accidental saves.",
-            )
-        else:
-            st.session_state.surgical_resurrection = False
-            st.caption("Admin only.")
+        st.session_state.surgical_resurrection = st.toggle(
+            "🛠️ Correction Mode",
+            value=st.session_state.surgical_resurrection,
+            help="Enable this to fix mistakes or undo accidental saves.",
+        )
 
     # --- 2. THE FOCUS SELECTBOX (§35.5) ---
     available_bins = (
@@ -361,16 +360,20 @@ with track_view_performance("Observations"):
     # ------------------------------------------------------------------------------
     # 3. VISUAL EGG GRID & SELECTION
     # ------------------------------------------------------------------------------
-    res_eggs = (
-        supabase.table("egg")
-        .select("*")
-        .eq("bin_id", active_bin_id)
-        .eq("status", "Active")
-        .eq("is_deleted", False)
-        .order("egg_id")
-        .execute()
-    )
-    eggs_data = res_eggs.data
+    try:
+        res_eggs = (
+            supabase.table("egg")
+            .select("*")
+            .eq("bin_id", active_bin_id)
+            .eq("status", "Active")
+            .eq("is_deleted", False)
+            .order("egg_id")
+            .execute()
+        )
+        eggs_data = res_eggs.data
+    except Exception:
+        st.error("This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs.")
+        st.stop()
 
     obs_session = (
         get_resilient_table(supabase, "egg_observation")
@@ -828,16 +831,19 @@ with track_view_performance("Observations"):
     # ------------------------------------------------------------------------------
     if not st.session_state.surgical_resurrection:
         with st.expander("📊 Activity Log"):
-            logs = (
-                get_resilient_table(supabase, "egg_observation")
-                .select("*")
-                .eq("session_id", st.session_state.session_id)
-                .eq("is_deleted", False)
-                .order("timestamp", desc=True)
-                .execute()
-                .data
-            )
-            for l in logs:
-                st.write(
-                    f"[{l['timestamp'][11:16]}] **{l['egg_id']}** -> Stage {l['stage_at_observation']} ✅"
+            try:
+                logs = (
+                    get_resilient_table(supabase, "egg_observation")
+                    .select("*")
+                    .eq("session_id", st.session_state.session_id)
+                    .eq("is_deleted", False)
+                    .order("timestamp", desc=True)
+                    .execute()
+                    .data
                 )
+                for l in logs:
+                    st.write(
+                        f"[{l['timestamp'][11:16]}] **{l['egg_id']}** -> Stage {l['stage_at_observation']} ✅"
+                    )
+            except Exception:
+                st.error("This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs.")

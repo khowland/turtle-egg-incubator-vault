@@ -55,14 +55,23 @@ def fetch_active_observers():
         return []
 
 
+def is_session_adoptable(last_login_iso: str) -> bool:
+    """
+    Standard §36: Forensic Session Recovery.
+    Sessions are only adoptable if < 1 hour old (Red Team Remediation v8.2.0).
+    """
+    try:
+        last_timestamp = datetime.fromisoformat(last_login_iso.replace("Z", "+00:00"))
+        diff = datetime.now(timezone.utc) - last_timestamp
+        return diff <= timedelta(hours=1)
+    except Exception:
+        return False
+
+
 def show_splash_screen():
     # Initialize client early to prevent NameError in exception blocks Standard §36
     supabase_client = get_supabase()
 
-    # Render static Welcome message FIRST for instant feedback
-    # CR-20260423: Use st.image for flexibility. Replacing malformed base64 with file-based source.
-    # This allows the user to update the logo by simply replacing assets/winc-logo2.png.
-    
     # Standard Centering Wrapper
     st.markdown("<div style='text-align: center; padding: 6vh 2rem 1rem 2rem; max-width: 480px; margin: 0 auto;'>", unsafe_allow_html=True)
     
@@ -78,16 +87,8 @@ def show_splash_screen():
         unsafe_allow_html=True,
     )
 
-    # Use cached data to eliminate DB latency on repeated loads
-    import time
-    start_fetch = time.perf_counter()
-    print(f"[{time.strftime('%H:%M:%S')}] 🛠️ session.py: Calling fetch_active_observers")
-    
     active_observers = fetch_active_observers()
     
-    end_fetch = time.perf_counter()
-    print(f"[{time.strftime('%H:%M:%S')}] ✅ session.py: fetch_active_observers returned in {end_fetch - start_fetch:.4f}s")
-
     if not active_observers:
         st.error("No active observers found in registry or connection failed.")
         st.stop()
@@ -123,7 +124,6 @@ def show_splash_screen():
                 if st.form_submit_button("START", use_container_width=True, key="login_start"):
                     chosen_oid = observer_options[selected_observer]
                     st.session_state.observer_id = chosen_oid
-
                     st.session_state.observer_name = selected_observer.split(" (")[0]
 
                     try:
@@ -137,7 +137,7 @@ def show_splash_screen():
                     resuming_user_name = None
 
                     try:
-                        # Standard §36: Within 4 hours? Resume personal last session.
+                        # Standard §36: Forensic Session Recovery.
                         last_session_query = (
                             supabase_client.table("session_log")
                             .select("*")
@@ -147,37 +147,25 @@ def show_splash_screen():
                             .execute()
                         )
                         if last_session_query.data:
-                            last_timestamp = datetime.fromisoformat(
-                                last_session_query.data[0]["login_timestamp"].replace(
-                                    "Z", "+00:00"
-                                )
-                            )
-                            # Standard §36: Within 4 hours? Resume only if NOT terminated.
+                            last_iso = last_session_query.data[0]["login_timestamp"]
+                            
+                            # Standard §36: Resume only if NOT terminated and within security window.
                             is_terminated = False
                             try:
-                                term_res = supabase_client.table("system_log").select("id").eq("session_id", last_session_query.data[0]["session_id"]).eq("event_type", "TERMINATE").execute()
+                                term_res = supabase_client.table("system_log").select("system_log_id").eq("session_id", last_session_query.data[0]["session_id"]).eq("event_type", "TERMINATE").execute()
                                 if term_res.data:
                                     is_terminated = True
                             except:
                                 pass
 
-                            diff = datetime.now(timezone.utc) - last_timestamp
-                            if diff <= timedelta(hours=4) and not is_terminated:
-
+                            if is_session_adoptable(last_iso) and not is_terminated:
                                 # SUCCESS: Resume session
                                 current_generated_id = last_session_query.data[0]["session_id"]
                                 st.session_state.session_id = current_generated_id
                                 
-                                # CR-20260423-111948: Standardized audit vocabulary
                                 st.success(f"✅ **Session resumed**: Welcome back, {st.session_state.observer_name}.")
-                                st.info("💡 **Note**: If you just switched back from another app, your last recorded action is saved in the **Activity Log**.")
-                                
-                                resuming_user_name = last_session_query.data[0][
-                                    "user_name"
-                                ]
-                                logger.warning(
-                                    f"🔄 Personal Resume: Adopting shift session {current_generated_id} for {resuming_user_name}"
-                                )
+                                resuming_user_name = last_session_query.data[0]["user_name"]
+                                logger.warning(f"🔄 Personal Resume: Adopting shift session {current_generated_id} for {resuming_user_name}")
                     except Exception as error:
                         logger.error(f"Personal recovery failed: {error}")
 
@@ -187,12 +175,10 @@ def show_splash_screen():
                         st.session_state.resume_notice = f"🔄 Session resumed: {resuming_user_name}"
 
                     try:
-                        display_name = st.session_state.observer_name
-
                         get_resilient_table(supabase_client, "session_log").upsert(
                             {
                                 "session_id": st.session_state.session_id,
-                                "user_name": display_name,
+                                "user_name": st.session_state.observer_name,
                                 "user_agent": "WINC Field App",
                             }
                         ).execute()
@@ -203,6 +189,7 @@ def show_splash_screen():
                         get_resilient_table(supabase_client, "system_log").insert(
                             {
                                 "session_id": st.session_state.session_id,
+                                "observer_id": st.session_state.observer_id,
                                 "event_type": "ACCESS",
                                 "event_message": f"Session started: {st.session_state.observer_name}",
                             }

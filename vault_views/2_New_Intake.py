@@ -25,7 +25,7 @@ from utils.performance import track_view_performance
 supabase = bootstrap_page("Intake", "🛡️")
 
 with track_view_performance("Intake"):
-    st.title("🛡️ Intake")
+    st.title("🛡️ New Intake")
 
     with st.sidebar.expander("ℹ️ Screen Help - Step-by-Step"):
         st.markdown("""
@@ -235,6 +235,12 @@ with track_view_performance("Intake"):
             if brow["mass"] <= 0:
                 st.error(f"❌ Bin #{idx+1} Error: The 'Bin Weight (g)' is a mandatory clinical mass gate. Please enter a valid weight greater than 0.")
                 st.stop()
+        
+        # Finding 5: Prevent Duplicate Bin IDs
+        previews = [r.get("bin_id_preview") for r in st.session_state.bin_rows]
+        if len(set(previews)) != len(previews):
+            st.error("❌ Data Integrity Error: Duplicate Bin IDs detected in this intake. Each bin must have a unique identifier.")
+            st.stop()
 
         def _intake_success_ui(first_bin_identifier, intake_identifier=None):
             st.balloons()
@@ -307,9 +313,6 @@ with track_view_performance("Intake"):
                                 "mother_weight_g": mother_weight_g,
                                 "days_in_care": days_in_care,
                                 "discovery_location": discovery_location,
-                                "carapace_length_mm": (
-                                    carapace_length if carapace_length > 0 else None
-                                ),
                             },
                             "bins": bins_payload,
                         }
@@ -350,6 +353,7 @@ with track_view_performance("Intake"):
                     get_resilient_table(supabase, "system_log").insert(
                         {
                             "session_id": st.session_state.session_id,
+                            "observer_id": st.session_state.get("observer_id"),
                             "event_type": "ERROR",
                             "event_message": f"Intake failed: Case {case_number} — Transaction failed: {str(error)}",
                         }

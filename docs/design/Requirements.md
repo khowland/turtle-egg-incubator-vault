@@ -1,4 +1,4 @@
-# 🐢 Project Requirements: WINC Incubator System v8.1.5
+# 🐢 Project Requirements: WINC Incubator System v8.2.0
 
 **(Industry Best Practice & WINC Production Edition)**
 
@@ -7,6 +7,7 @@
 The **WINC Incubator System** is a high-integrity records system designed for the Wildlife In Need Center (WINC). It adheres to **Industry Best Practices** for enterprise software engineering, focusing on data durability, system transparency, and biological accuracy.
 
 * **Human-First Design**: The system must be intuitive enough for a volunteer with zero technical training to operate ("5th-Grader Standard").
+* **Architecture Standard**: Single-user-at-a-time shift model. Supports multiple observers for forensic accountability, but permits only one active clinical context at a time.
 * **Infrastructure Standard**: Hosted on **Google Cloud Platform (GCP)** with a **Supabase (PostgreSQL)** backend, utilizing containerized Streamlit for maximum availability.
 
 ---
@@ -24,6 +25,7 @@ To ensure long-term maintainability for nonprofit staff, the following standards
 ### 🎨 Visual Branding & UI Font Case Standards
 
 To ensure consistent legibility and professional aesthetic:
+
 * **Clean Slate Standard**: All branding assets (logos) are removed from the splash and sidebar to maximize focus and performance.
 * **Loading Standard**: The custom "Hatching Turtle" (🐢) animation is the mandatory status indicator for all data operations.
 * **Menu Options**: Title Case (e.g., `New Intake`, `Vault Administration`)
@@ -46,7 +48,7 @@ graph LR
 
 ## 🩺 2. Clinical Workflow & Session Logic
 
-* **Session Persistence (§36)**: Implements a 4-hour **global** resumption window: a new login within four hours of the last activity adopts the existing shift session ID.
+* **Session Persistence (§36)**: Implements a 1-hour **global** resumption window: a new login within one hour of the last activity adopts the existing shift session ID. Sessions older than 1 hour require re-authentication.
 * **Bin Weight Check**: A mandatory weight check blocks access to the grid until the bin's mass is recorded.
 * **Unified Identity Cluster**: User identity (Name + Version) and the **SHIFT END** session termination control must be grouped in a consolidated sidebar cluster.
 
@@ -92,7 +94,7 @@ To ensure production usability on clinical floor mobile devices:
 3. **Responsive Sliding**: The page body must dynamically slide left and expand horizontally when the sidebar menu is collapsed, maintaining a tight-fit relationship with the physical viewport edges.
 
 ---
-*Verified for the 2026 Turtle Season (Release v8.1.5).*
+*Verified for the 2026 Turtle Season (Release v8.2.0).*
 
 ## 8. Database State Management & Backup Protocols (Red Team Secured)
 

@@ -1,0 +1,93 @@
+CHANGE REQUEST
+==============
+ID:        CR-20260426-173831
+Date:      2026-04-26 17:38 CST
+Requested: Kevin Howland / WINC Clinical Walkthrough Team
+Status:    PENDING AUTHORIZATION
+Priority:  HIGH — Mobile UX / Clinical Accessibility
+LOE:       Low (1 file, 1 CSS block, 1 unit assertion)
+
+TITLE
+-----
+Mobile Sidebar: Restore Collapse/Uncollapse Toggle Button
+
+DESCRIPTION
+-----------
+On mobile devices, the sidebar navigation menu has no visible way to
+collapse or expand it after it has been collapsed. The hamburger/toggle
+button that Streamlit renders into the top header bar is being
+completely suppressed by a CSS rule in bootstrap.py that was added
+during the Tight-Fit mobile layout work (CR-20260423 / Bug-PERF-001).
+
+ROOT CAUSE
+----------
+In utils/bootstrap.py, the global CSS block contains:
+
+    [data-testid="stHeader"] {
+        height: 0rem !important;
+        visibility: hidden !important;
+        min-height: 0rem !important;
+    }
+
+This rule kills the entire Streamlit top header bar, which on mobile is
+the ONLY container that holds the sidebar collapse/expand button
+(the hamburger icon). On desktop, this is acceptable because screen
+width keeps the sidebar always visible. On mobile, once the sidebar
+collapses (auto-collapses on page load or navigation), there is no
+recovery affordance for the user. The clinical team cannot access the
+navigation menu.
+
+NOTE: The stHeader suppression was intentional for the Tight-Fit
+desktop layout and Bug-PERF-001 fix. The fix must NOT revert that work
+for desktop. Only restore the header for mobile breakpoints.
+
+PROPOSED FIX
+------------
+Replace the flat [data-testid="stHeader"] hide rule with a
+responsive CSS rule that:
+  - Desktop (>= 768px): keeps height=0 / visibility=hidden (no change)
+  - Mobile (< 768px):   restores height to auto and visibility=visible
+    so the hamburger toggle is reachable.
+
+Single change: utils/bootstrap.py — replace the stHeader block with a
+@media-query-gated version. No Python logic changes required.
+
+FILES AFFECTED
+--------------
+- utils/bootstrap.py   (stHeader CSS rule, lines ~178-182)
+
+DEPENDENCIES
+------------
+- None. This is a standalone CSS-only change within an existing block.
+- Must not affect Bug-PERF-001 fix (no external font references added).
+
+TEST PLAN
+---------
+Automated (unit):
+  c:\dev\projects\turtle-db\.venv\Scripts\python.exe -m pytest tests\test_adversarial_ui_vocabulary.py -v --tb=short
+  (verify no existing test assertion breaks on the stHeader keyword)
+
+Manual (mobile device or Chrome DevTools — required):
+  1. Open the app on a mobile device OR open Chrome DevTools ->
+     Device Toolbar (Ctrl+Shift+M) -> select a phone preset (e.g.
+     iPhone 12, 390px wide).
+  2. Navigate to any page while logged in.
+  3. Tap the sidebar (it should auto-expand on load). Tap the "<"
+     collapse arrow to collapse it.
+  4. VERIFY: A hamburger icon (≡) OR a visible arrow is present in
+     the top-left corner of the screen after collapsing.
+  5. Tap it. VERIFY: The sidebar re-expands and all navigation items
+     are accessible.
+  6. Repeat on the Dashboard, Intake, Observations, and Settings pages.
+  7. Switch back to desktop width (>= 768px). VERIFY: No top header
+     bar appears; layout remains Tight-Fit with no regression.
+
+HOLD ITEMS
+----------
+None. This is a self-contained fix.
+
+REFERENCES
+----------
+- bootstrap.py lines ~178-182 (current offending rule)
+- Conversation: CR-20260423 Mobile Tight-Fit layout work
+- implied_system_objective.md §5th-Grader Standard UI

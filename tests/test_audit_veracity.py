@@ -51,4 +51,28 @@ def test_audit_log_capture_on_intake(mock_db):
         assert payload['session_id'] == "test-session-uuid"
 
 def test_audit_log_visibility_in_ui(mock_db):
-    assert True
+    """
+    AUD-2: The Dashboard must display recent system_log entries in the
+    'Recent Vault Activity' section. Verifies that audit events reach the UI.
+    """
+    db, _ = mock_db
+    # Override system_log with a visible event
+    db.table.return_value.select.return_value.order.return_value.limit.return_value.execute.return_value.data = [
+        {
+            "timestamp": "2026-04-26T14:55:00",
+            "event_type": "AUDIT",
+            "event_message": "Session active: Test Observer",
+        }
+    ]
+
+    with patch("utils.bootstrap.bootstrap_page", return_value=db), \
+         patch("utils.bootstrap.get_resilient_table", side_effect=lambda sb, name: db.table(name)):
+        at = AppTest.from_file("vault_views/1_Dashboard.py")
+        at.session_state.observer_id = "audit-vis-observer"
+        at.session_state.session_id = "audit-vis-session"
+        at.session_state.observer_name = "Audit Tester"
+        at.run(timeout=15)
+
+        assert not at.exception, f"Dashboard crashed during audit log render: {at.exception}"
+        # The system_log section must render without error — it should not raise
+

@@ -1,4 +1,4 @@
-# Turtle-DB Performance Optimization Roadmap (v8.1.5+)
+# Turtle-DB Performance Optimization Roadmap (v8.2.0+)
 
 Based on the system-wide audit conducted on April 23, 2026, we have identified key areas to improve user experience and reduce perceived latency.
 

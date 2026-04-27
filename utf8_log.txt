@@ -1,0 +1,11 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\dev\projects\turtle-db
+configfile: pytest.ini
+plugins: anyio-4.12.1, logfire-4.28.0, base-url-2.1.0, mock-3.15.1, playwright-0.7.2
+collecting ... collected 89 items
+
+tests/clinical_edge_cases/test_molding_matrix.py::test_molding_options_and_persistence PASSED [  1%]
+tests/clinical_edge_cases/test_surgical_logic.py::test_surgical_resurrection_allows_viewing_and_restoring_deleted_obs PASSED [  2%]
+tests/e2e_playwright/test_adversarial_forensic.py::test_layer1_adversarial_ui_rejections[chromium] FAILED [  3%]
