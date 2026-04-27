@@ -21,7 +21,7 @@ from utils.performance import track_view_performance
 supabase = bootstrap_page("Help", "📚")
 
 with track_view_performance("Help"):
-    st.title("📚 Help")
+    st.title("Help")
 
     # 2. Render Path Detection
     # We use absolute project root paths now

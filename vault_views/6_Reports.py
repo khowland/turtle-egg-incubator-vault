@@ -427,7 +427,7 @@ with track_view_performance("Reports"):
             
             if audit_events:
                 df_audit = pd.DataFrame(audit_events)
-                df_audit['timestamp'] = pd.to_datetime(df_audit['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
+                df_audit['timestamp'] = pd.to_datetime(df_audit['timestamp']).dt.strftime('%m/%d/%Y %H:%M:%S')
                 
                 # Filter by date range
                 mask_r = (pd.to_datetime(df_audit['timestamp']).dt.date >= start_date_r) & (pd.to_datetime(df_audit['timestamp']).dt.date <= end_date_r)

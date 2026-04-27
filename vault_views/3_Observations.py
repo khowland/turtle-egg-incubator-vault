@@ -67,7 +67,7 @@ with track_view_performance("Observations"):
             )
             m_map = {m["intake_name"]: m["intake_id"] for m in all_mothers.data}
             target_m = st.selectbox("Select Intake/Case", list(m_map.keys()), key="sup_m")
-            new_bin_code = st.text_input("New Bin ID", placeholder="OB1-NAME-2")
+            new_bin_code = st.text_input("New Bin Code", placeholder="OB1-NAME-2")
             if st.button("➕", help="Create Supplemental Bin"):
 
                 def create_sup_bin():
@@ -446,7 +446,7 @@ with track_view_performance("Observations"):
                         ts = (
                             datetime.datetime.fromisoformat(
                                 str(h["timestamp"]).replace("Z", "+00:00")
-                            ).strftime("%Y-%m-%d %H:%M")
+                            ).strftime("%m/%d/%Y %H:%M")
                         )
                         st.write(
                             f"**{ts}** | Stage: {h.get('stage_at_observation', 'N/A')} | Observer: {h.get('observer_id', 'Unknown')}"
@@ -544,7 +544,7 @@ with track_view_performance("Observations"):
                             ts_v = (
                                 datetime.datetime.fromisoformat(
                                     str(hv["timestamp"]).replace("Z", "+00:00")
-                                ).strftime("%Y-%m-%d %H:%M")
+                                ).strftime("%m/%d/%Y %H:%M")
                             )
                             st.write(
                                 f"**{ts_v}** | Stage: {hv.get('stage_at_observation', 'N/A')} | Voided: {hv.get('void_reason', 'N/A')}"

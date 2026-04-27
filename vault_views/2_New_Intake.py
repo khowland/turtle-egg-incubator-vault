@@ -93,7 +93,7 @@ with track_view_performance("Intake"):
         if res_cases.data:
             case_options = {f"{c['intake_name']} ({c['finder_turtle_name']})": c['intake_id'] for c in res_cases.data}
             selected_case_id = st.selectbox("Select Existing Mother", list(case_options.keys()))
-            supp_date = st.date_input("Supplemental Date")
+            supp_date = st.date_input("Supplemental Date", format="MM/DD/YYYY")
             st.session_state.supp_intake_id = case_options[selected_case_id]
             st.session_state.supp_date = str(supp_date)
         else:
@@ -105,7 +105,7 @@ with track_view_performance("Intake"):
         col1, col2, col3 = st.columns([2, 1, 1])
         selected_label = col1.selectbox("Species", list(species_data_map.keys()))
         case_number = col2.text_input("WINC Case #", placeholder="2026-XXXX")
-        intake_date = col3.date_input("Date")
+        intake_date = col3.date_input("Date", format="MM/DD/YYYY")
 
         l_col1, l_col2, l_col3 = st.columns(3)
         finder_name = l_col1.text_input(
@@ -181,7 +181,7 @@ with track_view_performance("Intake"):
             num_rows="dynamic",
             use_container_width=True,
             column_config={
-                "bin_id_preview": st.column_config.TextColumn("Bin ID (Auto)", disabled=True),
+                "bin_id_preview": st.column_config.TextColumn("Bin Code (Auto)", disabled=True),
                 "bin_num": st.column_config.NumberColumn("Bin #", disabled=True),
                 "egg_count": st.column_config.NumberColumn("Total Eggs", min_value=1, max_value=99, required=True),
                 # CR-20260426 Ac-1: Shelf Location and Substrate hidden from UI view
@@ -239,7 +239,7 @@ with track_view_performance("Intake"):
         # Finding 5: Prevent Duplicate Bin IDs
         previews = [r.get("bin_id_preview") for r in st.session_state.bin_rows]
         if len(set(previews)) != len(previews):
-            st.error("❌ Data Integrity Error: Duplicate Bin IDs detected in this intake. Each bin must have a unique identifier.")
+            st.error("❌ Data Integrity Error: Duplicate Bin Codes detected in this intake. Each bin must have a unique identifier.")
             st.stop()
 
         def _intake_success_ui(first_bin_identifier, intake_identifier=None):

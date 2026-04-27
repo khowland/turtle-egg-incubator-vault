@@ -152,7 +152,7 @@ with track_view_performance("Dashboard"):
                 f"The following bins have **0 active eggs**. They should be removed from the list."
             )
             selected_retirement_target = st.selectbox(
-                "Select Bin to Remove", retirement_targets_list
+                "Select Bin Code to Remove", retirement_targets_list
             )
 
             confirm_col, action_col = st.columns([2, 1])
@@ -252,8 +252,9 @@ with track_view_performance("Dashboard"):
     )
     if system_logs_result:
         for entry in system_logs_result:
+            ts_formatted = pd.to_datetime(entry['timestamp']).strftime('%m/%d/%Y %H:%M')
             st.caption(
-                f"{entry['timestamp'][:16].replace('T', ' ')} | **{entry['event_type']}**: {entry['event_message']}"
+                f"{ts_formatted} | **{entry['event_type']}**: {entry['event_message']}"
             )
     else:
         st.info("system_log monitoring active... waiting for events.")

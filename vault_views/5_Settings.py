@@ -293,7 +293,7 @@ with tabs[3]:
                 ghost_count = orphan_map.get(rb["bin_id"], 0)
                 with st.container(border=True):
                     c1, c2 = st.columns([3, 1])
-                    c1.write(f"**Bin ID: {rb['bin_id']}**")
+                    c1.write(f"**Bin Code: {rb['bin_id']}**")
                     if ghost_count > 0:
                         c1.error(f"⚠️ **GHOST DATA DETECTED**: {ghost_count} 'Active' eggs are trapped in this deleted bin.")
                     c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")
@@ -367,7 +367,7 @@ with tabs[4]:
     if logs_raw:
         df_logs = pd.DataFrame(logs_raw.data if hasattr(logs_raw, "data") else logs_raw)
         if not df_logs.empty and 'timestamp' in df_logs.columns:
-            df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
+            df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp']).dt.strftime('%m/%d/%Y %H:%M:%S')
             mask = (pd.to_datetime(df_logs['timestamp']).dt.date >= start_date) & (pd.to_datetime(df_logs['timestamp']).dt.date <= end_date)
             df_filtered = df_logs.loc[mask]
         else:
