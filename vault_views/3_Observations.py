@@ -39,6 +39,8 @@ with track_view_performance("Observations"):
         st.session_state.workbench_bins = set()
     if "observed_this_session" not in st.session_state:
         st.session_state.observed_this_session = set()
+    if "surgical_resurrection" not in st.session_state:
+        st.session_state.surgical_resurrection = False
 
     # Handle Auto-Transition from Intake
     if "active_case_id" in st.session_state:
