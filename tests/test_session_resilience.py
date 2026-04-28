@@ -13,7 +13,7 @@ def test_session_recovery_boundary_valid():
     RES-1: Test session recovery within the 4-hour window (3 hours 55 mins).
     """
     now_utc = datetime.now(timezone.utc)
-    recent_time = (now_utc - timedelta(hours=3, minutes=55)).isoformat().replace("+00:00", "Z")
+    recent_time = (now_utc - timedelta(minutes=55)).isoformat().replace("+00:00", "Z")
     old_active_session = "old-active-session"
     
     table_data = {
@@ -48,7 +48,7 @@ def test_session_recovery_boundary_valid():
         # In this recovery flow, the app shows a success toast
         actual_sid = at.session_state.session_id
         assert actual_sid == old_active_session, (
-            f"Security Error: Failed to re-adopt valid session '{old_active_session}' within the 4-hour window. Found: {actual_sid}"
+            f"Security Error: Failed to re-adopt valid session '{old_active_session}' within the 1-hour window. Found: {actual_sid}"
         )
 
 def test_session_recovery_boundary_expired():
@@ -56,7 +56,7 @@ def test_session_recovery_boundary_expired():
     RES-2: Test session recovery outside the 4-hour window (4 hours 5 min).
     """
     now_utc = datetime.now(timezone.utc)
-    stale_time = (now_utc - timedelta(hours=4, minutes=5)).isoformat().replace("+00:00", "Z")
+    stale_time = (now_utc - timedelta(hours=1, minutes=5)).isoformat().replace("+00:00", "Z")
     table_data = {
         "session_log": [{"session_id": "stale-session", "login_timestamp": stale_time, "user_name": "Kevin"}],
         "system_log": [],
