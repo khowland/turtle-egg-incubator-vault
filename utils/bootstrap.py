@@ -17,7 +17,7 @@ import uuid
 import datetime
 from utils.db import get_supabase
 
-@st.cache_data(ttl=0) # ZERO TTL ensures live database sync for v8.1.5 audit
+# No caching for version to ensure live environment sync
 def get_app_version():
     """Fetches the application version from the system_config table."""
     try:
