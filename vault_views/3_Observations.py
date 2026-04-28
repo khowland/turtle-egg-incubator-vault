@@ -193,13 +193,7 @@ with track_view_performance("Observations"):
                 safe_db_execute("Append", append_eggs, success_message=audit_msg)
                 st.rerun()
 
-    # Finding 6: Reset Correction Mode if Bin changes
-    if "last_active_bin_id" not in st.session_state:
-        st.session_state.last_active_bin_id = active_bin_id
-    
-    if st.session_state.last_active_bin_id != active_bin_id:
-        st.session_state.surgical_resurrection = False
-        st.session_state.last_active_bin_id = active_bin_id
+    # [Correction Mode Toggle now at bottom of Header block for visibility]
 
     _col_h1, col_h2 = st.columns([2, 1])
     with col_h2:
@@ -271,6 +265,14 @@ with track_view_performance("Observations"):
         key="Current Bin Focus",
         help="Switch between selected bins to record observations."
     )
+
+    # Finding 6: Reset Correction Mode if Bin changes
+    if "last_active_bin_id" not in st.session_state:
+        st.session_state.last_active_bin_id = active_bin_id
+    
+    if st.session_state.last_active_bin_id != active_bin_id:
+        st.session_state.surgical_resurrection = False
+        st.session_state.last_active_bin_id = active_bin_id
 
     # ------------------------------------------------------------------------------
     # 3. HYDRATION GATE (Bypass in Surgical Resurrection Mode)
