@@ -243,17 +243,57 @@ with tabs[1]:
         )
 
 with tabs[2]:
-    st.info(
-        "Biological Development Icons are currently locked to the Titan Engine v7.9 Standard."
-    )
-    st.markdown("""
-    | Stage | Description | Icon |
-    | :--- | :--- | :--- |
-    | **S1** | Initial Intake | ⚪ |
-    | **S1-S4** | Developmental Growth | 🧬 |
-    | **S5** | Pipping Initiated | 🌟 |
-    | **S6** | Hatched | ✨ |
-    """)
+    st.info("Biological Development Icons are locked to the WINC Clinical Standard. Read-only for all users.")
+    
+    # Standard §35: Fetch from development_stage biological registry
+    res_stages = supabase.table("development_stage").select("*").order("ordinal_rank").execute()
+    df_stages = pd.DataFrame(res_stages.data)
+
+    if not df_stages.empty:
+        # Map Stage to Icon path logic
+        # S1 -> egg_s1.png, S2* -> egg_s2.png, S3 -> egg_s3.png, etc.
+        def map_icon(row):
+            # Extract common prefix (e.g. S1, S2, S3)
+            # Standard: S1,S2S,S2B,S2F,S3,S4C,S4T,S4M,S5,S6
+            stage_id = str(row["stage_id"])
+            if stage_id.startswith("S2"): icon_num = 2
+            elif stage_id.startswith("S3"): icon_num = 3
+            elif stage_id.startswith("S4"): icon_num = 4
+            elif stage_id.startswith("S5"): icon_num = 5
+            elif stage_id.startswith("S6"): icon_num = 5 # Use S5 for S6 if S6 missing
+            else: icon_num = 1
+            
+            # Use data-URI for icons to ensure Community Cloud compatibility
+            import base64
+            icon_path = f"assets/icons/egg_s{icon_num}.png"
+            if os.path.exists(icon_path):
+                with open(icon_path, "rb") as f:
+                    data = base64.b64encode(f.read()).decode()
+                    return f"data:image/png;base64,{data}"
+            return "⚪"
+
+        import os
+        df_stages["Icon"] = df_stages.apply(map_icon, axis=1)
+        
+        # Display as read-only table with image column
+        st.dataframe(
+            df_stages,
+            column_config={
+                "stage_id": st.column_config.TextColumn("Code", width="small"),
+                "label": "Stage Label",
+                "description": "Biological Description",
+                "milestone": None, 
+                "sub_code": None,
+                "ordinal_rank": None,
+                "created_at": None,
+                "modified_at": None,
+                "Icon": st.column_config.ImageColumn("Visual Representation")
+            },
+            hide_index=True,
+            use_container_width=True
+        )
+    else:
+        st.error("No biological stages found in registry.")
 
 with tabs[3]:
     st.subheader("📦 The Resurrection Vault")
