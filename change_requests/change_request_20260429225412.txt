@@ -1,0 +1,299 @@
+CHANGE REQUEST
+==============
+ID:        CR-20260429-225412
+Date:      2026-04-29 22:54 CST
+Requested: Kevin Howland / WINC Clinical Workflow Consolidation
+Status:    OPEN — PENDING AUTHORIZATION
+Priority:  HIGH — Workflow Consolidation & Data Integrity
+LOE:       Medium (1 view removal, 1 view enhancement, backend wiring)
+
+TITLE
+-----
+Consolidate Supplemental Intake to New_Intake.py; Remove Redundant
+Observations Sidebar Tools; Rename Intake Mode Radio Labels
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+Currently, adding bins/eggs to existing intakes is split across two screens:
+
+  1. Observations screen (3_Observations.py):
+     - 'Add Bin to Intake' sidebar expander (CR-20260429-210932)
+     - 'Add Eggs to Existing Bin' sidebar expander
+     Both are workarounds filling a gap in the Intake screen.
+
+  2. New Intake screen (2_New_Intake.py):
+     - 'Supplemental Intake (Add to Existing Mother)' radio mode
+     This is the intended location but is NOT properly wired to the backend
+     (CR-20260429-224325, Lo-3).
+
+This CR consolidates both supplemental workflows into New_Intake.py,
+wires up the backend properly, and removes the redundant sidebar tools
+from the Observations screen. The intake screen becomes the single
+source of truth for all egg/bin intake operations.
+
+Rename radio options for clinical clarity:
+  'Initial Intake (New Case)'              → 'New Intake'
+  'Supplemental Intake (Add to Existing Mother)' → 'Add Eggs or Bins to Existing Intake'
+
+================================================================================
+IMPACT ANALYSIS
+================================================================================
+
+------------------------------------------------------------------------
+[Rm-1] REMOVE: 3_Observations.py — 'Add Bin to Intake' expander
+------------------------------------------------------------------------
+Lines to remove:
+  - Lines 44-50:  sup_bin_mode, sup_bin_intake_id, sup_bin_intake_name
+                  session state flags
+  - Lines 67-89:  'Add Bin to Intake' expander block
+  - Lines 281-430: §2.5 SUPPLEMENTAL BIN SETUP main content block
+                  (sup_bin_mode form, commit_sup_bin function)
+
+Dependencies removed:
+  - import re as _re (now only needed if used elsewhere in file — verify)
+  - import pandas as _pd (same — verify)
+  - All sup_bin_* session state references
+
+Side effect: The sidebar 'Extra Tools' section will only retain the
+'Add Eggs to Existing Bin' expander — which is also removed in Rm-2.
+If both are removed, the entire sidebar 'Extra Tools' section and
+header can be removed unless other tools remain.
+
+CHECK: Confirm no other tools remain in the sidebar 'Extra Tools'
+section after removal. If none, remove the st.header("🛠️ Extra Tools")
+and the `with st.sidebar:` block entirely.
+
+------------------------------------------------------------------------
+[Rm-2] REMOVE: 3_Observations.py — 'Add Eggs to Existing Bin' expander
+------------------------------------------------------------------------
+Lines to remove:
+  - Lines 91-196: 'Add Eggs to Existing Bin' expander
+  (exact lines: st.expander block with target_b selectbox, egg_count,
+  egg_date, new_target, SAVE button, append_eggs function)
+
+Note: The 'Add Eggs to Existing Bin' tool appends new egg records
+to an existing bin AND recalibrates the bin weight. This is DISTINCT
+from adding a new bin. It must be represented in New_Intake.py
+supplemental mode (see Ad-3 below).
+
+------------------------------------------------------------------------
+[Ad-1] ADD/FIX: 2_New_Intake.py — Radio label rename
+------------------------------------------------------------------------
+File: vault_views/2_New_Intake.py, line 87
+
+Current:
+  intake_mode = st.radio(
+    "Select Workflow",
+    ["Initial Intake (New Case)",
+     "Supplemental Intake (Add to Existing Mother)"],
+    horizontal=True
+  )
+
+Required:
+  intake_mode = st.radio(
+    "Select Workflow",
+    ["New Intake",
+     "Add Eggs or Bins to Existing Intake"],
+    horizontal=True
+  )
+
+IMPACT: All downstream `if intake_mode == "Initial Intake..."` and
+`if intake_mode == "Supplemental..."` conditionals must be updated
+to match the new string values.
+
+------------------------------------------------------------------------
+[Ad-2] ADD/FIX: 2_New_Intake.py — Supplemental mode sub-workflow
+------------------------------------------------------------------------
+The supplemental mode (now 'Add Eggs or Bins to Existing Intake')
+must support TWO sub-operations that mirror the removed Observations
+sidebar tools:
+
+  Sub-mode A: Add New Bin(s) to Intake
+    - User selects existing intake
+    - Bin configuration table shows with auto-derived next bin code(s)
+    - On save: insert bin + eggs + bin_observation + egg_observation S1
+    - (Mirrors removed 'Add Bin to Intake' expander)
+
+  Sub-mode B: Add Eggs to Existing Bin
+    - User selects existing intake, then selects existing bin
+    - Enters additional egg count and recalibrated weight
+    - On save: insert additional egg records + update bin weight +
+               insert bin_observation recalibration record
+    - (Mirrors removed 'Add Eggs to Existing Bin' expander)
+
+Implementation options:
+  Option A (Recommended): Add a second radio/toggle in supplemental
+    mode: 'Add New Bin(s)' vs 'Add Eggs to Existing Bin'. The form
+    below dynamically shows the appropriate fields.
+
+  Option B: Two distinct top-level radio options (3 total):
+    - 'New Intake'
+    - 'Add New Bin to Existing Intake'
+    - 'Add Eggs to Existing Bin'
+
+  Recommendation: Option A — keeps the radio clean at 2 options as
+  requested, with a secondary selector within supplemental mode.
+
+------------------------------------------------------------------------
+[Ad-3] ADD/FIX: 2_New_Intake.py — Supplemental save path wiring
+        (incorporates CR-20260429-224325, Lo-2, Lo-3, Lo-4)
+------------------------------------------------------------------------
+Key implementation details for Sub-mode A (Add New Bin):
+
+  1. FETCH existing intake data on case selection:
+     - Query: SELECT intake_id, intake_name, finder_turtle_name,
+               species_id, intake_count FROM intake WHERE...
+     - OR join with species to get species_code
+     - Pre-populate Finder field from finder_turtle_name (read-only)
+     - Determine existing intake_number from intake.intake_count or
+       by parsing existing bin codes for that intake
+
+  2. BIN CODE GENERATION in supplemental mode:
+     Current generation: {species_code}{next_intake_number}-{finder_clean}-{bin_num}
+     For supplemental: Use SAME formula but with:
+     - species_code from the existing intake's species
+     - intake_number = the existing intake's sequence number
+     - finder_clean from the existing intake's finder_turtle_name
+     - bin_num = max existing bin_num for this intake + 1, 2, 3...
+
+  3. SAVE PATH branch in commit_all():
+     if intake_mode == 'Add Eggs or Bins to Existing Intake' AND sub_mode == 'Add New Bin':
+       → Use supp_intake_id (NOT create intake)
+       → Do NOT increment species.intake_count
+       → For each bin in bin_rows:
+           INSERT bin (bin_id, intake_id=supp_intake_id, bin_date, total_eggs, ...)
+           Bulk INSERT egg records (egg_id='{bin_id}-E{n}', bin_id, intake_date, ...)
+           INSERT bin_observation baseline (if mass > 0)
+           Bulk INSERT egg_observation S1 baselines (one per egg)
+       → Set active_bin_id = first new bin
+       → Navigate to Observations
+
+Key implementation details for Sub-mode B (Add Eggs to Existing Bin):
+
+  1. SELECT existing intake → SELECT existing bin within that intake
+  2. Show: current egg count, current weight, fields for:
+     - Additional egg count
+     - New recalibrated total weight
+     - Egg intake date
+  3. SAVE:
+     - INSERT new egg records for the additional eggs
+     - UPDATE bin.target_total_weight_g to new weight
+     - INSERT bin_observation recalibration record
+     - Append bin_notes with append event description
+
+------------------------------------------------------------------------
+[Ad-4] ADD: 2_New_Intake.py — Intake Date label
+        (incorporates CR-20260429-224325, Lo-1)
+------------------------------------------------------------------------
+Line 108: col3.date_input("Date") → col3.date_input("Intake Date")
+
+------------------------------------------------------------------------
+[Ad-5] VERIFY: 2_New_Intake.py — Case Number and Step 1 form
+        in supplemental mode
+------------------------------------------------------------------------
+Currently, Step 1 'Mother Turtle Info' form fields (Species, WINC Case #,
+Finder, Condition, etc.) are shown in BOTH modes. In supplemental mode:
+  - WINC Case # should be READ-ONLY (pulled from selected intake)
+  - Species should be READ-ONLY (pulled from selected intake)
+  - Finder should be READ-ONLY (pulled from selected intake)
+  - Condition, Collection Method, Days in Care are NOT relevant for
+    supplemental (they belong to the mother, already recorded)
+  - Step 1 block should either be hidden or collapsed in supplemental mode
+
+Recommendation: Hide/collapse Step 1 'Mother Turtle Info' when in
+supplemental mode. Show only: selected case info (read-only) +
+Bin Configuration (Step 2).
+
+------------------------------------------------------------------------
+[Te-1] TEST IMPACT: Observations screen tests referencing sidebar tools
+------------------------------------------------------------------------
+Tests to update:
+  - tests/e2e_playwright/test_observation_workflows.py
+    → Remove/update any assertions on 'Add Bin to Intake' expander
+    → Remove/update any assertions on 'Add Eggs to Existing Bin' expander
+  - tests/e2e_playwright/test_bin_environment.py
+    → Same
+  - tests/e2e_playwright/test_intake_extended.py
+    → Add supplemental intake save path tests (Sub-mode A and B)
+  - Any test referencing sup_bin_mode session state variable
+
+------------------------------------------------------------------------
+[Te-2] TEST: New supplemental intake tests
+------------------------------------------------------------------------
+New test scenarios required:
+  - Supplemental mode: select existing intake → add new bin → verify
+    bin/egg/egg_obs/bin_obs records created correctly
+  - Supplemental mode: add eggs to existing bin → verify count + weight
+    updated, new egg records created
+  - Verify duplicate bin code prevention
+  - Verify Finder field locked/pre-populated from existing intake
+
+================================================================================
+FILES AFFECTED
+================================================================================
+
+  vault_views/3_Observations.py
+    Rm-1: Remove sup_bin_mode state flags (lines 44-50)
+    Rm-1: Remove 'Add Bin to Intake' expander (lines 67-89)
+    Rm-1: Remove §2.5 sup_bin_mode main content block (lines 281-430)
+    Rm-2: Remove 'Add Eggs to Existing Bin' expander (lines 91-196)
+    Rm-1+2: Remove sidebar 'Extra Tools' section header if empty
+
+  vault_views/2_New_Intake.py
+    Ad-1: Radio label changes (line 87)
+    Ad-1: Update all intake_mode string comparisons
+    Ad-2: Add sub-mode selector in supplemental section
+    Ad-3: Wire supplemental save path (commit_all branching)
+    Ad-4: 'Intake Date' label (line 108)
+    Ad-5: Collapse/hide Step 1 form in supplemental mode
+
+  Tests:
+    tests/e2e_playwright/test_observation_workflows.py (Te-1)
+    tests/e2e_playwright/test_bin_environment.py (Te-1)
+    tests/e2e_playwright/test_intake_extended.py (Te-2)
+
+================================================================================
+EXECUTION ORDER
+================================================================================
+Phase 1 — New_Intake.py enhancements (backend wiring first)
+  1a. Ad-4: Label change (trivial, 1 line)
+  1b. Ad-1: Radio label rename
+  1c. Ad-5: Collapse Step 1 in supplemental mode
+  1d. Ad-2: Add sub-mode selector (Add New Bin / Add Eggs to Existing Bin)
+  1e. Ad-3: Wire supplemental save path for Sub-mode A
+  1f. Ad-3: Wire supplemental save path for Sub-mode B
+
+Phase 2 — 3_Observations.py cleanup (after Phase 1 is tested)
+  2a. Rm-2: Remove 'Add Eggs to Existing Bin' expander
+  2b. Rm-1: Remove 'Add Bin to Intake' expander + sup_bin_mode blocks
+  2c. Rm-1: Remove sidebar 'Extra Tools' section if empty
+
+Phase 3 — Test suite
+  3a. Update/remove tests for removed Observations sidebar tools
+  3b. Add new supplemental intake path tests
+
+================================================================================
+STATUS
+================================================================================
+  - [ ] Ad-1  Radio label rename                    (PENDING AUTH)
+  - [ ] Ad-2  Sub-mode selector in supplemental     (PENDING AUTH)
+  - [ ] Ad-3  Supplemental save path wiring         (PENDING AUTH)
+  - [ ] Ad-4  Intake Date label                     (PENDING AUTH)
+  - [ ] Ad-5  Collapse Step 1 in supplemental       (PENDING AUTH)
+  - [ ] Rm-1  Remove Add Bin to Intake expander     (PENDING AUTH)
+  - [ ] Rm-2  Remove Add Eggs to Existing Bin       (PENDING AUTH)
+  - [ ] Te-1  Update Observations tests             (PENDING AUTH)
+  - [ ] Te-2  New supplemental tests                (PENDING AUTH)
+
+================================================================================
+DEPENDENCIES
+================================================================================
+  Supersedes:  CR-20260429-224325 Lo-2, Lo-3, Lo-4
+               (same fixes, now part of this consolidated effort)
+  Deferred:    CR-20260429-221541 (bin_code/bin_id separation)
+               (bin_id field names remain TEXT for now)
+  References:  CR-20260429-210932 (Add Bin to Intake — to be removed)
+
+================================================================================
+Protocol Authority: khowland/turtle-egg-incubator-vault © 2026
