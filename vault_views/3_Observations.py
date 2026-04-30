@@ -58,7 +58,7 @@ with track_view_performance("Observations"):
     # ------------------------------------------------------------------------------
     with st.sidebar:
         st.header("🛠️ Extra Tools")
-        with st.expander("Add a Bin to a Case"):
+        with st.expander("Add Bin to Intake"):
             all_mothers = (
                 supabase.table("intake")
                 .select("intake_id, intake_name")
@@ -244,6 +244,7 @@ with track_view_performance("Observations"):
         options=bin_options,
         default=valid_defaults,
         format_func=get_bin_display_label,
+        key="obs_workbench",
         help="Added bins from Intake appear here automatically."
     )
 
@@ -333,8 +334,19 @@ with track_view_performance("Observations"):
                     help="Record the volume added based on your clinical assessment.",
                 )
 
+                # CR-20260429: Temperature recording in Fahrenheit
+                obs_temp = st.number_input(
+                    "Incubator Temp (°F)",
+                    60.0,
+                    113.0,
+                    value=82.0,
+                    format="%.1f",
+                    key="obs_temp",
+                    help="Record the measured temperature inside the incubator.",
+                )
+
                 st.info("💡 **Clinical Requirement**: Record weights then press **SAVE** to unlock the observation grid.")
-                if st.button("SAVE", type="primary", use_container_width=True, help="Record weights and unlock the Egg Observation grid"):
+                if st.button("SAVE", type="primary", use_container_width=True, key="obs_env_save", help="Record weights and unlock the Egg Observation grid"):
 
                     def unlock():
                         get_resilient_table(supabase, "bin_observation").insert(
@@ -347,6 +359,7 @@ with track_view_performance("Observations"):
                                 "modified_by_id": st.session_state.observer_id,
                                 "bin_weight_g": curr_w,
                                 "water_added_ml": water_add,
+                                "incubator_temp_c": obs_temp,
                                 "env_notes": "Gated weight check",
                             }
                         ).execute()
@@ -655,6 +668,7 @@ with track_view_performance("Observations"):
                     f"{'✅' if matrix_stage != 'MIXED' else '➖'} Stage",
                     stage_opts,
                     index=st_idx,
+                    key="matrix_stage",
                 )
 
                 # Validation Gate: Within 1 Step Check
@@ -681,6 +695,7 @@ with track_view_performance("Observations"):
                     f"{'✅' if len(stats_found) == 1 else '➖'} Status",
                     stat_opts,
                     index=stat_idx,
+                    key="matrix_status",
                     help="Mark as Dead to remove from active grid and log mortality."
                 )
 
@@ -693,6 +708,7 @@ with track_view_performance("Observations"):
                     f"{'✅' if len(chalks_found) == 1 else '⚪'} Chalking",
                     options=list(chalking_map.values()),
                     index=matrix_chalk if matrix_chalk <= 3 else 0,
+                    key="matrix_chalking",
                 )
                 new_chalk = next(k for k, v in chalking_map.items() if v == new_chalk_label)
 
@@ -703,14 +719,16 @@ with track_view_performance("Observations"):
                 m_val = bc2.selectbox(
                     "Molding",
                     [0, 1, 2, 3],
+                    key="matrix_molding",
                     help="0:None, 1:Spotting, 2:Patchy, 3:Aggressive",
                 )
                 l_val = bc3.selectbox(
-                    "Leaking", [0, 1, 2, 3], help="0:None, 1:Damp, 2:Active, 3:Ruptured"
+                    "Leaking", [0, 1, 2, 3], key="matrix_leaking", help="0:None, 1:Damp, 2:Active, 3:Ruptured"
                 )
                 d_val = bc4.selectbox(
                     "Denting",
                     [0, 1, 2, 3],
+                    key="matrix_denting",
                     help="0:None, 1:Slight, 2:Compressed, 3:Collapsed",
                 )
                 st.write("**Audit / Backdating**")
