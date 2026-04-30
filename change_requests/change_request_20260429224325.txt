@@ -1,0 +1,173 @@
+CHANGE REQUEST
+==============
+ID:        CR-20260429-224325
+Date:      2026-04-29 22:43 CST
+Requested: Kevin Howland / WINC Clinical Workflow Alignment
+Status:    OPEN
+Priority:  MEDIUM — UX Label Clarity + Supplemental Intake Integrity
+LOE:       Small-Medium (2 label fixes, 1 pre-populate fix, 1 backend wiring gap)
+
+TITLE
+-----
+Intake Form: 'Intake Date' Label, Finder Pre-population, and Supplemental
+Intake Backend Wiring Gap
+
+================================================================================
+ITEMS
+================================================================================
+
+------------------------------------------------------------------------
+[Lo-1] LABEL: 'Date' field → 'Intake Date'
+------------------------------------------------------------------------
+File: vault_views/2_New_Intake.py, line 108
+
+Current:
+  col3.date_input("Date", format="MM/DD/YYYY", key="intake_date")
+
+Required:
+  col3.date_input("Intake Date", format="MM/DD/YYYY", key="intake_date")
+
+Rationale: Clinically, a 'Date' label is ambiguous. 'Intake Date' is the
+clinical standard (matches the DB column name `intake_date` and the
+nomenclature throughout §4.D). Operators must know this date is the
+date the eggs were received/recorded — not today's date or nest discovery.
+
+------------------------------------------------------------------------
+[Lo-2] BUG: Finder Name empty when selecting existing intake in
+        Supplemental Mode
+------------------------------------------------------------------------
+File: vault_views/2_New_Intake.py, lines 89-101
+
+Current behavior:
+  When the user selects "Supplemental Intake (Add to Existing Mother)",
+  they choose an existing intake from a selectbox showing
+  "{intake_name} ({finder_turtle_name})". However, the 'Finder' text
+  input field (line 111) remains blank — the finder_turtle_name from
+  the selected intake is NOT auto-populated into the field.
+
+  The bin code preview depends on finder_name being non-empty. An empty
+  finder_name results in all bin codes showing 'PENDING' instead of
+  the derived code, and SAVE is blocked by the empty-finder validation.
+
+Required behavior:
+  When the user selects an existing intake in supplemental mode, the
+  'Finder' text input should be pre-populated (or locked/read-only)
+  with the finder_turtle_name from the selected intake record. This
+  ensures bin code generation is consistent with the original intake.
+
+Implementation note:
+  - Store finder from selected case when case is selected in supplemental mode
+  - Use st.session_state to persist across reruns
+  - Consider making Finder field read-only (disabled) in supplemental mode
+    since the finder is fixed — it belongs to the original intake
+
+------------------------------------------------------------------------
+[Lo-3] CRITICAL GAP: Supplemental Intake mode in New_Intake.py is NOT
+        wired to the backend
+------------------------------------------------------------------------
+File: vault_views/2_New_Intake.py
+
+Current behavior (BUG):
+  When 'Supplemental Intake (Add to Existing Mother)' mode is selected,
+  the user selects an existing intake and a supplemental date. These are
+  stored in session state as `supp_intake_id` and `supp_date`.
+
+  HOWEVER: the SAVE → commit_all() function is IDENTICAL for both
+  intake modes. It ALWAYS calls vault_finalize_intake with a full
+  new intake payload (including creating a new intake record). The
+  `supp_intake_id` stored in session state is NEVER READ by the save path.
+
+  Result: A user attempting a Supplemental Intake via this screen will
+  ALWAYS create a new intake case instead of appending bins to the
+  existing one. This is a silent data integrity failure.
+
+Required behavior:
+  The save path must branch on intake_mode:
+
+  IF initial intake:
+    → Call vault_finalize_intake as-is (current behavior)
+
+  IF supplemental intake:
+    → Use supp_intake_id (existing intake FK)
+    → Do NOT create a new intake record
+    → Insert new bin records linked to supp_intake_id
+    → Bulk-insert egg records for each bin
+    → Insert initial egg_observation baseline records (S1)
+    → Insert initial bin_observation baseline record
+    → Return to Observations with the new bin active
+
+  This can be implemented as a new RPC (e.g.,
+  vault_finalize_supplemental_intake) OR as a direct multi-step insert
+  matching what the Observations screen supplemental bin form does
+  (CR-20260429-210932).
+
+  NOTE: The Observations screen 'Add Bin to Intake' feature
+  (CR-20260429-210932) is the currently working path for supplemental
+  bins and should be considered the reference implementation.
+
+------------------------------------------------------------------------
+[Lo-4] GAP: commit_sup_bin (3_Observations.py) does not create initial
+        egg_observation baseline records
+------------------------------------------------------------------------
+File: vault_views/3_Observations.py — commit_sup_bin() function
+
+Current behavior:
+  When a supplemental bin is saved via the Observations sidebar form,
+  the function:
+    ✓ Inserts bin record
+    ✓ Bulk-inserts egg records
+    ✓ Inserts bin_observation baseline (if mass > 0)
+    ✗ MISSING: Does NOT insert initial egg_observation records (S1 baseline)
+
+Required behavior:
+  After bulk-inserting egg records, also insert one egg_observation
+  record per egg with:
+    - stage_at_observation: 'S1'
+    - observation_notes: 'Supplemental Intake Baseline'
+    - session_id, observer_id, created_by_id, modified_by_id
+
+  This matches the vault_finalize_intake RPC behavior which always
+  creates S1 baseline egg_observation records at intake time.
+  Without these baseline records, the eggs appear in the observation
+  grid with no prior history, which can confuse clinical tracking.
+
+================================================================================
+FILES AFFECTED
+================================================================================
+  vault_views/2_New_Intake.py
+    Lo-1: line 108 — label change
+    Lo-2: lines 89-101 + 111 — pre-populate finder from selected case
+    Lo-3: lines 266-365 — add supplemental save branch
+
+  vault_views/3_Observations.py
+    Lo-4: commit_sup_bin() — add egg_observation baseline inserts
+
+  supabase_db/migrations/ (Lo-3 if RPC path chosen):
+    NEW: v8_2_x_RPC_VAULT_FINALIZE_SUPPLEMENTAL.sql
+
+================================================================================
+STATUS OF CHANGES
+================================================================================
+  - [ ] Lo-1  Label 'Date' → 'Intake Date'           (PENDING AUTH)
+  - [ ] Lo-2  Finder pre-population in supp mode     (PENDING AUTH)
+  - [ ] Lo-3  Supplemental intake backend wiring     (PENDING AUTH)
+  - [ ] Lo-4  egg_observation baseline in sup bin    (PENDING AUTH)
+
+================================================================================
+TEST PLAN
+================================================================================
+Manual:
+  Lo-1: Verify 'Intake Date' label appears on intake form Step 1.
+  Lo-2: Select Supplemental mode → choose existing intake →
+        verify Finder field pre-fills with that intake's finder_turtle_name.
+  Lo-3: Complete a supplemental intake → verify NO new intake record
+        is created in DB → verify new bins/eggs appear under existing intake.
+  Lo-4: Add supplemental bin via Observations → query egg_observation
+        table → verify one S1 baseline record per egg exists.
+
+Automated:
+  - Extend tests/e2e_playwright/test_intake_extended.py for Lo-3.
+  - Add assertion: supplemental bin eggs have egg_observation S1 baseline.
+
+================================================================================
+Protocol Authority: khowland/turtle-egg-incubator-vault © 2026
