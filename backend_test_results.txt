@@ -1,4 +1,0 @@
-  File "/a0/usr/workdir/scripts/backend_qa_verification.py", line 64
-    print("
-          ^
-SyntaxError: unterminated string literal (detected at line 64)

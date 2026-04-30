@@ -1,2 +1,0 @@
-ERROR: /a0/usr/workdir/pytest.ini:12: duplicate name 'pythonpath'
-

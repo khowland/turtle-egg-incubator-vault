@@ -8,11 +8,20 @@ def mock_supabase():
         client = MagicMock()
         mock.return_value = client
         
-        # Default mock responses to prevent crashes
-        client.table().select().execute.return_value = MagicMock(data=[])
-        client.table().select().eq().execute.return_value = MagicMock(data=[])
-        client.table().select().order().execute.return_value = MagicMock(data=[])
-        client.table().select().eq().order().limit().execute.return_value = MagicMock(data=[])
+        # Default mock responses to represent clean system state
+        mock_res = MagicMock()
+        mock_res.data = []
+        mock_res.count = 0
+        client.table().select().execute.return_value = mock_res
+        client.table().select().eq().execute.return_value = mock_res
+        client.table().select().order().execute.return_value = mock_res
+        client.table().select().eq().order().limit().execute.return_value = mock_res
+        client.table().select().or_().execute.return_value = mock_res
+        client.table().upsert().execute.return_value = mock_res
+        client.table().insert().execute.return_value = mock_res
+        client.table().update().execute.return_value = mock_res
+        client.table().delete().execute.return_value = mock_res
+        client.rpc().execute.return_value = mock_res
         
         # Mock observers for login
         client.table("observer").select().eq().execute.return_value.data = [
@@ -22,6 +31,11 @@ def mock_supabase():
         # Mock version
         client.table("system_config").select().eq().execute.return_value.data = [
             {"config_value": "v8.2.1"}
+        ]
+        
+        # Mock bins for dashboard
+        client.table("bin").select().eq().execute.return_value.data = [
+            {"bin_id": "BIN-001", "is_deleted": False}
         ]
         
         yield client

@@ -1,0 +1,66 @@
+CHANGE REQUEST
+==============
+ID:        CR-20260429-053444
+Date:      2026-04-29 00:34 CST
+Requested: Kevin Howland / WINC Clinical Standard Alignment
+Status:    IN PROGRESS
+Priority:  HIGH — System Integrity & Clinical Standard Realignment
+LOE:       Moderate (4 files, 1 requirements update, 1 test strategy overhaul)
+
+TITLE
+-----
+System Integrity, Clinical Standard (Fahrenheit), and High-Fidelity Testing
+
+DESCRIPTION
+-----------
+This Change Request consolidates the findings from the April 29, 2026 system audit.
+It addresses schema discrepancies, enforces clinical temperature standards across 
+all screens, and mandates a new High-Fidelity testing methodology to prevent 
+production regressions.
+
+RATIONALE
+---------
+- Clinical Accuracy: Temperature was missing from Observations and hidden in Reports.
+- Data Integrity: Database schema lacked critical columns (incubator_temp_c) causing desync.
+- QA Reliability: 24 tests are currently failing due to outdated UI mocks; tests must mimic 
+  real user workflows to be valid.
+
+ITEMS
+-----
+[St] Standards & Requirements
+  St-1  Update Requirements.md with Section 9 (High-Fidelity QA).
+  St-2  Enforce Fahrenheit (°F) labeling standard for all temperature fields.
+
+[Lo] Logic & Data Capture
+  Lo-1  Add "Incubator Temp (°F)" field to Hydration Gate in Observations.py.
+  Lo-2  Include temperature in bin_observation selection and display in Reports.py.
+  Lo-3  Reconcile schema: ensure incubator_temp_c exists in bin/bin_observation.
+
+[QA] Test Suite Remediation
+  QA-1  Fix test_clinical_record_lifecycles.py (session_state update, UI labels).
+  QA-2  Fix test_mid_season_data_generator.py (WidgetList selector, bin config).
+  QA-3  Mandate UI-driven data entry for all test scenarios (No raw SQL bypass).
+
+FILES AFFECTED
+--------------
+- docs/design/Requirements.md  (St-1, St-2)
+- vault_views/3_Observations.py  (Lo-1)
+- vault_views/6_Reports.py       (Lo-2)
+- tests/test_clinical_record_lifecycles.py (QA-1, QA-3)
+- tests/test_mid_season_data_generator.py  (QA-2, QA-3)
+
+STATUS OF RECENT CHANGES
+------------------------
+- [x] Requirements updated with Section 9 and Temperature standards.
+- [x] Observations.py updated with Fahrenheit temperature recording.
+- [x] Reports.py updated to include temperature in exports.
+- [ ] Test suite remediation (PENDING APPROVAL).
+- [ ] Schema reconciliation (PENDING APPROVAL).
+
+TEST PLAN
+---------
+Automated:
+  - pytest tests/ -v (Goal: 100% pass)
+Manual:
+  - Verify "Incubator Temp (°F)" appears in the Observations Hydration Gate.
+  - Verify exported Reports JSON/CSV contains "last_temp_f".

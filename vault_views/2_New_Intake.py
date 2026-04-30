@@ -103,13 +103,14 @@ with track_view_performance("Intake"):
     with st.container(border=True):
         st.subheader("📁 Step 1: Mother Turtle Info")
         col1, col2, col3 = st.columns([2, 1, 1])
-        selected_label = col1.selectbox("Species", list(species_data_map.keys()))
-        case_number = col2.text_input("WINC Case #", placeholder="2026-XXXX")
-        intake_date = col3.date_input("Date", format="MM/DD/YYYY")
+        selected_label = col1.selectbox("Species", list(species_data_map.keys()), key="intake_species")
+        case_number = col2.text_input("WINC Case #", placeholder="2026-XXXX", key="intake_name")
+        intake_date = col3.date_input("Date", format="MM/DD/YYYY", key="intake_date")
 
         l_col1, l_col2, l_col3 = st.columns(3)
         finder_name = l_col1.text_input(
-            "Finder", help="Letters, numbers, spaces, apostrophes, hyphens, and periods allowed."
+            "Finder", help="Letters, numbers, spaces, apostrophes, hyphens, and periods allowed.",
+            key="intake_finder"
         )
 
         # Validation Gate: Ensure no special characters in identity prefix
@@ -123,7 +124,7 @@ with track_view_performance("Intake"):
             st.warning("⚠️ Names can only have letters, numbers, spaces, apostrophes, hyphens, and periods.")
 
         intake_condition = l_col2.selectbox(
-            "Condition", ["Alive", "Injured", "Dead (Salvage)"], index=0
+            "Condition", ["Alive", "Injured", "Dead (Salvage)"], index=0, key="intake_condition"
         )
         extraction_method = l_col3.selectbox(
             "Collection Method",

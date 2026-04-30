@@ -1,0 +1,5 @@
+Run the tests that were just written.
+fix test logic that breaks. 
+do not make changes to system.
+report failed tests, with reason and solution
+await my authorization to proceed with any system changes. 

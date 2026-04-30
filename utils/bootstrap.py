@@ -300,7 +300,7 @@ def render_custom_sidebar():
             pass
 
         st.session_state.observer_id = None
-        st.session_state.env_gate_synced = False
+        st.session_state.env_gate_synced = {}
         st.rerun()
 
 @st.cache_resource(ttl=3600)

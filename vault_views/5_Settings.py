@@ -480,14 +480,15 @@ with tabs[5]:
 
     confirmation = st.text_input(
         "Type 'OBLITERATE CURRENT DATA' to confirm destructive operations:", 
-        disabled=not can_destroy
+        disabled=not can_destroy,
+        key="obliterate_confirm"
     )
 
     st.write("") # Spacing
 
     c1, c2 = st.columns(2)
     with c1:
-        if st.button("WIPE & SET CLEAN START (DAY 1)", disabled=not can_destroy or confirmation != "OBLITERATE CURRENT DATA", type="primary"):
+        if st.button("WIPE & SET CLEAN START (DAY 1)", disabled=not can_destroy or confirmation != "OBLITERATE CURRENT DATA", type="primary", key="wipe_day1"):
             def execute_state_1():
                 supabase.rpc("vault_admin_restore", {
                     "p_state_id": 1,
@@ -501,7 +502,7 @@ with tabs[5]:
             st.rerun()
 
     with c2:
-        if st.button("WIPE & SEED MID-SEASON TEST DATA", disabled=not can_destroy or confirmation != "OBLITERATE CURRENT DATA", type="primary"):
+        if st.button("WIPE & SEED MID-SEASON TEST DATA", disabled=not can_destroy or confirmation != "OBLITERATE CURRENT DATA", type="primary", key="wipe_midseason"):
             def execute_state_2():
                 supabase.rpc("vault_admin_restore", {
                     "p_state_id": 2,

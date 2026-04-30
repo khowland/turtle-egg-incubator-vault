@@ -35,7 +35,7 @@ def init_session():
         st.session_state.observer_name = "Guest"
 
     if "env_gate_synced" not in st.session_state:
-        st.session_state.env_gate_synced = False
+        st.session_state.env_gate_synced = {}
 
 
 @st.cache_data(ttl=600)
