@@ -1,0 +1,450 @@
+CHANGE REQUEST
+==============
+ID:        CR-20260429-221541
+Date:      2026-04-29 22:15 CST
+Requested: Kevin Howland / WINC Clinical Architecture Alignment
+Status:    DRAFT — PENDING AUTHORIZATION
+Priority:  HIGH — Data Architecture Integrity
+LOE:       LARGE (DB migration, RPC rewrite, 6 views, 31 test files)
+
+TITLE
+-----
+Separate bin_code (human-readable generated code) from bin_id (system PK)
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+Currently, the `bin` table uses a human-readable generated code
+(e.g., BL1-6E6E-1) as its PRIMARY KEY (bin_id TEXT). This is an
+architectural anti-pattern: the PK is both a business identifier and a
+system surrogate key. The generated code must become editable by authorized
+users, but mutable PKs create referential integrity nightmares across
+all downstream FKs (bin_observation, egg).
+
+This CR separates concerns:
+  - bin_id  → UUID PK (system-generated, immutable, internal)
+  - bin_code → TEXT (the generated human-readable code, editable, displayed)
+
+All UI displays that currently show bin_id will show bin_code instead.
+All FK relationships (bin_observation.bin_id, egg.bin_id) reference the
+new UUID bin_id internally — transparent to end users.
+
+================================================================================
+IMPACT ANALYSIS
+================================================================================
+
+------------------------------------------------------------------------
+[DB-1] TABLE: public.bin
+------------------------------------------------------------------------
+Current:
+  bin_id TEXT NOT NULL  [PK — currently stores generated code e.g. BL1-6E6E-1]
+
+Required changes:
+  - ADD   bin_code TEXT NOT NULL  (move generated code here)
+  - ALTER bin_id TYPE → UUID  (new surrogate PK, gen_random_uuid())
+  - RENAME constraint: bin_pkey (no structural change, stays on bin_id)
+  - ADD UNIQUE constraint on bin_code
+  - Data migration: copy all existing bin_id values → bin_code,
+                    generate new UUIDs for bin_id
+
+------------------------------------------------------------------------
+[DB-2] TABLE: public.bin_observation
+------------------------------------------------------------------------
+Current:
+  bin_id TEXT  (FK → bin.bin_id)
+
+Required changes:
+  - FK value changes from TEXT code → UUID
+  - Data migration: update all bin_observation.bin_id to match new UUIDs
+  - No schema column rename needed (bin_id remains the FK column name)
+  - Display: when showing bin info to user, JOIN on bin.bin_code
+
+------------------------------------------------------------------------
+[DB-3] TABLE: public.egg
+------------------------------------------------------------------------
+Current:
+  bin_id TEXT  (FK → bin.bin_id)
+  egg_id TEXT  (generated as "{bin_id}-E{n}" — currently uses bin code)
+
+Required changes:
+  - bin_id FK: TEXT → UUID, data-migrated to new UUIDs
+  - egg_id: REMAINS TEXT — still generated as "{bin_code}-E{n}" (using bin_code)
+    NOTE: egg_id generation logic must source from bin_code, not bin.bin_id
+  - Data migration: update all egg.bin_id to match new UUIDs
+
+------------------------------------------------------------------------
+[DB-4] RPC: vault_finalize_intake
+------------------------------------------------------------------------
+File: supabase_db/migrations/RPC_VAULT_FINALIZE_INTAKE.sql
+
+Current behavior:
+  - Receives bins[].bin_id in payload (the generated code)
+  - Inserts bin_id directly as the PK
+  - Uses bin_id to generate egg_id ('{bin_id}-E{n}')
+  - Returns first_bin_id (the code)
+
+Required changes:
+  - Payload field renamed: bins[].bin_id → bins[].bin_code
+  - RPC generates UUID for each bin's bin_id internally
+  - Inserts both bin_id (UUID) and bin_code (generated code)
+  - egg_id generation: uses bin_code (not UUID): '{bin_code}-E{n}'
+  - bin_observation insert: uses UUID bin_id as FK
+  - Returns: first_bin_id (UUID), first_bin_code (human code)
+    NOTE: Python callers must be updated to use first_bin_code for display
+
+------------------------------------------------------------------------
+[DB-5] OTHER TABLES WITH bin_id FK
+------------------------------------------------------------------------
+To confirm: grep all tables for FK references to bin.bin_id:
+  - bin_observation.bin_id ✓ (identified)
+  - egg.bin_id ✓ (identified)
+  - egg_observation — check: likely references egg_id, not bin_id directly
+  - system_log — check for any bin_id references in event_message (soft)
+  - Any trigger functions referencing bin_id
+
+------------------------------------------------------------------------
+[PY-1] vault_views/3_Observations.py  (61 bin_id references)
+------------------------------------------------------------------------
+Highest impact file. Affected areas:
+
+  DISPLAY:
+  - Workbench multiselect: options from bin.bin_id → bin.bin_code
+  - get_bin_display_label(b_id): parameter is bin_code
+  - Current Bin Focus selectbox: displays bin_code
+  - Bin Weight Check header: shows bin_code
+  - All st.write/st.metric referencing active_bin_id → active_bin_code
+
+  QUERIES (must use UUID bin_id internally for FK joins):
+  - All .eq("bin_id", active_bin_id) → .eq("bin_id", active_bin_uuid)
+  - bin_observation insert: bin_id = UUID
+  - egg insert: bin_id = UUID
+  - workbench_bins set: stores bin_code (display) + needs mapping to UUID
+
+  SUPPLEMENTAL BIN FORM (§2.5, CR-20260429-210932):
+  - Auto-derive next bin_code (not bin_id)
+  - On save: insert bin with UUID bin_id + bin_code
+  - egg_id still: '{bin_code}-E{n}'
+
+  STATE:
+  - st.session_state.active_bin_id → rename to active_bin_code (display)
+  - Need parallel st.session_state.active_bin_uuid (internal FK)
+  - workbench_bins: set of bin_codes (display); need bin_code→UUID map
+
+------------------------------------------------------------------------
+[PY-2] vault_views/2_New_Intake.py  (8 bin_id references)
+------------------------------------------------------------------------
+  - bin_id_preview column in data_editor: rename → bin_code_preview (cosmetic)
+  - bins_payload: bin_id key → bin_code key (passed to RPC)
+  - _intake_success_ui: receives first_bin_id → first_bin_code
+  - RPC response: out["first_bin_id"] → out["first_bin_code"]
+  - st.session_state.active_bin_id = first_bin_code (still for display)
+    BUT: also need to store the UUID for FK use
+
+------------------------------------------------------------------------
+[PY-3] vault_views/1_Dashboard.py  (21 bin_id references)
+------------------------------------------------------------------------
+  - All bin queries: SELECT bin_id → SELECT bin_id, bin_code
+  - Display references: rb['bin_id'] → rb['bin_code'] (Resurrection Vault)
+  - Button keys using bin_id: f"res_bin_{rb['bin_id']}" → use bin_code
+  - Retire bin: .eq("bin_id", selected_retirement_target) remains UUID-based
+  - retirement_targets_list: stores bin_codes for display, UUIDs for update
+  - Dashboard summary: all bin_id list comprehensions need bin_code for display
+
+------------------------------------------------------------------------
+[PY-4] vault_views/5_Settings.py  (9 bin_id references)
+------------------------------------------------------------------------
+  - Resurrection Vault: SELECT bin_id, bin_notes → SELECT bin_id, bin_code, bin_notes
+  - Display: f"Bin Code: {rb['bin_id']}" → f"Bin Code: {rb['bin_code']}"
+  - Restore button key: f"res_bin_{rb['bin_id']}" → use bin_code
+  - Restore update: .eq("bin_id", rb['bin_id']) → .eq("bin_id", rb['bin_id']) (UUID — no change)
+  - Button help text: f"Restore Bin {rb['bin_id']}" → f"Restore Bin {rb['bin_code']}"
+
+------------------------------------------------------------------------
+[PY-5] vault_views/6_Reports.py  (17 bin_id references)
+------------------------------------------------------------------------
+  - All SELECT queries: add bin_code to SELECT
+  - Export payloads: bin_ids_concat → bin_codes_concat (display field)
+  - first_bin_id → first_bin_code in export structure
+  - bin_obs_map keyed by bin_id (UUID) — internal, no display change needed
+  - Report display: any bin_id shown to user → bin_code
+  - WormD export: must output bin_code (the human identifier), not UUID
+
+------------------------------------------------------------------------
+[PY-6] utils/bootstrap.py  (3 bin_id references)
+------------------------------------------------------------------------
+  Function: get_last_bin_weight(bin_id)
+    - Currently queries bin_observation.bin_id = bin_id (TEXT code)
+    - After change: caller must pass UUID; query remains .eq("bin_id", uuid)
+    - Function signature: rename param to bin_uuid for clarity
+    - All callers (3_Observations.py) must pass UUID instead of code
+
+------------------------------------------------------------------------
+[QA-1] TEST SUITE  (31 source files reference bin_id)
+------------------------------------------------------------------------
+Test files requiring updates:
+
+  Unit / Integration:
+  - tests/test_bin_id_logic.py              ← ENTIRE FILE affected (rename)
+  - tests/test_bin_retirement_gate.py
+  - tests/test_clinical_backdating.py
+  - tests/test_clinical_durability.py
+  - tests/test_clinical_record_lifecycles.py
+  - tests/test_clinical_workflows.py
+  - tests/test_complex_multi_bin_workflow.py
+  - tests/test_forensic_audit_payloads.py
+  - tests/test_mid_season_data_generator.py
+  - tests/test_mid_season_intake.py
+  - tests/test_nonviable_flow.py
+  - tests/test_audit_veracity.py
+  - tests/test_state_machine_edges.py
+  - tests/test_ui_smoke_checks.py
+  - tests/test_workflow_dashboard_renders.py
+  - tests/test_workflow_intake_save.py
+  - tests/test_workflow_observations_save.py
+  - tests/test_settings_and_help.py
+
+  E2E Playwright:
+  - tests/e2e_playwright/test_intake_extended.py
+  - tests/e2e_playwright/test_observation_workflows.py
+  - tests/e2e_playwright/test_bin_environment.py
+  - tests/e2e_playwright/test_hatching_s6.py
+  - tests/e2e_playwright/test_surgical_corrections.py
+  - tests/e2e_playwright/test_adversarial_forensic.py
+  - tests/e2e_playwright/MASTER_TEST_PLAN.md
+
+  Adversarial / Clinical Edge:
+  - tests/adversarial/test_red_team_gaps.py
+  - tests/clinical_edge_cases/test_surgical_logic.py
+  - tests/clinical_edge_cases/test_molding_matrix.py
+
+  Key change pattern in tests:
+  - Any assertion on bin["bin_id"] as code → bin["bin_code"]
+  - Any test creating bins with text PK → must now include bin_code,
+    accept UUID for bin_id
+  - test_bin_id_logic.py: rename and refocus on bin_code generation rules
+
+================================================================================
+IMPLEMENTATION PLAN
+================================================================================
+Phase execution order is critical. DB migration must precede Python changes.
+
+--------------------------------------------------------------------------------
+PHASE 0 — PRE-FLIGHT  (0 code changes, analysis only)
+--------------------------------------------------------------------------------
+  P0-1  Generate fresh schema dump from live DB to verify current state.
+  P0-2  Confirm all FK tables referencing bin.bin_id (run DB query).
+  P0-3  Confirm egg_observation has no direct bin_id FK (likely egg_id only).
+  P0-4  Create DB backup / snapshot before migration.
+
+--------------------------------------------------------------------------------
+PHASE 1 — DATABASE MIGRATION
+--------------------------------------------------------------------------------
+New migration file: v8_2_4_SEPARATE_BIN_CODE_FROM_BIN_PK.sql
+
+  Step 1a — Add bin_code column (non-destructive):
+    ALTER TABLE public.bin ADD COLUMN IF NOT EXISTS bin_code TEXT;
+
+  Step 1b — Populate bin_code from existing bin_id values:
+    UPDATE public.bin SET bin_code = bin_id WHERE bin_code IS NULL;
+
+  Step 1c — Add temporary UUID column to bin:
+    ALTER TABLE public.bin ADD COLUMN IF NOT EXISTS bin_uuid UUID
+      DEFAULT gen_random_uuid();
+    UPDATE public.bin SET bin_uuid = gen_random_uuid()
+      WHERE bin_uuid IS NULL;
+
+  Step 1d — Update all FK tables to point to UUID before PK swap:
+    -- Temp column approach (avoid FK violation during transition)
+    ALTER TABLE public.bin_observation ADD COLUMN bin_uuid UUID;
+    UPDATE public.bin_observation bo
+      SET bin_uuid = b.bin_uuid
+      FROM public.bin b WHERE b.bin_id = bo.bin_id;
+
+    ALTER TABLE public.egg ADD COLUMN bin_uuid UUID;
+    UPDATE public.egg e
+      SET bin_uuid = b.bin_uuid
+      FROM public.bin b WHERE b.bin_id = e.bin_id;
+    (repeat for any other FK tables)
+
+  Step 1e — Drop old FKs, swap columns, restore FKs:
+    ALTER TABLE public.bin_observation DROP CONSTRAINT ..._bin_id_fkey;
+    ALTER TABLE public.egg DROP CONSTRAINT ..._bin_id_fkey;
+
+    -- Rename UUID column to bin_id on child tables
+    ALTER TABLE public.bin_observation DROP COLUMN bin_id;
+    ALTER TABLE public.bin_observation RENAME COLUMN bin_uuid TO bin_id;
+
+    ALTER TABLE public.egg DROP COLUMN bin_id;
+    ALTER TABLE public.egg RENAME COLUMN bin_uuid TO bin_id;
+
+  Step 1f — Rebuild bin PK on UUID:
+    ALTER TABLE public.bin DROP CONSTRAINT bin_pkey;
+    ALTER TABLE public.bin DROP COLUMN bin_id;  -- old TEXT PK
+    ALTER TABLE public.bin RENAME COLUMN bin_uuid TO bin_id;
+    ALTER TABLE public.bin ADD PRIMARY KEY (bin_id);
+    ALTER TABLE public.bin ALTER COLUMN bin_code SET NOT NULL;
+    ALTER TABLE public.bin ADD UNIQUE (bin_code);
+
+  Step 1g — Restore FKs from child tables to new UUID PK:
+    ALTER TABLE public.bin_observation ADD CONSTRAINT ...
+      FOREIGN KEY (bin_id) REFERENCES public.bin(bin_id);
+    ALTER TABLE public.egg ADD CONSTRAINT ...
+      FOREIGN KEY (bin_id) REFERENCES public.bin(bin_id);
+
+  Step 1h — Add bin_code index:
+    CREATE INDEX IF NOT EXISTS idx_bin_bin_code ON public.bin(bin_code);
+
+  ROLLBACK STRATEGY: Full transaction wrap with BEGIN/ROLLBACK point.
+  ESTIMATED DOWNTIME: 5-10 minutes (table lock during PK swap).
+
+--------------------------------------------------------------------------------
+PHASE 2 — RPC REWRITE
+--------------------------------------------------------------------------------
+New migration file: v8_2_5_RPC_FINALIZE_INTAKE_BIN_CODE.sql
+
+  - Replace vault_finalize_intake RPC:
+    * Accept bins[].bin_code (not bins[].bin_id)
+    * Generate UUID internally: v_bin_id := gen_random_uuid()
+    * Insert: bin_id = v_bin_id (UUID), bin_code = v_bin_code (text)
+    * egg.bin_id = UUID; egg_id = bin_code || '-E' || n
+    * bin_observation.bin_id = UUID
+    * Return: first_bin_id (UUID), first_bin_code (text)
+
+--------------------------------------------------------------------------------
+PHASE 3 — PYTHON: UTILS LAYER
+--------------------------------------------------------------------------------
+  utils/bootstrap.py:
+  - get_last_bin_weight(bin_uuid): query by UUID bin_id
+  - All SELECT queries: add bin_code to projections where display needed
+
+--------------------------------------------------------------------------------
+PHASE 4 — PYTHON: VIEW LAYER
+--------------------------------------------------------------------------------
+Execute in this order to allow incremental testing:
+
+  4-A  2_New_Intake.py:
+       - bins_payload key: bin_id → bin_code
+       - RPC response: first_bin_id → first_bin_code (display)
+       - Store both: active_bin_code (display) + active_bin_uuid (FK)
+
+  4-B  3_Observations.py:
+       - workbench_bins: Set[bin_code]; add bin_code→UUID dict in session state
+       - All queries: use UUID for FK filters, bin_code for display
+       - active_bin_id session var: keep name for minimal code churn, but
+         store bin_code; add active_bin_uuid alongside
+       - Supplemental bin form: derive next bin_code; generate UUID on save
+
+  4-C  1_Dashboard.py:
+       - SELECT bin_id, bin_code from bin; use bin_code for display
+       - retirement_targets_list: {"code": bin_code, "uuid": bin_id}
+       - Retire: .eq("bin_id", target_uuid)
+
+  4-D  5_Settings.py:
+       - Resurrection Vault: SELECT bin_id, bin_code, bin_notes
+       - Display: bin_code in all labels/buttons
+       - Update: .eq("bin_id", rb["bin_id"]) — UUID, no change
+
+  4-E  6_Reports.py:
+       - All SELECT: add bin_code
+       - Export: bin_code as display identifier; UUID stays internal
+       - WormD export: output bin_code field
+
+--------------------------------------------------------------------------------
+PHASE 5 — TEST SUITE REMEDIATION
+--------------------------------------------------------------------------------
+  5-A  Rename test_bin_id_logic.py → test_bin_code_logic.py
+       - All assertions on bin["bin_id"] (as text code) → bin["bin_code"]
+       - Update test fixtures: bin_id now UUID, bin_code is the code
+
+  5-B  All other 30 test files:
+       - Replace hardcoded bin_id text values with bin_code
+       - Factory/fixture helpers: generate UUID bin_id + text bin_code
+       - Integration tests: verify both UUID FK integrity + code display
+
+  5-C  E2E Playwright tests:
+       - UI assertions that check displayed bin labels → check bin_code format
+       - MASTER_TEST_PLAN.md: update bin test scenarios
+
+  5-D  New test: test_bin_code_uniqueness.py
+       - Assert bin_code UNIQUE constraint blocks duplicate codes
+       - Assert bin_id UUID is system-generated and not user-visible
+
+--------------------------------------------------------------------------------
+PHASE 6 — OPERATOR MANUAL UPDATE
+--------------------------------------------------------------------------------
+  - docs/user/operators_manual_requirements.md: already has bin code anatomy (§6.A)
+  - Update to note bin_code is editable by Lab Director (if future requirement)
+  - Update to clarify bin_code ≠ system bin_id
+
+================================================================================
+FILES AFFECTED
+================================================================================
+Database:
+  supabase_db/migrations/v8_2_4_SEPARATE_BIN_CODE_FROM_BIN_PK.sql    [NEW]
+  supabase_db/migrations/v8_2_5_RPC_FINALIZE_INTAKE_BIN_CODE.sql     [NEW]
+
+Python:
+  utils/bootstrap.py                     get_last_bin_weight signature
+  vault_views/2_New_Intake.py            RPC payload + response keys
+  vault_views/3_Observations.py          Largest single-file change
+  vault_views/1_Dashboard.py             Display + retire logic
+  vault_views/5_Settings.py              Resurrection Vault display
+  vault_views/6_Reports.py              Export field naming
+
+Tests (28 Python files + 1 Markdown + 1 rename):
+  tests/test_bin_id_logic.py → test_bin_code_logic.py
+  [27 additional test files — see QA-1 section above]
+
+Docs:
+  docs/user/operators_manual_requirements.md
+  tests/e2e_playwright/MASTER_TEST_PLAN.md
+
+================================================================================
+RISK REGISTER
+================================================================================
+
+  RISK-1  FK cascade failure during PK swap
+          Mitigation: full transaction; test on staging DB first
+          Severity: HIGH
+
+  RISK-2  egg_id generation changes mid-season (existing eggs use old bin code)
+          Mitigation: egg_id is TEXT and remains unchanged for existing records;
+          new eggs generated after migration use bin_code (same value as before)
+          Severity: LOW
+
+  RISK-3  Session state contamination (workbench_bins stores codes vs UUIDs)
+          Mitigation: clear all session state after deploy; document in runbook
+          Severity: MEDIUM
+
+  RISK-4  Test suite false-positives during transition
+          Mitigation: full test run gate before and after each phase
+          Severity: MEDIUM
+
+  RISK-5  Performance regression (UUID join vs TEXT PK lookup)
+          Mitigation: index on bin_code (Step 1h); profile after migration
+          Severity: LOW
+
+================================================================================
+TOTAL LOE ESTIMATE
+================================================================================
+  Phase 0  (Pre-flight)            0.5 hours
+  Phase 1  (DB Migration)          3.0 hours  (write + test + execute)
+  Phase 2  (RPC Rewrite)           2.0 hours
+  Phase 3  (Utils)                 0.5 hours
+  Phase 4  (Views — 5 files)       4.0 hours
+  Phase 5  (Test Suite — 31 files) 4.0 hours
+  Phase 6  (Docs)                  0.5 hours
+  ─────────────────────────────────────────
+  TOTAL                           14.5 hours
+
+================================================================================
+AUTHORIZATION GATE
+================================================================================
+This CR requires explicit authorization before ANY file is modified.
+All phases must be executed sequentially.
+Staging DB validation required before production migration.
+
+Status: AWAITING AUTHORIZATION — Kevin Howland
+
+================================================================================
+Protocol Authority: khowland/turtle-egg-incubator-vault © 2026
