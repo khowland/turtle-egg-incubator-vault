@@ -41,6 +41,12 @@ with track_view_performance("Observations"):
         st.session_state.observed_this_session = set()
     if "surgical_resurrection" not in st.session_state:
         st.session_state.surgical_resurrection = False
+    if "sup_bin_mode" not in st.session_state:
+        st.session_state.sup_bin_mode = False
+    if "sup_bin_intake_id" not in st.session_state:
+        st.session_state.sup_bin_intake_id = None
+    if "sup_bin_intake_name" not in st.session_state:
+        st.session_state.sup_bin_intake_name = None
 
     # Handle Auto-Transition from Intake
     if "active_case_id" in st.session_state:
@@ -58,7 +64,7 @@ with track_view_performance("Observations"):
     # ------------------------------------------------------------------------------
     with st.sidebar:
         st.header("🛠️ Extra Tools")
-        with st.expander("Add Bin to Intake"):
+        with st.expander("Add Bin to Intake", expanded=st.session_state.sup_bin_mode):
             all_mothers = (
                 supabase.table("intake")
                 .select("intake_id, intake_name")
@@ -69,23 +75,18 @@ with track_view_performance("Observations"):
             )
             m_map = {m["intake_name"]: m["intake_id"] for m in all_mothers.data}
             target_m = st.selectbox("Select Intake/Case", list(m_map.keys()), key="sup_m")
-            new_bin_code = st.text_input("New Bin Code", placeholder="OB1-NAME-2")
-            if st.button("➕", help="Create Supplemental Bin"):
-
-                def create_sup_bin():
-                    supabase.table("bin").insert(
-                        {
-                            "bin_id": new_bin_code,
-                            "intake_id": m_map[target_m],
-                            "session_id": st.session_state.session_id,
-                            "created_by_id": st.session_state.observer_id,
-                            "modified_by_id": st.session_state.observer_id,
-                        }
-                    ).execute()
-                    st.session_state.workbench_bins.add(new_bin_code)
-                    st.success(f"Bin {new_bin_code} added to Workbench.")
-
-                safe_db_execute("Add Bin", create_sup_bin)
+            if st.session_state.sup_bin_mode and st.session_state.sup_bin_intake_name == target_m:
+                if st.button("✖ Cancel New Bin Setup", use_container_width=True):
+                    st.session_state.sup_bin_mode = False
+                    st.session_state.sup_bin_intake_id = None
+                    st.session_state.sup_bin_intake_name = None
+                    st.rerun()
+            else:
+                if st.button("📦 Set Up New Bin →", use_container_width=True, type="primary", help="Launch intake-style bin setup form"):
+                    st.session_state.sup_bin_mode = True
+                    st.session_state.sup_bin_intake_id = m_map[target_m]
+                    st.session_state.sup_bin_intake_name = target_m
+                    st.rerun()
 
         with st.expander("Add Eggs to Existing Bin"):
             target_b = st.selectbox(
@@ -276,6 +277,157 @@ with track_view_performance("Observations"):
     if st.session_state.last_active_bin_id != active_bin_id:
         st.session_state.surgical_resurrection = False
         st.session_state.last_active_bin_id = active_bin_id
+
+    # ------------------------------------------------------------------------------
+    # 2.5 SUPPLEMENTAL BIN SETUP (CR-20260429-210932)
+    # Replaces observation flow when 'Set Up New Bin' is triggered from sidebar
+    # ------------------------------------------------------------------------------
+    import re as _re
+    import pandas as _pd
+
+    if st.session_state.sup_bin_mode and st.session_state.sup_bin_intake_id:
+        sup_intake_id = st.session_state.sup_bin_intake_id
+        sup_intake_name = st.session_state.sup_bin_intake_name or sup_intake_id
+
+        # --- Auto-derive next bin code ---
+        existing_bins = (
+            supabase.table("bin")
+            .select("bin_id")
+            .eq("intake_id", sup_intake_id)
+            .eq("is_deleted", False)
+            .execute()
+        )
+        existing_bin_ids = [b["bin_id"] for b in existing_bins.data]
+
+        next_bin_id = "PENDING"
+        bin_prefix = ""
+        if existing_bin_ids:
+            # Parse trailing bin_num from each bin_id (split on last '-')
+            max_num = 0
+            for bid in existing_bin_ids:
+                parts = bid.rsplit("-", 1)
+                if len(parts) == 2 and parts[1].isdigit():
+                    num = int(parts[1])
+                    if num > max_num:
+                        max_num = num
+                        bin_prefix = parts[0]
+            if bin_prefix:
+                next_bin_id = f"{bin_prefix}-{max_num + 1}"
+
+        # --- Form header ---
+        st.subheader(f"📦 New Supplemental Bin — {sup_intake_name}")
+        st.info(f"Auto-derived next bin code: **`{next_bin_id}`** (based on {len(existing_bin_ids)} existing bin(s))")
+
+        # --- Bin configuration table (matches Step 2 of initial intake) ---
+        with st.container(border=True):
+            st.markdown("#### Bin Configuration")
+
+            if "sup_bin_rows" not in st.session_state or st.session_state.get("sup_bin_id_preview") != next_bin_id:
+                st.session_state.sup_bin_rows = [{
+                    "bin_id_preview": next_bin_id,
+                    "egg_count": 1,
+                    "intake_date": str(datetime.date.today()),
+                    "temp": 82.0,
+                    "mass": 0.0,
+                    "notes": "Supplemental Intake",
+                }]
+                st.session_state.sup_bin_id_preview = next_bin_id
+
+            sup_df = _pd.DataFrame(st.session_state.sup_bin_rows)
+            edited_sup_df = st.data_editor(
+                sup_df,
+                num_rows="fixed",
+                use_container_width=True,
+                column_config={
+                    "bin_id_preview": st.column_config.TextColumn("Bin Code (Auto)", disabled=True),
+                    "egg_count": st.column_config.NumberColumn("Total Eggs", min_value=1, max_value=99, required=True),
+                    "intake_date": st.column_config.DateColumn("Egg Intake Date", required=True),
+                    "temp": st.column_config.NumberColumn("Incubator Temp (°F)", min_value=60.0, max_value=113.0, format="%.1f"),
+                    "mass": st.column_config.NumberColumn("Initial Mass (g)", min_value=0.0, format="%.1f"),
+                    "notes": st.column_config.TextColumn("Setup Notes"),
+                },
+                key="sup_bin_data_editor",
+            )
+            st.session_state.sup_bin_rows = edited_sup_df.to_dict("records")
+
+        col_cancel, col_save = st.columns([1, 3])
+        if col_cancel.button("CANCEL", use_container_width=True, type="secondary"):
+            st.session_state.sup_bin_mode = False
+            st.session_state.sup_bin_intake_id = None
+            st.session_state.sup_bin_intake_name = None
+            st.session_state.pop("sup_bin_rows", None)
+            st.session_state.pop("sup_bin_id_preview", None)
+            st.rerun()
+
+        if col_save.button("SAVE", use_container_width=True, type="primary",
+                           disabled=st.session_state.get("is_submitting", False)):
+            row = st.session_state.sup_bin_rows[0]
+            new_bid = row.get("bin_id_preview", next_bin_id)
+            egg_count = int(row.get("egg_count", 1))
+            intake_date_val = str(row.get("intake_date", datetime.date.today()))
+            temp_val = float(row.get("temp", 82.0))
+            mass_val = float(row.get("mass", 0.0))
+            notes_val = str(row.get("notes", "Supplemental Intake"))
+
+            def commit_sup_bin():
+                st.session_state.is_submitting = True
+                # 1. Insert bin record
+                supabase.table("bin").insert({
+                    "bin_id": new_bid,
+                    "intake_id": sup_intake_id,
+                    "bin_date": intake_date_val,
+                    "total_eggs": egg_count,
+                    "incubator_temp_c": temp_val,
+                    "target_total_weight_g": mass_val if mass_val > 0 else None,
+                    "bin_notes": notes_val,
+                    "session_id": st.session_state.session_id,
+                    "created_by_id": st.session_state.observer_id,
+                    "modified_by_id": st.session_state.observer_id,
+                }).execute()
+
+                # 2. Bulk insert egg records
+                egg_records = [{
+                    "egg_id": f"{new_bid}-E{i+1}",
+                    "bin_id": new_bid,
+                    "intake_date": intake_date_val,
+                    "egg_notes": "Supplemental Intake",
+                    "session_id": st.session_state.session_id,
+                    "created_by_id": st.session_state.observer_id,
+                    "modified_by_id": st.session_state.observer_id,
+                    "is_deleted": False,
+                } for i in range(egg_count)]
+                supabase.table("egg").insert(egg_records).execute()
+
+                # 3. Initial bin_observation (weight baseline)
+                if mass_val > 0:
+                    get_resilient_table(supabase, "bin_observation").insert({
+                        "bin_observation_id": str(uuid.uuid4()),
+                        "session_id": st.session_state.session_id,
+                        "bin_id": new_bid,
+                        "observer_id": st.session_state.observer_id,
+                        "created_by_id": st.session_state.observer_id,
+                        "modified_by_id": st.session_state.observer_id,
+                        "bin_weight_g": mass_val,
+                        "incubator_temp_c": temp_val,
+                        "env_notes": "Supplemental Intake Baseline",
+                    }).execute()
+
+                # 4. Add to workbench and reset mode
+                st.session_state.workbench_bins.add(new_bid)
+                st.session_state.active_bin_id = new_bid
+                st.session_state.sup_bin_mode = False
+                st.session_state.sup_bin_intake_id = None
+                st.session_state.sup_bin_intake_name = None
+                st.session_state.pop("sup_bin_rows", None)
+                st.session_state.pop("sup_bin_id_preview", None)
+                st.session_state.is_submitting = False
+                st.success(f"✅ Bin **{new_bid}** created with {egg_count} eggs and added to Workbench.")
+
+            audit_msg = f"Supplemental Bin Created: {new_bid} for intake {sup_intake_id} — {egg_count} eggs."
+            safe_db_execute("Create Supplemental Bin", commit_sup_bin, success_message=audit_msg)
+            st.rerun()
+
+        st.stop()
 
     # ------------------------------------------------------------------------------
     # 3. HYDRATION GATE (Bypass in Surgical Resurrection Mode)
