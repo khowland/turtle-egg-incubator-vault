@@ -210,7 +210,7 @@ with track_view_performance("Observations"):
     available_bins = (
         supabase.table("bin").select("bin_id").eq("is_deleted", False).execute()
     )
-    bin_options = sorted([b["bin_id"] for b in available_bins.data])
+    bin_options = sorted([b["bin_id"] for b in available_bins.data if b["bin_id"]])
 
     # Pre-calculate stats for icons
     # CR-20260426 Lo-4: Wrap per-bin query in try/except.
@@ -238,7 +238,7 @@ with track_view_performance("Observations"):
 
     # Multiselect with raw IDs
     bin_ids_in_db = set(bin_stats.keys())
-    valid_defaults = [b for b in st.session_state.workbench_bins if b in bin_ids_in_db]
+    valid_defaults = [b for b in st.session_state.workbench_bins if b and b in bin_ids_in_db]
     
     st.session_state.workbench_bins = st.multiselect(
         "Observation Workbench",
