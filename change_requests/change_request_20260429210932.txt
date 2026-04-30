@@ -1,0 +1,107 @@
+CHANGE REQUEST
+==============
+ID:        CR-20260429-210932
+Date:      2026-04-29 21:09 CST
+Requested: Kevin Howland / WINC Clinical Workflow Alignment
+Status:    OPEN
+Priority:  MEDIUM — UX Integrity & Data Entry Consistency
+LOE:       Moderate (1 view file, 1 requirements update)
+
+TITLE
+-----
+Auto-Increment Bin Code in "Add Bin to Intake" + Match Initial Intake Form Format
+
+DESCRIPTION
+-----------
+The "Add Bin to Intake" expander (sidebar, Observations screen) currently requires
+the operator to manually type the full New Bin Code into a free-text input. This is
+error-prone and inconsistent with how bin codes are structured — they follow a
+deterministic formula based on data already present in the system.
+
+Additionally, the form only accepts a single "New Bin Code" text input, whereas the
+initial Intake form uses a structured table-row entry with a bulk egg count field.
+The supplemental bin entry must match that same structured format for consistency,
+auditability, and data integrity.
+
+BIN CODE ANATOMY
+----------------
+Bin codes are auto-generated during initial Intake using the formula:
+
+    {species_code}{intake_number}-{finder_clean}-{bin_num}
+
+Component breakdown:
+  species_code    : Alphabetic species abbreviation from the species table
+                    (e.g. BL = Blanding's Turtle, MK = Stinkpot)
+  intake_number   : Sequential intake count for that species
+                    (derived from species.intake_count + 1 at time of intake)
+  finder_clean    : Finder's name, uppercased, all non-alphanumeric chars stripped
+                    (e.g. "Kevin O'Brien" → KEVINOBRIEN)
+  bin_num         : Sequential bin number within this intake (1, 2, 3...)
+
+Examples:
+  First intake, Blanding's, finder "6e6e", 2 bins:
+    Bin 1 → BL1-6E6E-1
+    Bin 2 → BL1-6E6E-2
+  Supplemental add → should auto-suggest: BL1-6E6E-3
+
+AUTO-INCREMENT LOGIC
+--------------------
+When the operator selects an Intake/Case in the "Add Bin to Intake" expander,
+the system should:
+  1. Query existing bins for that intake_id.
+  2. Parse the trailing bin_num from existing bin_ids (split on last '-').
+  3. Increment by 1 to produce the next bin_id as a read-only preview.
+  4. Allow the operator to confirm (not retype) the bin code.
+
+FORM FORMAT ALIGNMENT
+---------------------
+Current state:  A freeform text input for "New Bin Code" + a single ➕ button.
+Required state: A structured table-row form matching the initial Intake bin entry:
+  - Auto-populated (read-only) Bin Code field showing the derived next code
+  - Bulk Egg Count field (number input)
+  - Egg Intake Date field
+  - SAVE / confirm button
+
+This brings the supplemental bin workflow into full parity with initial intake,
+ensuring all eggs are registered with count and date at bin creation time.
+
+ROOT CAUSE OF CURRENT LABEL BUG (RESOLVED)
+-------------------------------------------
+The expander was labelled "Add a Bin to a Case" — fixed in commit 77b6355 to
+"Add Bin to Intake" as per clinical nomenclature standard.
+
+ITEMS
+-----
+[Lo] Logic & Data Capture
+  Lo-1  Auto-derive next bin_id from existing bins for selected intake.
+  Lo-2  Display derived bin_id as a read-only preview (not free-text).
+  Lo-3  Add Bulk Egg Count field to the supplemental bin form.
+  Lo-4  Add Egg Intake Date field to the supplemental bin form.
+  Lo-5  Insert egg records (bulk) on save, matching initial intake behavior.
+
+[St] Standards & Requirements
+  St-1  Update Requirements.md §6.A with bin code anatomy and form parity mandate.
+
+FILES AFFECTED
+--------------
+- vault_views/3_Observations.py        (Lo-1 through Lo-5)
+- docs/user/operators_manual_requirements.md  (St-1)
+
+STATUS OF RECENT CHANGES
+------------------------
+- [x] Expander label renamed to "Add Bin to Intake" (commit 77b6355).
+- [x] DEBUG st.write removed from Hydration Gate (commit 77b6355).
+- [ ] Auto-increment bin_id logic (PENDING)
+- [ ] Bulk egg count + date fields in supplemental form (PENDING)
+- [ ] Requirements.md §6.A updated (IN PROGRESS)
+
+TEST PLAN
+---------
+Manual:
+  - Select an existing intake with 1+ bins in "Add Bin to Intake" expander.
+  - Verify the next bin code is auto-populated (e.g. if BL1-6E6E-1 exists → shows BL1-6E6E-2).
+  - Verify bulk egg count and date fields are present.
+  - Save and confirm eggs appear in the bin on the Observations workbench.
+Automated:
+  - Extend test_intake_extended.py: supplemental bin auto-increment assertion.
+  - Verify egg records created with correct bin_id, count, and date.

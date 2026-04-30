@@ -98,9 +98,39 @@ Produce a high-fidelity, comprehensive operator manual that empowers volunteer c
 
 ## 6. WORKFLOW EXPANSION (DETAILED STEPS)
 
-### A. Supplemental Intake
+### A. Supplemental Intake (CR-20260429-210932)
 
-- Detailed path for adding Bin 2, Bin 3, etc., to a Mother who has already been established.
+#### Bin Code Anatomy
+
+Bin codes are deterministically auto-generated at intake time using the formula:
+
+```
+{species_code}{intake_number}-{finder_clean}-{bin_num}
+```
+
+| Component | Source | Example |
+|-----------|--------|---------|
+| `species_code` | `species.species_code` — alphabetic abbreviation | `BL` (Blanding's), `MK` (Stinkpot) |
+| `intake_number` | `species.intake_count + 1` at time of intake | `1`, `2`, `3` |
+| `finder_clean` | Finder name → UPPERCASED → non-alphanumeric stripped | `"6e6e"` → `6E6E` |
+| `bin_num` | Sequential bin within this intake (1, 2, 3…) | `1`, `2`, `3` |
+
+**Example sequence for Blanding's, intake #1, finder "6e6e":**
+- Initial Bin 1 → `BL1-6E6E-1`
+- Initial Bin 2 → `BL1-6E6E-2`
+- Supplemental Bin → `BL1-6E6E-3` *(auto-incremented)*
+
+#### Supplemental Bin Entry Requirements
+
+- **Auto-Increment**: When an operator selects an Intake in the "Add Bin to Intake" expander, the system **must** auto-derive the next bin code by querying existing bins for that intake, parsing the trailing `bin_num`, and incrementing by 1. The operator confirms — they do not retype.
+- **Form Parity**: The supplemental bin form must match the initial Intake bin entry format:
+  - Read-only auto-populated **Bin Code** preview
+  - **Bulk Egg Count** field (number input)
+  - **Egg Intake Date** field
+  - **SAVE** button
+- **Data Integrity**: On save, egg records must be bulk-inserted matching the initial intake behavior (one egg record per egg, with `intake_date`, `bin_id`, observer metadata).
+- **Visual**: **[PLACEHOLDER: ADD BIN TO INTAKE — SUPPLEMENTAL FORM WITH AUTO-INCREMENT PREVIEW]**
+
 
 ### B. The Hydration Recalibration
 
