@@ -351,15 +351,17 @@ with track_view_performance("Intake"):
                             )
                             raise rpc_err
                 except Exception as error:
-                    get_resilient_table(supabase, "system_log").insert(
-                        {
-                            "session_id": st.session_state.session_id,
-                            "observer_id": st.session_state.get("observer_id"),
-                            "event_type": "ERROR",
-                            "event_message": f"Intake failed: Case {case_number} — Transaction failed: {str(error)}",
-                        }
-                    ).execute()
-                    raise error
+                    # CR-20260430-194500: Conditionally add observer_id to prevent NOT NULL violations
+                    log_entry = {
+                        "session_id": st.session_state.session_id,
+                        "event_type": "ERROR",
+                        "event_message": f"Intake failed: Case {case_number} — Transaction failed: {str(error)}",
+                    }
+                    if st.session_state.get("observer_id"):
+                        log_entry["observer_id"] = st.session_state.observer_id
+                    get_resilient_table(supabase, "system_log").insert(log_entry).execute()
+                    # CR-20260430-194500: Return False to prevent duplicate error propagation
+                    return False
             except Exception as e:
                 logger.error(f"Commit error: {e}")
                 raise e
