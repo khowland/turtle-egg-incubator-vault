@@ -1,12 +1,13 @@
 """
-Phase 2a: Initial Intake (Happy Path Extensions)
+# CR-20260430-194500: Updated phase description for renamed UI labels
+# Phase 2a: New Intake (Happy Path Extensions)
 
 TC-INT-01: Full intake with all optional fields + bin nomenclature check
 TC-INT-02: Intake with multiple eggs → verify all egg rows created
 TC-INT-03: CANCEL button aborts intake, no DB rows created
 
-Phase 2b: Supplemental Intake
-TC-SUP-01: Supplemental intake full save → new bin + eggs added to existing case
+# Phase 2b: Add Eggs or Bins to Existing Intake
+# TC-SUP-01: Supplemental intake full save → new bin + eggs added to existing case
 """
 import time
 import uuid
@@ -183,7 +184,8 @@ def test_supplemental_intake_full_save(page: Page, login):
     # Navigate back to Intake → switch to Supplemental mode
     page.locator("a:has-text('Intake')").first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
-    page.locator("label:has-text('Supplemental Intake')").first.click()
+    # CR-20260430-194500: Updated selector for renamed label
+    page.locator("label:has-text('Add Eggs or Bins to Existing Intake')").first.click()
     expect(page.get_by_text("Supplemental Mode").first).to_be_visible(timeout=10000)
 
     # Select the existing mother case we just created
