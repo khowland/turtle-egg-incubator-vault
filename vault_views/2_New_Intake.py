@@ -97,10 +97,11 @@ with track_view_performance("Intake"):
             selected_case_id = st.selectbox("Select Existing Mother", list(case_options.keys()))
             supp_date = st.date_input("Supplemental Date", format="MM/DD/YYYY")
             st.session_state.supp_intake_id = case_options[selected_case_id]
+            # CR-20260429-224325 Lo-2: Pre-populate finder field from selected intake
+            selected_case = next((c for c in res_cases.data if c['intake_id'] == case_options[selected_case_id]), None)
+            if selected_case and selected_case.get('finder_turtle_name'):
+                st.session_state.intake_finder = selected_case['finder_turtle_name']
             st.session_state.supp_date = str(supp_date)
-        else:
-            st.warning("No existing cases found.")
-            st.stop()
 
         # CR-20260430-194500: Load existing bins for supplemental intake
         supp_intake_id = st.session_state.get("supp_intake_id")
@@ -131,7 +132,8 @@ with track_view_performance("Intake"):
         l_col1, l_col2, l_col3 = st.columns(3)
         finder_name = l_col1.text_input(
             "Finder", help="Letters, numbers, spaces, apostrophes, hyphens, and periods allowed.",
-            key="intake_finder"
+            key="intake_finder",
+            disabled=(intake_mode == "Add Eggs or Bins to Existing Intake")  # CR-20260429-224325 Lo-2: Read-only in supplemental mode
         )
 
         # Validation Gate: Ensure no special characters in identity prefix
@@ -336,37 +338,104 @@ with track_view_performance("Intake"):
                         }
 
 
-                        try:
-                            rpc_result = supabase.rpc(
-                                "vault_finalize_intake", {"p_payload": rpc_payload}
-                            ).execute()
-                            out = rpc_result.data if rpc_result else None
-                            if isinstance(out, list) and len(out) == 1:
-                                out = out[0]
-                            if isinstance(out, str):
-                                out = json.loads(out)
-
-                            if not out or not out.get("first_bin_id"):
-                                raise RuntimeError("RPC returned incomplete payload")
-
+                        # CR-20260429-224325 Lo-3: Branch save path for supplemental vs new intake
+                        if intake_mode == "Add Eggs or Bins to Existing Intake":
+                            # Supplemental mode: use existing intake_id, do not create new intake or increment species count
+                            supp_intake_id = st.session_state.get("supp_intake_id")
+                            if not supp_intake_id:
+                                st.error("❌ Missing supplemental intake reference.")
+                                st.stop()
+                            # Insert bins directly (no new intake record, no species count increment)
+                            bin_inserts = []
+                            egg_inserts = []
+                            obs_inserts = []
+                            for row_data in st.session_state.bin_rows:
+                                if not row_data.get("is_new_bin", True) and row_data.get("existing_bin_id"):
+                                    # Update existing bin: increment total_eggs
+                                    current_total = row_data.get("current_egg_count", 0)
+                                    new_total = current_total + row_data["new_egg_count"]
+                                    supabase.table("bin").update({"total_eggs": new_total}).eq("bin_id", row_data["existing_bin_id"]).execute()
+                                    bin_id = row_data["existing_bin_id"]
+                                else:
+                                    # New bin insert
+                                    if row_data["new_egg_count"] < 1:
+                                        st.error(f"❌ New bin #{row_data['bin_num']} must have at least 1 egg.")
+                                        st.stop()
+                                    bid = re.sub(r"[^A-Z0-9'\-.]", "", f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}")
+                                    bin_inserts.append({
+                                        "bin_id": bid,
+                                        "intake_id": supp_intake_id,
+                                        "total_eggs": row_data["new_egg_count"],
+                                        "bin_notes": row_data.get("notes", ""),
+                                        "substrate": row_data["substrate"],
+                                        "shelf_location": row_data["shelf"]
+                                    })
+                                    bin_id = bid
+                                # Create egg records with baseline observations (Lo-4)
+                                egg_count = row_data["new_egg_count"]
+                                for e in range(egg_count):
+                                    egg_label = f"{bin_id}-E{e+1}"
+                                    egg_inserts.append({
+                                        "egg_id": egg_label,
+                                        "bin_id": bin_id,
+                                        "intake_id": supp_intake_id,
+                                        "species_id": selected_species["species_id"],
+                                        "stage_at_intake": "S1",
+                                        "observer_id": st.session_state.observer_id,
+                                        "egg_date": st.session_state.get("supp_date", str(datetime.date.today()))
+                                    })
+                                    obs_inserts.append({
+                                        "egg_id": egg_label,
+                                        "observation_date": st.session_state.get("supp_date", str(datetime.date.today())),
+                                        "stage_at_observation": "S1",
+                                        "observation_notes": "Supplemental Intake Baseline",
+                                        "observer_id": st.session_state.observer_id
+                                    })
+                            # Execute inserts (best-effort atomic; no RPC dependency)
+                            if bin_inserts:
+                                supabase.table("bin").insert(bin_inserts).execute()
+                            if egg_inserts:
+                                supabase.table("egg").insert(egg_inserts).execute()
+                            if obs_inserts:
+                                table_egg_obs = get_resilient_table(supabase, "egg_observation")
+                                table_egg_obs.insert(obs_inserts).execute()
                             status.update(
-                                label=f"Intake Successful! Case {case_number} established.",
+                                label=f"Supplemental Save Complete — {len(st.session_state.bin_rows)} bin(s) updated.",
                                 state="complete",
                             )
-                            _intake_success_ui(out["first_bin_id"], out.get("intake_id"))
-                        except Exception as rpc_err:
-                            import traceback
+                            st.success(f"✅ Supplemental intake recorded — {sum(r['new_egg_count'] for r in st.session_state.bin_rows)} new eggs added.")
+                        else:
+                            # New intake: call vault_finalize_intake RPC
+                            try:
+                                rpc_result = supabase.rpc(
+                                    "vault_finalize_intake", {"p_payload": rpc_payload}
+                                ).execute()
+                                out = rpc_result.data if rpc_result else None
+                                if isinstance(out, list) and len(out) == 1:
+                                    out = out[0]
+                                if isinstance(out, str):
+                                    out = json.loads(out)
 
-                            err_msg = str(rpc_err)
-                            # Extract the Postgres error if possible
-                            if hasattr(rpc_err, "message"):
-                                err_msg = rpc_err.message
+                                if not out or not out.get("first_bin_id"):
+                                    raise RuntimeError("RPC returned incomplete payload")
 
-                            st.error(f"🔴 CRITICAL: Records could not be saved! {err_msg}")
-                            logger.error(
-                                "vault_finalize_intake RPC failed: %s", traceback.format_exc()
-                            )
-                            raise rpc_err
+                                status.update(
+                                    label=f"Intake Successful! Case {case_number} established.",
+                                    state="complete",
+                                )
+                                _intake_success_ui(out["first_bin_id"], out.get("intake_id"))
+                            except Exception as rpc_err:
+                                import traceback
+
+                                err_msg = str(rpc_err)
+                                if hasattr(rpc_err, "message"):
+                                    err_msg = rpc_err.message
+
+                                st.error(f"🔴 CRITICAL: Records could not be saved! {err_msg}")
+                                logger.error(
+                                    "vault_finalize_intake RPC failed: %s", traceback.format_exc()
+                                )
+                                raise rpc_err
                 except Exception as error:
                     # CR-20260430-194500: Conditionally add observer_id to prevent NOT NULL violations
                     log_entry = {
