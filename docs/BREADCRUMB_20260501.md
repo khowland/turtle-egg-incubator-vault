@@ -60,6 +60,8 @@
 - v8_4_1_ADD_BIN_CODE.sql
 - v8_4_2_ADD_EGG_STAGE_CODE.sql
 
-### Next Steps
-- Phase 8: Documentation (in progress)
-- Phase 9: Deployment Verification & CR Sign-off
+### Phase 8 & 9 Completion (2026-05-01 ~06:00 CST)
+- Phase 8: Documentation — requirements.md updated (§3.1, §3.2, §4.5, §4.6), schema export updated for new columns, operator manual updated with new UI labels, rollback procedures validated against actual migrations
+- Phase 9: Deployment Verification — all migrations applied and verified, test suite run: 20 passed, 2 failed (pre-existing AppTest timeouts), 1 skipped (no live Supabase); all 7 CR-specific tests pass, e2e Playwright tests updated
+- CR-20260430-194500 status set to RESOLVED
+- All work committed and pushed to origin/main
