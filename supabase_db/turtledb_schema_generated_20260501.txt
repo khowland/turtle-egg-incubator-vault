@@ -1,3 +1,4 @@
+# CR-20260430-194500: Schema updated May 1 2026 — see migrations v8_3_0 through v8_4_2
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
@@ -18,7 +19,7 @@ CREATE TABLE public.bin (
   created_by_id uuid,
   modified_by_id uuid,
   session_id text,
-  bin_notes text,
+  bin_code text,
   created_at timestamp with time zone DEFAULT now(),
   modified_at timestamp with time zone DEFAULT now(),
   CONSTRAINT bin_pkey PRIMARY KEY (bin_id),
@@ -36,7 +37,7 @@ CREATE TABLE public.bin_observation (
   bin_id text,
   timestamp timestamp with time zone DEFAULT now(),
   observer_name text NOT NULL,
-  ambient_temp numeric,
+  incubator_temp_f numeric,
   humidity numeric,
   observation_notes text,
   is_deleted boolean DEFAULT false,
@@ -73,7 +74,7 @@ CREATE TABLE public.development_stage (
   created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
   modified_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
   milestone text,
-  sub_code text,
+  egg_stage_code text,
   ordinal_rank integer,
   CONSTRAINT development_stage_pkey PRIMARY KEY (stage_id)
 );
@@ -229,7 +230,7 @@ CREATE TABLE public.system_log (
   system_log_id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
   session_id text,
   event_type text NOT NULL,
-  event_message text,
+  observer_id uuid,
   payload jsonb,
   timestamp timestamp with time zone DEFAULT now(),
   CONSTRAINT system_log_pkey PRIMARY KEY (system_log_id),

@@ -61,6 +61,30 @@ graph LR
 * **Eggs**: Individual biological subjects with developmental stages (S0-S6).
 * **Temporal Precision**: Each egg must record an `intake_timestamp` (TIMESTAMPTZ) for precise audit forensic tracking.
 
+### §3.1 Biological Property Model
+Observation metrics are defined per developmental stage in the `biological_property` lookup table. Each property specifies:
+- `property_id`: Unique identifier (e.g., 's2_molding')
+- `stage_id`: FK to `development_stage`
+- `property_label`: Human-readable name
+- `data_type`: One of NUMERIC, INTEGER_0_2, INTEGER_0_4, BOOLEAN, TEXT
+- `is_critical`: Boolean flag for mandatory observations
+
+Standard properties cover: Molding (0-4), Chalking (0-2), Vascularity, Leaking (0-4), Dented (0-4), Discolored, Moisture Deficit, Water Added, and stage-specific metrics (egg mass/diameter at S1, motion/pipping at S4, weight/umbilical/feeding at S6).
+
+### §3.2 Stage/Sub-Stage Specification
+Developmental stages follow the S0-S6 framework with sub-stages:
+
+| Stage ID | Label | Sub-Code | Description |
+|----------|-------|----------|-------------|
+| S0 | Pre-Intake | — | Egg received, not yet assessed |
+| S1 | Intake | — | Baseline established |
+| S2 | Early Development | Spot/Band/Full | Embryo visible, organogenesis beginning |
+| S3 | Mid Development | — | Limb buds forming |
+| S4 | Late Development | C/Term/Motion | Pre-hatch; carapace visible to motion |
+| S5 | Hatching | — | Pipping or emerging |
+| S6 | Hatchling | YA1/YA2/YA3 | Post-hatch through yearling |
+| SX | Non-Viable | — | Egg failed to develop |
+| SD | Deceased | — | Embryo/hatchling died |
 ---
 
 ## 🛡️ 4. Resilience & Security
@@ -68,6 +92,15 @@ graph LR
 * **Soft Delete**: Clinical data is never hard-deleted. **`is_deleted`** flags retire bins from the active list.
 * **Correction Mode**: Elevated mode to fix mistakes, void observation records, and handle hatchling ledger rollbacks when reverting Hatched (S6) subjects.
 * **Forensic Auditing**: Every clinical change must record the observer, the session, and the precise time.
+### §4.5 Bin Closure Audit
+When all eggs in a bin reach a terminal state (S6-YA3, SX, or SD), the system SHALL require a final closure observation note documenting:
+- Date of closure
+- Final disposition of each egg
+- Observer identification
+- Any unresolved clinical notes
+
+### §4.6 Biosecurity Export Gate
+Eggs/hatchlings SHALL NOT be exported for WormD release until they reach stage S6-YA3 minimum. This gate prevents premature release of hatchlings that have not completed the full yearling development cycle. The export function (`wormd_export.py`) MUST enforce this stage minimum.
 
 ---
 

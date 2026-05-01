@@ -39,3 +39,27 @@
 
 ### Git tag checkpoint
 - Tag `pre-cr-20260430-refactor` should be created before starting Phase 1.
+
+## Update — 2026-05-01 ~05:45 CST (CR-20260430-194500 Phases 0-7 Complete)
+
+### Completed Phases
+- Phase 0: Preparation — backup, version bump (v8.1.27→v9.0.0), preflight audit, archive old migrations, rollback procedures
+- Phase 1: Schema & RPC — renamed ambient_temp→incubator_temp_f, updated all RPCs, added observer_id to system_log
+- Phase 2: Error Handling — conditional observer_id in log_entry, dual error propagation fix (return False)
+- Phase 3: UI — 2_New_Intake.py (labels, bin grid redesign, supplemental mode, removed mass/temp from intake)
+- Phase 4: UI — 3_Observations.py (incubator_temp_f rename, removed supplemental tools sidebar)
+- Phase 5: UI — 5_Settings.py verified, lookup tables seeded (12 species, 21 stages, 41 properties)
+- Phase 6: PK/FK — transitional bin_code and egg_stage_code columns added
+- Phase 7: Testing — existing tests updated, 7 new test files created, e2e Playwright tests updated
+
+### New Migration Files
+- v8_3_0_UPDATE_ALL_RPCS_FOR_TEMP_RENAME.sql
+- v8_3_2_CONSOLIDATE_BIN_OBS_TEMP.sql
+- v8_3_3_ADD_OBSERVER_ID_TO_SYSTEM_LOG.sql
+- v8_3_5_SEED_LOOKUP_TABLES.sql
+- v8_4_1_ADD_BIN_CODE.sql
+- v8_4_2_ADD_EGG_STAGE_CODE.sql
+
+### Next Steps
+- Phase 8: Documentation (in progress)
+- Phase 9: Deployment Verification & CR Sign-off

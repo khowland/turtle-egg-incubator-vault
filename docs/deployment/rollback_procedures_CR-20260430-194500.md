@@ -50,6 +50,9 @@ ALTER TABLE public.system_log DROP COLUMN IF EXISTS observer_id;
 psql "$DATABASE_URL" -f supabase_db/archive/RPC_VAULT_FINALIZE_INTAKE.sql
 psql "$DATABASE_URL" -f supabase_db/archive/v8_1_17_RPC_VAULT_EXPORT_BACKUP.sql
 # Add any other RPC files that were modified by v8_3_0
+
+> ⚠️ **CRITICAL**: RPC function rollback **requires** deploying the archived old RPC files. The pre-CR versions were archived to `supabase_db/archive/` during Phase 0. Without deploying the archived RPC files, the database functions will reference column names (`incubator_temp_f`) that no longer exist after schema rollback, causing application errors.
+
 ```
 
 **Option B – Git revert the migration commit:**
@@ -112,7 +115,7 @@ git commit -m "Rollback Phases 3-5 UI changes for CR-20260430-194500"
 
 ## Phase 6 Rollback (If Implemented – bin_code & egg_stage_code)
 
-**Status:** Columns `bin_code` (on `bin`) and `egg_stage_code` (on `development_stage`) do **NOT** exist as of preflight audit. This rollback is only relevant if they were added during this CR.
+**Status:** Columns `bin_code` (on `bin`) and `egg_stage_code` (on `development_stage`) were added by this CR (migrations `v8_4_1` and `v8_4_2`). Use the rollback SQL below to reverse these additions.
 
 **Rollback SQL:**
 ```sql

@@ -75,15 +75,20 @@ Not every turtle arrives in the same way. Use the flowchart below to decide whic
 
 3. **Assign WINC Case #**: Type the year and the sequence number (e.g., `2026-003`).
 
-### 2.2 Supplemental Intake (Multiple Bins)
+> 📘 **NOTE — Intake Field Changes (May 2026)**: The **Mother's Weight** and **Temperature** fields have moved. Weight recording now happens during **Observations**, not Intake. Temperature is recorded **per-observation** (Incubator Temp °F), not per-bin.
+
+
+### 2.2 Supplemental Intake: Add Eggs or Bins to Existing Intake
 
 Sometimes a turtle lays more eggs than will fit in one plastic bin.
 
 **Scenario: Adding Bin 2 to an Existing Case**
 
 1. Navigate to the **Daily Checks** screen.
-2. In the Sidebar expansion, use the **Add a Bin to a Case** tool.
+2. Navigate to the **New Intake** screen (the sidebar **Add a Bin to a Case** tool has moved here).
 3. Choose the matching **Intake ID** and click **[ADD]**.
+
+> 📘 **NOTE — Sidebar Tools Relocated (May 2026)**: The **Add a Bin to a Case** and **Add Eggs to Existing Bin** functions previously found in the Daily Checks sidebar have moved to the **New Intake** screen. Use the New Intake screen for all egg/bin addition workflows.
 4. **Result**: The system links both bins to the same biological intake for seasonal tracking.
 
 > 🛑 **IMPORTANT: INTAKE ID VERIFICATION**: Before clicking **[SAVE]**, look at the physical tag on the turtle (See Figure 5). Ensure it matches the **Intake ID** you selected in the app. Choosing the wrong ID will link your 30 eggs to the wrong biological parent in the permanent cloud records.
@@ -106,8 +111,8 @@ This screen is the core of our clinical workflow (See Figure 6). It ensures that
 
 Before starting your rounds, check if any supplemental data needs to be added via the **Sidebar** (left-hand panel).
 
-* **Add a Bin to a Case**: Use this if a turtle laid a second clutch or if you are splitting a large clutch. Select the **Intake/Case**, type the **New Bin ID**, and click **[ADD]**.
-* **Add Eggs to Existing Bin**: If missed eggs are found, select the **Target Bin**, enter the **Eggs to Add**, and record the **New Post-Append Mass (g)**. Click **[SAVE]** to recalibrate the bin's target weight.
+* **Add a Bin to a Case (MOVED — see New Intake)**: This function previously appeared here but has been relocated to the **New Intake** screen for consolidated intake workflows.
+* **Add Eggs to Existing Bin (MOVED — see New Intake)**: This function previously appeared here but has been relocated to the **New Intake** screen.
 
 ### 3.2 The Weighing Protocol (Clinical Unlock)
 
