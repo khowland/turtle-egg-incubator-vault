@@ -74,12 +74,12 @@ def test_generate_mid_season_data():
         # Configure Bins
         bin_count = 2 if i < 2 else 1
         bin_rows = []
+        # CR-20260430-194500: Updated bin_rows to new format
         for b in range(1, bin_count + 1):
             bin_rows.append({
                 "bin_num": b,
-                "egg_count": 12 + i + b,
-                "mass": 150.5 + i,
-                "temp": 82.5,
+                "current_egg_count": 0,
+                "new_egg_count": 12 + i + b,
                 "notes": "Automated Load",
                 "substrate": "Vermiculite",
                 "shelf": f"Shelf-{b}"

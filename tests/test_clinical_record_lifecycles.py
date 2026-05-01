@@ -21,9 +21,8 @@ SPECIES_CODES = ["BL", "WT", "OB", "PA", "SN", "MK", "MT", "FM", "OM", "SS"]
 def _ensure_test_bins(session_id: str, observer_id: str, min_bins: int = 2) -> list:
     """
     Ensure at least min_bins active bins with Active eggs exist in the DB.
-    vault_finalize_intake RPC is broken (incubator_temp_c column missing),
-    so WF1 tests pass but create no real data. This helper creates minimal
-    test bins directly via DB inserts.
+    vault_finalize_intake RPC fixed by v8_3_0 migration; tests now create real data.
+    This helper ensures baseline data exists for tests.
     Returns list of bin_ids created or found.
     """
     sb = get_supabase()
@@ -59,7 +58,7 @@ def _ensure_test_bins(session_id: str, observer_id: str, min_bins: int = 2) -> l
             "modified_by_id": observer_id,
         }).execute()
 
-        # Upsert bin (no incubator_temp_c - column doesn't exist in live schema)
+        # Upsert bin (incubator_temp_f per v8_3_0 schema migration)
         sb.table("bin").upsert({
             "bin_id": bin_id,
             "intake_id": intake_id,
@@ -177,11 +176,11 @@ def test_wf1_diverse_intake(shared_session, species_code):
     at.text_input(key="intake_finder").set_value("Automated Test").run()
     
     # Bin Configuration
+    # CR-20260430-194500: Updated bin_rows to new format (mass/temp removed from intake)
     bin_rows = [{
         "bin_num": 1,
-        "egg_count": 10 + SPECIES_CODES.index(species_code),
-        "mass": 200.0,
-        "temp": 82.5,
+        "current_egg_count": 0,
+        "new_egg_count": 10 + SPECIES_CODES.index(species_code),
         "notes": "Parity Test",
         "substrate": "Vermiculite",
         "shelf": "A1"
