@@ -149,7 +149,7 @@ with track_view_performance("Reports"):
                 if inc_bin_obs and bin_ids:
                     raw_b_obs = (
                         supabase_client.table("bin_observation")
-                        .select("bin_id, bin_weight_g, water_added_ml, incubator_temp_c, timestamp")
+                        .select("bin_id, bin_weight_g, water_added_ml, incubator_temp_f, timestamp")  # CR-20260429-053444: Lo-2 — use incubator_temp_f
                         .in_("bin_id", bin_ids[:500])
                         .eq("is_deleted", False)
                         .order("timestamp", desc=True)
@@ -236,7 +236,7 @@ with track_view_performance("Reports"):
                         "bin_id": bid,
                         "last_bin_weight_g": entry["bin_weight_g"],
                         "last_water_added_ml": entry["water_added_ml"],
-                        "last_temp_f": entry["incubator_temp_c"],
+                        "last_temp_f": entry["incubator_temp_f"],  # CR-20260429-053444: Lo-2 — use incubator_temp_f
                         "last_env_ts": str(entry["timestamp"]),
                     }
                     for bid, entry in bin_obs_map.items()

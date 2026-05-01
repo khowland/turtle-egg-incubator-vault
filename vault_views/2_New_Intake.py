@@ -188,7 +188,7 @@ with track_view_performance("Intake"):
         for r in st.session_state.bin_rows:
             if "new_egg_count" not in r: r["new_egg_count"] = 0
             if "current_egg_count" not in r: r["current_egg_count"] = 0  # CR-20260430-194500: Default for v2
-            finder_clean_preview = re.sub(r"[^A-Z0-9]", "", finder_name.upper()) if finder_name else ""
+            finder_clean_preview = re.sub(r"[^A-Z0-9'\-.]", "", finder_name.upper()) if finder_name else ""  # CR-20260426-145540: St-1 - allow apostrophes, hyphens, periods
             r["bin_id_preview"] = f"{selected_species['species_code']}{next_intake_number}-{finder_clean_preview}-{r['bin_num']}" if finder_name else "PENDING"
             if "existing_bin_id" not in r: r["existing_bin_id"] = None  # CR-20260430-194500: Default for new bins
             if "is_new_bin" not in r: r["is_new_bin"] = True
@@ -283,13 +283,17 @@ with track_view_performance("Intake"):
 
                 try:
                     with st.status("Saving Records...") as status:
-                        finder_clean = str(re.sub(r"[^A-Z0-9]", "", finder_name.upper()))
+                        # CR-20260426-145540: St-1 - allow apostrophes, hyphens, periods in finder name
+                        finder_clean = str(re.sub(r"[^A-Z0-9'\-.]", "", finder_name.upper()))
                         bins_payload = []
                         # CR-20260430-194500: Removed incubator_temp_c and bin_weight_g from bin creation
                         for row_data in st.session_state.bin_rows:
                             # CR-20260426 Lo-4: Final sanitization pass strips any invalid chars
                             # (e.g., '/' from species code edge cases) that would break Supabase REST URLs
-                            bid = re.sub(r"[^A-Z0-9\-]", "", f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}")
+                            # CR-20260426 Lo-4: Final sanitization pass strips any invalid chars
+                            # (e.g., '/' from species code edge cases) that would break Supabase REST URLs
+                            # CR-20260426-145540: St-1 - allow apostrophes, hyphens, periods in bin ID formation
+                            bid = re.sub(r"[^A-Z0-9'\-.]", "", f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}")
                             # CR-20260430-194500: Calculate total eggs from current + new
                             total_eggs = row_data.get("current_egg_count", 0) + row_data["new_egg_count"]
                             if total_eggs < 1:
