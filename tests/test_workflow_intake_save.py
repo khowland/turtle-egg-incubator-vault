@@ -27,7 +27,7 @@ def test_happy_path_intake_rpc_fires(intake_mock):
     Full happy-path intake:
     - Load 2_New_Intake.py
     - Fill intake name, finder name
-    - Set bin mass + temp via session state
+        # - Fill intake name, finder name  # CR-20260430-194500: Removed bin mass + temp (fields no longer exist in intake)
     - Click SAVE
     - Assert RPC fired and no exception raised
     """
@@ -42,8 +42,7 @@ def test_happy_path_intake_rpc_fires(intake_mock):
 
         at.text_input[0].set_value("2026-HP-001")   # Case number
         at.text_input[1].set_value("Howland")         # Finder name
-        at.session_state.bin_rows[0]["mass"] = 185.0
-        at.session_state.bin_rows[0]["temp"] = 28.0
+        # CR-20260430-194500: bin mass/temp removed — these fields no longer exist in intake payload
         at.run()
 
         save_btn = next((b for b in at.button if b.label == "SAVE"), None)
@@ -72,8 +71,7 @@ def test_happy_path_intake_payload_has_required_fields(intake_mock):
 
         at.text_input[0].set_value("2026-HP-002")
         at.text_input[1].set_value("Howland")
-        at.session_state.bin_rows[0]["mass"] = 200.0
-        at.session_state.bin_rows[0]["temp"] = 28.5
+        # CR-20260430-194500: bin mass/temp removed — these fields no longer exist in intake payload
         at.run()
 
         save_btn = next((b for b in at.button if b.label == "SAVE"), None)
@@ -115,8 +113,7 @@ def test_happy_path_intake_mother_weight_key_present(intake_mock):
 
         at.text_input[0].set_value("2026-HP-003")
         at.text_input[1].set_value("Howland")
-        at.session_state.bin_rows[0]["mass"] = 185.0
-        at.session_state.bin_rows[0]["temp"] = 28.0
+        # CR-20260430-194500: bin mass/temp removed — these fields no longer exist in intake payload
         at.run()
 
         save_btn = next((b for b in at.button if b.label == "SAVE"), None)

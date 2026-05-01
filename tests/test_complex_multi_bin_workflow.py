@@ -32,11 +32,12 @@ def test_multi_bin_and_egg_workflow():
         at.text_input[1].set_value("MultiUser")
 
         # Simulate 2-bin config by injecting directly into session state
+        # CR-20260430-194500: mass/temp removed from bin_rows — no longer in intake payload
         at.session_state.bin_rows = [
-            {"bin_id": "SN1-MB-1", "mass": 120.0, "temp": 28.0, "egg_count": 4,
-             "bin_notes": "Primary bin", "shelf": "A1", "substrate": "Vermiculite"},
-            {"bin_id": "SN1-MB-2", "mass": 95.0, "temp": 28.0, "egg_count": 3,
-             "bin_notes": "Secondary bin", "shelf": "A2", "substrate": "Vermiculite"},
+            {"bin_id": "SN1-MB-1", "egg_count": 4, "bin_notes": "Primary bin",
+             "shelf": "A1", "substrate": "Vermiculite"},
+            {"bin_id": "SN1-MB-2", "egg_count": 3, "bin_notes": "Secondary bin",
+             "shelf": "A2", "substrate": "Vermiculite"},
         ]
         at.run()
 
