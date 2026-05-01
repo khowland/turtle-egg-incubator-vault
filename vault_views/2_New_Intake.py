@@ -70,25 +70,27 @@ with track_view_performance("Intake"):
     if "bin_rows" not in st.session_state:
         st.session_state.bin_rows = [
             {
-                "bin_num": 1, 
-                "egg_count": 1, 
+                "bin_num": 1,
+                "current_egg_count": 0,
+                "new_egg_count": 1,
                 "notes": "Initial Intake",
-                "mass": 0.0,
-                "temp": 82.0,  # CR-20260426: Fahrenheit (Lo-2)
                 "substrate": "Vermiculite",
                 "shelf": ""
             }
-        ]
+        ]  # CR-20260430-194500: Removed mass/temp, added current_egg_count/new_egg_count
 
     # --- Step 1: Origin ---
     
     # --- INTAKE MODE ---
     st.markdown("### Intake Mode")
-    intake_mode = st.radio("Select Workflow", ["Initial Intake (New Case)", "Supplemental Intake (Add to Existing Mother)"], horizontal=True)
+    intake_mode = st.radio("Select Workflow", ["New Intake", "Add Eggs or Bins to Existing Intake"], horizontal=True)  # CR-20260430-194500: Updated labels
 
+    # CR-20260430-194500: Handle stale session state with old radio label
     if intake_mode == "Supplemental Intake (Add to Existing Mother)":
+        intake_mode = "Add Eggs or Bins to Existing Intake"
+
+    if intake_mode == "Add Eggs or Bins to Existing Intake":  # CR-20260430-194500: Updated conditional
         st.info("🔵 Supplemental Mode Active: Bins and eggs will be appended to the selected case. Original eggs will remain untouched.")
-        # Fetch existing cases for dropdown
         res_cases = supabase.table("intake").select("intake_id, intake_name, finder_turtle_name").execute()
         if res_cases.data:
             case_options = {f"{c['intake_name']} ({c['finder_turtle_name']})": c['intake_id'] for c in res_cases.data}
@@ -100,12 +102,31 @@ with track_view_performance("Intake"):
             st.warning("No existing cases found.")
             st.stop()
 
+        # CR-20260430-194500: Load existing bins for supplemental intake
+        supp_intake_id = st.session_state.get("supp_intake_id")
+        if supp_intake_id:
+            existing_bins = supabase.table("bin").select("bin_id, total_eggs, bin_notes, substrate, shelf_location").eq("intake_id", supp_intake_id).execute()
+            if existing_bins.data:
+                st.session_state.bin_rows = [
+                    {
+                        "bin_num": idx + 1,
+                        "current_egg_count": b["total_eggs"],
+                        "new_egg_count": 0,
+                        "notes": b.get("bin_notes", ""),
+                        "substrate": b.get("substrate", "Vermiculite"),
+                        "shelf": b.get("shelf_location", ""),
+                        "is_new_bin": False,
+                        "existing_bin_id": b["bin_id"]
+                    }
+                    for idx, b in enumerate(existing_bins.data)
+                ]
+
     with st.container(border=True):
         st.subheader("📁 Step 1: Mother Turtle Info")
         col1, col2, col3 = st.columns([2, 1, 1])
         selected_label = col1.selectbox("Species", list(species_data_map.keys()), key="intake_species")
         case_number = col2.text_input("WINC Case #", placeholder="2026-XXXX", key="intake_name")
-        intake_date = col3.date_input("Date", format="MM/DD/YYYY", key="intake_date")
+        intake_date = col3.date_input("Intake Date", format="MM/DD/YYYY", key="intake_date")  # CR-20260430-194500: Clarified label
 
         l_col1, l_col2, l_col3 = st.columns(3)
         finder_name = l_col1.text_input(
@@ -127,7 +148,7 @@ with track_view_performance("Intake"):
             "Condition", ["Alive", "Injured", "Dead (Salvage)"], index=0, key="intake_condition"
         )
         extraction_method = l_col3.selectbox(
-            "Collection Method",
+            "Egg Collection Method",  # CR-20260430-194500: Clarified label
             ["Natural", "Induced", "Surgery", "Harvested"],
             index=0,
         )
@@ -165,12 +186,12 @@ with track_view_performance("Intake"):
 
         # Ensure data is consistent for DataFrame
         for r in st.session_state.bin_rows:
-            if "mass" not in r: r["mass"] = 0.0
             if "new_egg_count" not in r: r["new_egg_count"] = 0
+            if "current_egg_count" not in r: r["current_egg_count"] = 0  # CR-20260430-194500: Default for v2
             finder_clean_preview = re.sub(r"[^A-Z0-9]", "", finder_name.upper()) if finder_name else ""
             r["bin_id_preview"] = f"{selected_species['species_code']}{next_intake_number}-{finder_clean_preview}-{r['bin_num']}" if finder_name else "PENDING"
+            if "existing_bin_id" not in r: r["existing_bin_id"] = None  # CR-20260430-194500: Default for new bins
             if "is_new_bin" not in r: r["is_new_bin"] = True
-            if "temp" not in r: r["temp"] = 82.0  # CR-20260426 Lo-2: Fahrenheit default
             if "substrate" not in r: r["substrate"] = "Vermiculite"
             if "shelf" not in r: r["shelf"] = ""
             if "notes" not in r: r["notes"] = "Initial Intake"
@@ -181,20 +202,15 @@ with track_view_performance("Intake"):
             df,
             num_rows="dynamic",
             use_container_width=True,
-            column_config={
+            column_config={  # CR-20260430-194500: Redesigned for v2 intake workflow
                 "bin_id_preview": st.column_config.TextColumn("Bin Code (Auto)", disabled=True),
                 "bin_num": st.column_config.NumberColumn("Bin #", disabled=True),
-                "egg_count": st.column_config.NumberColumn("Total Eggs", min_value=1, max_value=99, required=True),
+                "current_egg_count": st.column_config.NumberColumn("Current Eggs", disabled=True),
+                "new_egg_count": st.column_config.NumberColumn("New Eggs", min_value=0, max_value=99, required=True),
                 # CR-20260426 Ac-1: Shelf Location and Substrate hidden from UI view
                 "shelf": None,
                 "substrate": None,
-                # CR-20260426 St-3: Single decimal precision on mass
                 "notes": st.column_config.TextColumn("Setup Notes"),
-                "mass": st.column_config.NumberColumn("Initial Mass (g)", min_value=0.0, format="%.1f", required=True),
-                # CR-20260426 Lo-2: Fahrenheit; range 60-113°F
-                # NOTE: DB column incubator_temp_c retains its name (internal only).
-                #       Values stored are Fahrenheit. See CR-20260426-145540.
-                "temp": st.column_config.NumberColumn("Incubator Temp (°F)", min_value=60.0, max_value=113.0, format="%.1f"),
             },
             key="bin_data_editor"
         )
@@ -209,8 +225,7 @@ with track_view_performance("Intake"):
 
     btn_col1, btn_col2 = st.columns([1, 4])
     if btn_col1.button("CANCEL", use_container_width=True, type="secondary", key="intake_cancel"):
-        st.session_state.bin_rows = [{"bin_num": 1, "egg_count": 1}]
-        st.switch_page("vault_views/1_Dashboard.py")
+        st.session_state.bin_rows = [{"bin_num": 1, "current_egg_count": 0, "new_egg_count": 1}]  # CR-20260430-194500: Updated reset
 
     if btn_col2.button("SAVE", type="primary", use_container_width=True, key="intake_save"):
         if not finder_name.strip():
@@ -219,22 +234,17 @@ with track_view_performance("Intake"):
         if not case_number.strip():
             st.error("❌ Missing Information: The Please provide a WINC Case Number for the mother turtle.")
             st.stop()
-        
-                # Extended Validation for hardened requirements
-        if finder_name.startswith("FORENSIC"):
-            for r in st.session_state.bin_rows:
-                r["mass"] = 15.5
+
 
         if len(st.session_state.bin_rows) == 0:
             st.error("❌ Missing Information: An intake must have at least one Bin. Please click the '➕' icon.")
             st.stop()
             
         for idx, brow in enumerate(st.session_state.bin_rows):
-            if brow["egg_count"] < 1:
+            # CR-20260430-194500: Validate total eggs (current + new) ≥ 1
+            total_eggs_check = brow.get("current_egg_count", 0) + brow.get("new_egg_count", 0)
+            if total_eggs_check < 1:
                 st.error(f"❌ Bin #{idx+1} Error: Every bin must contain at least 1 egg.")
-                st.stop()
-            if brow["mass"] <= 0:
-                st.error(f"❌ Bin #{idx+1} Error: The 'Bin Weight (g)' is a mandatory clinical mass gate. Please enter a valid weight greater than 0.")
                 st.stop()
         
         # Finding 5: Prevent Duplicate Bin IDs
@@ -252,15 +262,14 @@ with track_view_performance("Intake"):
             # Reset state for next intake
             st.session_state.bin_rows = [
                 {
-                    "bin_num": 1, 
-                    "egg_count": 1, 
+                    "bin_num": 1,
+                    "current_egg_count": 0,
+                    "new_egg_count": 1,
                     "notes": "Initial Intake",
-                    "mass": 0.0,
-                    "temp": 82.0,  # CR-20260426 Lo-2: Fahrenheit default
                     "substrate": "Vermiculite",
                     "shelf": ""
                 }
-            ]
+            ]  # CR-20260430-194500: Reset to v2 default
             st.switch_page("vault_views/3_Observations.py")
 
         def commit_all():
@@ -276,17 +285,21 @@ with track_view_performance("Intake"):
                     with st.status("Saving Records...") as status:
                         finder_clean = str(re.sub(r"[^A-Z0-9]", "", finder_name.upper()))
                         bins_payload = []
+                        # CR-20260430-194500: Removed incubator_temp_c and bin_weight_g from bin creation
                         for row_data in st.session_state.bin_rows:
                             # CR-20260426 Lo-4: Final sanitization pass strips any invalid chars
                             # (e.g., '/' from species code edge cases) that would break Supabase REST URLs
                             bid = re.sub(r"[^A-Z0-9\-]", "", f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}")
+                            # CR-20260430-194500: Calculate total eggs from current + new
+                            total_eggs = row_data.get("current_egg_count", 0) + row_data["new_egg_count"]
+                            if total_eggs < 1:
+                                st.error(f"❌ Bin #{row_data['bin_num']} must have at least 1 egg total.")
+                                st.stop()
                             bins_payload.append(
                                 {
                                     "bin_id": bid,
                                     "bin_notes": row_data.get("notes", ""),
-                                    "egg_count": row_data["egg_count"],
-                                    "bin_weight_g": row_data["mass"],
-                                    "incubator_temp_c": row_data["temp"],
+                                    "egg_count": total_eggs,
                                     "substrate": row_data["substrate"],
                                     "shelf_location": row_data["shelf"]
                                 }
