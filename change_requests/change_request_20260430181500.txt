@@ -1,0 +1,70 @@
+CHANGE REQUEST
+ID:        CR-20260430-181500
+Date:      2026-04-30 18:15 CST
+Requested: Kevin Howland / WINC Clinical Workflow
+Status:    CLOSED — Changes merged with Implementation plan for CR-20260430-194500
+Priority:  HIGH — Bug Fix & Workflow Enhancement
+LOE:       Medium (UI label changes, form field adjustments, backend column fixes)
+==============
+
+
+NEW_INTAKE
+In Step 1: Mother Turtle Info
+Change following form field labels:
+from "Date" to "Intake Date"
+from "Collection Method" to "Egg Collection Method"
+
+User issue:
+user entered all data for a new intake in Step 1 and Step 2 of screen. 
+They pressed Save and got error:
+"Biological Ledger Error (Intake): Defaulting to Safe-State."
+Diagnostic:
+Traceback (most recent call last):
+  File "/app/vault_views/2_New_Intake.py", line 352, in commit_all
+    raise rpc_err
+  File "/app/vault_views/2_New_Intake.py", line 325, in commit_all
+    ).execute()
+      ^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/_sync/request_builder.py", line 82, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': 'column "incubator_temp_c" of relation "bin" does not exist', 'code': '42703', 'hint': None, 'details': None}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/utils/bootstrap.py", line 352, in safe_db_execute
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/vault_views/2_New_Intake.py", line 365, in commit_all
+    raise e
+  File "/app/vault_views/2_New_Intake.py", line 361, in commit_all
+    ).execute()
+      ^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/_sync/request_builder.py", line 53, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': "Could not find the 'observer_id' column of 'system_log' in the schema cache", 'code': 'PGRST204', 'hint': None, 'details': None}
+
+
+Step 2 section
+for new intake under bin configuration
+Total eggs was 1 (should be 0 for a new bin).
+For a new bin there should be 0 Total Eggs intially. And we only need one column "Add Eggs" for user to enter new egg count to new bin. 
+
+For new intake and new bin, we don't need the following columns for Bin Configuration data entry.
+remove these columnms from the data entry grid and make sure they are nullable. 
+- Initial Mass (g)
+- Incubator Temp (F)
+
+"Initial Mass (g)" and "Incubator Temp (F)" should be entered as part of Bin Observations on next screen.
+
+When SUPPLEMENTAL INTAKE radio button selected
+radio button "Supplemental Intake" should be labelled "Existing Intake: Add new bins or eggs"
+If a user selects radio button "Supplemwental Intake", then user is presented with dropdown of existin intakes, and they choose one.
+The bin configuration for that intake will load and show the existing bin(s) and egg counts for that intake. The existing egg counts should be read-only. 
+Now Bin configuraiton grid will have the "new_egg_count" (change column label to Add New Eggs) data entry column defaulted to 0, allowing additional eggs to be added.
+
+Summary
+We require a read only column in bin configuration grid to show "Current Egg Count", and a data entry column "Add New Eggs" .
+For new intake and new bin: "Current Egg Count" will be 0, and they will enter new egg count under column "Add New Eggs"
+For existing intake, and existing bin: "Current Egg Count" will show egg count from DB, and they will enter new egg count under column "Add New Eggs"
+For existing intake and new bin: "Current Egg Count" will be 0, and they will enter the new egg count under column "Add New Eggs"

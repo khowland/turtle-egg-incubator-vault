@@ -1,0 +1,410 @@
+[
+  {
+    "session_id": "968e41f0-5771-456a-9791-ebc55c209d8b",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-09T13:19:17.452942+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "57bc9d8e-1b31-4e1c-9da9-cdd2af2f214a",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-10T22:41:49.405961+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "fca3f169-4b6a-48d3-947c-10779240c20f",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-11T07:28:55.439205+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "0012fdba-5cd7-4fe0-970b-f136a546c2e3",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-11T13:46:08.3178+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "24272e61-3605-44c3-81c3-70c478ab38c7",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-11T14:37:52.601966+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "611fc02e-8024-4e29-bf01-f5cb17358399",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-11T14:41:29.665018+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "dcea8405-bf59-49fc-8499-c2684bfbe7eb",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-11T19:33:42.570111+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "31a2bc43-bb1c-4433-aa33-c89d7e7cc2b7",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-12T04:20:03.939606+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "e6015245-49d1-45f6-9f48-095d17ec0769",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-13T03:27:02.313554+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "9e591031-a1dd-42c2-91c8-e5a3b3128939",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-16T02:28:18.688152+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "abb8a97d-d1f0-4ed5-b960-c89e8d61bdf3",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-16T03:11:50.571933+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "VAL-SESSION-982101",
+    "user_name": "VAL-RUNNER",
+    "login_timestamp": "2026-04-15T23:31:56.945045+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-SESSION-e37aaf",
+    "user_name": "VAL-RUNNER",
+    "login_timestamp": "2026-04-15T23:31:57.712296+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-SESSION-c233c8",
+    "user_name": "VAL-RUNNER",
+    "login_timestamp": "2026-04-15T23:33:11.781753+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-SESSION-2e8e6f",
+    "user_name": "VAL-RUNNER",
+    "login_timestamp": "2026-04-15T23:33:12.548836+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-SESSION-be08f3",
+    "user_name": "VAL-RUNNER",
+    "login_timestamp": "2026-04-15T23:34:41.961403+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-SESSION-ba64fa",
+    "user_name": "VAL-RUNNER",
+    "login_timestamp": "2026-04-15T23:34:42.810361+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-SESSION-914f42",
+    "user_name": "VAL-RUNNER",
+    "login_timestamp": "2026-04-15T23:40:26.758727+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-SESSION-348360",
+    "user_name": "VAL-RUNNER",
+    "login_timestamp": "2026-04-15T23:40:28.079866+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-BATCH2-979ae0",
+    "user_name": "VAL-RUNNER-B2",
+    "login_timestamp": "2026-04-16T04:41:11.089433+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-BATCH2-3b8f12",
+    "user_name": "VAL-RUNNER-B2",
+    "login_timestamp": "2026-04-16T04:42:07.019061+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "VAL-BATCH3-f70094",
+    "user_name": "VAL-RUNNER-B3",
+    "login_timestamp": "2026-04-16T04:42:38.208897+00:00",
+    "user_agent": null
+  },
+  {
+    "session_id": "2f6eb2f8-2faf-4703-93e9-48de6478c03c",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-17T04:21:09.797311+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "cded2f8c-00e0-481c-8a31-1a2518cf09b8",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-20T02:58:01.858516+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "901eadbf-66c1-48ab-aca2-0ca70239a3a4",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-21T03:06:11.248632+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "ca6ded07-fea2-49b9-bd2c-b0ee7c05a426",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-21T04:19:29.084435+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "4f7f0c64-42fb-44b7-81a4-af6e91d51af0",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-22T03:37:09.698833+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "1e48b296-11ff-4d8e-b240-6e3a81df65eb",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-23T00:06:59.124305+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "59ca4757-14ce-4e6d-a8f3-5785fe80b177",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-23T04:15:26.197748+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "8029eaf3-987c-42b7-8cd2-b323bcee30a8",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-23T08:21:42.37085+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "ffab2a0d-39f4-4f70-a15e-6003806e4561",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-23T14:16:23.993243+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "ba617bbf-4754-46e7-9bb5-0bcef0ab7c4f",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-23T18:37:59.476055+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "6c28b83e-4cc8-4196-b9e0-897f51ab8981",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-23T22:42:18.389618+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "0c95207b-d1b0-41c8-b66e-3f7ab6b22d38",
+    "user_name": "Elisa Fosco",
+    "login_timestamp": "2026-04-26T19:19:06.835484+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "2bcd7320-5d46-46c8-865a-3e2be365f999",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-27T23:06:59.62352+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "30f84f2a-ba40-4fd4-bc1e-8bf7fa736272",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-28T02:40:25.847908+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "test-session-5406a9fe",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T03:32:23.418006+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "test-session-ed8cdad9",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T03:34:09.887057+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "test-session-cea434b1",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T03:34:27.75806+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "test-session-3e6917e8",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T03:34:59.597237+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "test-session-a23f2892",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T03:35:17.645147+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "test-session-2ee37843",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T03:35:35.344996+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "test-session-05d989a5",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T03:35:53.202735+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "test-session-d360a0f9",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T03:47:10.437813+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "test-session-7d79ce8a",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T04:30:54.358207+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "test-session-cce883f2",
+    "user_name": "Test Runner",
+    "login_timestamp": "2026-04-28T04:33:24.335115+00:00",
+    "user_agent": "Clinical Validation Script"
+  },
+  {
+    "session_id": "6eaf124e-e05c-4ae8-8482-22074e4c13b2",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-29T06:48:26.619901+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "9ef330c1-4aa2-47a0-ac36-56aa1da2dc27",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-29T07:55:00.434497+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "4f5c0470-55bc-414d-86cb-2c1a63a23f6d",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T01:29:17.889779+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "eb23a6fb-c020-497d-bf74-ba8d72ffac70",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T02:31:37.789853+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "clinical-test-1777525030",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T04:57:16.518662+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-1777525538",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:05:44.54819+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "session-gate-test",
+    "user_name": "TestGateUser",
+    "login_timestamp": "2026-04-30T05:06:16.511238+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-1777525717",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:08:44.1212+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-1777525817",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:10:23.471869+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-1777526044",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:14:11.942316+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "test-survive-check-001",
+    "user_name": "SurviveTest",
+    "login_timestamp": "2026-04-30T05:15:29.745178+00:00",
+    "user_agent": "test"
+  },
+  {
+    "session_id": "clinical-test-12345678",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:16:08.920876+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-88888888",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:21:30.551499+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "test-schema-88888888",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:22:59.627062+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-99991234",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:28:18.182123+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-1777527238",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:34:04.611886+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-trigger-test",
+    "user_name": "Test",
+    "login_timestamp": "2026-04-30T05:37:25.628379+00:00",
+    "user_agent": "test"
+  },
+  {
+    "session_id": "clinical-test-1777527715",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:42:01.137805+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-1777528280",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T05:51:27.453917+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "clinical-test-1777529165",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T06:06:12.415749+00:00",
+    "user_agent": "WINC Test Suite"
+  },
+  {
+    "session_id": "de6214e7-87f5-4b3b-8d15-c77779a59074",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T21:40:29.704409+00:00",
+    "user_agent": "WINC Field App"
+  },
+  {
+    "session_id": "c093019c-3f5d-4837-a435-ce3cbd7e0bf0",
+    "user_name": "Kevin Howland",
+    "login_timestamp": "2026-04-30T23:12:34.256788+00:00",
+    "user_agent": "WINC Field App"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "config_key": "APP_VERSION",
+    "config_value": "v8.1.27",
+    "description": "Primary Application Version",
+    "modified_at": "2026-04-23T22:15:23.919315+00:00"
+  },
+  {
+    "config_key": "MIN_EXPORT_STAGE_ORDINAL",
+    "config_value": "620",
+    "description": "Minimum developmental stage (ordinal) required for site export.",
+    "modified_at": "2026-04-13T06:59:46.636868+00:00"
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "observer_id": "ebe72de7-345d-4335-94f3-63b2b64c7857",
+    "display_name": "Kevin Howland",
+    "is_active": true,
+    "created_at": "2026-04-07T01:12:22.828889+00:00",
+    "modified_at": "2026-04-22T03:55:58.257154+00:00"
+  },
+  {
+    "observer_id": "59edc9f5-a163-4e04-852a-a02a8294653f",
+    "display_name": "Elisa Fosco",
+    "is_active": true,
+    "created_at": "2026-04-07T01:12:22.828889+00:00",
+    "modified_at": "2026-04-22T03:55:58.257154+00:00"
+  },
+  {
+    "observer_id": "53e791a1-6ed8-4d95-86e5-2d4499e1ee19",
+    "display_name": "Kylie Kroscher",
+    "is_active": true,
+    "created_at": "2026-04-22T03:55:58.257154+00:00",
+    "modified_at": "2026-04-23T03:04:06.787801+00:00"
+  }
+]

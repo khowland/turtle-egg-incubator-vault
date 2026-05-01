@@ -1,0 +1,122 @@
+[
+  {
+    "stage_id": "S1",
+    "label": "Intake",
+    "description": "Baseline post-oviposition entry.",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S1",
+    "sub_code": null,
+    "ordinal_rank": 100
+  },
+  {
+    "stage_id": "S2S",
+    "label": "Spot",
+    "description": "Initial chalking spot at apex.",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S2",
+    "sub_code": "S",
+    "ordinal_rank": 200
+  },
+  {
+    "stage_id": "S2B",
+    "label": "Band",
+    "description": "Equatorial calcification band.",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S2",
+    "sub_code": "B",
+    "ordinal_rank": 210
+  },
+  {
+    "stage_id": "S2F",
+    "label": "Full",
+    "description": "Total calcification (Joint-Covering).",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S2",
+    "sub_code": "F",
+    "ordinal_rank": 220
+  },
+  {
+    "stage_id": "S3",
+    "label": "Veins",
+    "description": "Vascularization: Vitelline veins visible.",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S3",
+    "sub_code": null,
+    "ordinal_rank": 300
+  },
+  {
+    "stage_id": "S4C",
+    "label": "C-Stage",
+    "description": "Early embryonic curve (Shrimp).",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S4",
+    "sub_code": "C",
+    "ordinal_rank": 400
+  },
+  {
+    "stage_id": "S4T",
+    "label": "Term",
+    "description": "Advanced development shadow occlusion.",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S4",
+    "sub_code": "T",
+    "ordinal_rank": 410
+  },
+  {
+    "stage_id": "S4M",
+    "label": "Motion",
+    "description": "Somatic movement detected.",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S4",
+    "sub_code": "M",
+    "ordinal_rank": 420
+  },
+  {
+    "stage_id": "S5",
+    "label": "Pipping",
+    "description": "Mechanical shell breach initiated.",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S5",
+    "sub_code": null,
+    "ordinal_rank": 500
+  },
+  {
+    "stage_id": "S6-YA1",
+    "label": "Hatch 1",
+    "description": "Hatched; Full Yolk Sac external.",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S6",
+    "sub_code": "YA1",
+    "ordinal_rank": 600
+  },
+  {
+    "stage_id": "S6-YA2",
+    "label": "Hatch 2",
+    "description": "Hatched; Half Yolk absorbed.",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S6",
+    "sub_code": "YA2",
+    "ordinal_rank": 610
+  },
+  {
+    "stage_id": "S6-YA3",
+    "label": "Hatch 3",
+    "description": "Hatched; Fully Absorbed (READY TO EXPORT).",
+    "created_at": "2026-04-13T06:59:46.636868+00:00",
+    "modified_at": "2026-04-16T02:49:47.15079+00:00",
+    "milestone": "S6",
+    "sub_code": "YA3",
+    "ordinal_rank": 620
+  }
+]

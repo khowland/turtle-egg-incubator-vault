@@ -1,0 +1,109 @@
+CHANGE REQUEST
+ID:        CR-20260430-194500
+Date:      2026-04-30 19:45 CST
+Requested: Kevin Howland / WINC Clinical Workflow
+Status:    OPEN — PENDING DIRECT AUTHORIZATION of gap analysis and implementation plan deliverables required for this CR
+Priority:  HIGH — Data Architecture Integrity
+Impact:    MAJOR
+LOE:       LARGE 
+==============
+
+Deliverables - reports only, no changes: 
+	Gap Analysis specified in more detail below
+	Detailed implementation plan broken into phases with detailed tasks so lower level agents can easily complete the tasks with limited context.
+	
+DO NOT MAKE ANY SYSTEM or DB CHANGES associated with this CR. Report only.
+
+DB SCHEMA CHANGES:
+My comments on Implemntation plan CR-20260430-181500:
+"1.1 Fix: Add incubator_temp_c column to bin table"
+NOT AUTHORIZED.
+
+Update CR-20260430-181500
+set Status to "Closed. Changes merged with Implementation plan for CR-20260430-194500"
+
+Merge your implemtaion plans (minus section 1.1) from CR-20260430-181500
+with the this implementation plan deliverable.
+
+incubator_temp_c is NOT a bin level data point. It relates to bin_observation when the incubator temp is recorded beginning of a bin and egg obervation session.
+Table bin_observation has ambient_temp, and humidity columns 
+Consider changing bin_observation.ambient_temp column name to bin_observation.incubator_temp_f
+Then replace-all:
+	incubator_temp_c with incubator_temp_f
+	ambient_temp with incubator_temp_f
+Provide impact analysis.
+
+INSTRUCTIONS:
+- When reviewing schema changes and preparing an implementation plan, remember to 
+performa an impact analysis to identify any and all system objects, scripts, eports, screens, and anything else that may be affected.
+- read requirement.md
+- move any .sql scripts in non-archive folders to archive folder, consider them outdated
+- the most recent Supabase generated DB schema is from 04/28/2026 file named turtledb_schema_generated_04282026.txt
+
+- DB standards: 
+	PK and FK columns must be numeric and system generated for uniqueness and referential integrity.
+	PKs and FKs are typically not shown to users on screen or in reports unless requested.
+- Test cases should interact with the UI , fill in appropriate date fields for the scenario, and mimic pressing "save" 
+in order to properly test real world user interaction with the system
+- There should be a test case written for every workflow supported by the system.
+- Running all UI test cases should eventually result in populating all transaction tables in the system
+- Lookup Tables (PRESERVE CONTENT, should have a script to clear and re-populate with established default rows.)
+	biological_property 
+	development_stage
+	observer
+	species
+	system_config ? (if this should have default rows)
+Review "Backup & Restore (Red Team)" functionality in settings to confirm it reflects any changes made as a result of this CR.
+
+Identify and research gaps between requirements.md and available system functionality.
+Identify other areas where requirements.md is lacking definition, or the system is lacking function.  
+Suggest changes needed in requirements.md and in system functionality. Include with implementation plan deliverable for this CR.
+
+NOTE: biological_property table should not empty! 
+Should contain all of the egg observation choices available to the user during an observation session.
+Each row represents an observation metric with a fixed range. They are all presented on the screen with appropriate user controls
+to facilitate rapid data entry by the observer. Each of these controls presented to the user can be individually selected within the range allowed, or deselected. 
+For example here are some ficticious metrics that mightt be stored in this table: 
+	property: egg color, range: (color 1, color 2, color 3) 
+	property: mold, range: (0=none to 5=fully covered)
+Analyze the design of this table and what functionality and code support this in the system. 
+Provide gap analysis between what is defined in requirements.md 
+and the biological observations and metrics that should be tracked during egg development according to turtle expert.
+These observations should facilitate identifying the biological property markers and metrics that relate to hatchery and hatchling viability and success.  
+It should allow the user to quickly and efficiemntly record multiple observation values for one or more selected eggs at a time.
+In your gap analysis, state what is and what is not defined in requirements.md pertaqining to biological_property to support egg observations through an egg's lifecycle.
+Once a user selects a bin from the dropdown, a sequential list of the eggs in that bin will be shown, 
+with each egg represented by the egg icon from the icons folder related to its stage of development. 
+Next to the list of eggs, all bilogical_property rows are shown on screen with their ranges for the observer to select within range or deselect.
+each selected choice and its value will be saved in egg_observation for every egg that was multi-selected. 
+
+SCHEMA CHANGES
+- bin.bin_id
+bin.bin_id text column is storing our system generated bin code 
+It may also be referenced in other table(s) as a FK.
+We need a new bin_code text column added to the table for storing our generated bin_code 
+Any objects, scripts, etc., in the system that referenced bin_id, should now reference bin_code
+
+- development_stages.stage_id
+stage_id text column is storing text of each egg development stage.
+It may also be referenced in other table(s) as a FK.
+We need a new egg_stage_code text column added to the table for storing egg developemtn stages
+These stages are user updateable, and therefore can't be a PK
+Any objects, scripts, etc., in the system that referenced stage_id, should now reference stage_code
+
+Changes and refactoring notes:
+- The system restore functions we provide to the user in Settings under Backup & Restore (Red Team):
+	1) clean start data for new deployments
+	2) mid season test data to populate all tables in the system as though it's mid season. this is to support testing.
+    note: Initially a small amount of test data should accumulate from running our test cases. 
+
+Consideration and suggestions for the refactoring plan:
+1) Add new text column to its table:  bin.bin_code and development_stages.egg_stage_code.
+2) update bin set bin_code = bin_id 
+   update development_stages set egg_stage_code = stage_id
+3) investigate global replace in all scripts, screens, reports, etc. from: {column}_id to {column}_code
+
+the next steps require all user tables to be empty. ensure you have lookup table rows preserved somewhere.
+4) change the affected {table}.{table}_id data type to a PK data type. 
+  in every table where the column is used as a FK, we must change that columnn's data type appropriately.
+ 
