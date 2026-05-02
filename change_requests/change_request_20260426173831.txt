@@ -3,7 +3,7 @@ CHANGE REQUEST
 ID:        CR-20260426-173831
 Date:      2026-04-26 17:38 CST
 Requested: Kevin Howland / WINC Clinical Walkthrough Team
-Status:    PENDING AUTHORIZATION
+Status:    CLOSED — Appears resolved with recent code changes (2026-05-01). Mobile hamburger toggle tested working on device.
 Priority:  HIGH — Mobile UX / Clinical Accessibility
 LOE:       Low (1 file, 1 CSS block, 1 unit assertion)
 
