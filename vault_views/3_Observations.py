@@ -68,9 +68,11 @@ with track_view_performance("Observations"):
 
     # --- 2. THE FOCUS SELECTBOX (§35.5) ---
     available_bins = (
-        supabase.table("bin").select("bin_id").eq("is_deleted", False).execute()
+        supabase.table("bin").select("bin_id, bin_code").eq("is_deleted", False).execute()  # CR-20260501-1800: Added bin_code for display
     )
     bin_options = sorted([b["bin_id"] for b in available_bins.data if b["bin_id"]])
+    # CR-20260501-1800: Build bin_code lookup map for display purposes
+    bin_code_map = {b["bin_id"]: b.get("bin_code", str(b["bin_id"])) for b in available_bins.data if b["bin_id"]}
 
     # Pre-calculate stats for icons
     # CR-20260426 Lo-4: Wrap per-bin query in try/except.
@@ -94,7 +96,9 @@ with track_view_performance("Observations"):
         if total == 0: icon = "⚪"
         elif total == done: icon = "✅"
         else: icon = "🌓"
-        return f"{icon} {b_id} ({done}/{total})"
+        # CR-20260501-1800: Display bin_code (text) instead of raw bin_id (now BIGINT)
+        display_code = bin_code_map.get(b_id, str(b_id))
+        return f"{icon} {display_code} ({done}/{total})"
 
     # Multiselect with raw IDs
     bin_ids_in_db = set(bin_stats.keys())
@@ -174,7 +178,7 @@ with track_view_performance("Observations"):
                 st.subheader("💧 Bin Weight Check")
                 st.warning("⚠️ **BIOLOGICAL ALERT: NEVER ROTATE EGGS.**\nMaintain exact original top-orientation during weighing and candling. Embryos will drown if turned.", icon="🛑")
                 st.write(
-                    f"We need the current weight for **{active_bin_id}** before you check the eggs."
+                    f"We need the current weight for **{bin_code_map.get(active_bin_id, str(active_bin_id))}** before you check the eggs."  # CR-20260501-1800: Display bin_code instead of raw bin_id
                 )
 
                 col_w1, col_w2 = st.columns(2)
@@ -232,7 +236,7 @@ with track_view_performance("Observations"):
                         st.session_state.env_gate_synced[active_bin_id] = True
                         st.cache_resource.clear()
 
-                    audit_msg = f"Environment Check: Bin {active_bin_id} mass recorded at {curr_w}g. Water added: {water_add}ml."
+                    audit_msg = f"Environment Check: Bin {bin_code_map.get(active_bin_id, str(active_bin_id))} mass recorded at {curr_w}g. Water added: {water_add}ml."  # CR-20260501-1800: Display bin_code
                     safe_db_execute("Hydration", unlock, success_message=audit_msg)
                     st.rerun()
             st.stop()
@@ -454,7 +458,7 @@ with track_view_performance("Observations"):
         # 4. THE BIOLOGICAL GRID
         # ------------------------------------------------------------------------------
         st.markdown("### 🥚 Biological Grid")
-        st.write(f"Showing **{len(eggs_data)}** subjects in **{active_bin_id}**")
+        st.write(f"Showing **{len(eggs_data)}** subjects in **{bin_code_map.get(active_bin_id, str(active_bin_id))}**")  # CR-20260501-1800: Display bin_code
 
         if st.button("START", help="Select All Pending", key="obs_start_all"):
             st.session_state.selected_eggs = [
@@ -705,7 +709,7 @@ with track_view_performance("Observations"):
                             f"Finalized {len(selected_real_ids)} clinical signatures."
                         )
 
-                    audit_msg = f"Batch Commit: {len(selected_real_ids)} eggs in Bin {active_bin_id} at Stage {new_stage}."
+                    audit_msg = f"Batch Commit: {len(selected_real_ids)} eggs in Bin {bin_code_map.get(active_bin_id, str(active_bin_id))} at Stage {new_stage}."  # CR-20260501-1800: Display bin_code
                     safe_db_execute(
                         "Prop Matrix Commit", commit_batch, success_message=audit_msg
                     )

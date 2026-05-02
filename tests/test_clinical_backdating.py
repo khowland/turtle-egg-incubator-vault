@@ -20,7 +20,7 @@ def test_ui_cannot_override_intake_timestamp():
         {"species_id": "SN", "species_code": "SN", "common_name": "Snapping Turtle", "intake_count": 1}
     ]
     mock_sb.rpc.return_value.execute.return_value.data = [
-        {"intake_id": "I-BD-001", "first_bin_id": "SN1-BD-1"}
+        {"intake_id": "I-BD-001", "first_bin_id": 1, "first_bin_code": "SN1-BD-1"}  # CR-20260501-1800: numeric bin_id + bin_code
     ]
 
     with patch("utils.bootstrap.bootstrap_page", return_value=mock_sb), \

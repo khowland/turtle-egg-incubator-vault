@@ -65,3 +65,41 @@
 - Phase 9: Deployment Verification — all migrations applied and verified, test suite run: 20 passed, 2 failed (pre-existing AppTest timeouts), 1 skipped (no live Supabase); all 7 CR-specific tests pass, e2e Playwright tests updated
 - CR-20260430-194500 status set to RESOLVED
 - All work committed and pushed to origin/main
+
+## Update — 2026-05-01 17:27 CST (CR-20260429-210932 Resolved)
+
+### Completed
+- CR-20260429-210932: Auto-Increment Bin Code in "Add Bin to Intake" + Match Initial Intake Form Format
+  - Enhanced existing bin loading: bin_num parsed from actual bin_id suffix for accurate numbering (lines 110-130)
+  - Auto-increment computation: computes next bin number from existing bin_id suffixes, builds next_bin_code (lines 196-230)
+  - Structured "Add Bin to Intake" expander in supplemental mode: read-only auto-generated bin code preview, Bulk Egg Count input, Egg Intake Date input, "Add This Bin" button (lines 234-276)
+  - Conditional num_rows: fixed for supplemental mode, dynamic for new intake (line 278-282)
+  - Guarded bin_id_preview: existing bins keep actual bin_id, new bins use formula with assigned bin_num
+  - Syntax check passed, 2 supplemental intake tests passed
+  - Commit: 9f68c83 "CR-20260429-210932: Auto-increment bin code and structured add-bin form"
+- File: vault_views/2_New_Intake.py (82 insertions, 5 deletions)
+- Status: RESOLVED
+
+### Remaining Work (per project state as of 2026-05-01)
+- CR-20260426-173831 (PENDING AUTH, LOW) — Mobile UX CSS fix, 1 file
+- CR-20260426-145540 deferred: DB-1/DB-2 restore snapshot overhaul, St-2 species codes (HOLD), St-4 flag field (HOLD)
+
+## Update — 2026-05-01 19:34 CST (CR-20260501-1800 Resolved — Numeric PK/FK Migration)
+
+### Completed
+- CR-20260501-1800: Full Numeric PK/FK Migration — Convert bin.bin_id and development_stage.stage_id to Numeric Surrogate Keys
+  - **Phase A**: TRUNCATE all 8 transaction tables (hatchling_ledger, egg_observation, bin_observation, egg, bin, intake, session_log, system_log) — lookup tables preserved
+  - **Phases B-F**: Convert bin.bin_id from text → BIGINT GENERATED ALWAYS AS IDENTITY; update FK columns in egg, bin_observation, egg_observation; re-add FK constraints
+  - **Phase G**: Convert development_stage.stage_id from text → BIGINT GENERATED ALWAYS AS IDENTITY; update FK in biological_property
+  - **Phase H**: Re-seed lookup tables (15 development stages, 41 biological properties) with correct numeric FK references
+  - **Schema verified**: bin.bin_id = BIGINT IDENTITY, bin.bin_code = text; stage_id = BIGINT IDENTITY, egg_stage_code = text
+  - **SQL migration**: supabase_db/migrations/v9_1_0_NUMERIC_PK_MIGRATION.sql (216 lines, applied via Supabase Management API, HTTP 201)
+  - **Python views updated**: 2_New_Intake.py, 3_Observations.py, 6_Reports.py — all use bin_code for display, numeric bin_id for internal ops
+  - **Tests updated**: 7 mock test files patched with numeric bin_id + bin_code fields; test_bin_id_logic.py updated; test_clinical_record_lifecycles.py updated
+  - **Documentation**: Requirements.md §1.6 added (Numeric Surrogate Keys DB §36 standard)
+  - **Change request**: change_requests/change_request_20260501_1800_pk_migration.txt created and marked RESOLVED
+- Status: RESOLVED
+
+### Remaining Work (per project state as of 2026-05-01)
+- CR-20260426-173831 (PENDING AUTH, LOW) — Mobile UX CSS fix, 1 file
+- CR-20260426-145540 deferred: DB-1/DB-2 restore snapshot overhaul, St-2 species codes (HOLD), St-4 flag field (HOLD)

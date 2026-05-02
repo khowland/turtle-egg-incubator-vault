@@ -109,6 +109,8 @@ with track_view_performance("Reports"):
                     or []
                 )
                 all_bins = all_bins_data
+                # CR-20260501-1800: Build bin_code map for display in exports
+                bin_code_map = {b["bin_id"]: b.get("bin_code", str(b["bin_id"])) for b in all_bins_data}
                 bin_ids = [b["bin_id"] for b in all_bins_data]
 
                 # All eggs for those bins
@@ -182,7 +184,8 @@ with track_view_performance("Reports"):
                 for m in chosen:
                     sp = species_by_id.get(m["species_id"], {})
                     m_bins = [b for b in all_bins_data if b["intake_id"] == m["intake_id"]]
-                    m_bin_ids = [b["bin_id"] for b in m_bins]
+                    m_bin_ids = [b["bin_id"] for b in m_bins]  # CR-20260501-1800: Used for internal joins
+                    m_bin_codes = [bin_code_map.get(b["bin_id"], str(b["bin_id"])) for b in m_bins]  # CR-20260501-1800: Display codes
                     m_eggs = [e for e in all_eggs_data if e["bin_id"] in m_bin_ids]
 
                     flat_rows.append(
@@ -200,8 +203,8 @@ with track_view_performance("Reports"):
                             "carapace_length_mm": m.get("carapace_length_mm"),
                             "total_bins": len(m_bins),
                             "total_eggs": len(m_eggs),
-                            "bin_ids_concat": "|".join(m_bin_ids),
-                            "first_bin_id": m_bin_ids[0] if m_bin_ids else "",
+                            "bin_ids_concat": "|".join(m_bin_codes),  # CR-20260501-1800: Use bin_codes for display
+                            "first_bin_id": m_bin_codes[0] if m_bin_codes else "",  # CR-20260501-1800: Use bin_code for display
                         }
                     )
 
@@ -233,7 +236,7 @@ with track_view_performance("Reports"):
                 ]
                 bin_obs_sum = [
                     {
-                        "bin_id": bid,
+                        "bin_id": bid,  # CR-20260501-1800: Numeric bin_id kept for reference; bin_code also available in export
                         "last_bin_weight_g": entry["bin_weight_g"],
                         "last_water_added_ml": entry["water_added_ml"],
                         "last_temp_f": entry["incubator_temp_f"],  # CR-20260429-053444: Lo-2 — use incubator_temp_f

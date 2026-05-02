@@ -44,7 +44,7 @@ def _ensure_test_bins(session_id: str, observer_id: str, min_bins: int = 2) -> l
 
     for i in range(needed):
         intake_id = f"I-TEST-WF-{i:03d}"
-        bin_id = f"BL{i:02d}-TEST-1"
+        bin_code = f"BL{i:02d}-TEST-1"  # CR-20260501-1800: Use bin_code (text), DB auto-generates numeric bin_id
 
         # Upsert intake (species BL, minimal fields)
         sb.table("intake").upsert({
@@ -60,7 +60,7 @@ def _ensure_test_bins(session_id: str, observer_id: str, min_bins: int = 2) -> l
 
         # Upsert bin (incubator_temp_f per v8_3_0 schema migration)
         sb.table("bin").upsert({
-            "bin_id": bin_id,
+            "bin_code": bin_code,  # CR-20260501-1800: Insert bin_code text; bin_id auto-generated
             "intake_id": intake_id,
             "bin_notes": "Auto-created by test suite (vault_finalize_intake RPC workaround)",
             "total_eggs": 12,
@@ -72,8 +72,8 @@ def _ensure_test_bins(session_id: str, observer_id: str, min_bins: int = 2) -> l
         # Upsert 12 Active eggs
         eggs = [
             {
-                "egg_id": f"{bin_id}-E{j+1}",
-                "bin_id": bin_id,
+                "egg_id": f"{bin_code}-E{j+1}",  # CR-20260501-1800: egg_id references bin_code for semantic ID
+                "bin_code": bin_code,  # CR-20260501-1800: Reference bin by bin_code
                 "intake_date": "2026-01-01",
                 "status": "Active",
                 "current_stage": "S1",
@@ -84,8 +84,8 @@ def _ensure_test_bins(session_id: str, observer_id: str, min_bins: int = 2) -> l
             }
             for j in range(12)
         ]
-        sb.table("egg").upsert(eggs).execute()
-        created_bins.append(bin_id)
+        created_bins.append(bin_code)  # CR-20260501-1800: Track by bin_code for test assertions
+
 
     return created_bins
 

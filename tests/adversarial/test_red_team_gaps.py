@@ -84,11 +84,11 @@ def test_duplicate_bin_id_prevention():
     """Assert that duplicate Bin IDs are rejected logic is present."""
     # We test the validation principle used in 2_New_Intake.py
     def validate_unique_bins(rows):
-        previews = [r.get("bin_id_preview") for r in rows]
+        previews = [r.get("bin_code_preview") for r in rows]  # CR-20260501-1800: Renamed from bin_id_preview
         return len(set(previews)) == len(previews)
 
-    valid_rows = [{"bin_id_preview": "B1"}, {"bin_id_preview": "B2"}]
-    invalid_rows = [{"bin_id_preview": "B1"}, {"bin_id_preview": "B1"}]
+    valid_rows = [{"bin_code_preview": "B1"}, {"bin_code_preview": "B2"}]  # CR-20260501-1800: Renamed
+    invalid_rows = [{"bin_code_preview": "B1"}, {"bin_code_preview": "B1"}]  # CR-20260501-1800: Renamed
     
     assert validate_unique_bins(valid_rows)
     assert not validate_unique_bins(invalid_rows)

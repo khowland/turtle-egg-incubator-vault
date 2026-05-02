@@ -3,7 +3,7 @@ CHANGE REQUEST
 ID:        CR-20260429-210932
 Date:      2026-04-29 21:09 CST
 Requested: Kevin Howland / WINC Clinical Workflow Alignment
-Status:    OPEN
+Status:    RESOLVED
 Priority:  MEDIUM — UX Integrity & Data Entry Consistency
 LOE:       Moderate (1 view file, 1 requirements update)
 

@@ -3,7 +3,7 @@ CHANGE REQUEST
 ID:        CR-20260429-224325
 Date:      2026-04-29 22:43 CST
 Requested: Kevin Howland / WINC Clinical Workflow Alignment
-Status:    OPEN
+Status:    RESOLVED — All 4 items fixed 2026-05-01 (Lo-1 label done via CR-194500; Lo-2 finder pre-pop; Lo-3 supplemental save branch; Lo-4 egg_observation baselines)
 Priority:  MEDIUM — UX Label Clarity + Supplemental Intake Integrity
 LOE:       Small-Medium (2 label fixes, 1 pre-populate fix, 1 backend wiring gap)
 

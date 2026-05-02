@@ -21,6 +21,7 @@ To ensure long-term maintainability for nonprofit staff, the following standards
 3. **Atomic Transactions**: Multi-table clinical writes (e.g., Intake) **must** utilize a single database transaction via the `vault_finalize_intake` RPC.
 4. **Database-Driven Versioning**: The application version must be defined in the `system_config` table. The UI must fetch this value dynamically via a singleton pattern on every route to ensure environment-wide consistency.
 5. **Unified Vocabulary (UI Standard)**: Form action buttons must follow the standardized labels: **SAVE**, **CANCEL**, and **START**. For tabular row operations, the system must prioritize native `st.data_editor` controls. If manual tables are absolutely necessary, they must match native iconography: **➕ (Add)** and **🗑️ (Delete)**, strictly avoiding text-based buttons like "REMOVE" or "ADD NEW".
+6. **Numeric Surrogate Keys (DB §36)**: All Primary Key (PK) and Foreign Key (FK) columns must be numeric and system-generated (`BIGINT GENERATED ALWAYS AS IDENTITY`) for uniqueness and referential integrity. Human-readable codes (e.g., bin codes like `BL1-6E6E-3`, egg stage names) must be stored in separate `text` columns (`bin_code`, `egg_stage_code`). PK/FK columns are for system use only and are typically not displayed to users.
 
 ### 🎨 Visual Branding & UI Font Case Standards
 

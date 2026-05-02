@@ -23,13 +23,13 @@ def _make_observations_mock(observer_id="forensic-observer", session_id="forensi
         m = MagicMock()
         if name == "bin":
             m.select.return_value.eq.return_value.execute.return_value.data = [
-                {"bin_id": "FOR-BIN", "intake_id": "FOR-CASE"}
+                {"bin_id": 1, "bin_code": "FOR-BIN", "intake_id": "FOR-CASE"}  # CR-20260501-1800: numeric bin_id + bin_code
             ]
         elif name == "egg":
             m.select.return_value.eq.return_value.eq.return_value.eq.return_value.order.return_value.execute.return_value.data = [
                 {
                     "egg_id": "FOR-BIN-E1",
-                    "bin_id": "FOR-BIN",
+                    "bin_id": 1, "bin_code": "FOR-BIN",  # CR-20260501-1800: numeric bin_id + bin_code
                     "current_stage": "S1",
                     "status": "Active",
                     "is_deleted": False,
@@ -39,10 +39,10 @@ def _make_observations_mock(observer_id="forensic-observer", session_id="forensi
                 }
             ]
             m.select.return_value.eq.return_value.execute.return_value.data = [
-                {"egg_id": "FOR-BIN-E1", "bin_id": "FOR-BIN", "intake_timestamp": "2026-01-01T12:00:00Z"}
+                {"egg_id": "FOR-BIN-E1", "bin_id": 1, "bin_code": "FOR-BIN", "intake_timestamp": "2026-01-01T12:00:00Z"}  # CR-20260501-1800: numeric bin_id + bin_code
             ]
             m.select.return_value.in_.return_value.execute.return_value.data = [
-                {"egg_id": "FOR-BIN-E1", "bin_id": "FOR-BIN", "intake_timestamp": "2026-01-01T12:00:00Z"}
+                {"egg_id": "FOR-BIN-E1", "bin_id": 1, "bin_code": "FOR-BIN", "intake_timestamp": "2026-01-01T12:00:00Z"}  # CR-20260501-1800: numeric bin_id + bin_code
             ]
         elif name == "bin_observation":
             m.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value.data = [
@@ -165,7 +165,7 @@ def test_intake_timestamp_is_timezone_aware():
         {"species_id": 1, "species_code": "SN", "common_name": "Snapping Turtle", "intake_count": 5}
     ]
     mock_sb.rpc.return_value.execute.return_value.data = [
-        {"intake_id": "I-TZ-1", "first_bin_id": "BIN-TZ-1"}
+        {"intake_id": "I-TZ-1", "first_bin_id": 1, "first_bin_code": "BIN-TZ-1"}  # CR-20260501-1800: numeric bin_id + bin_code
     ]
 
     with patch("utils.bootstrap.bootstrap_page", return_value=mock_sb), \

@@ -1,0 +1,83 @@
+CHANGE REQUEST
+==============
+ID:        CR-20260501-1800
+Date:      2026-05-01 18:00 CST
+Requested: Kevin Howland / WINC Clinical Workflow
+Status:    RESOLVED
+Priority:  HIGH — DB Standards Compliance (Numeric PK/FK Migration)
+Impact:    MAJOR — Schema refactoring affecting all transaction tables and application code
+LOE:       Large (4-6 hours)
+
+TITLE
+-----
+Full Numeric PK/FK Migration: Convert bin.bin_id and development_stage.stage_id to Numeric Surrogate Keys
+
+DESCRIPTION
+-----------
+Per DB Standards defined in CR-20260430-194500:
+- All PK and FK columns must be numeric and system-generated for uniqueness and referential integrity.
+- The human-readable codes (bin_code, egg_stage_code) must be stored in separate text columns.
+- bin.bin_id (currently text, holding the generated code like BL1-6E6E-1) must become a numeric auto-generated PK.
+- bin.bin_code (already added, but unused) will hold the generated alpha code.
+- development_stage.stage_id (currently text, holding stage name) must become numeric; egg_stage_code will hold the stage name text.
+- All FK references in egg, bin_observation, egg_observation, hatchling_ledger must be updated to numeric types.
+- All application code (views, RPCs, tests) must be updated to use bin_code for display and bin_id internally.
+
+PRECONDITION
+------------
+- All transaction tables are effectively empty (stale test data).
+- All transaction data will be wiped as part of this migration (excluding lookup tables: species, development_stage, biological_property, observer, system_config).
+
+ITEMS
+-----
+[DB] Database Schema Changes
+  DB-1  Truncate all transaction tables: intake, bin, egg, bin_observation, egg_observation, hatchling_ledger, session_log, system_log, etc.
+  DB-2  Drop FK constraints referencing bin.bin_id and development_stage.stage_id.
+  DB-3  Drop primary key constraints on bin and development_stage.
+  DB-4  Add new integer surrogate columns: bin.bin_id_new (BIGINT GENERATED ALWAYS AS IDENTITY) and development_stage.stage_id_new (BIGINT GENERATED ALWAYS AS IDENTITY).
+  DB-5  Rename old columns: bin.bin_id -> bin.bin_id_old_text, development_stage.stage_id -> stage_id_old_text. Rename new columns to bin.bin_id and development_stage.stage_id.
+  DB-6  Copy old values to bin_code and egg_stage_code respectively (if any data remains).
+  DB-7  Update FK columns in child tables to BIGINT to match new PKs.
+  DB-8  Re-add FK constraints referencing new numeric PKs.
+  DB-9  Verify schema integrity.
+
+[RP] RPC Updates
+  RP-1  Update vault_finalize_intake to insert bin_code (text) and let DB generate bin_id (numeric). Return the new numeric bin_id.
+  RP-2  Update vault_finalize_supplemental_bin to insert bin_code and return numeric bin_id.
+  RP-3  Update any other RPCs that reference bin_id.
+
+[UI] View & Python Code Updates
+  UI-1  Update 2_New_Intake.py: generate bin_code (not bin_id), use bin_code for display, bin_id for internal operations.
+  UI-2  Update 3_Observations.py: reference bin_code for display, bin_id for queries.
+  UI-3  Update 6_Reports.py and other views: switch to bin_code for display.
+  UI-4  Update utils/db.py, utils/session.py: use numeric bin_id for joins.
+  UI-5  Update all tests to work with new schema.
+
+[DC] Documentation
+  DC-1  Update docs/design/Requirements.md with DB standards section on numeric PK/FK.
+  DC-2  Update docs/BREADCRUMB_20260501.md with migration completion.
+  DC-3  Ensure change request file is formatted per standard.
+
+FILES AFFECTED
+--------------
+- supabase_db/turtledb_schema_generated_20260501.txt (reference schema)
+- vault_views/2_New_Intake.py
+- vault_views/3_Observations.py
+- vault_views/6_Reports.py
+- utils/db.py
+- utils/session.py
+- utils/audit.py
+- tests/ (all test files referencing bin_id)
+- docs/design/Requirements.md
+
+TEST PLAN
+---------
+- Run existing test suite after migration; may need updates for new column types.
+- Manual verification: create new intake, verify bin_code is displayed correctly, bin_id is numeric in DB.
+- Verify all existing workflows (Intake, Observations, Supplemental) function correctly.
+
+NOTES
+-----
+- This migration is DEFERRED from CR-20260430-194500 Phase 6 (which added transitional bin_code and egg_stage_code columns but did not complete the numeric PK conversion).
+- Lookup tables (species, development_stage, biological_property, observer, system_config) are preserved.
+- No data population script needed; transaction tables will be wiped clean.

@@ -11,7 +11,7 @@ def _make_intake_mock():
         {"species_id": "SN", "species_code": "SN", "common_name": "Snapping Turtle", "intake_count": 0}
     ]
     mock_sb.rpc.return_value.execute.return_value.data = [
-        {"intake_id": "I-WF-001", "first_bin_id": "SN1-HOWLAND-1"}
+        {"intake_id": "I-WF-001", "first_bin_id": 1, "first_bin_code": "SN1-HOWLAND-1"}  # CR-20260501-1800: numeric bin_id + bin_code
     ]
     return mock_sb
 
@@ -59,14 +59,14 @@ def test_workflow_lifecycle_progression_s1_to_s6():
         m = MagicMock()
         if name == "bin":
             m.select.return_value.eq.return_value.execute.return_value.data = [
-                {"bin_id": "SN1-HOWLAND-1", "intake_id": "I-LC-001"}
+                {"bin_id": 1, "bin_code": "SN1-HOWLAND-1", "intake_id": "I-LC-001"}  # CR-20260501-1800: numeric bin_id + bin_code
             ]
             m.select.return_value.in_.return_value.execute.return_value.data = [
-                {"bin_id": "SN1-HOWLAND-1", "intake_id": "I-LC-001"}
+                {"bin_id": 1, "bin_code": "SN1-HOWLAND-1", "intake_id": "I-LC-001"}  # CR-20260501-1800: numeric bin_id + bin_code
             ]
         elif name == "egg":
             egg = {
-                "egg_id": "SN1-HOWLAND-1-E1", "bin_id": "SN1-HOWLAND-1",
+                "egg_id": "SN1-HOWLAND-1-E1", "bin_id": 1, "bin_code": "SN1-HOWLAND-1",  # CR-20260501-1800: numeric bin_id + bin_code
                 "current_stage": "S1", "status": "Active",
                 "is_deleted": False, "last_chalk": 0, "last_vasc": False,
                 "intake_timestamp": "2026-04-01T12:00:00Z",

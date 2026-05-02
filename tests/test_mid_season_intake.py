@@ -17,7 +17,7 @@ def _make_intake_mock_for_supplemental():
     ]
     # Supplemental RPC returns success
     mock_sb.rpc.return_value.execute.return_value.data = [
-        {"intake_id": "I-EXISTING-001", "first_bin_id": "SN1-HOWLAND-2"}
+        {"intake_id": "I-EXISTING-001", "first_bin_id": 1, "first_bin_code": "SN1-HOWLAND-2"}  # CR-20260501-1800: numeric bin_id + bin_code
     ]
     return mock_sb
 

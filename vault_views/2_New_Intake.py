@@ -106,25 +106,26 @@ with track_view_performance("Intake"):
         # CR-20260430-194500: Load existing bins for supplemental intake
         supp_intake_id = st.session_state.get("supp_intake_id")
         if supp_intake_id:
-            existing_bins = supabase.table("bin").select("bin_id, total_eggs, bin_notes, substrate, shelf_location").eq("intake_id", supp_intake_id).execute()
+            existing_bins = supabase.table("bin").select("bin_id, bin_code, total_eggs, bin_notes, substrate, shelf_location").eq("intake_id", supp_intake_id).execute()  # CR-20260501-1800: Added bin_code for display
             if existing_bins.data:
                 # CR-20260429-210932: Parse bin_num from actual bin_id suffix for accurate numbering
-                def _parse_bin_suffix(bin_id):
-                    parts = bin_id.rsplit('-', 1)
+                # CR-20260501-1800: Parse bin_num suffix from bin_code (text code) instead of bin_id (now BIGINT)
+                def _parse_bin_suffix(bin_code):
+                    parts = bin_code.rsplit('-', 1)
                     if len(parts) == 2 and parts[1].isdigit():
                         return int(parts[1])
                     return 0
                 st.session_state.bin_rows = [
                     {
-                        "bin_num": _parse_bin_suffix(b["bin_id"]) or idx + 1,
+                        "bin_num": _parse_bin_suffix(b["bin_code"]) or idx + 1,  # CR-20260501-1800: Parse from bin_code text
                         "current_egg_count": b["total_eggs"],
                         "new_egg_count": 0,
                         "notes": b.get("bin_notes", ""),
                         "substrate": b.get("substrate", "Vermiculite"),
                         "shelf": b.get("shelf_location", ""),
                         "is_new_bin": False,
-                        "existing_bin_id": b["bin_id"],
-                        "bin_id_preview": b["bin_id"]  # CR-20260429-210932: Use actual bin_id for existing bins
+                        "existing_bin_id": b["bin_id"],  # CR-20260501-1800: Now numeric BIGINT, keep for internal reference
+                        "bin_code_preview": b["bin_code"]  # CR-20260501-1800: Use bin_code for display (renamed from bin_id_preview)
                     }
                     for idx, b in enumerate(existing_bins.data)
                 ]
@@ -199,7 +200,7 @@ with track_view_performance("Intake"):
         if intake_mode == "Add Eggs or Bins to Existing Intake":
             existing_nums = []
             for r in st.session_state.bin_rows:
-                bid = r.get("bin_id_preview", "")
+                bid = r.get("bin_code_preview", "")  # CR-20260501-1800: Renamed from bin_id_preview
                 if bid and "-" in bid:
                     parts = bid.rsplit("-", 1)
                     if len(parts) == 2 and parts[1].isdigit():
@@ -215,14 +216,15 @@ with track_view_performance("Intake"):
             if "new_egg_count" not in r: r["new_egg_count"] = 0
             if "current_egg_count" not in r: r["current_egg_count"] = 0  # CR-20260430-194500: Default for v2
             # CR-20260429-210932: Guard bin_id_preview — existing bins keep actual bin_id, new bins use formula
+            # CR-20260501-1800: Guard bin_code_preview — existing bins keep bin_code, new bins use formula
             if r.get("is_new_bin") is False:
-                # Existing bin: keep actual bin_id (already set as bin_id_preview in loading block)
-                if not r.get("bin_id_preview"):
-                    r["bin_id_preview"] = r.get("existing_bin_id", "UNKNOWN")
+                # Existing bin: keep actual bin_code (already set as bin_code_preview in loading block)
+                if not r.get("bin_code_preview"):  # CR-20260501-1800: Renamed from bin_id_preview
+                    r["bin_code_preview"] = r.get("existing_bin_id", "UNKNOWN")  # CR-20260501-1800: Fallback to numeric bin_id
             else:
                 # New bin: compute preview using assigned bin_num
                 finder_clean_preview = re.sub(r"[^A-Z0-9'\-.]", "", finder_name.upper()) if finder_name else ""  # CR-20260426-145540: St-1
-                r["bin_id_preview"] = f"{selected_species['species_code']}{next_intake_number}-{finder_clean_preview}-{r['bin_num']}" if finder_name else "PENDING"
+                r["bin_code_preview"] = f"{selected_species['species_code']}{next_intake_number}-{finder_clean_preview}-{r['bin_num']}" if finder_name else "PENDING"  # CR-20260501-1800: Renamed from bin_id_preview
             if "existing_bin_id" not in r: r["existing_bin_id"] = None  # CR-20260430-194500: Default for new bins
             if "is_new_bin" not in r: r["is_new_bin"] = True
             if "substrate" not in r: r["substrate"] = "Vermiculite"
@@ -268,7 +270,7 @@ with track_view_performance("Intake"):
                         "shelf": "",
                         "is_new_bin": True,
                         "existing_bin_id": None,
-                        "bin_id_preview": next_bin_code,
+                        "bin_code_preview": next_bin_code,  # CR-20260501-1800: Renamed from bin_id_preview
                         "egg_intake_date": str(supp_egg_date)
                     }
                     st.session_state.bin_rows.append(new_bin)
@@ -282,7 +284,7 @@ with track_view_performance("Intake"):
             num_rows=_num_rows,
             use_container_width=True,
             column_config={  # CR-20260430-194500: Redesigned for v2 intake workflow
-                "bin_id_preview": st.column_config.TextColumn("Bin Code (Auto)", disabled=True),
+                "bin_code_preview": st.column_config.TextColumn("Bin Code (Auto)", disabled=True),  # CR-20260501-1800: Renamed from bin_id_preview
                 "bin_num": st.column_config.NumberColumn("Bin #", disabled=True),
                 "current_egg_count": st.column_config.NumberColumn("Current Eggs", disabled=True),
                 "new_egg_count": st.column_config.NumberColumn("New Eggs", min_value=0, max_value=99, required=True),
@@ -327,7 +329,7 @@ with track_view_performance("Intake"):
                 st.stop()
         
         # Finding 5: Prevent Duplicate Bin IDs
-        previews = [r.get("bin_id_preview") for r in st.session_state.bin_rows]
+        previews = [r.get("bin_code_preview") for r in st.session_state.bin_rows]  # CR-20260501-1800: Renamed from bin_id_preview
         if len(set(previews)) != len(previews):
             st.error("❌ Data Integrity Error: Duplicate Bin Codes detected in this intake. Each bin must have a unique identifier.")
             st.stop()
@@ -372,7 +374,7 @@ with track_view_performance("Intake"):
                             # CR-20260426 Lo-4: Final sanitization pass strips any invalid chars
                             # (e.g., '/' from species code edge cases) that would break Supabase REST URLs
                             # CR-20260426-145540: St-1 - allow apostrophes, hyphens, periods in bin ID formation
-                            bid = re.sub(r"[^A-Z0-9'\-.]", "", f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}")
+                            bin_code = re.sub(r"[^A-Z0-9'\-.]", "", f"{selected_species['species_code']}{next_intake_number}-{finder_clean}-{row_data['bin_num']}")  # CR-20260501-1800: Generate bin_code (text) instead of bin_id
                             # CR-20260430-194500: Calculate total eggs from current + new
                             total_eggs = row_data.get("current_egg_count", 0) + row_data["new_egg_count"]
                             if total_eggs < 1:
@@ -380,7 +382,7 @@ with track_view_performance("Intake"):
                                 st.stop()
                             bins_payload.append(
                                 {
-                                    "bin_id": bid,
+                                    "bin_code": bin_code,  # CR-20260501-1800: Send text bin_code, DB will auto-generate numeric bin_id
                                     "bin_notes": row_data.get("notes", ""),
                                     "egg_count": total_eggs,
                                     "substrate": row_data["substrate"],
@@ -430,7 +432,7 @@ with track_view_performance("Intake"):
                                 if total_eggs < 1:
                                     st.error(f"❌ Bin #{row_data['bin_num']} must have at least 1 egg total.")
                                     st.stop()
-                                bins_payload_including_total_eggs.append({
+                                bin_payload_entry = {  # CR-20260501-1800: Build payload with bin_code for new bins
                                     "new_egg_count": row_data["new_egg_count"],
                                     "current_egg_count": row_data.get("current_egg_count", 0),
                                     "total_eggs": total_eggs,
@@ -438,8 +440,12 @@ with track_view_performance("Intake"):
                                     "shelf": row_data.get("shelf", ""),
                                     "notes": row_data.get("notes", ""),
                                     "is_new_bin": row_data.get("is_new_bin", True),
-                                    "existing_bin_id": row_data.get("existing_bin_id")
-                                })
+                                    "existing_bin_id": row_data.get("existing_bin_id")  # Numeric bin_id for existing bins
+                                }
+                                # For new bins, send bin_code (text) for DB to auto-generate numeric bin_id
+                                if row_data.get("is_new_bin", True):
+                                    bin_payload_entry["bin_code"] = row_data.get("bin_code_preview", "")
+                                bins_payload_including_total_eggs.append(bin_payload_entry)
                             
                             rpc_result = supabase.rpc(
                                 "vault_finalize_supplemental_bin",
@@ -478,14 +484,15 @@ with track_view_performance("Intake"):
                                 if isinstance(out, str):
                                     out = json.loads(out)
 
-                                if not out or not out.get("first_bin_id"):
+
+                                if not out or not out.get("first_bin_id"):  # CR-20260501-1800: first_bin_id is now numeric BIGINT from DB auto-generation
                                     raise RuntimeError("RPC returned incomplete payload")
 
                                 status.update(
                                     label=f"Intake Successful! Case {case_number} established.",
                                     state="complete",
                                 )
-                                _intake_success_ui(out["first_bin_id"], out.get("intake_id"))
+                                _intake_success_ui(out["first_bin_id"], out.get("intake_id"))  # CR-20260501-1800: first_bin_id now numeric, stored in active_bin_id
                             except Exception as rpc_err:
                                 import traceback
 
