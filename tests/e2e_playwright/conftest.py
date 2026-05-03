@@ -14,5 +14,5 @@ def login(page: Page, e2e_base_url: str):
         page.goto(e2e_base_url, wait_until='domcontentloaded')
         expect(page.get_by_role('button', name='START', exact=True)).to_be_visible(timeout=30000)
         page.get_by_role('button', name='START', exact=True).click()
-        expect(page.get_by_role('heading', name="Today's Summary")).to_be_visible(timeout=30000)
+        expect(page.get_by_role('heading', name='📊 Today\'s Summary')).to_be_visible(timeout=30000)
     return _login
