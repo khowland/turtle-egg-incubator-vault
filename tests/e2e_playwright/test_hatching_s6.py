@@ -6,13 +6,11 @@ TC-S6-02: hatchling_ledger fields (count, notes) match observation inputs
 
 DB Row Requirement: After these tests run the hatchling_ledger table must have >= 2 rows.
 """
+from selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
+
 import time
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
-
-
-INTAKE_NAV = "a:has-text('Intake')"
-OBS_NAV = "a:has-text('Observations')"
 
 
 def _advance_egg_to_stage(db, egg_id: str, stage: str):
@@ -25,18 +23,17 @@ def _advance_egg_to_stage(db, egg_id: str, stage: str):
         "is_deleted": False,
     }).execute()
 
-
 def _create_intake_and_advance_to_s5(page: Page, login) -> dict:
     """Create intake via UI, advance egg to S5 via DB, return context."""
     login()
-    page.locator(INTAKE_NAV).first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
 
     sig = f"S6-SETUP-{int(time.time())}"
     page.locator("input[aria-label='Finder']").fill(sig)
     page.locator("input[aria-label='WINC Case #']").fill(sig)
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     db = get_supabase_client()
     intake = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
@@ -53,11 +50,10 @@ def _create_intake_and_advance_to_s5(page: Page, login) -> dict:
 
     return {"bin_id": bin_id, "egg_ids": egg_ids, "sig": sig}
 
-
 def _unlock_workbench(page: Page, bin_id: str):
     """Navigate to Observations, add bin to workbench, pass weight gate."""
-    page.locator(OBS_NAV).first.click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=15000)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     workbench = page.locator("[data-testid='stMultiSelect']").first
     workbench.click()
@@ -73,7 +69,6 @@ def _unlock_workbench(page: Page, bin_id: str):
     weight_input.fill("280")
     page.get_by_role("button", name="SAVE").first.click()
     time.sleep(2)
-
 
 # ---------------------------------------------------------------------------
 # TC-S6-01: S5 → S6 transition
@@ -134,7 +129,6 @@ def test_s5_to_s6_hatch_transition(page: Page, login):
     assert total_ledger.count >= len(egg_ids), (
         f"DB FAILURE: hatchling_ledger total rows ({total_ledger.count}) < egg count ({len(egg_ids)})"
     )
-
 
 # ---------------------------------------------------------------------------
 # TC-S6-02: hatchling_ledger data fields

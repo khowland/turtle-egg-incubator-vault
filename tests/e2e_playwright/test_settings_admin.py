@@ -7,12 +7,11 @@ TC-SET-03: Add/edit species — new row persisted in species table
 
 DB Row Requirement: observer and species tables must each have >= 2 rows after this suite.
 """
+from selectors import HEADING_SETTINGS, NAV_SETTINGS
+
 import time
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
-
-
-SETTINGS_NAV = "a:has-text('Settings')"
 
 
 # ---------------------------------------------------------------------------
@@ -21,8 +20,8 @@ SETTINGS_NAV = "a:has-text('Settings')"
 def test_settings_page_renders(page: Page, login):
     """TC-SET-01: Settings page has all four expected tabs."""
     login()
-    page.locator(SETTINGS_NAV).first.click()
-    expect(page.get_by_role("heading", name="Settings")).to_be_visible(timeout=15000)
+    page.locator(NAV_SETTINGS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_SETTINGS)).to_be_visible(timeout=15000)
 
     for tab_label in ["User Registry", "Species Config", "Resurrection Vault", "Stages"]:
         tab = page.get_by_role("tab", name=tab_label)
@@ -31,15 +30,14 @@ def test_settings_page_renders(page: Page, login):
     # Verify default tab (User Registry) is active
     expect(page.get_by_text("User Registry").first).to_be_visible(timeout=5000)
 
-
 # ---------------------------------------------------------------------------
 # TC-SET-02: Add/edit observer
 # ---------------------------------------------------------------------------
 def test_add_edit_observer(page: Page, login):
     """TC-SET-02: Add new observer name via data_editor and SAVE → persists in DB."""
     login()
-    page.locator(SETTINGS_NAV).first.click()
-    expect(page.get_by_role("heading", name="Settings")).to_be_visible(timeout=15000)
+    page.locator(NAV_SETTINGS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_SETTINGS)).to_be_visible(timeout=15000)
 
     # User Registry tab should be default
     page.get_by_role("tab", name="User Registry").click()
@@ -78,15 +76,14 @@ def test_add_edit_observer(page: Page, login):
         f"DB FAILURE: observer table has only {after.count} rows — expected >= 2"
     )
 
-
 # ---------------------------------------------------------------------------
 # TC-SET-03: Add/edit species
 # ---------------------------------------------------------------------------
 def test_add_edit_species(page: Page, login):
     """TC-SET-03: Add new species code via data_editor and SAVE → persists in DB."""
     login()
-    page.locator(SETTINGS_NAV).first.click()
-    expect(page.get_by_role("heading", name="Settings")).to_be_visible(timeout=15000)
+    page.locator(NAV_SETTINGS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_SETTINGS)).to_be_visible(timeout=15000)
 
     page.get_by_role("tab", name="Species Config").click()
     time.sleep(1)

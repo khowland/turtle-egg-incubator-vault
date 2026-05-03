@@ -9,11 +9,12 @@ TC-INT-03: CANCEL button aborts intake, no DB rows created
 # Phase 2b: Add Eggs or Bins to Existing Intake
 # TC-SUP-01: Supplemental intake full save → new bin + eggs added to existing case
 """
+from selectors import HEADING_OBSERVATIONS, NAV_INTAKE
+
 import time
 import uuid
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
-
 
 # ---------------------------------------------------------------------------
 # TC-INT-01: Full intake with all optional fields + bin nomenclature
@@ -21,7 +22,7 @@ from utils.db import get_supabase_client
 def test_intake_full_fields_and_bin_nomenclature(page: Page, login):
     """TC-INT-01: Full intake with all optional fields; verify bin code format."""
     login()
-    page.locator("a:has-text('Intake')").first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
 
     unique_sig = f"TC-INT-01-{int(time.time())}"
@@ -56,7 +57,7 @@ def test_intake_full_fields_and_bin_nomenclature(page: Page, login):
     page.get_by_role("button", name="SAVE").click()
 
     # Verify redirect to Observations (success indicator)
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     # --- Backend DB verification ---
     db = get_supabase_client()
@@ -91,14 +92,13 @@ def test_intake_full_fields_and_bin_nomenclature(page: Page, login):
     assert len(obs_res.data) >= 1, "DB FAILURE: No baseline S1 egg_observation created"
     assert obs_res.data[0]["stage_at_observation"] == "S1", "DB FAILURE: Baseline obs stage != S1"
 
-
 # ---------------------------------------------------------------------------
 # TC-INT-02: Intake with multiple eggs → all egg rows created at S1
 # ---------------------------------------------------------------------------
 def test_intake_multiple_eggs(page: Page, login):
     """TC-INT-02: Intake with egg_count=5 creates 5 egg rows all at stage S1."""
     login()
-    page.locator("a:has-text('Intake')").first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
 
     unique_sig = f"TC-INT-02-{int(time.time())}"
@@ -115,7 +115,7 @@ def test_intake_multiple_eggs(page: Page, login):
         egg_count_cells[0].fill("5")
 
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     # DB verification
     db = get_supabase_client()
@@ -134,14 +134,13 @@ def test_intake_multiple_eggs(page: Page, login):
         obs = db.table("egg_observation").select("egg_observation_id").eq("egg_id", egg["egg_id"]).execute()
         assert len(obs.data) >= 1, f"DB FAILURE: No baseline observation for egg {egg['egg_id']}"
 
-
 # ---------------------------------------------------------------------------
 # TC-INT-03: CANCEL button aborts intake — no DB rows created
 # ---------------------------------------------------------------------------
 def test_intake_cancel_button(page: Page, login):
     """TC-INT-03: CANCEL button on intake form creates no DB rows."""
     login()
-    page.locator("a:has-text('Intake')").first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
 
     unique_sig = f"TC-INT-03-CANCEL-{int(time.time())}"
@@ -154,7 +153,7 @@ def test_intake_cancel_button(page: Page, login):
 
     # Should redirect away or reset form; verify NOT on Observations
     time.sleep(2)  # Allow any redirect
-    heading = page.get_by_role("heading", name="Observations")
+    heading = page.get_by_role("heading", name=HEADING_OBSERVATIONS)
     assert not heading.is_visible(), "CANCEL should not navigate to Observations"
 
     # DB verification: no intake row should exist
@@ -164,14 +163,13 @@ def test_intake_cancel_button(page: Page, login):
         f"DB FAILURE: CANCEL button did not prevent DB write — found {len(intake_res.data)} row(s)"
     )
 
-
 # ---------------------------------------------------------------------------
 # TC-SUP-01: Supplemental intake full save
 # ---------------------------------------------------------------------------
 def test_supplemental_intake_full_save(page: Page, login):
     """TC-SUP-01: Supplemental intake adds new bin + eggs to an existing case."""
     login()
-    page.locator("a:has-text('Intake')").first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
 
     # First: create a primary intake so we have a case to supplement
@@ -179,10 +177,10 @@ def test_supplemental_intake_full_save(page: Page, login):
     page.locator("input[aria-label='Finder']").fill(primary_sig)
     page.locator("input[aria-label='WINC Case #']").fill(primary_sig)
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     # Navigate back to Intake → switch to Supplemental mode
-    page.locator("a:has-text('Intake')").first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
     # CR-20260430-194500: Updated selector for renamed label
     page.locator("label:has-text('Add Eggs or Bins to Existing Intake')").first.click()
@@ -196,7 +194,7 @@ def test_supplemental_intake_full_save(page: Page, login):
 
     # SAVE the supplemental intake
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     # DB verification: primary intake should now have 2 bins
     db = get_supabase_client()

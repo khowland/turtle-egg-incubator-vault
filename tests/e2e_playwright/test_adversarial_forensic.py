@@ -1,19 +1,18 @@
+from selectors import NAV_INTAKE
 import time
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase
 
-
 def test_layer1_adversarial_ui_rejections(page: Page, login):
     login()
-    page.locator("a:has-text('Intake')").first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role('heading', name='Step 1: Mother Turtle Info')).to_be_visible(timeout=30000)
     page.get_by_role('button', name='SAVE').click()
     expect(page.get_by_text('Finder or Turtle Name is required').first).to_be_visible(timeout=30000)
 
-
 def test_layer2_forensic_backend_verification(page: Page, login):
     login()
-    page.locator("a:has-text('Intake')").first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role('heading', name='Step 1: Mother Turtle Info')).to_be_visible(timeout=30000)
 
     unique_sig = f"FORENSIC-{int(time.time())}"

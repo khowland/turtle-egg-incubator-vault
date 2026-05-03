@@ -4,14 +4,11 @@ Phase 4: Reports & Dashboard
 TC-RPT-01: Reports page renders — data grid and export button visible
 TC-RPT-02: Dashboard summary stats reflect actual DB state (non-zero after intake)
 """
+from selectors import HEADING_DASHBOARD, HEADING_OBSERVATIONS, HEADING_REPORTS, NAV_DASHBOARD, NAV_INTAKE, NAV_REPORTS
+
 import time
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
-
-
-INTAKE_NAV = "a:has-text('Intake')"
-REPORTS_NAV = "a:has-text('Reports')"
-DASHBOARD_NAV = "a:has-text('Dashboard')"
 
 
 # ---------------------------------------------------------------------------
@@ -20,8 +17,8 @@ DASHBOARD_NAV = "a:has-text('Dashboard')"
 def test_reports_page_renders(page: Page, login):
     """TC-RPT-01: Reports page shows title, filter section, and START button."""
     login()
-    page.locator(REPORTS_NAV).first.click()
-    expect(page.get_by_role("heading", name="Reports")).to_be_visible(timeout=15000)
+    page.locator(NAV_REPORTS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_REPORTS)).to_be_visible(timeout=15000)
 
     # START button to build export previews
     expect(page.get_by_role("button", name="START")).to_be_visible(timeout=5000)
@@ -37,7 +34,6 @@ def test_reports_page_renders(page: Page, login):
         .or_(page.get_by_text("Clinical").first)
     ).to_be_visible(timeout=10000)
 
-
 # ---------------------------------------------------------------------------
 # TC-RPT-02: Dashboard stats reflect actual DB state
 # ---------------------------------------------------------------------------
@@ -46,18 +42,18 @@ def test_dashboard_reflects_data(page: Page, login):
     login()
 
     # First create an intake so there's data to reflect
-    page.locator(INTAKE_NAV).first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
 
     sig = f"DASH-RPT-{int(time.time())}"
     page.locator("input[aria-label='Finder']").fill(sig)
     page.locator("input[aria-label='WINC Case #']").fill(sig)
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     # Navigate to Dashboard
-    page.locator(DASHBOARD_NAV).first.click()
-    expect(page.get_by_role("heading", name="Today's Summary")).to_be_visible(timeout=15000)
+    page.locator(NAV_DASHBOARD).first.click()
+    expect(page.get_by_role("heading", name=HEADING_DASHBOARD)).to_be_visible(timeout=15000)
 
     # Dashboard should show at least some data metrics (st.metric or numeric values)
     # Verify at least one metric/stat is displayed

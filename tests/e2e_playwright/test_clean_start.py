@@ -9,26 +9,24 @@ Expected flow:
   Settings → Vault Admin tab → GENERATE FULL BACKUP → EXPORT → confirm download
   → type OBLITERATE CURRENT DATA → WIPE & SET CLEAN START → verify DB clean
 """
+from selectors import HEADING_SETTINGS, NAV_INTAKE, NAV_SETTINGS
+
 import time
 import pytest
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
 
-
-SETTINGS_NAV = "a:has-text('Settings')"
 VAULT_ADMIN_TAB = "button[role='tab']:has-text('Vault Admin')"
 OBLITERATE_TEXT = "OBLITERATE CURRENT DATA"
-
 
 # ---------------------------------------------------------------------------
 # Helper: navigate to Settings → Vault Admin tab
 # ---------------------------------------------------------------------------
 def _go_to_vault_admin(page: Page):
-    page.locator(SETTINGS_NAV).first.click()
-    expect(page.get_by_role("heading", name="⚙️ Settings")).to_be_visible(timeout=15000)
+    page.locator(NAV_SETTINGS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_SETTINGS)).to_be_visible(timeout=15000)
     # Click the Vault Admin tab (last tab in Settings)
     page.get_by_role("tab", name="Vault Admin").click()
-
 
 # ---------------------------------------------------------------------------
 # TC-WCS-01: Full wipe flow → clean start
@@ -74,7 +72,6 @@ def test_vault_wipe_clean_start(page: Page, login):
             f"DB FAILURE: Table '{table}' still has {result.count} rows after wipe!"
         )
 
-
 # ---------------------------------------------------------------------------
 # TC-WCS-02: Lookup tables survive wipe
 # ---------------------------------------------------------------------------
@@ -95,7 +92,7 @@ def test_lookup_tables_survive_wipe(page: Page, login):
     )
 
     # UI verification: species should appear in intake form selector
-    page.locator("a:has-text('Intake')").first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
     # Species selectbox should be populated (not empty)
     species_select = page.locator("[data-testid='stSelectbox']").first

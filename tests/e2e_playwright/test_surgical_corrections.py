@@ -11,14 +11,12 @@ TC-VOID-06: S6 rollback voids hatchling_ledger (atomic integrity ISS-3)
 DB Row Requirement: After suite, egg_observation table must have rows with
 is_deleted=true (voided) AND is_deleted=false (active) — mixed state validated.
 """
+from selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
+
 import time
 import uuid
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
-
-
-INTAKE_NAV = "a:has-text('Intake')"
-OBS_NAV = "a:has-text('Observations')"
 
 
 # ---------------------------------------------------------------------------
@@ -26,13 +24,13 @@ OBS_NAV = "a:has-text('Observations')"
 # ---------------------------------------------------------------------------
 def _make_intake(page: Page, login, sig: str = None) -> dict:
     login()
-    page.locator(INTAKE_NAV).first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
     sig = sig or f"VOID-SETUP-{int(time.time())}"
     page.locator("input[aria-label='Finder']").fill(sig)
     page.locator("input[aria-label='WINC Case #']").fill(sig)
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
     db = get_supabase_client()
     intake = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
     bin_row = db.table("bin").select("bin_id").eq(
@@ -41,7 +39,6 @@ def _make_intake(page: Page, login, sig: str = None) -> dict:
     bin_id = bin_row.data[0]["bin_id"]
     eggs = db.table("egg").select("egg_id").eq("bin_id", bin_id).execute()
     return {"bin_id": bin_id, "egg_ids": [e["egg_id"] for e in eggs.data], "sig": sig}
-
 
 def _add_observation(db, egg_id: str, stage: str) -> str:
     """Insert an observation row directly (setup helper, not under test)."""
@@ -55,11 +52,10 @@ def _add_observation(db, egg_id: str, stage: str) -> str:
     db.table("egg").update({"current_stage": stage}).eq("egg_id", egg_id).execute()
     return obs_id
 
-
 def _go_to_obs_correction_mode(page: Page, bin_id: str):
     """Navigate to Observations, add bin to workbench, pass weight gate, enable Correction Mode."""
-    page.locator(OBS_NAV).first.click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=15000)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     wb = page.locator("[data-testid='stMultiSelect']").first
     wb.click()
@@ -82,7 +78,6 @@ def _go_to_obs_correction_mode(page: Page, bin_id: str):
     correction_toggle.click()
     time.sleep(1)
 
-
 # ---------------------------------------------------------------------------
 # TC-VOID-01: Correction Mode toggle shows surgical panel
 # ---------------------------------------------------------------------------
@@ -96,7 +91,6 @@ def test_correction_mode_toggle(page: Page, login):
         page.get_by_text("Select Egg for Surgery").first
         .or_(page.get_by_text("Surgery").first)
     ).to_be_visible(timeout=5000)
-
 
 # ---------------------------------------------------------------------------
 # TC-VOID-02: Void latest observation → is_deleted=true, stage rollback
@@ -154,7 +148,6 @@ def test_void_latest_observation(page: Page, login):
     ).execute()
     assert len(voided.data) >= 1, "DB FAILURE: No voided rows found in egg_observation"
 
-
 # ---------------------------------------------------------------------------
 # TC-VOID-03: Void reason required
 # ---------------------------------------------------------------------------
@@ -188,7 +181,6 @@ def test_void_reason_required(page: Page, login):
         assert len(still_active) >= 1, (
             "DB FAILURE: Observation was voided without a reason — void reason gate failed"
         )
-
 
 # ---------------------------------------------------------------------------
 # TC-VOID-04: Only latest observation is voidable (older rows disabled)
@@ -227,7 +219,6 @@ def test_only_latest_obs_is_voidable(page: Page, login):
         "UI FAILURE: Expected older observations to have disabled void buttons"
     )
 
-
 # ---------------------------------------------------------------------------
 # TC-VOID-05: RESTORE voided observation
 # ---------------------------------------------------------------------------
@@ -265,7 +256,6 @@ def test_restore_voided_observation(page: Page, login):
     assert obs.data[0]["is_deleted"] is False, (
         "DB FAILURE: RESTORE did not set is_deleted=False"
     )
-
 
 # ---------------------------------------------------------------------------
 # TC-VOID-06: S6 rollback voids hatchling_ledger (ISS-3)

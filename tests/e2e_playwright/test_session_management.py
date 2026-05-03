@@ -4,10 +4,11 @@ Session Management
 TC-SES-01: SHIFT END terminates session — session_log updated, redirect to login
 TC-SES-02: Session continuity within 4-hour window — re-login adopts same session_id
 """
+from selectors import HEADING_DASHBOARD
+
 import time
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
-
 
 # ---------------------------------------------------------------------------
 # TC-SES-01: SHIFT END terminates session
@@ -56,7 +57,6 @@ def test_shift_end_terminates_session(page: Page, login, e2e_base_url):
             "DB FAILURE: session_log.is_active still True after SHIFT END"
         )
 
-
 # ---------------------------------------------------------------------------
 # TC-SES-02: Session continuity within 4-hour window
 # ---------------------------------------------------------------------------
@@ -80,7 +80,7 @@ def test_session_continuity_within_window(page: Page, login, e2e_base_url):
     page.goto(e2e_base_url, wait_until="domcontentloaded")
     expect(page.get_by_role("button", name="START", exact=True)).to_be_visible(timeout=15000)
     page.get_by_role("button", name="START", exact=True).click()
-    expect(page.get_by_role("heading", name="Today's Summary")).to_be_visible(timeout=20000)
+    expect(page.get_by_role("heading", name=HEADING_DASHBOARD)).to_be_visible(timeout=20000)
 
     # The latest session should be the same ID (adoption within 4-hr window)
     second_session = db.table("session_log").select(

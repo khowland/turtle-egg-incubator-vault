@@ -6,14 +6,12 @@ Template: test_enterprise_intake.py
 Matrix: TEST_MATRIX_OBSERVATIONS.md
 =============================================================================
 """
+from selectors import HEADING_INTAKE, HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
+
 import time
 import pytest
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
-
-
-OBS_NAV = "a:has-text('Observations')"
-INTAKE_NAV = "a:has-text('Intake')"
 
 
 # ---------------------------------------------------------------------------
@@ -22,8 +20,8 @@ INTAKE_NAV = "a:has-text('Intake')"
 def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict:
     """Create intake via UI, navigate to Observations, pass weight gate."""
     login()
-    page.locator(INTAKE_NAV).first.click()
-    expect(page.get_by_role("heading", name="New Intake")).to_be_visible(timeout=15000)
+    page.locator(NAV_INTAKE).first.click()
+    expect(page.get_by_role("heading", name=HEADING_INTAKE)).to_be_visible(timeout=15000)
 
     sig = f"OBS-ENT-{int(time.time())}"
     page.locator("input[aria-label='Finder']").fill(sig)
@@ -37,7 +35,7 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
 
     page.get_by_role("button", name="SAVE").click()
     # After SAVE, the app redirects to Observations page (heading: 🔬 Observations)
-    expect(page.get_by_role("heading", name="🔬 Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     db = get_supabase_client()
     intake = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
@@ -49,8 +47,8 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
     egg_ids = [e["egg_id"] for e in eggs.data]
 
     # Go to Observations, add bin to workbench
-    page.locator(OBS_NAV).first.click()
-    expect(page.get_by_role("heading", name="🔬 Observations")).to_be_visible(timeout=15000)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     workbench = page.locator("[data-testid='stMultiSelect']").first
     workbench.click()
@@ -68,7 +66,6 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
     time.sleep(2)
 
     return {"bin_id": bin_id, "egg_ids": egg_ids, "sig": sig}
-
 
 # =============================================================================
 # HAPPY PATH TESTS
@@ -101,7 +98,6 @@ def test_obs_hp_01_weight_gate(page: Page, login):
     # Verify grid is visible (not stopped by gate)
     expect(page.get_by_text("Biological Grid")).to_be_visible(timeout=5000)
 
-
 @pytest.mark.e2e
 def test_obs_hp_02_single_observation(page: Page, login):
     """
@@ -133,7 +129,6 @@ def test_obs_hp_02_single_observation(page: Page, login):
     assert len(obs.data) == 1, "FATAL: No egg_observation row created"
     assert obs.data[0]["stage_at_observation"] == "S2", "FATAL: Observation stage mismatch"
 
-
 @pytest.mark.e2e
 def test_obs_hp_03_batch_observation(page: Page, login):
     """TC-OBS-PM-01 batch: Select all eggs, set S2, SAVE → all eggs updated."""
@@ -158,7 +153,6 @@ def test_obs_hp_03_batch_observation(page: Page, login):
     for egg_id in egg_ids:
         egg = db.table("egg").select("current_stage").eq("egg_id", egg_id).execute()
         assert egg.data[0]["current_stage"] == "S2", f"FATAL: Egg {egg_id} not updated"
-
 
 @pytest.mark.e2e
 def test_obs_hp_04_clinical_fields(page: Page, login):
@@ -198,7 +192,6 @@ def test_obs_hp_04_clinical_fields(page: Page, login):
     assert obs.data[0]["leaking"] == 1, f"FATAL: Expected leaking=1, got {obs.data[0]['leaking']}"
     assert obs.data[0]["dented"] == 1, f"FATAL: Expected dented=1, got {obs.data[0]['dented']}"
 
-
 @pytest.mark.e2e
 def test_obs_hp_05_mortality(page: Page, login):
     """TC-OBS-PM-02: Set status=Dead → egg.status becomes 'Dead'."""
@@ -233,7 +226,6 @@ def test_obs_hp_05_mortality(page: Page, login):
     dead_eggs = db.table("egg").select("status").eq("status", "Dead").in_("egg_id", egg_ids).execute()
     assert len(dead_eggs.data) >= 1, "FATAL: No egg marked Dead"
 
-
 @pytest.mark.e2e
 def test_obs_hp_06_s6_hatching(page: Page, login):
     """TC-OBS-S6-01: Set S6 → hatchling_ledger entries created."""
@@ -267,7 +259,6 @@ def test_obs_hp_06_s6_hatching(page: Page, login):
     assert egg.data[0]["status"] == "Transferred", "FATAL: Egg not marked Transferred at S6"
     assert egg.data[0]["current_stage"] == "S6", "FATAL: Egg stage not S6"
 
-
 # =============================================================================
 # ADVERSARIAL TESTS
 # =============================================================================
@@ -276,14 +267,14 @@ def test_obs_hp_06_s6_hatching(page: Page, login):
 def test_obs_adv_01_negative_weight(page: Page, login):
     """TC-OBS-WG-ADV-01: Negative weight at weight gate should be rejected."""
     login()
-    page.locator(INTAKE_NAV).first.click()
-    expect(page.get_by_role("heading", name="New Intake")).to_be_visible(timeout=15000)
+    page.locator(NAV_INTAKE).first.click()
+    expect(page.get_by_role("heading", name=HEADING_INTAKE)).to_be_visible(timeout=15000)
 
     sig = f"OBS-ADV-{int(time.time())}"
     page.locator("input[aria-label='Finder']").fill(sig)
     page.locator("input[aria-label='WINC Case #']").fill(sig)
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name="🔬 Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     db = get_supabase_client()
     intake = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
@@ -291,7 +282,7 @@ def test_obs_adv_01_negative_weight(page: Page, login):
         "intake_id", intake.data[0]["intake_id"]
     ).execute().data[0]["bin_id"]
 
-    page.locator(OBS_NAV).first.click()
+    page.locator(NAV_OBSERVATIONS).first.click()
     time.sleep(2)
 
     workbench = page.locator("[data-testid='stMultiSelect']").first
@@ -309,7 +300,6 @@ def test_obs_adv_01_negative_weight(page: Page, login):
 
     bin_obs = db.table("bin_observation").select("count", count="exact").eq("bin_id", bin_id).execute()
     assert bin_obs.count == 0, "FATAL: bin_observation row created despite negative weight"
-
 
 @pytest.mark.e2e
 def test_obs_adv_02_future_backdate(page: Page, login):
@@ -341,7 +331,6 @@ def test_obs_adv_02_future_backdate(page: Page, login):
             now = datetime.now(timezone.utc)
             assert ts <= now, f"FATAL: Future timestamp accepted: {ts}"
 
-
 @pytest.mark.e2e
 def test_obs_adv_03_sql_injection(page: Page, login):
     """TC-OBS-PM-ADV-10: SQL injection attempt should be stored literally, not executed."""
@@ -368,7 +357,6 @@ def test_obs_adv_03_sql_injection(page: Page, login):
 
     egg_count = db.table("egg").select("count", count="exact").limit(1).execute()
     assert egg_count.count >= 0, "FATAL: egg table dropped — injection executed!"
-
 
 @pytest.mark.e2e
 def test_obs_adv_04_double_submit(page: Page, login):

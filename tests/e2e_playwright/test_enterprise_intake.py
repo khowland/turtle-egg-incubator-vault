@@ -1,3 +1,4 @@
+from selectors import HEADING_INTAKE, HEADING_OBSERVATIONS, NAV_INTAKE
 import pytest
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase
@@ -20,10 +21,10 @@ def test_intake_hp_01_standard_bin(page: Page, login):
 
     # 2. UI Automation (Playwright)
     login()
-    page.locator("a:has-text('Intake')").first.click()
+    page.locator(NAV_INTAKE).first.click()
     
     # Wait for DOM to stabilize
-    expect(page.get_by_role("heading", name="New Intake")).to_be_visible(timeout=10000)
+    expect(page.get_by_role("heading", name=HEADING_INTAKE)).to_be_visible(timeout=10000)
 
     # Fill out the form as a human would
     page.get_by_label("WINC Case #").fill("2026-TEST-HP01")
@@ -42,7 +43,7 @@ def test_intake_hp_01_standard_bin(page: Page, login):
     page.get_by_role("button", name="SAVE").click()
 
     # 3. Assert UI Success (Wait for the switch to Observations)
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=15000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     # 4. DB VERIFICATION PINCER (The Enterprise Mandate)
     # We do NOT trust the UI success. We query the DB to prove it.

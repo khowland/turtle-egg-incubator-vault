@@ -9,13 +9,11 @@ TC-OBS-05: Health/viability fields persisted in observation
 TC-OBS-06: Biological jump warning (S1 → S4 triggers warning)
 TC-OBS-07: Mortality recording — egg marked Dead, removed from active grid
 """
+from selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
+
 import time
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
-
-
-OBS_NAV = "a:has-text('Observations')"
-INTAKE_NAV = "a:has-text('Intake')"
 
 
 # ---------------------------------------------------------------------------
@@ -24,7 +22,7 @@ INTAKE_NAV = "a:has-text('Intake')"
 def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict:
     """Create intake via UI with egg_count eggs, navigate to Observations, pass weight gate."""
     login()
-    page.locator(INTAKE_NAV).first.click()
+    page.locator(NAV_INTAKE).first.click()
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
 
     sig = f"OBS-SETUP-{int(time.time())}"
@@ -38,7 +36,7 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
         cells[0].fill(str(egg_count))
 
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     db = get_supabase_client()
     intake = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
@@ -50,8 +48,8 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
     egg_ids = [e["egg_id"] for e in eggs.data]
 
     # Go to Observations, add bin to workbench
-    page.locator(OBS_NAV).first.click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=15000)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     workbench = page.locator("[data-testid='stMultiSelect']").first
     workbench.click()
@@ -70,7 +68,6 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
     time.sleep(2)  # Allow grid to unlock
 
     return {"bin_id": bin_id, "egg_ids": egg_ids, "sig": sig}
-
 
 # ---------------------------------------------------------------------------
 # TC-OBS-01: Full observation cycle
@@ -110,7 +107,6 @@ def test_full_observation_cycle(page: Page, login):
             f"DB FAILURE: Latest egg_observation for {egg_id} not S2"
         )
 
-
 # ---------------------------------------------------------------------------
 # TC-OBS-02: Multi-egg batch observation
 # ---------------------------------------------------------------------------
@@ -144,7 +140,6 @@ def test_multi_egg_batch_observation(page: Page, login):
         assert egg.data[0]["current_stage"] == "S2", (
             f"DB FAILURE: Batch obs — egg {egg_id} not updated to S2"
         )
-
 
 # ---------------------------------------------------------------------------
 # TC-OBS-03: Stage progression S1 → S2 → S3S → S4 → S5
@@ -197,7 +192,6 @@ def test_stage_progression_s1_through_s5(page: Page, login):
             weight_input.fill("300")
             page.get_by_role("button", name="SAVE").first.click()
             time.sleep(2)
-
 
 # ---------------------------------------------------------------------------
 # TC-OBS-04: S3 sub-stages (S3S, S3M, S3J)
@@ -256,7 +250,6 @@ def test_s3_substages(page: Page, login):
             page.get_by_role("button", name="SAVE").first.click()
             time.sleep(2)
 
-
 # ---------------------------------------------------------------------------
 # TC-OBS-05: Health/viability fields persisted
 # ---------------------------------------------------------------------------
@@ -305,7 +298,6 @@ def test_observation_health_fields(page: Page, login):
         f"DB FAILURE: Health fields not persisted. Row: {row}"
     )
 
-
 # ---------------------------------------------------------------------------
 # TC-OBS-06: Biological jump warning
 # ---------------------------------------------------------------------------
@@ -338,7 +330,6 @@ def test_biological_jump_warning(page: Page, login):
         .or_(page.get_by_text("jump").first)
         .or_(page.get_by_text("⚠️").first)
     ).to_be_visible(timeout=5000)
-
 
 # ---------------------------------------------------------------------------
 # TC-OBS-07: Mortality recording
@@ -390,8 +381,8 @@ def test_mortality_recording(page: Page, login):
 
     # UI: reload Observations — dead egg should not appear in active grid
     page.reload()
-    page.locator(OBS_NAV).first.click()
-    expect(page.get_by_role("heading", name="Observations")).to_be_visible(timeout=15000)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
     # Re-add bin to workbench and verify dead egg is absent
     bin_id = ctx["bin_id"]
     workbench = page.locator("[data-testid='stMultiSelect']").first
