@@ -9,7 +9,7 @@ Expected flow:
   Settings → Vault Admin tab → GENERATE FULL BACKUP → EXPORT → confirm download
   → type OBLITERATE CURRENT DATA → WIPE & SET CLEAN START → verify DB clean
 """
-from selectors import HEADING_SETTINGS, NAV_INTAKE, NAV_SETTINGS
+from e2e_selectors import HEADING_SETTINGS, NAV_INTAKE, NAV_SETTINGS
 
 import time
 import pytest

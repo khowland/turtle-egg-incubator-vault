@@ -11,7 +11,7 @@ TC-VOID-06: S6 rollback voids hatchling_ledger (atomic integrity ISS-3)
 DB Row Requirement: After suite, egg_observation table must have rows with
 is_deleted=true (voided) AND is_deleted=false (active) — mixed state validated.
 """
-from selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
+from e2e_selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
 
 import time
 import uuid

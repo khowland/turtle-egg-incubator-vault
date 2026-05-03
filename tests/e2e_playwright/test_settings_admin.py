@@ -7,7 +7,7 @@ TC-SET-03: Add/edit species — new row persisted in species table
 
 DB Row Requirement: observer and species tables must each have >= 2 rows after this suite.
 """
-from selectors import HEADING_SETTINGS, NAV_SETTINGS
+from e2e_selectors import HEADING_SETTINGS, NAV_SETTINGS
 
 import time
 from playwright.sync_api import Page, expect

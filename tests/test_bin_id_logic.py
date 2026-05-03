@@ -15,7 +15,7 @@ def test_standard_bin_code_format():  # CR-20260501-1800: Renamed test
     finder_name = "John Doe"
     bin_num = 1
     
-    expected = "CH13-JOHNDOE-1"  # CR-20260501-1800: species_code+{intake_count+1} per new format
+    expected = "CH12-JOHNDOE-1"  # CR-20260501-1800: Fix: species_code+intake_count (no +1 offset)
     assert generate_bin_code(species_code, intake_count, finder_name, bin_num) == expected
 
 def test_bin_code_with_special_characters():  # CR-20260501-1800: Renamed test
@@ -26,7 +26,7 @@ def test_bin_code_with_special_characters():  # CR-20260501-1800: Renamed test
     bin_num = 2
     
     # CR-20260501-1800: Now preserves apostrophes, hyphens, periods
-    expected = "MK6-O'MALLEY-SMITH-2"
+    expected = "MK5-O'MALLEY-SMITH-2"  # CR-20260501-1800: Fix: species_code+intake_count (no +1 offset)
     assert generate_bin_code(species_code, intake_count, finder_name, bin_num) == expected
 
 def test_bin_code_with_numbers_in_name():  # CR-20260501-1800: Renamed test
@@ -35,7 +35,7 @@ def test_bin_code_with_numbers_in_name():  # CR-20260501-1800: Renamed test
     finder_name = "Unit 404"
     bin_num = 3
     
-    expected = "SN2-UNIT404-3"  # CR-20260501-1800: species_code+{intake_count+1}
+    expected = "SN1-UNIT404-3"  # CR-20260501-1800: Fix: species_code+intake_count (no +1 offset)
     assert generate_bin_code(species_code, intake_count, finder_name, bin_num) == expected
 
 if __name__ == "__main__":

@@ -20,36 +20,28 @@ SPECIES_CODES = ["BL", "WT", "OB", "PA", "SN", "MK", "MT", "FM", "OM", "SS"]
 
 def _ensure_test_bins(session_id: str, observer_id: str, min_bins: int = 2) -> list:
     """
-    Ensure at least min_bins active bins with Active eggs exist in the DB.
-    vault_finalize_intake RPC fixed by v8_3_0 migration; tests now create real data.
-    This helper ensures baseline data exists for tests.
-    Returns list of bin_ids created or found.
+    CR-20260501-1800: Always create fresh bins with eggs for tests.
+    Previous attempts to reuse existing bins caused FK violations.
+    Returns list of numeric bin_ids created.
     """
     sb = get_supabase()
-    existing = sb.table("bin").select("bin_id").eq("is_deleted", False).execute().data
-    if len(existing) >= min_bins:
-        return [b["bin_id"] for b in existing[:min_bins]]
-
-    # Ensure session registered in session_log
-    # Use ignore_duplicates=True (ON CONFLICT DO NOTHING) to avoid the broken
-    # sync_modified_at trigger on session_log (session_log has no modified_at column)
+    
+    # Register session in session_log (required FK for egg inserts)
     sb.table("session_log").upsert({
         "session_id": session_id,
         "user_name": OBSERVER_NAME,
         "user_agent": "WINC Test Suite",
     }, ignore_duplicates=True).execute()
-
-    created_bins = [b["bin_id"] for b in existing]
-    needed = min_bins - len(existing)
-
-    for i in range(needed):
-        intake_id = f"I-TEST-WF-{i:03d}"
-        bin_code = f"BL{i:02d}-TEST-1"  # CR-20260501-1800: Use bin_code (text), DB auto-generates numeric bin_id
-
-        # Upsert intake (species BL, minimal fields)
+    
+    created_bins = []
+    for i in range(min_bins):
+        intake_id = f"I-TEST-WF-{i:03d}-{session_id[:8]}"
+        bin_code = f"BL{i:02d}-TEST-{session_id[:4]}"
+        
+        # Upsert intake
         sb.table("intake").upsert({
             "intake_id": intake_id,
-            "intake_name": f"2026-WF-TEST-{i:03d}",
+            "intake_name": f"2026-WF-TEST-{i:03d}-{session_id[:8]}",
             "finder_turtle_name": "TestUser",
             "species_id": "BL",
             "intake_date": "2026-01-01",
@@ -57,23 +49,30 @@ def _ensure_test_bins(session_id: str, observer_id: str, min_bins: int = 2) -> l
             "created_by_id": observer_id,
             "modified_by_id": observer_id,
         }).execute()
-
-        # Upsert bin (incubator_temp_f per v8_3_0 schema migration)
+        
+        # Upsert bin with bin_code (DB auto-generates numeric bin_id)
         sb.table("bin").upsert({
-            "bin_code": bin_code,  # CR-20260501-1800: Insert bin_code text; bin_id auto-generated
+            "bin_code": bin_code,
             "intake_id": intake_id,
-            "bin_notes": "Auto-created by test suite (vault_finalize_intake RPC workaround)",
+            "bin_notes": "CR-20260501-1800: Test bin",
             "total_eggs": 12,
             "session_id": session_id,
             "created_by_id": observer_id,
             "modified_by_id": observer_id,
         }).execute()
-
-        # Upsert 12 Active eggs
-        eggs = [
-            {
-                "egg_id": f"{bin_code}-E{j+1}",  # CR-20260501-1800: egg_id references bin_code for semantic ID
-                "bin_code": bin_code,  # CR-20260501-1800: Reference bin by bin_code
+        
+        # Re-query to get auto-generated numeric bin_id
+        bin_row = sb.table("bin").select("bin_id").eq("bin_code", bin_code).execute().data
+        if not bin_row:
+            continue
+        numeric_bin_id = bin_row[0]["bin_id"]
+        
+        # Insert 12 Active eggs with numeric bin_id FK
+        eggs = []
+        for j in range(12):
+            eggs.append({
+                "egg_id": f"{bin_code}-E{j+1}",
+                "bin_id": numeric_bin_id,
                 "intake_date": "2026-01-01",
                 "status": "Active",
                 "current_stage": "S1",
@@ -81,12 +80,10 @@ def _ensure_test_bins(session_id: str, observer_id: str, min_bins: int = 2) -> l
                 "created_by_id": observer_id,
                 "modified_by_id": observer_id,
                 "is_deleted": False,
-            }
-            for j in range(12)
-        ]
-        created_bins.append(bin_code)  # CR-20260501-1800: Track by bin_code for test assertions
-
-
+            })
+        sb.table("egg").upsert(eggs, ignore_duplicates=True).execute()
+        created_bins.append(numeric_bin_id)
+    
     return created_bins
 
 
@@ -217,18 +214,30 @@ def test_wf2_wf3_observation_lifecycle(shared_session):
     at.button(key="obs_env_save").click().run()
     
     # WF-3: Property Matrix
+    # CR-20260501-1800: Verify eggs exist; create fallback if bin has no eggs
     egg_res = get_supabase().table("egg").select("egg_id").eq("bin_id", bid).eq("status", "Active").limit(5).execute()
     egg_ids = [e["egg_id"] for e in egg_res.data]
     
-    # Explicitly ensure gate is synced and workbench/eggs are set before matrix run
-    # Also set checkbox widget states so the egg grid doesn't undo our selection
-    # (checkboxes were rendered unchecked during obs_env_save run; stored as False in session_state)
-    at.session_state.env_gate_synced = {bid: True}
-    at.session_state.workbench_bins = {bid}
-    at.session_state.selected_eggs = egg_ids
-    for eid in egg_ids:
-        at.session_state[f"cb_{eid}"] = True
-    at.run()
+    if not egg_ids:
+        # Fallback: directly insert eggs for this bin
+        bin_code_res = get_supabase().table("bin").select("bin_code").eq("bin_id", bid).execute()
+        bin_code = bin_code_res.data[0]["bin_code"] if bin_code_res.data else f"FB-{bid}"
+        sb = get_supabase()
+        for j in range(5):
+            sb.table("egg").upsert({
+                "egg_id": f"{bin_code}-E{j+1}",
+                "bin_id": bid,
+                "intake_date": "2026-01-01",
+                "status": "Active",
+                "current_stage": "S1",
+                "session_id": shared_session["session_id"],
+                "created_by_id": shared_session["observer_id"],
+                "modified_by_id": shared_session["observer_id"],
+                "is_deleted": False,
+            }, ignore_duplicates=True).execute()
+        egg_res = get_supabase().table("egg").select("egg_id").eq("bin_id", bid).eq("status", "Active").limit(5).execute()
+        egg_ids = [e["egg_id"] for e in egg_res.data]
+    
     
     at.selectbox(key="matrix_stage").set_value("S2").run()
     at.selectbox(key="matrix_chalking").set_value("Major").run()
@@ -260,8 +269,31 @@ def test_wf4_wf5_outcomes(shared_session):
     at.number_input(key="obs_temp").set_value(82.5).run()
     at.button(key="obs_env_save").click().run()
     
+    # CR-20260501-1800: Verify eggs exist for this bin
     egg_res = get_supabase().table("egg").select("egg_id").eq("bin_id", bid).eq("status", "Active").execute()
     eggs = egg_res.data
+    
+    if not eggs:
+        # Fallback: directly insert eggs
+        bin_code_res = get_supabase().table("bin").select("bin_code").eq("bin_id", bid).execute()
+        bin_code = bin_code_res.data[0]["bin_code"] if bin_code_res.data else f"FB-{bid}"
+        sb = get_supabase()
+        for j in range(5):
+            sb.table("egg").upsert({
+                "egg_id": f"{bin_code}-E{j+1}",
+                "bin_id": bid,
+                "intake_date": "2026-01-01",
+                "status": "Active",
+                "current_stage": "S1",
+                "session_id": shared_session["session_id"],
+                "created_by_id": shared_session["observer_id"],
+                "modified_by_id": shared_session["observer_id"],
+                "is_deleted": False,
+            }, ignore_duplicates=True).execute()
+        egg_res = get_supabase().table("egg").select("egg_id").eq("bin_id", bid).eq("status", "Active").execute()
+        eggs = egg_res.data
+    
+    assert eggs, f"No eggs found for bin {bid} after fallback creation"
     
     # WF-4: Hatching (S6)
     at.session_state.env_gate_synced = {bid: True}

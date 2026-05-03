@@ -1,4 +1,4 @@
-from selectors import HEADING_INTAKE, HEADING_OBSERVATIONS, NAV_INTAKE
+from e2e_selectors import HEADING_INTAKE, HEADING_OBSERVATIONS, NAV_INTAKE
 import pytest
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase

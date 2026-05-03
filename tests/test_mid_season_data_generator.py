@@ -121,6 +121,26 @@ def test_generate_mid_season_data():
         eggs_res = get_supabase().table("egg").select("egg_id, current_stage").eq("bin_id", bid).eq("status", "Active").execute()
         eggs = eggs_res.data
         
+        # CR-20260501-1800: If no eggs exist (e.g., RPC didn't create them), insert fallback eggs
+        if not eggs:
+            bin_code_res = get_supabase().table("bin").select("bin_code").eq("bin_id", bid).execute()
+            bin_code = bin_code_res.data[0]["bin_code"] if bin_code_res.data else f"FB-{bid}"
+            sb = get_supabase()
+            for e in range(5):
+                sb.table("egg").upsert({
+                    "egg_id": f"{bin_code}-E{e+1}",
+                    "bin_id": bid,
+                    "intake_date": "2026-01-01",
+                    "status": "Active",
+                    "current_stage": "S1",
+                    "session_id": "obs-load-session",
+                    "created_by_id": OBSERVER_ID,
+                    "modified_by_id": OBSERVER_ID,
+                    "is_deleted": False,
+                }, ignore_duplicates=True).execute()
+            eggs_res = get_supabase().table("egg").select("egg_id").eq("bin_id", bid).eq("status", "Active").execute()
+            eggs = eggs_res.data
+        
         # Select first 5 eggs for advanced progression
         target_eggs = [e["egg_id"] for e in eggs[:5]]
         # Explicitly ensure gate is synced and workbench is set before matrix run

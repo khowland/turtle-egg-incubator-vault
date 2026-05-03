@@ -9,7 +9,7 @@ TC-OBS-05: Health/viability fields persisted in observation
 TC-OBS-06: Biological jump warning (S1 → S4 triggers warning)
 TC-OBS-07: Mortality recording — egg marked Dead, removed from active grid
 """
-from selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
+from e2e_selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
 
 import time
 from playwright.sync_api import Page, expect

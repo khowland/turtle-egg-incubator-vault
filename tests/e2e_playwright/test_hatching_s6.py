@@ -6,7 +6,7 @@ TC-S6-02: hatchling_ledger fields (count, notes) match observation inputs
 
 DB Row Requirement: After these tests run the hatchling_ledger table must have >= 2 rows.
 """
-from selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
+from e2e_selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
 
 import time
 from playwright.sync_api import Page, expect

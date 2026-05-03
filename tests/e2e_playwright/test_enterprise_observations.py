@@ -6,7 +6,7 @@ Template: test_enterprise_intake.py
 Matrix: TEST_MATRIX_OBSERVATIONS.md
 =============================================================================
 """
-from selectors import HEADING_INTAKE, HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
+from e2e_selectors import HEADING_INTAKE, HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
 
 import time
 import pytest

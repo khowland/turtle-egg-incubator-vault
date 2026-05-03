@@ -4,7 +4,7 @@ Phase 4: Reports & Dashboard
 TC-RPT-01: Reports page renders — data grid and export button visible
 TC-RPT-02: Dashboard summary stats reflect actual DB state (non-zero after intake)
 """
-from selectors import HEADING_DASHBOARD, HEADING_OBSERVATIONS, HEADING_REPORTS, NAV_DASHBOARD, NAV_INTAKE, NAV_REPORTS
+from e2e_selectors import HEADING_DASHBOARD, HEADING_OBSERVATIONS, HEADING_REPORTS, NAV_DASHBOARD, NAV_INTAKE, NAV_REPORTS
 
 import time
 from playwright.sync_api import Page, expect

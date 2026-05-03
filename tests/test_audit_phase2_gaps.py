@@ -17,12 +17,10 @@ def test_gap_intake_weight_bypass():
         at.session_state.session_id = "test-session"
         at.run()
         
-        # CR-20260426 Ac-5: Mother's Weight (number_input) removed from top-level Intake UI.
-        # Initial Mass is now only accessible via the data_editor (Bin Config table).
-        # Verify the source file still contains the Initial Mass column configuration.
+        # CR-20260501-1800: Initial Mass column removed from UI per Ac-5; weight now tracked via Observations.
+        # Verify the intake source still has mother_weight_g set to None.
         with open("vault_views/2_New_Intake.py", "r", encoding="utf-8") as f:
             intake_source = f.read()
-        assert "Initial Mass" in intake_source, "Hardening Failure: Initial Mass column config missing from Intake!"
         assert "mother_weight_g = None" in intake_source, "Hardening Failure: Mother weight should be set to None (UI-removed per Ac-5)!"
 
 def test_gap_session_undefined_client():

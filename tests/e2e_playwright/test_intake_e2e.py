@@ -1,4 +1,4 @@
-from selectors import NAV_INTAKE
+from e2e_selectors import NAV_INTAKE
 from playwright.sync_api import Page, expect
 
 def test_initial_intake_validation_and_ui(page: Page, login):

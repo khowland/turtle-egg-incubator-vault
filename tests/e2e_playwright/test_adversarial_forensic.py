@@ -1,4 +1,4 @@
-from selectors import NAV_INTAKE
+from e2e_selectors import NAV_INTAKE
 import time
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase

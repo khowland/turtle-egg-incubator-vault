@@ -1,4 +1,4 @@
-from selectors import HEADING_DASHBOARD
+from e2e_selectors import HEADING_DASHBOARD
 from playwright.sync_api import Page, expect
 
 def test_dashboard_renders(page: Page, login):

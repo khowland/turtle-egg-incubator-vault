@@ -8,7 +8,7 @@ TC-BIN-04: Bin restore — is_deleted = false, reappears in workbench
 
 Prerequisite for BIN-01/02: At least one intake with a bin exists in DB.
 """
-from selectors import HEADING_OBSERVATIONS, HEADING_SETTINGS, NAV_INTAKE, NAV_OBSERVATIONS, NAV_SETTINGS
+from e2e_selectors import HEADING_OBSERVATIONS, HEADING_SETTINGS, NAV_INTAKE, NAV_OBSERVATIONS, NAV_SETTINGS
 
 import time
 from playwright.sync_api import Page, expect

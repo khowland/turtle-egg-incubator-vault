@@ -9,7 +9,7 @@ TC-INT-03: CANCEL button aborts intake, no DB rows created
 # Phase 2b: Add Eggs or Bins to Existing Intake
 # TC-SUP-01: Supplemental intake full save → new bin + eggs added to existing case
 """
-from selectors import HEADING_OBSERVATIONS, NAV_INTAKE
+from e2e_selectors import HEADING_OBSERVATIONS, NAV_INTAKE
 
 import time
 import uuid

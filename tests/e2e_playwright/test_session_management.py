@@ -4,7 +4,7 @@ Session Management
 TC-SES-01: SHIFT END terminates session — session_log updated, redirect to login
 TC-SES-02: Session continuity within 4-hour window — re-login adopts same session_id
 """
-from selectors import HEADING_DASHBOARD
+from e2e_selectors import HEADING_DASHBOARD
 
 import time
 from playwright.sync_api import Page, expect

@@ -104,8 +104,8 @@ def test_workflow_lifecycle_progression_s1_to_s6():
         at.session_state.observer_id = "lc-observer"
         at.session_state.session_id = "lc-session"
         at.session_state.observer_name = "LC Tester"
-        at.session_state.workbench_bins = {"SN1-HOWLAND-1"}
-        at.session_state.env_gate_synced = {"SN1-HOWLAND-1": True}
+        at.session_state.workbench_bins = {1}  # CR-20260501-1800: Use numeric bin_id (bin_id is now BIGINT)
+        at.session_state.env_gate_synced = {1: True}  # CR-20260501-1800: Use numeric bin_id
         at.run(timeout=15)
 
         assert not at.exception, f"Observations crashed on S1 egg: {at.exception}"

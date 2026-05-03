@@ -1,4 +1,4 @@
-from selectors import NAV_INTAKE
+from e2e_selectors import NAV_INTAKE
 from playwright.sync_api import Page, expect
 
 def test_login_and_dashboard_render(page: Page, login):
