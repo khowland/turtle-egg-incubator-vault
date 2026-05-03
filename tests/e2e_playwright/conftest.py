@@ -38,30 +38,33 @@ def _get_test_supabase():
 
 @pytest.fixture(scope='session', autouse=True)
 def wipe_transactional_tables():
-    """Wipe all transactional (non-lookup) tables before test suite."""
+    """Soft-delete all transactional tables before test suite. No hard DELETEs."""
     supabase = _get_test_supabase()
     if supabase is None:
         print("[FIXTURE] Could not connect to Supabase; skipping DB wipe.")
         return
-    print("[FIXTURE] Starting transactional table wipe...")
-    tables = [
-        "system_log",
+    print("[FIXTURE] Starting transactional table soft-delete...")
+    # Tables WITH is_deleted column → soft-delete via UPDATE
+    soft_delete_tables = [
         "hatchling_ledger",
         "egg_observation",
         "bin_observation",
         "egg",
-        "session_log",
-        "intake_log",
         "bin",
+        "intake",
     ]
-    for table in tables:
+    # Tables WITHOUT is_deleted → SKIP (preserve audit trail forever)
+    skip_tables = ["system_log", "session_log"]
+    for table in soft_delete_tables:
         try:
-            resp = supabase.table(table).delete().neq('id', 0).execute()
+            resp = supabase.table(table).update({"is_deleted": True}).neq('id', 0).execute()
             count = len(resp.data) if resp.data else 0
-            print(f"  [FIXTURE] Wiped {table}: {count} rows deleted.")
+            print(f"  [FIXTURE] Soft-deleted {table}: {count} rows marked is_deleted=true.")
         except Exception as e:
             print(f"  [FIXTURE] Error wiping {table}: {e}")
-    print("[FIXTURE] Transactional tables wipe complete.\n")
+    for table in skip_tables:
+        print(f"  [FIXTURE] Skipped {table} (no is_deleted column — audit trail preserved).")
+    print("[FIXTURE] Transactional table soft-delete complete.\n")
 
 
 @pytest.fixture(scope='session')

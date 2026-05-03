@@ -27,7 +27,7 @@ def get_app_version():
             return response.data[0]["config_value"]
     except Exception:
         pass
-    return "v8.2.1" # Fallback
+    return "v9.1.0" # Fallback
 
 # VERSION = get_app_version() # Deprecated in favor of dynamic calls to get_app_version()
 

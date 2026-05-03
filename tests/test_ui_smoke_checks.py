@@ -20,7 +20,8 @@ def mock_supabase():
         client.table().upsert().execute.return_value = mock_res
         client.table().insert().execute.return_value = mock_res
         client.table().update().execute.return_value = mock_res
-        client.table().delete().execute.return_value = mock_res
+        # Mock soft-delete (update is_deleted) for delete operations
+        client.table().update().execute.return_value = mock_res
         client.rpc().execute.return_value = mock_res
         
         # Mock observers for login

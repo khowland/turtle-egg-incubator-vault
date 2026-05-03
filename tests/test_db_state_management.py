@@ -49,7 +49,7 @@ def dirty_db_state():
 
     # Teardown: remove the test intake
     try:
-        sb.table("intake").delete().eq("intake_id", _DIRTY_INTAKE_ID).execute()
+        sb.table("intake").update({"is_deleted": True}).eq("intake_id", _DIRTY_INTAKE_ID).execute()
     except Exception:
         pass
 

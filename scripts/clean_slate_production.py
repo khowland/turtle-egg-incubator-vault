@@ -37,7 +37,7 @@ tables_to_purge = [
 
 for table in tables_to_purge:
     try:
-        # Standard §35: Contextual Primary Keys
+        # Determine filter column
         if table == 'system_log':
             filter_col = 'system_log_id'
         elif table == 'session_log':
@@ -45,21 +45,34 @@ for table in tables_to_purge:
         else:
             filter_col = f"{table}_id"
 
-        print(f"Purging {table} using PK {filter_col}...")
+        # Audit tables without is_deleted column: skip to preserve history
+        if table in ['system_log', 'session_log']:
+            print(f"⏭️ Skipping {table} (no is_deleted column; audit trail preserved)")
+            continue
 
-        # Determine if ID column is Integer (BigInt), UUID, or String
-        # Standard: System log uses BigInt Identity; Ledger/Identity use UUID; Session/Entities use Text
+        print(f"Soft-deleting {table} using PK {filter_col}...")
+
+        # Soft-delete: update is_deleted = true for all rows (matching original condition)
         if table == 'system_log':
-            sb.table(table).delete().gt(filter_col, -1).execute()
+            resp = sb.table(table).update({"is_deleted": True}).gt(filter_col, -1).execute()
         elif table in ['hatchling_ledger', 'bin_observation']:
-            # UUID Purge (Match all non-null)
-            sb.table(table).delete().neq(filter_col, '00000000-0000-0000-0000-000000000000').execute()
+            resp = sb.table(table).update({"is_deleted": True}).neq(filter_col, '00000000-0000-0000-0000-000000000000').execute()
         else:
-            # Text/PK Purge
-            sb.table(table).delete().neq(filter_col, 'WIPE_ALL').execute()
-            
-        print(f"✅ Purged {table}")
+            resp = sb.table(table).update({"is_deleted": True}).neq(filter_col, 'WIPE_ALL').execute()
+
+        count = len(resp.data) if resp.data else 0
+        print(f"✅ Soft-deleted {table}: {count} rows marked is_deleted=true")
+
+        # Log to system_log for audit compliance
+        try:
+            sb.table("system_log").insert({
+                "event_type": "SOFT_DELETE",
+                "event_message": f"Clean slate: soft-deleted all rows in {table} (count={count})"
+            }).execute()
+        except Exception as log_err:
+            print(f"⚠️ Could not log soft-delete of {table}: {log_err}")
+
     except Exception as e:
-        print(f"⚠️ Could not purge {table}: {str(e)}")
+        print(f"⚠️ Could not soft-delete {table}: {str(e)}")
 
 print("\n🚀 Database is now clean and fully standard-aligned.")

@@ -125,17 +125,26 @@ except Exception as e:
     print(f"\n\u274c Test Error: {e}")
 
 finally:
-    print("\n--- INITIATING SECURE SYNTHETIC CLEANUP ---")
+    print("\n--- INITIATING SOFT-DELETE SYNTHETIC CLEANUP ---")
+    # Tables WITH is_deleted column → soft-delete (UPDATE is_deleted=true)
+    soft_delete_tables = ["hatchling_ledger", "egg_observation", "bin_observation", "egg", "bin", "intake"]
+    # Tables WITHOUT is_deleted → skip (preserve audit trail forever)
+    skip_tables = ["system_log", "session_log"]
     try:
-        supabase.table("hatchling_ledger").delete().eq("session_id", session_id).execute()
-        supabase.table("egg_observation").delete().eq("session_id", session_id).execute()
-        supabase.table("bin_observation").delete().eq("session_id", session_id).execute()
-        supabase.table("system_log").delete().eq("session_id", session_id).execute()
-        supabase.table("egg").delete().eq("session_id", session_id).execute()
-        supabase.table("bin").delete().eq("session_id", session_id).execute()
-        supabase.table("intake").delete().eq("session_id", session_id).execute()
-        supabase.table("session_log").delete().eq("session_id", session_id).execute()
-        supabase.table("observer").delete().eq("observer_id", observer_id).execute()
-        print("\u2705 Synthetic QA footprint erased and pristine state restored.")
+        for table in soft_delete_tables:
+            try:
+                supabase.table(table).update({"is_deleted": True}).eq("session_id", session_id).execute()
+                print(f"  \u2705 Soft-deleted {table}: rows marked is_deleted=true for session {session_id[:8]}")
+            except Exception as table_err:
+                print(f"  \u26a0\ufe0f Could not soft-delete {table}: {table_err}")
+        for table in skip_tables:
+            print(f"  \u2139\ufe0f Skipped {table} (no is_deleted column — audit trail preserved)")
+        # Observer doesn't have is_deleted either; mark inactive instead
+        try:
+            supabase.table("observer").update({"is_active": False}).eq("observer_id", observer_id).execute()
+            print(f"  \u2705 Deactivated observer {observer_id[:8]} (no is_deleted column)")
+        except Exception as obs_err:
+            print(f"  \u26a0\ufe0f Could not deactivate observer: {obs_err}")
+        print("\u2705 Synthetic QA footprint soft-deleted and pristine state preserved.")
     except Exception as cleanup_err:
         print(f"Cleanup Error: {cleanup_err}")

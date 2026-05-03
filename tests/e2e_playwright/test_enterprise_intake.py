@@ -17,7 +17,7 @@ def test_intake_hp_01_standard_bin(page: Page, login):
     # 1. Clean Room Setup (Ensure test data is cleared first)
     sb = get_supabase()
     # Cleanup any previous failed runs for this specific test case
-    sb.table("intake").delete().eq("intake_name", "2026-TEST-HP01").execute()
+    sb.table("intake").update({"is_deleted": True}).eq("intake_name", "2026-TEST-HP01").execute()
 
     # 2. UI Automation (Playwright)
     login()
@@ -83,4 +83,4 @@ def test_intake_hp_01_standard_bin(page: Page, login):
     assert len(res_eggs.data) == 5, f"FATAL: Expected 5 eggs, found {len(res_eggs.data)} in database."
 
     # 5. Clean Room Teardown
-    sb.table("intake").delete().eq("intake_id", intake_id).execute()
+    sb.table("intake").update({"is_deleted": True}).eq("intake_id", intake_id).execute()
