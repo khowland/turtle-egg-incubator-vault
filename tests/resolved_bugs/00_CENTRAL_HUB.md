@@ -23,6 +23,7 @@ Welcome to the single source of truth for the **WINC Incubator System**. This hu
 - [[Bug-ENV-003_resolution|Bug-ENV-003: E2E Stale Port Ownership]]
 - [[Bug-ENV-004_resolution|Bug-ENV-004: Dynamic E2E Harness Base URL]]
 - [[Bug-PERF-001_resolution|Bug-PERF-001: Adversarial Sleep Bomb (CSS @import Blocking Delay) — CRITICAL]]
+- [[Bug-E2E-001_intake_save_empty_db|Bug-E2E-001: Intake SAVE Produces Empty Query Results in E2E Test Helpers]]
 
 
 ## 📐 Standards

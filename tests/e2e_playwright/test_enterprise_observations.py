@@ -27,6 +27,28 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
     page.locator("input[aria-label='Finder']").fill(sig)
     page.locator("input[aria-label='WINC Case #']").fill(sig)
 
+    # Fill ALL required intake form fields (8 total, not just 3)
+    # Species selectbox — required; st.stop() if empty
+    page.locator("[data-testid='stSelectbox']:has-text('Species')").click()
+    page.wait_for_timeout(500)
+    page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
+    page.wait_for_timeout(300)
+
+    # Condition selectbox
+    page.locator("[data-testid='stSelectbox']:has-text('Condition')").click()
+    page.wait_for_timeout(300)
+    page.locator("[data-testid='stSelectboxVirtualDropdown'] li:has-text('Alive')").click()
+    page.wait_for_timeout(300)
+
+    # Egg Collection Method selectbox
+    page.locator("[data-testid='stSelectbox']:has-text('Egg Collection Method')").click()
+    page.wait_for_timeout(300)
+    page.locator("[data-testid='stSelectboxVirtualDropdown'] li:has-text('Natural')").click()
+    page.wait_for_timeout(300)
+
+    # Intake Circumstances
+    page.get_by_role("textbox", name="Intake Circumstances").fill("Test intake for QA automation")
+
     # Set egg count in data_editor
     cells = page.locator("[data-testid='stDataEditor'] input[type='number']").all()
     if cells:

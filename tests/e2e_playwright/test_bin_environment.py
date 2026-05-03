@@ -46,6 +46,33 @@ def _create_intake_and_get_bin(page: Page, login, egg_count=1) -> str:
     page.get_by_role("textbox", name="Finder").fill(sig)
     page.get_by_label("Days in Care").fill("3")
 
+    # Fill ALL required intake form fields (8 total, not just 3)
+    # Species selectbox — required; st.stop() if empty
+    species_sel = page.locator("[data-testid='stSelectbox']:has-text('Species')")
+    species_sel.click()
+    time.sleep(0.5)
+    page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
+    time.sleep(0.3)
+
+    # Condition selectbox
+    cond_sel = page.locator("[data-testid='stSelectbox']:has-text('Condition')")
+    cond_sel.click()
+    time.sleep(0.3)
+    page.locator("[data-testid='stSelectboxVirtualDropdown'] li:has-text('Alive')").click()
+    time.sleep(0.3)
+
+    # Egg Collection Method selectbox
+    ec_sel = page.locator("[data-testid='stSelectbox']:has-text('Egg Collection Method')")
+    ec_sel.click()
+    time.sleep(0.3)
+    page.locator("[data-testid='stSelectboxVirtualDropdown'] li:has-text('Natural')").click()
+    time.sleep(0.3)
+
+    # Intake Circumstances
+    page.get_by_role("textbox", name="Intake Circumstances").fill("Test intake for QA automation")
+
+    # Intake Date — leave default (today) untouched
+
     # Set egg count in data editor (default 1)
     if egg_count != 1:
         cell = page.locator("div[data-testid='stDataFrame']").locator("div.dvn-cell").filter(has_text="1").first
