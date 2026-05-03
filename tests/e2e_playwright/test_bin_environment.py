@@ -3,41 +3,77 @@ Phase 2c: Subject & Environment Management
 
 TC-BIN-01: Bin weight gate — gate shown without weight, grid unlocked after entry
 TC-BIN-02: Add Supplemental Bin (➕) from Observations workbench
-TC-BIN-03: Bin soft delete (retirement) — is_deleted = true, removed from workbench
-TC-BIN-04: Bin restore — is_deleted = false, reappears in workbench
+TC-BIN-03: Bin soft delete (retirement) — via Dashboard "Remove Empty Bins" UI
+TC-BIN-04: Bin restore — via Settings → Resurrection Vault ➕ button
 
-Prerequisite for BIN-01/02: At least one intake with a bin exists in DB.
+All tests use 100% UI interactions with zero direct database mutations.
 """
-from e2e_selectors import HEADING_OBSERVATIONS, HEADING_SETTINGS, NAV_INTAKE, NAV_OBSERVATIONS, NAV_SETTINGS
+from e2e_selectors import (
+    HEADING_INTAKE,
+    HEADING_OBSERVATIONS,
+    HEADING_SETTINGS,
+    HEADING_DASHBOARD,
+    NAV_INTAKE,
+    NAV_OBSERVATIONS,
+    NAV_SETTINGS,
+    NAV_DASHBOARD,
+)
 
 import time
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
 
-
-def _create_intake_and_get_bin(page: Page, login) -> dict:
-    """Helper: create a fresh intake via UI and return {intake_id, bin_id}."""
+# ---------------------------------------------------------------------------
+# Helper: Create intake via UI and return bin_id
+# ---------------------------------------------------------------------------
+def _create_intake_and_get_bin(page: Page, login, egg_count=1) -> str:
+    """Create a fresh intake via UI and return bin_id.
+    
+    Args:
+        page: Playwright page.
+        login: Login fixture callable.
+        egg_count: Number of eggs to set in the data editor (default 1).
+    
+    Returns:
+        bin_id: The bin ID created by the intake.
+    """
     login()
     page.locator(NAV_INTAKE).first.click()
-    expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
-    sig = f"BIN-SETUP-{int(time.time())}"
-    page.locator("input[aria-label='Finder']").fill(sig)
-    page.locator("input[aria-label='WINC Case #']").fill(sig)
-    page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
+    expect(page.get_by_role("heading", name=HEADING_INTAKE)).to_be_visible(timeout=10000)
 
+    sig = f"BIN-SETUP-{int(time.time())}"
+    page.get_by_role("textbox", name="WINC Case #").fill(sig)
+    page.get_by_role("textbox", name="Finder").fill(sig)
+    page.get_by_label("Days in Care").fill("3")
+
+    # Set egg count in data editor (default 1)
+    if egg_count != 1:
+        cell = page.locator("div[data-testid='stDataFrame']").locator("div.dvn-cell").filter(has_text="1").first
+        cell.dblclick()
+        page.keyboard.press("Backspace")
+        page.keyboard.type(str(egg_count))
+        page.keyboard.press("Enter")
+
+    page.get_by_role("button", name="SAVE").click()
+
+    # st.switch_page may not be detected; navigate manually
+    page.wait_for_timeout(2000)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=10000)
+
+    # Fetch bin_id from database (query, not mutation)
     db = get_supabase_client()
     intake = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
     bin_row = db.table("bin").select("bin_id").eq("intake_id", intake.data[0]["intake_id"]).execute()
-    return {"intake_id": intake.data[0]["intake_id"], "bin_id": bin_row.data[0]["bin_id"]}
+    return bin_row.data[0]["bin_id"]
+
 
 # ---------------------------------------------------------------------------
 # TC-BIN-01: Bin weight gate
 # ---------------------------------------------------------------------------
 def test_bin_weight_gate(page: Page, login):
     """TC-BIN-01: Weight gate blocks grid until bin weight is recorded."""
-    ctx = _create_intake_and_get_bin(page, login)
-    bin_id = ctx["bin_id"]
+    bin_id = _create_intake_and_get_bin(page, login)
 
     # Navigate to Observations
     page.locator(NAV_OBSERVATIONS).first.click()
@@ -76,14 +112,13 @@ def test_bin_weight_gate(page: Page, login):
     weight_obs = [o for o in obs.data if o.get("bin_weight_g", 0) > 0]
     assert len(weight_obs) >= 1, "DB FAILURE: bin_observation weight value not persisted"
 
+
 # ---------------------------------------------------------------------------
 # TC-BIN-02: Add Supplemental Bin (➕)
 # ---------------------------------------------------------------------------
 def test_add_supplemental_bin(page: Page, login):
     """TC-BIN-02: ➕ button in Observations creates new bin + eggs for existing case."""
-    # Create primary intake first
-    ctx = _create_intake_and_get_bin(page, login)
-    intake_id = ctx["intake_id"]
+    bin_id = _create_intake_and_get_bin(page, login)
 
     page.locator(NAV_OBSERVATIONS).first.click()
     expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
@@ -122,6 +157,9 @@ def test_add_supplemental_bin(page: Page, login):
 
     # DB verification: new bin row + 3 eggs at S1
     db = get_supabase_client()
+    # Use the primary bin_id to find intake, then verify bins
+    primary_bin = db.table("bin").select("intake_id").eq("bin_id", bin_id).execute()
+    intake_id = primary_bin.data[0]["intake_id"]
     bins = db.table("bin").select("bin_id").eq("intake_id", intake_id).execute()
     assert len(bins.data) >= 2, (
         f"DB FAILURE: Expected >= 2 bins for intake {intake_id}, got {len(bins.data)}"
@@ -137,40 +175,79 @@ def test_add_supplemental_bin(page: Page, login):
         f"DB FAILURE: Expected >= 4 total eggs (1 original + 3 supplemental), got {len(all_eggs)}"
     )
 
+
 # ---------------------------------------------------------------------------
-# TC-BIN-03: Bin soft delete (retirement)
+# TC-BIN-03: Bin soft delete (retirement) via Dashboard UI
 # ---------------------------------------------------------------------------
 def test_bin_soft_delete_retirement(page: Page, login):
-    """TC-BIN-03: Retiring a bin sets is_deleted=true; bin disappears from active workbench."""
-    ctx = _create_intake_and_get_bin(page, login)
-    bin_id = ctx["bin_id"]
+    """TC-BIN-03: Retire a bin via Dashboard 'Remove Empty Bins' with full UI interaction.
+    
+    Flow:
+    1. Create intake with 1 egg.
+    2. Navigate to Observations, mark egg as Dead → bin now has 0 active eggs.
+    3. Navigate to Dashboard, select bin from retirement selectbox, toggle confirmation, click REMOVE.
+    4. Verify bin.is_deleted = True in DB and bin disappears from Observations workbench.
+    """
+    bin_id = _create_intake_and_get_bin(page, login)
 
-    # Navigate to Settings → Resurrection Vault tab
-    page.locator(NAV_SETTINGS).first.click()
-    expect(page.get_by_role("heading", name=HEADING_SETTINGS)).to_be_visible(timeout=15000)
-    page.get_by_role("tab", name="Resurrection Vault").click()
+    # --- Step 1: Mark the egg as Dead via Observations UI ---
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
-    # The Bins sub-tab should be active by default
-    # Look for a delete/retire button for our bin
-    # Settings shows retired bins — we need to retire from Observations first
-    # NOTE: Retirement (soft-delete) for bins appears to be done via the Observations workbench
-    # or via the Resurrection Vault in Settings. Check UI for delete controls.
-    # The ➕ button in Resurrection Vault RESTORES — so retirement happens elsewhere.
-    # From the code: bin.is_deleted is set directly. Check if there is a retire button in Observations.
-    # For now, we perform the soft-delete directly to test the Settings UI reflects it.
-    db = get_supabase_client()
-    db.table("bin").update({"is_deleted": True}).eq("bin_id", bin_id).execute()
+    # Add bin to workbench and unlock weight gate
+    workbench = page.locator("[data-testid='stMultiSelect']").first
+    workbench.click()
+    page.locator(f"[data-testid='stMultiSelectDropdown'] li:has-text('{bin_id}')").first.click()
+    page.keyboard.press("Escape")
 
-    # Refresh the Resurrection Vault page
-    page.reload()
-    page.locator(NAV_SETTINGS).first.click()
-    expect(page.get_by_role("heading", name=HEADING_SETTINGS)).to_be_visible(timeout=15000)
-    page.get_by_role("tab", name="Resurrection Vault").click()
+    # Fill weight to unlock grid
+    weight_input = page.locator("[data-testid='stNumberInput'] input").first
+    weight_input.fill("250")
+    page.get_by_role("button", name="SAVE").first.click()
 
-    # The retired bin should appear in the Resurrection Vault list
-    expect(page.get_by_text(bin_id).first).to_be_visible(timeout=10000)
+    # Click START to select all pending eggs
+    page.get_by_role("button", name="START").click()
 
-    # Navigate to Observations — bin should NOT appear in active workbench
+    # Change egg status to Dead using the Status selectbox
+    status_select = page.locator("[data-testid='stSelectbox']:has-text('Status')")
+    status_select.click()
+    page.locator("[data-testid='stSelectboxVirtualDropdown'] li:has-text('Dead')").click()
+
+    # Save the observation
+    page.get_by_role("button", name="SAVE").last.click()
+
+    # Allow state update
+    time.sleep(2)
+
+    # --- Step 2: Retire the empty bin via Dashboard ---
+    page.locator(NAV_DASHBOARD).first.click()
+    expect(page.get_by_role("heading", name=HEADING_DASHBOARD)).to_be_visible(timeout=15000)
+
+    # The "Remove Empty Bins" section appears only if there are empty bins
+    # It shows a selectbox and toggle + REMOVE button
+    expect(page.get_by_text("Remove Empty Bins")).to_be_visible(timeout=10000)
+
+    # Select our bin from the selectbox
+    retire_select = page.locator("[data-testid='stSelectbox']:has-text('Select Bin Code to Remove')")
+    retire_select.click()
+    page.locator(f"[data-testid='stSelectboxVirtualDropdown'] li:has-text('{bin_id}')").click()
+
+    # Toggle confirmation
+    confirm_toggle = page.get_by_role("checkbox").first
+    confirm_toggle.check()
+
+    # Click REMOVE button
+    page.get_by_role("button", name="REMOVE").click()
+
+    # Wait for success message
+    expect(page.get_by_text(f"Bin {bin_id} removed.")).to_be_visible(timeout=15000)
+
+    # --- DB Verification: is_deleted = True ---
+    db_client = get_supabase_client()
+    result = db_client.table("bin").select("is_deleted").eq("bin_id", bin_id).execute()
+    assert result.data[0]["is_deleted"] is True, "DB FAILURE: bin.is_deleted is not True"
+
+    # --- UI Verification: bin no longer appears in Observations workbench ---
     page.locator(NAV_OBSERVATIONS).first.click()
     expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
@@ -181,47 +258,83 @@ def test_bin_soft_delete_retirement(page: Page, login):
         f"UI FAILURE: Retired bin '{bin_id}' still visible in Observations workbench"
     )
 
-    # DB final check
-    result = db.table("bin").select("is_deleted").eq("bin_id", bin_id).execute()
-    assert result.data[0]["is_deleted"] is True, "DB FAILURE: bin.is_deleted is not True"
 
 # ---------------------------------------------------------------------------
-# TC-BIN-04: Bin restore
+# TC-BIN-04: Bin restore via Resurrection Vault
 # ---------------------------------------------------------------------------
 def test_bin_restore(page: Page, login):
-    """TC-BIN-04: Restoring a retired bin sets is_deleted=false and reappears in workbench."""
-    ctx = _create_intake_and_get_bin(page, login)
-    bin_id = ctx["bin_id"]
+    """TC-BIN-04: Restore a retired bin via Settings → Resurrection Vault.
+    
+    Flow:
+    1. Create intake, mark egg Dead, retire bin via Dashboard (same as TC-BIN-03).
+    2. Navigate to Settings → Resurrection Vault → Bins sub-tab.
+    3. Find our bin and click the ➕ restore button.
+    4. Verify bin.is_deleted = False and bin reappears in Observations workbench.
+    """
+    bin_id = _create_intake_and_get_bin(page, login)
 
-    # Soft-delete the bin first
-    db = get_supabase_client()
-    db.table("bin").update({"is_deleted": True}).eq("bin_id", bin_id).execute()
+    # --- Step 1: Retire the bin (same flow as TC-BIN-03) ---
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
-    # Navigate to Settings → Resurrection Vault
+    workbench = page.locator("[data-testid='stMultiSelect']").first
+    workbench.click()
+    page.locator(f"[data-testid='stMultiSelectDropdown'] li:has-text('{bin_id}')").first.click()
+    page.keyboard.press("Escape")
+
+    weight_input = page.locator("[data-testid='stNumberInput'] input").first
+    weight_input.fill("250")
+    page.get_by_role("button", name="SAVE").first.click()
+    page.get_by_role("button", name="START").click()
+
+    status_select = page.locator("[data-testid='stSelectbox']:has-text('Status')")
+    status_select.click()
+    page.locator("[data-testid='stSelectboxVirtualDropdown'] li:has-text('Dead')").click()
+    page.get_by_role("button", name="SAVE").last.click()
+    time.sleep(2)
+
+    # Retire via Dashboard
+    page.locator(NAV_DASHBOARD).first.click()
+    expect(page.get_by_role("heading", name=HEADING_DASHBOARD)).to_be_visible(timeout=15000)
+    expect(page.get_by_text("Remove Empty Bins")).to_be_visible(timeout=10000)
+
+    retire_select = page.locator("[data-testid='stSelectbox']:has-text('Select Bin Code to Remove')")
+    retire_select.click()
+    page.locator(f"[data-testid='stSelectboxVirtualDropdown'] li:has-text('{bin_id}')").click()
+    page.get_by_role("checkbox").first.check()
+    page.get_by_role("button", name="REMOVE").click()
+    expect(page.get_by_text(f"Bin {bin_id} removed.")).to_be_visible(timeout=15000)
+
+    # --- Step 2: Restore via Resurrection Vault ---
     page.locator(NAV_SETTINGS).first.click()
     expect(page.get_by_role("heading", name=HEADING_SETTINGS)).to_be_visible(timeout=15000)
     page.get_by_role("tab", name="Resurrection Vault").click()
 
-    # Find and click the ➕ restore button for our bin
-    restore_btn = page.locator(f"button[data-testid*='res_bin_{bin_id}']").first
-    if not restore_btn.is_visible():
-        # Fallback: find ➕ button near the bin_id text
-        restore_btn = page.locator(
-            f"[data-testid='stButton']:near(:text('{bin_id}'))"
-        ).first
+    # The Bins sub-tab is active by default. Find our bin's restore button.
+    # The bin ID is displayed in a container; the ➕ button is next to it.
+    # Locate the button with key="res_bin_{bin_id}" which uses data-testid.
+    restore_btn = page.locator(f"button[data-testid='stButton']:has-text('➕')")
+    # Multiple ➕ buttons may exist; filter by the one near our bin_id text
+    bin_container = page.locator(f"text={bin_id}").locator("..")
+    # The container is the st.container(border=True) that holds the text and button
+    # We can locate the ➕ button within the container that contains the bin_id text
+    restore_btn = bin_container.locator("button:has-text('➕')")
     restore_btn.click()
 
-    time.sleep(1)
+    # After clicking, st.rerun() refreshes the page. Wait for success toast.
+    time.sleep(2)
 
-    # DB verification: is_deleted should now be False
-    result = db.table("bin").select("is_deleted").eq("bin_id", bin_id).execute()
+    # --- DB Verification: is_deleted = False ---
+    db_client = get_supabase_client()
+    result = db_client.table("bin").select("is_deleted").eq("bin_id", bin_id).execute()
     assert result.data[0]["is_deleted"] is False, (
         "DB FAILURE: Bin restore did not set is_deleted=False"
     )
 
-    # UI: bin should now appear in Observations workbench options
+    # --- UI Verification: bin reappears in Observations workbench ---
     page.locator(NAV_OBSERVATIONS).first.click()
     expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
+
     workbench = page.locator("[data-testid='stMultiSelect']").first
     workbench.click()
     option = page.locator(
