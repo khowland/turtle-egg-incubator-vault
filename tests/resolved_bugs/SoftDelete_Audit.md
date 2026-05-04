@@ -132,4 +132,14 @@ Fix 4 violations in `5_Settings.py`, `6_Reports.py`, `utils/bootstrap.py`.
 
 ---
 
-**Next Step:** Apply Phase 1 fixes to `3_Observations.py` and re-run E2E tests to validate.
+---
+
+## ✅ Resolution (v9.2.0 — 2026-05-03/04)
+
+**Status: RESOLVED** — All 14 violations fixed across 6 production files.
+
+Commit `d3806c3` applied `.eq("is_deleted", False)` to all 14 SELECT queries.
+Surgical resurrection toggle added to `3_Observations.py` (include-deleted checkbox, default=True).
+Voided observations display (lines 422-454) and admin restore queries intentionally left unfiltered.
+
+See `docs/BREADCRUMB_20260503.md` for the complete fix log with exact line numbers.
