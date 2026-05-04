@@ -1,6 +1,7 @@
 import os
 import pytest
 from playwright.sync_api import Page, expect
+from tests.e2e_playwright.e2e_selectors import HEADINGS, BUTTONS
 
 # Optional supabase wipe fixture
 try:
@@ -14,7 +15,7 @@ def _get_test_supabase():
     if create_client is None:
         return None
     url = os.environ.get("SUPABASE_URL", "")
-    key = os.environ.get("SUPABASE_SERVICE_KEY", "")
+    key = os.environ.get("SUPABASE_ANON_KEY", "")
     if not url or not key:
         # fallback: try reading .env file
         try:
@@ -22,7 +23,7 @@ def _get_test_supabase():
             env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
             load_dotenv(env_path)
             url = os.environ.get("SUPABASE_URL", "")
-            key = os.environ.get("SUPABASE_SERVICE_KEY", "")
+            key = os.environ.get("SUPABASE_ANON_KEY", "")
         except:
             pass
     # Try alternative key names
@@ -72,11 +73,36 @@ def e2e_base_url() -> str:
     return os.environ.get('E2E_BASE_URL', 'http://127.0.0.1:8599')
 
 
+@pytest.fixture(scope='session')
+def browser_context_args(browser_context_args):
+    return {
+        **browser_context_args,
+        'viewport': {'width': 1280, 'height': 900},
+        'ignore_https_errors': True,
+    }
+
+
 @pytest.fixture()
 def login(page: Page, e2e_base_url: str):
     def _login():
         page.goto(e2e_base_url, wait_until='domcontentloaded')
-        expect(page.get_by_role('button', name='START', exact=True)).to_be_visible(timeout=30000)
+        # Wait for START button and click it
         page.get_by_role('button', name='START', exact=True).click()
-        expect(page.get_by_role('heading', name='📊 Today\'s Summary')).to_be_visible(timeout=30000)
+        # Wait for dashboard heading (NO emoji - stripped per Phase D)
+        page.get_by_role('heading', name="Today's Summary").wait_for(timeout=30000)
     return _login
+
+
+@pytest.fixture()
+def verify_version(page: Page, e2e_base_url: str):
+    """Verify the UI version label matches the database system_config version."""
+    def _verify(expected_version: str = None):
+        # Navigate to settings page to read version
+        page.goto(f"{e2e_base_url}/5_Settings", wait_until='domcontentloaded')
+        # Look for version text (format: 'v9.2.0')
+        version_text = page.locator('text=/v\\d+\\.\\d+\\.\\d+/').first
+        version_text.wait_for(timeout=15000)
+        actual_version = version_text.text_content()
+        if expected_version:
+            assert expected_version in actual_version, f"Version mismatch: expected {expected_version}, got {actual_version}"
+    return _verify
