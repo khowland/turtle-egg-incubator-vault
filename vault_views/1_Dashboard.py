@@ -22,7 +22,7 @@ from utils.performance import track_view_performance
 with track_view_performance("Dashboard"):
     supabase_client = bootstrap_page("Today's Summary", "📊")
 
-    st.title("📊 Today's Summary")
+    st.title("Today's Summary")
 
     if st.session_state.get("resume_notice"):
         st.success(st.session_state.resume_notice)
@@ -128,6 +128,7 @@ with track_view_performance("Dashboard"):
         egg_counts_res = (
             supabase_client.table("egg")
             .select("bin_id")
+            .eq("is_deleted", False)
             .in_("bin_id", bin_ids_to_check)
             .eq("status", "Active")
             .execute()

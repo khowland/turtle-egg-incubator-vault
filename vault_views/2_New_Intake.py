@@ -25,7 +25,7 @@ from utils.performance import track_view_performance
 supabase = bootstrap_page("Intake", "🛡️")
 
 with track_view_performance("Intake"):
-    st.title("🛡️ New Intake")
+    st.title("New Intake")
 
     with st.sidebar.expander("ℹ️ Screen Help - Step-by-Step"):
         st.markdown("""
@@ -91,7 +91,7 @@ with track_view_performance("Intake"):
 
     if intake_mode == "Add Eggs or Bins to Existing Intake":  # CR-20260430-194500: Updated conditional
         st.info("🔵 Supplemental Mode Active: Bins and eggs will be appended to the selected case. Original eggs will remain untouched.")
-        res_cases = supabase.table("intake").select("intake_id, intake_name, finder_turtle_name").execute()
+        res_cases = supabase.table("intake").select("intake_id, intake_name, finder_turtle_name").eq("is_deleted", False).execute()
         if res_cases.data:
             case_options = {f"{c['intake_name']} ({c['finder_turtle_name']})": c['intake_id'] for c in res_cases.data}
             selected_case_id = st.selectbox("Select Existing Mother", list(case_options.keys()))
@@ -106,7 +106,7 @@ with track_view_performance("Intake"):
         # CR-20260430-194500: Load existing bins for supplemental intake
         supp_intake_id = st.session_state.get("supp_intake_id")
         if supp_intake_id:
-            existing_bins = supabase.table("bin").select("bin_id, bin_code, total_eggs, bin_notes, substrate, shelf_location").eq("intake_id", supp_intake_id).execute()  # CR-20260501-1800: Added bin_code for display
+            existing_bins = supabase.table("bin").select("bin_id, bin_code, total_eggs, bin_notes, substrate, shelf_location").eq("is_deleted", False).eq("intake_id", supp_intake_id).execute()  # CR-20260501-1800: Added bin_code for display
             if existing_bins.data:
                 # CR-20260429-210932: Parse bin_num from actual bin_id suffix for accurate numbering
                 # CR-20260501-1800: Parse bin_num suffix from bin_code (text code) instead of bin_id (now BIGINT)
@@ -131,7 +131,7 @@ with track_view_performance("Intake"):
                 ]
 
     with st.container(border=True):
-        st.subheader("📁 Step 1: Mother Turtle Info")
+        st.subheader("Step 1: Mother Turtle Info")
         col1, col2, col3 = st.columns([2, 1, 1])
         selected_label = col1.selectbox("Species", list(species_data_map.keys()), key="intake_species")
         case_number = col2.text_input("WINC Case #", placeholder="2026-XXXX", key="intake_name")
@@ -182,7 +182,7 @@ with track_view_performance("Intake"):
         st.session_state["_intake_label"] = selected_label
 
     # --- Step 2: Sorting ---
-    st.subheader("📦 Step 2: Bin Setup")
+    st.subheader("Step 2: Bin Setup")
     with st.container(border=True):
         # B-015: Guard against None label on first load
         selected_species = species_data_map.get(selected_label, {"intake_count": 0, "species_id": 1})

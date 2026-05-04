@@ -27,7 +27,7 @@ def get_app_version():
             return response.data[0]["config_value"]
     except Exception:
         pass
-    return "v9.1.0" # Fallback
+    return "v9.2.0" # Fallback
 
 # VERSION = get_app_version() # Deprecated in favor of dynamic calls to get_app_version()
 
@@ -323,6 +323,7 @@ def get_last_bin_weight(bin_id):
             supabase.table("bin_observation")
             .select("bin_weight_g, timestamp")
             .eq("bin_id", bin_id)
+            .eq("is_deleted", False)
             .order("timestamp", desc=True)
             .limit(1)
             .execute()
@@ -338,6 +339,7 @@ def get_last_bin_weight(bin_id):
         supabase.table("bin")
         .select("target_total_weight_g")
         .eq("bin_id", bin_id)
+        .eq("is_deleted", False)
         .execute()
     )
     if bin_data.data:

@@ -25,13 +25,13 @@ from utils.performance import track_view_performance
 with track_view_performance("Reports"):
     supabase_client = bootstrap_page("Reports", "📈")
 
-    st.title("🛡️ Reports")
+    st.title("Reports")
 
     # =============================================================================
     # SIDEBAR: Filters & WormD export (ISS-2)
     # =============================================================================
     with st.sidebar:
-        st.header("🔍 Global Filters")
+        st.header("Global Filters")
         st.date_input(
             "Season Window (reserved)",
             [],
@@ -333,7 +333,7 @@ with track_view_performance("Reports"):
         active_bin_set = {b["bin_id"] for b in active_bins}
         eggs_filtered = [e for e in (eggs_data or []) if e.get("bin_id") in active_bin_set]
         hatchlings_data = (
-            supabase_client.table("hatchling_ledger").select("*").execute().data
+            supabase_client.table("hatchling_ledger").select("*").eq("is_deleted", False).execute().data
         )
         return pd.DataFrame(eggs_filtered), pd.DataFrame(hatchlings_data or [])
 
@@ -410,7 +410,7 @@ with track_view_performance("Reports"):
                 st.info("Awaiting hatchling_ledger rows (S6 transitions).")
 
         with report_tabs[3]:
-            st.subheader("🛡️ Clinical Activity History")
+            st.subheader("Clinical Activity History")
             st.caption("Forensic record of exports, shift ends, and clinical corrections.")
             
             col_rf1, col_rf2 = st.columns(2)

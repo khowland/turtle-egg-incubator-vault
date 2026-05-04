@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 # Bypass Streamlit context cache for flawless CLI execution
 load_dotenv()
 url = os.environ.get("SUPABASE_URL")
-key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+key = os.environ.get("SUPABASE_ANON_KEY")  # v9.2.0: service_role key invalid; use anon key (has service_role JWT)
 
 if not url or not key:
     print("❌ Fatal: Missing .env credentials.")

@@ -1,4 +1,4 @@
-from e2e_selectors import NAV_INTAKE
+from e2e_selectors import NAV_INTAKE, HEADING_OBSERVATIONS
 import time
 from playwright.sync_api import Page, expect
 from utils.db import get_supabase
@@ -20,7 +20,7 @@ def test_layer2_forensic_backend_verification(page: Page, login):
     page.locator("input[aria-label='WINC Case #']").fill(unique_sig)
 
     page.get_by_role('button', name='SAVE').click()
-    expect(page.get_by_role('heading', name='Observations')).to_be_visible(timeout=30000)
+    expect(page.get_by_role('heading', name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
     db = get_supabase()
     intake_res = db.table('intake').select('*').eq('intake_name', unique_sig).execute()

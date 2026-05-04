@@ -32,7 +32,7 @@ from utils.visuals import render_egg_icon
 with track_view_performance("Observations"):
     # 1. Page Initialization
     supabase = bootstrap_page("Observations", "🔬")
-    st.title("🔬 Observations")
+    st.title("Observations")
 
     # 2. State Initialization
     if "workbench_bins" not in st.session_state:
@@ -49,6 +49,7 @@ with track_view_performance("Observations"):
             supabase.table("bin")
             .select("bin_id")
             .eq("intake_id", st.session_state.active_case_id)
+            .eq("is_deleted", False)
             .execute()
         )
         for b in case_bins.data:
@@ -82,7 +83,7 @@ with track_view_performance("Observations"):
     for b_id in bin_options:
         try:
             eggs = supabase.table("egg").select("egg_id").eq("bin_id", b_id).eq("is_deleted", False).execute().data
-            obs = supabase.table("egg_observation").select("egg_id").in_("egg_id", [e["egg_id"] for e in eggs]).eq("session_id", st.session_state.session_id).execute().data if eggs else []
+            obs = supabase.table("egg_observation").select("egg_id").in_("egg_id", [e["egg_id"] for e in eggs]).eq("is_deleted", False).eq("session_id", st.session_state.session_id).execute().data if eggs else []
             obs_ids = {o["egg_id"] for o in obs}
             done = sum(1 for e in eggs if e["egg_id"] in obs_ids)
             bin_stats[b_id] = {"done": done, "total": len(eggs)}
@@ -158,6 +159,7 @@ with track_view_performance("Observations"):
                 supabase.table("bin_observation")
                 .select("session_id")
                 .eq("bin_id", active_bin_id)
+                .eq("is_deleted", False)
                 .order("timestamp", desc=True)
                 .limit(1)
                 .execute()
@@ -285,13 +287,13 @@ with track_view_performance("Observations"):
             "observation rows (soft delete). Egg stage rolls back to the latest remaining observation."
         )
 
-        repair_eggs = (
-            supabase.table("egg")
-            .select("egg_id")
-            .eq("bin_id", active_bin_id)
-            .execute()
-            .data
-        )
+        include_deleted = st.checkbox("Include soft-deleted eggs in search", value=True,
+            help="Uncheck to exclude voided/transferred/dead eggs from the search results.")
+
+        query = supabase.table("egg").select("egg_id").eq("bin_id", active_bin_id)
+        if not include_deleted:
+            query = query.eq("is_deleted", False)
+        repair_eggs = query.execute().data
         repair_labels = [f"🔍 {e['egg_id']}" for e in repair_eggs]
 
         selected_target = st.selectbox("Select Egg for Surgery", repair_labels)
@@ -662,12 +664,12 @@ with track_view_performance("Observations"):
                             vitality = (observation_notes or "").strip() or "pending_field_assessment"
                             
                             # Fetch all relevant context for bulk operation
-                            egg_ctx = supabase.table("egg").select("egg_id, bin_id, intake_timestamp").in_("egg_id", selected_real_ids).execute().data
+                            egg_ctx = supabase.table("egg").select("egg_id, bin_id, intake_timestamp").eq("is_deleted", False).in_("egg_id", selected_real_ids).execute().data
                             bin_ids = list({e["bin_id"] for e in egg_ctx})
-                            bin_ctx = supabase.table("bin").select("bin_id, intake_id").in_("bin_id", bin_ids).execute().data
+                            bin_ctx = supabase.table("bin").select("bin_id, intake_id").eq("is_deleted", False).in_("bin_id", bin_ids).execute().data
                             bin_intake_map = {b["bin_id"]: b["intake_id"] for b in bin_ctx}
                             
-                            hl_existing = supabase.table("hatchling_ledger").select("hatchling_ledger_id, egg_id").in_("egg_id", selected_real_ids).execute().data
+                            hl_existing = supabase.table("hatchling_ledger").select("hatchling_ledger_id, egg_id").eq("is_deleted", False).in_("egg_id", selected_real_ids).execute().data
                             hl_existing_map = {h["egg_id"]: h["hatchling_ledger_id"] for h in hl_existing}
                             
                             hl_upsert_payload = []

@@ -19,7 +19,7 @@ from utils.performance import track_view_performance
 supabase_client = bootstrap_page("Diagnostics", "🛡️")
 
 with track_view_performance("Diagnostic"):
-    st.title("🛡️ System Health & Diagnostic Suite")
+    st.title("System Health & Diagnostic Suite")
     st.caption("Perform these checks prior to a major influx of eggs.")
 
     # --- Connectivity Heartbeat ---

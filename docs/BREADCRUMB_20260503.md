@@ -6,8 +6,8 @@
 
 ## 📍 Current State
 
-**Version:** v9.1.0 (bumped from v9.0.0)  
-**Last commit:** `e580aca` — "SoftDelete Audit: 14 SELECT queries missing is_deleted filter documented"  
+**Version:** v9.2.0 (bumped from v9.1.0)  
+**Last commit:** (pending) — "v9.2.0: Phase C complete, emoji/font fixes, deployment scripts verified, breadcrumb updated"  
 **Branch:** `main`  
 **App running:** `http://127.0.0.1:8599/` (Streamlit on port 8599)  
 **Supabase:** `kxfkfeuhkdopgmkpdimo.supabase.co` (anon key works for reads/writes; service_role key is invalid/removed)

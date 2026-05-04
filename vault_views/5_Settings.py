@@ -23,7 +23,7 @@ from utils.performance import track_view_performance
 supabase = bootstrap_page("Settings", "⚙️")
 
 with track_view_performance("Settings"):
-    st.title("⚙️ Settings")
+    st.title("Settings")
 
     # =============================================================================
     # SECTION: 🔒 Administrative Editing Lock
@@ -86,7 +86,7 @@ tabs = st.tabs(
         "📊 Stages & Icons",
         "📦 Resurrection Vault",
         "📜 Activity Log",
-        "🛡️ Backup & Restore (Red Team)",
+        "Backup & Restore (Red Team)",
     ]
 )
 
@@ -296,7 +296,7 @@ with tabs[2]:
         st.error("No biological stages found in registry.")
 
 with tabs[3]:
-    st.subheader("📦 The Resurrection Vault")
+    st.subheader("The Resurrection Vault")
     st.caption("Restore accidental 'Retirements' or mistaken soft-deletes.")
     sub_tabs = st.tabs(["Bins", "Case Intakes"])
 
@@ -427,13 +427,13 @@ with tabs[4]:
         st.info("No activity recorded in the database.")
 
 with tabs[5]:
-    st.subheader("🛡️ Backup & Restore (Red Team)")
+    st.subheader("Backup & Restore (Red Team)")
     st.error("⚠️ **DANGER ZONE**: Destructive Database Operations")
 
     # Check dirty state safely
     is_dirty = False
     try:
-        intake_check = supabase.table("intake").select("intake_id").limit(1).execute().data
+        intake_check = supabase.table("intake").select("intake_id").eq("is_deleted", False).limit(1).execute().data
         is_dirty = len(intake_check) > 0
     except Exception:
         pass

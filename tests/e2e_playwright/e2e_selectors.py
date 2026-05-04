@@ -1,5 +1,5 @@
 """
-Centralized Playwright Selectors for WINC Incubator v9.0.0
+Centralized Playwright Selectors for WINC Incubator v9.2.0
 Generated from UI_SELECTOR_MAP_v9.0.0.md — source code audit of vault_views/*.py
 
 Import this module in all E2E test files to ensure consistent selectors.
@@ -7,13 +7,13 @@ When the app version changes, update this file and UI_SELECTOR_MAP_v9.0.0.md tog
 """
 
 # ---------------------------------------------------------------------------
-# Page Headings
+# Page Headings (v9.2.0: emoji prefixes removed for E2E compatibility)
 # ---------------------------------------------------------------------------
-HEADING_DASHBOARD = "📊 Today's Summary"
-HEADING_INTAKE = "🛡️ New Intake"
-HEADING_OBSERVATIONS = "🔬 Observations"
-HEADING_SETTINGS = "⚙️ Settings"
-HEADING_REPORTS = "🛡️ Reports"
+HEADING_DASHBOARD = "Today's Summary"
+HEADING_INTAKE = "New Intake"
+HEADING_OBSERVATIONS = "Observations"
+HEADING_SETTINGS = "Settings"
+HEADING_REPORTS = "Reports"
 
 # ---------------------------------------------------------------------------
 # Navigation Links
@@ -64,9 +64,9 @@ SELECTBOX_DROPDOWN_OPTION = "[data-testid='stSelectboxVirtualDropdown'] li:has-t
 SELECTBOX_ANY = "[data-testid='stSelectbox']"
 
 # ---------------------------------------------------------------------------
-# Correction Mode Toggle
+# Correction Mode Toggle (v9.2.0: emoji prefix removed)
 # ---------------------------------------------------------------------------
-TOGGLE_CORRECTION_MODE = "🛠️ Correction Mode"
+TOGGLE_CORRECTION_MODE = "Correction Mode"
 TOGGLE_CORRECTION_FALLBACK = "[data-testid='stToggle']"
 
 # ---------------------------------------------------------------------------

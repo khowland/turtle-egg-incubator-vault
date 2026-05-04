@@ -10,6 +10,7 @@ Common causes: external font polling, redundant DB calls at startup.
 """
 import time
 from playwright.sync_api import Page, expect
+from e2e_selectors import HEADING_DASHBOARD
 
 
 # ---------------------------------------------------------------------------
@@ -42,7 +43,7 @@ def test_hydration_time(page: Page, e2e_base_url):
 
     start_time = time.time()
     page.get_by_role("button", name="START", exact=True).click()
-    page.get_by_role("heading", name="Today's Summary").wait_for(
+    page.get_by_role("heading", name=HEADING_DASHBOARD).wait_for(
         state="visible", timeout=1500
     )
     elapsed_ms = (time.time() - start_time) * 1000
