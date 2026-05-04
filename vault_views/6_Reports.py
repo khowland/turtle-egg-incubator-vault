@@ -348,7 +348,7 @@ with track_view_performance("Reports"):
                 "🔥 Mortality Heatmap",
                 "💧 Hydration Variance",
                 "🌡️ Incubation Trends",
-                "📋 Export activity",
+                "Export activity",
             ]
         )
 

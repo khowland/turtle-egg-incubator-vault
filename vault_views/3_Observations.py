@@ -721,7 +721,7 @@ with track_view_performance("Observations"):
     # 5. DIAGNOSTIC LOG
     # ------------------------------------------------------------------------------
     if not st.session_state.surgical_resurrection:
-        with st.expander("📊 Activity Log"):
+        with st.expander("Activity Log"):
             try:
                 logs = (
                     get_resilient_table(supabase, "egg_observation")

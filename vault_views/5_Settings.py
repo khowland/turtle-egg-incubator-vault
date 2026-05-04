@@ -83,7 +83,7 @@ tabs = st.tabs(
     [
         "👥 User Registry",
         "🐢 Species Config",
-        "📊 Stages & Icons",
+        "Stages & Icons",
         "📦 Resurrection Vault",
         "📜 Activity Log",
         "Backup & Restore (Red Team)",
