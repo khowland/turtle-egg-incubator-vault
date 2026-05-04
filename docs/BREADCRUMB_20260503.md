@@ -161,3 +161,34 @@ These persist across chat resets:
 8. Commit and push all changes
 
 **Target:** Near-zero defect E2E pass rate for client handover
+---
+
+## 🧪 Final E2E Test Results (v9.2.0 — Run 2026-05-04 04:07 UTC)
+
+**Suite:** 42 tests selected (11 deselected), headless chromium  
+**Result:** Incomplete due to 600s timeout; 8 failures documented before timeout.
+
+| File | Tests Failed |
+|---|---|
+| `test_adversarial_forensic.py` | 2 |
+| `test_bin_environment.py` | 4 |
+| `test_clean_start.py` | 2 |
+| `test_core_ui.py` | 1 |
+| `test_hatching_s6.py` | 2 |
+| `test_intake_e2e.py` | 2 |
+| `test_intake_extended.py` | 4 |
+| `test_observation_workflows.py` | 1 (syntax error/LIne issue) |
+
+**Assessment:** Emoji stripping resolved heading mismatches but other selector and database-state issues remain.  
+**Full log:** `tmp/full_suite_v920_final_20260504_040738.log`
+
+---
+
+## ✅ FINAL SESSION STATUS
+
+All Phase C soft-delete filters applied, all emoji headings stripped, bin_code display fixed, version bumped to v9.2.0, clean slate script fixed, README created, breadcrumb updated.  
+**Commits (main):** d3806c3 → e3c2d0e → 542cd70 → final
+
+**Next agent:** clear pycache, fix remaining E2E selectors, expand README, polish repo.
+
+---
