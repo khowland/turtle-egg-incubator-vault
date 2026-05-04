@@ -68,9 +68,11 @@ with track_view_performance("Observations"):
         )
 
     # --- 2. THE FOCUS SELECTBOX (§35.5) ---
-    available_bins = (
-        supabase.table("bin").select("bin_id, bin_code").eq("is_deleted", False).execute()  # CR-20260501-1800: Added bin_code for display
-    )
+    # CR-20260503: Conditionally include deleted bins in Correction Mode for resurrection
+    bin_query = supabase.table("bin").select("bin_id, bin_code")
+    if not st.session_state.surgical_resurrection:
+        bin_query = bin_query.eq("is_deleted", False)
+    available_bins = bin_query.execute()
     bin_options = sorted([b["bin_id"] for b in available_bins.data if b["bin_id"]])
     # CR-20260501-1800: Build bin_code lookup map for display purposes
     bin_code_map = {b["bin_id"]: b.get("bin_code", str(b["bin_id"])) for b in available_bins.data if b["bin_id"]}
