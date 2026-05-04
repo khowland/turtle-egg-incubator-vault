@@ -116,9 +116,10 @@ with track_view_performance("Dashboard"):
 
     # --- SEASON-END CLEANUP ---
     bins_cleanup_result = (
-        supabase_client.table("bin").select("bin_id").eq("is_deleted", False).execute().data
+        supabase_client.table("bin").select("bin_id, bin_code").eq("is_deleted", False).execute().data
     )
     retirement_targets_list = []
+    bin_code_to_id = {}  # CR-20260503: display bin_code to user, map back to bin_id for DB
 
     # Optimized Season-End Cleanup: Batch fetch active egg counts to avoid N+1
     if bins_cleanup_result:
@@ -140,8 +141,10 @@ with track_view_performance("Dashboard"):
         
         for entry in bins_cleanup_result:
             current_bin_id = entry["bin_id"]
+            display_code = entry.get("bin_code", str(current_bin_id))
+            bin_code_to_id[display_code] = current_bin_id
             if counts_map[current_bin_id] == 0:
-                retirement_targets_list.append(current_bin_id)
+                retirement_targets_list.append(display_code)
 
     from vault_views.utils_dashboard import can_retire_bin
     from utils.rbac import require_elevated_clinical
@@ -170,15 +173,16 @@ with track_view_performance("Dashboard"):
             ):
 
                 def retire_bin():
+                    bin_id_for_db = bin_code_to_id.get(selected_retirement_target, selected_retirement_target)
                     # §3.5 Expansion: Clinical Double-Check
                     # Ensure no eggs have been added/resurrected since the page loaded
-                    still_empty = supabase_client.table("egg").select("egg_id", count="exact").eq("bin_id", selected_retirement_target).eq("status", "Active").execute().count == 0
+                    still_empty = supabase_client.table("egg").select("egg_id", count="exact").eq("bin_id", bin_id_for_db).eq("status", "Active").execute().count == 0
                     if not still_empty:
                         st.error(f"🔴 ABORT: Bin {selected_retirement_target} is no longer empty! Refresh page.")
                         return False
 
                     supabase_client.table("bin").update({"is_deleted": True}).eq(
-                        "bin_id", selected_retirement_target
+                        "bin_id", bin_id_for_db
                     ).execute()
                     return True
 

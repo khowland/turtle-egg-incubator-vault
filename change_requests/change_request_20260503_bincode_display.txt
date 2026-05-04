@@ -1,0 +1,47 @@
+=============================================================================
+Change Request: bin_code Display in Client-Facing UI Components
+Date: 2026-05-03
+Requester: Kevin Howland (user)
+Priority: Medium
+Version Target: v9.2.1
+=============================================================================
+
+## Problem Statement
+
+The bin_id column was migrated to BIGINT (auto-incrementing integer) in a
+previous migration. However, users identify bins by their alphanumeric
+bin_code (e.g., "BL-1", "WT-3", "SN-12"), not by a numeric ID. Currently,
+the "Remove Empty Bins" dropdown on the Dashboard's Today's Summary page
+displays raw bin_id values, which are meaningless to users.
+
+## Scope
+
+Replace bin_id with bin_code in all client-facing UI components:
+
+1. Dashboard (vault_views/1_Dashboard.py): "Remove Empty Bins" selectbox
+   - Lines 118-156: Currently selects only bin_id; dropdown shows numeric IDs
+   - Fix: Also fetch bin_code, build a display map, show bin_code to user
+   - Internal operations (DB queries, retirement) continue using bin_id
+
+2. Observations (vault_views/3_Observations.py): Already resolved
+   - Lines 71-100: Already has bin_code_map and get_bin_display_label()
+   - Focus selectbox uses format_func=get_bin_display_label → shows bin_code
+
+3. Any other dropdown/selectbox displaying bin identifiers
+   - Audit all vault_views/*.py for bin_id appearing in selectbox labels
+
+## Implementation Plan
+
+1. In Dashboard.py line 119: Change .select("bin_id") to .select("bin_id, bin_code")
+2. Build a bin_code_map dictionary from the query results
+3. Build a display-to-id mapping for the selectbox
+4. Change the selectbox to show bin_code values while returning bin_id internally
+5. Verify the retirement logic still uses bin_id correctly
+
+## Acceptance Criteria
+
+- Remove Empty Bins dropdown shows bin_code (e.g., "BL-1") not bin_id (e.g., "42")
+- Retirement function continues to work correctly
+- No other client-facing bin_id displays remain
+
+=============================================================================
