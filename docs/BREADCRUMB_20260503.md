@@ -1,4 +1,4 @@
-# 🍞 Breadcrumb — 2026-05-03 (v9.1.0 Soft-Delete Mandate Session)
+# 🍞 Breadcrumb — 2026-05-03/04 (v9.2.0 Client-Ready Stabilization Session)
 
 > For the next Agent Zero instance. Read this first.
 
@@ -7,53 +7,98 @@
 ## 📍 Current State
 
 **Version:** v9.2.0 (bumped from v9.1.0)  
-**Last commit:** (pending) — "v9.2.0: Phase C complete, emoji/font fixes, deployment scripts verified, breadcrumb updated"  
+**Last commit:** `d3806c3` — "v9.2.0: Phase C soft-delete complete, emoji headings stripped, selectors updated, deployment scripts fixed, version bumped"  
 **Branch:** `main`  
 **App running:** `http://127.0.0.1:8599/` (Streamlit on port 8599)  
-**Supabase:** `kxfkfeuhkdopgmkpdimo.supabase.co` (anon key works for reads/writes; service_role key is invalid/removed)
+**Supabase:** `kxfkfeuhkdopgmkpdimo.supabase.co` (anon key works for reads/writes; service_role key is invalid/removed)  
+**Supabase APP_VERSION:** v9.2.0 (updated in system_config table)
 
 ---
 
-## ✅ Completed Tasks
+## ✅ Completed Tasks (This Session)
 
-### 1. Soft-Delete Mandate — Phase A: Eliminate Hard DELETEs
-- All `.delete()` calls across 7 files replaced with `.update({"is_deleted": True})`
-- Files changed: `conftest.py`, `test_enterprise_intake.py`, `test_db_state_management.py`, `test_ui_smoke_checks.py`, `backend_qa_verification.py`, `clean_slate_production.py`, `bootstrap.py`
-- Audit tables (system_log, session_log) skipped — preserved forever
-- Observer table deactivated (`is_active=false`) instead of deleted
-- All soft-deletes logged to system_log (SOFT_DELETE event_type)
-- Zero physical DELETEs remain in codebase
+### Phase C: Soft-Delete Query Filters — COMPLETE
+All 14 SELECT queries across 6 production files now have `.eq("is_deleted", False)`:
 
-### 2. Soft-Delete Query Audit — Phase B: Document Missing Filters
-- Audit executed: 14 SELECT queries across 6 production files are missing `.eq("is_deleted", False)`
-- Full audit report saved: `tests/resolved_bugs/SoftDelete_Audit.md`
-- Bug-E2E-001 (Intake form completeness) root cause identified and fixed in 3 test files
+| # | File | Query | Line | Action |
+|---|------|-------|------|--------|
+| 1 | `vault_views/3_Observations.py` | bin (workbench multiselect) | 49 | ✅ Filter applied |
+| 2 | `vault_views/3_Observations.py` | egg_observation (stats) | 85 | ✅ Filter applied |
+| 3 | `vault_views/3_Observations.py` | bin_observation (weight cache) | 158 | ✅ Filter applied |
+| 4 | `vault_views/3_Observations.py` | egg (surgical search) | 289 | 🟡 Include-deleted checkbox added (default=True) |
+| 5 | `vault_views/3_Observations.py` | egg (S6 context) | 667 | ✅ Filter applied |
+| 6 | `vault_views/3_Observations.py` | bin (S6 context) | 669 | ✅ Filter applied |
+| 7 | `vault_views/3_Observations.py` | hatchling_ledger (S6) | 672 | ✅ Filter applied |
+| 8 | `vault_views/1_Dashboard.py` | egg (count active) | 129 | ✅ Filter applied |
+| 9 | `vault_views/2_New_Intake.py` | intake (list) | 94 | ✅ Filter applied |
+| 10 | `vault_views/2_New_Intake.py` | bin (existing) | 109 | ✅ Filter applied |
+| 11 | `vault_views/5_Settings.py` | intake (dirty check) | 436 | ✅ Filter applied |
+| 12 | `vault_views/6_Reports.py` | hatchling_ledger | 336 | ✅ Filter applied |
+| 13 | `utils/bootstrap.py` | bin_observation | 323 | ✅ Filter applied |
+| 14 | `utils/bootstrap.py` | bin (fallback) | 338 | ✅ Filter applied |
+
+**Intentional unfiltered views preserved:**
+- Observations.py lines 422-454: Voided observations display (shows deleted for resurrection)
+- Observations.py surgical search: Include-deleted checkbox gives user explicit control
+
+### Phase D: Emoji Heading Removal — COMPLETE
+- All `st.title()`, `st.header()`, `st.subheader()` emoji prefixes stripped across 6 vault_views files
+- `bootstrap_page()` icon parameters preserved (sidebar decoration only, not heading text)
+- `e2e_selectors.py` updated with plain-text constants matching stripped headings
+- Heading verification: `st.title("Observations")` → plain text, no emoji ✅
+
+### Deployment & Version
+- `scripts/clean_slate_production.py`: Key fixed from `SUPABASE_SERVICE_ROLE_KEY` (invalid) to `SUPABASE_ANON_KEY` (valid)
+- `tests/test_mid_season_data_generator.py`: Syntax verified
+- `utils/bootstrap.py`: Version fallback updated from v9.1.0 to v9.2.0
+- `Supabase system_config`: APP_VERSION set to v9.2.0
+- `docs/BREADCRUMB_20260503.md`: Updated with v9.2.0 info
+- `README.md`: Created with mission content
+
+### Version Verified in Browser
+- Live app at `http://127.0.0.1:8599/` shows **v9.2.0** with Kevin Howland
+- Dashboard heading: `Today's Summary` (plain text, no emoji) ✅
 
 ---
 
-## ❌ Remaining Tasks (Phase C: Apply is_deleted Filters)
+## ❌ Remaining Tasks
 
-### Priority 1: Observations Page (7 queries)
-**File:** `vault_views/3_Observations.py`  
-**Lines needing `.eq("is_deleted", False)`:**
-- Line 49 — bin query (workbench multiselect)
-- Line 85 — egg_observation query (observed-this-session)
-- Line 158 — bin_observation query (last weight cache)
-- Line 289 — egg query (surgical search — **special: may need to include deleted for resurrection**)
-- Line 665 — egg query (S6 batch transition context)
-- Line 667 — bin query (S6 batch transition context)
-- Line 670 — hatchling_ledger query (S6 ledger upsert collision check)
+### Priority 1: E2E Test Suite Fixes
+E2E suite still has significant failures. Root causes identified:
 
-### Priority 2: Dashboard & Intake (3 queries)
-**Files:** `vault_views/1_Dashboard.py` (line 129), `vault_views/2_New_Intake.py` (lines 94, 109)
+| Category | Count | Details |
+|---|---|---|
+| Emoji heading mismatches | ~5 | Should be RESOLVED by heading stripping, but needs pycache clear + fresh run to verify |
+| DB state contamination | 3 | Tests depend on data from prior tests; need test isolation or ordering |
+| Empty table dependencies | 3 | Some tests expect data that isn't created by prior workflow tests |
+| Settings/Vault Admin selectors | 2 | Wipe flow button/label changed in v9.0.0 |
+| Post-intake SAVE navigation | 2 | `st.switch_page` doesn't trigger expected heading; tests hang |
 
-### Priority 3: Settings, Reports, Utils (4 queries)
-**Files:** `vault_views/5_Settings.py` (line 436), `vault_views/6_Reports.py` (line 336), `utils/bootstrap.py` (lines 323, 338)
+**Immediate next step:**
+```bash
+find /a0/usr/workdir -type d -name __pycache__ -exec rm -rf {} +
+pkill -9 -f streamlit
+streamlit run app.py --server.port 8599 --server.headless true > tmp/streamlit.log 2>&1 &
+sleep 6
+pytest --browser chromium tests/e2e_playwright/ --tb=line -q
+```
 
-### Special Considerations
-1. **Surgical Resurrection** (line 289): May NEED to see deleted eggs for restoration. Review manually.
-2. **Voided Observations Display** (lines 422-454): Intentionally shows is_deleted=true records — CORRECT, leave as-is.
-3. **Admin Restore** (line 436): May need to include deleted intakes for restoration. Review manually.
+### Priority 2: README Expansion
+Current README.md has mission content only. Needs:
+- 🛠️ Tech stack (Streamlit, Supabase PostgreSQL, Playwright, Docker)
+- 📦 Quick start / setup instructions
+- 🚀 Deployment guide (Docker → Google Cloud Run)
+- 📊 Badges (build status, version, license)
+
+### Priority 3: GitHub Repo Polish
+- Add repo description and topics (Settings → General)
+- Consider adding screenshots to README
+
+### Priority 4: Minor Emoji Cleanup
+Some non-heading elements still have emojis (not E2E-impacting):
+- `vault_views/6_Reports.py:54`: `st.header("📤 WormD / Intake Export")`
+- `vault_views/8_Help.py:126`: `st.header("🖨️ Clinical Printing")`
+- `vault_views/5_Settings.py:87`: `"📦 Resurrection Vault"` (sub-tab label)
 
 ---
 
@@ -61,19 +106,22 @@
 
 | Bug ID | Description | Status |
 |---|---|---|
-| Bug-E2E-001 | Intake SAVE produces empty query results (Species selectbox `st.stop()`) | ✅ RESOLVED — 3 test files now fill all 8 required fields |
-| Bug-E2E-002 | Data editor cell selector `div[data-testid='stDataFrame'] div.dvn-cell` stale in v9.0.0 | ❌ OPEN — needs audit and new selector |
-| SoftDelete_Audit | 14 SELECT queries missing `is_deleted` filter | ❌ OPEN — Phase C pending |
+| SoftDelete_Audit | 14 SELECT queries missing `is_deleted` filter | ✅ RESOLVED — Phase C complete |
+| Bug-E2E-001 | Intake SAVE produces empty query results | ✅ RESOLVED — 3 test files now fill all required fields |
+| Bug-E2E-002 | Data editor cell selector stale in v9.0.0 | ❌ OPEN — needs audit and new selector |
+| DB_WIPE-401 | DB wipe fixture returns 401 (invalid service_role key) | ❌ OPEN — need to update conftest.py to use anon key |
 
 ---
 
-## 📊 E2E Test Status
+## 💡 Enhancement Suggestions (Future)
 
-**Last run:** 44 failed, 9 passed out of 53 collected  
-**Blockers:**
-1. Bug-E2E-002 (data editor selector) preventing intake helpers from setting egg count
-2. Selector mismatches in `test_bin_environment.py` (post-Intake SAVE navigation)
-3. DB wipe fixture returning 401 (invalid service key) — but using soft-delete now
+1. **Multi-nest mother indicator**: User suggested golden fill (🥇) on text field instead of brown circle (🟫) for multi-nest mothers
+2. **Token tracking dashboard**: User asked about tracking input/output token usage by agent name and tool
+3. **GitHub Actions CI**: Add workflow to run E2E tests on push to main
+4. **Operator manual PDF**: GitHub Action exists for auto-generating PDF from docs/user/OPERATOR_MANUAL.md
+5. **Session state resilience**: Some tests hang when `st.switch_page` doesn't trigger expected heading — consider explicit navigation waits
+6. **Test data isolation**: Use pytest fixtures to ensure each test starts with known DB state
+7. **UI toggle for include-deleted**: Already partially implemented in surgical resurrection mode — could extend to Settings admin restore
 
 ---
 
@@ -81,9 +129,14 @@
 
 - **Use `SUPABASE_ANON_KEY`** for API calls (the "anon" key JWT has `role: service_role`)
 - **DO NOT use `SUPABASE_SERVICE_ROLE_KEY`** — it's the literal string "REMOVED_FOR_SECURITY"
-- Playwright tests: `pytest -n 1 --browser chromium --headed=false tests/e2e_playwright/`
+- Playwright tests: `pytest --browser chromium tests/e2e_playwright/` (no -n flag needed)
 - App URL for E2E: `http://127.0.0.1:8599`
-- Test timeout: 300s for full suite, or individual files with `--timeout=120`
+- Test timeout: 600s for full suite
+- Docker deployment: Bind mounts from host to container (no rebuild needed after file edits)
+  - `turtle-db`: `.:/app`
+  - `agent-zero`: `.:/a0/usr/workdir`
+- Docker compose exposes: turtle-db on 8080, agent-zero on 50081
+- **Clear `__pycache__` after any code changes before restarting Streamlit**
 
 ---
 
@@ -99,8 +152,12 @@ These persist across chat resets:
 ## 🎯 Immediate Next Step for Successor Agent
 
 1. Read this breadcrumb
-2. Read `tests/resolved_bugs/SoftDelete_Audit.md` for full violation details
-3. Delegate Phase C Priority 1 (Observations.py, 7 fixes) to a **developer** subordinate with `reset=true`
-4. After each file fix: commit and push
-5. Re-run E2E test suite and report results
-6. Use sub-agents for discrete tasks to keep context weight low
+2. Clear `__pycache__` and restart Streamlit
+3. Re-run full E2E suite: `pytest --browser chromium tests/e2e_playwright/ --tb=line -q 2>&1 | tee tmp/full_suite_v920_$(date +%Y%m%d_%H%M%S).log`
+4. Triage failures — most should be resolved from emoji stripping; remaining will be selector/timeout issues
+5. Expand `README.md` with tech stack, setup guide, deployment instructions, badges
+6. Fix Bug-E2E-002 (data editor cell selector)
+7. Polish GitHub repo: add description, topics
+8. Commit and push all changes
+
+**Target:** Near-zero defect E2E pass rate for client handover

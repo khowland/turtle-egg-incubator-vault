@@ -1,0 +1,54 @@
+=============================================================================
+Change Request: bin_code Single-Digit Format (Remove Leading Zero)
+Date: 2026-05-03
+Requester: Kevin Howland (user comment during v9.2.0 session)
+Priority: Low
+Status: DEFERRED — DO NOT FIX until after client testing
+Version Target: Future (v9.3.0+)
+=============================================================================
+
+## Problem Statement
+
+Bin codes currently use a 2-digit suffix after the species code prefix:
+  "BL01", "BL02", "SN01", etc.
+
+This was appropriate when bin_code was used as a sortable index, but bin_id
+has been migrated to BIGINT and bin_code is now purely a human-readable label.
+
+## Desired Behavior
+
+Bin codes should use a single-digit suffix:
+  "BL1", "BL2", "BL3", ..., "SN1", etc.
+
+Turtles will never exceed 9 bins per intake. If an edge case occurs with 10+,
+the format "BL10" is perfectly fine — the extra character won't break anything.
+
+## Scope
+
+Anywhere bin_code is generated or displayed:
+- Intake form bin code generation (vault_views/2_New_Intake.py)
+- Clean slate / mid-season data generators
+- Possibly database migration to reformat existing codes
+
+## Implementation Notes (for future reference)
+
+1. Find bin_code generation logic (likely in New_Intake.py where bins are created)
+2. Change the format string from zero-padded 2-digit to single-digit
+3. No database migration needed for NEW bins (they'll just get single-digit codes)
+4. Existing bin_codes with 2-digit format may optionally be migrated, or left as-is
+   since bin_code is purely a display label
+
+## Rationale for Deferral
+
+- This is a cosmetic label change, not a functional blocker
+- Client testing can proceed with existing 2-digit codes
+- Risk of accidental breakage if migration script touches production data
+- Better to address in a dedicated future sprint
+
+## Acceptance Criteria (Future)
+
+- New bins created via Intake form have single-digit suffix (BL1, not BL01)
+- Existing bins continue to display correctly (whether 1-digit or 2-digit)
+- No data loss or orphaned relationships
+
+=============================================================================
