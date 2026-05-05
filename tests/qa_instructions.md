@@ -29,13 +29,18 @@ Your first objective is to build the deterministic boundaries of reality (The Te
 3.  **Incremental Suite Generation:** Do not generate a single massive test file. Write tests progressively by component (e.g., `test_auth_ui.py`, `test_db_persistence.py`). Focus heavily on adversarial edge cases (e.g., extremely large API payloads, SQL injection strings via UI inputs, WebSocket disconnects).
 4.  **Halt:** Stop and output a summary of the generated test suite for human review.
 
-### Phase 2: Execution & Bimodal Remediation Loop
-Once Phase 1 is approved, you are cleared to execute the tests and patch the codebase autonomously. You must follow the strict "Single-File Patch Rule" and the "Ralph Wiggum Loop."
-1.  **Execute & Ingest:** Run your generated test files. If a UI test fails, DO NOT request the raw HTML DOM. You MUST use an accessibility tree output or `Crawl4AI` semantic markdown to read the failed UI state.
-2.  **Isolated Remediation:** When you identify a failing Python module, you may only load *that specific `.py` file* into your context. Do not load the E2E test suite or upstream files. Apply the minimum, localized Python patch required to resolve the bug.
-3.  **Dual Validation (UI + DB):** Re-run the local test. You are prohibited from halting if the terminal is throwing an error. You must iterate internally until the terminal runs green. **Crucially:** A green test is invalid unless your test suite explicitly asserts that the backend `turtle-db` state mutated correctly; do not accept shallow UI passes.
-4.  **Persistent Output & Version Control:** Once a test turns green and the DB state is validated, you MUST write a discrete summary file to `tests/resolved_bugs/Bug-{ID}_resolution.md` enforcing the YAML schema from Phase 0. 
-5.  **Git Commit:** Immediately after saving the Markdown log, you MUST commit the codebase changes to Git using the semantic format: `git commit -m "fix(component): resolved Bug-{ID} [short description]"`. Before attempting to fix any future bugs, you must search the Obsidian directory to ensure you do not overwrite a previous fix.
-6.  **Write-Only Master Log:** You must maintain a single, timestamped chronological log of all executions. **Crucial Token Constraint:** You are explicitly forbidden from reading or opening this file. You must append to it blindly using standard terminal commands (e.g., `echo "[$(date -u +"%Y-%m-%dT%H:%M:%SZ")] TEST: test_auth.py | RESULT: PASS | FIX: patched null handler" >> qa_master_execution_log.md`) to prevent context ballooning.
+### Phase 2: Execution & The 3-Strikes Accountability Protocol
+Once Phase 1 is approved, you are cleared to execute the tests and patch the codebase autonomously. You are now bound by the **3-Strikes Accountability Protocol** to prevent infinite looping and hallucinated fixes.
 
-**Final Mandate:** Your success is measured mathematically by the number of passing deterministic tests, not by speculative observation. Execute Phase 1 now.
+**THE VALIDATION GATE:** You are strictly prohibited from marking a task as "Complete" or moving to the next task unless the specific local test command (e.g., `pytest tests/e2e_playwright/test_target.py`) returns a strict `Exit Code 0` AND the DB assertions pass. "Looks good to me" is banned.
+
+1.  **Execute & Ingest:** Run your generated test files. Use an accessibility tree output or `Crawl4AI` semantic markdown to read failed UI states.
+2.  **Isolated Remediation (Strike 1):** Apply the minimum, localized Python patch required to resolve the bug. Re-run the test.
+3.  **The Strike Counter:** If the test fails again, you have 1 strike. You must log the failure in Obsidian. You are allowed a maximum of **3 distinct approaches** to fix a bug. 
+4.  **Strike 3 - The Hard Lock:** If your 3rd attempt fails, YOU MUST STOP CODING IMMEDIATELY. You are hard-locked. You must generate a discrete file named `tests/resolved_bugs/FAILURE_POST_MORTEM_Bug-{ID}.md`.
+    *   **Post-Mortem Requirements:** You must explicitly list: (A) Approach 1 and why it failed. (B) Approach 2 and why it failed. (C) Approach 3 and why it failed. (D) A request for Human Architect intervention.
+5.  **Persistent Output & Version Control:** If you succeed *before* 3 strikes, you MUST write a discrete summary file to `tests/resolved_bugs/Bug-{ID}_resolution.md` enforcing the YAML schema from Phase 0. 
+6.  **Git Commit:** Immediately after saving the Markdown log, you MUST commit the codebase changes to Git using the semantic format: `git commit -m "fix(component): resolved Bug-{ID} [short description]"`. 
+7.  **Write-Only Master Log:** You must maintain a single, timestamped chronological log of all executions by appending to it blindly using standard terminal commands.
+
+**Final Mandate:** Accountability is non-negotiable. Your success is measured mathematically by passing deterministic tests. If you hit 3 strikes, fail gracefully with documentation. Execute Phase 1 now.
