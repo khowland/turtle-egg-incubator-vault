@@ -17,7 +17,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | TSK-01 | `TEST_MATRIX_SETTINGS.md` | `[GREEN_COMPLETED]` | Runner | 0 | Completed: documentation artifact, no code execution. 18 test cases ready. |
 | TSK-02 | `TEST_MATRIX_REPORTS.md` | `[TODO]` | Writer | 0 | Pending creation based on Master Plan Phase 1. |
-| TSK-03 | `test_intake_extended.py` | `[NEEDS_VALIDATION]` | Validator | 0 | Writer needs Validator to check if all tests have DB Pincer assertions. |
+| TSK-03 | `test_intake_extended.py` | `[NEEDS_VALIDATION]` | Validator | 1 | Runner fix: added _fill_intake_step1_fields helper. 3 of 4 tests failed due to incomplete form fills. |
 | TSK-04 | `test_observation_workflows.py` | `[NEEDS_VALIDATION]` | Validator | 0 | Audit required for DB Pincer compliance. |
 | TSK-05 | `test_adversarial_intake.py` | `[TODO]` | Writer | 0 | Awaiting Writer to draft hostile payload tests. |
 | TSK-06 | `test_adversarial_observations.py` | `[TODO]` | Writer | 0 | Awaiting Writer to draft hostile payload tests. |

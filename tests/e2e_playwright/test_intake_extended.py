@@ -17,6 +17,62 @@ from playwright.sync_api import Page, expect
 from utils.db import get_supabase_client
 
 # ---------------------------------------------------------------------------
+# Helper: Fill all required Step 1 fields on the Intake form
+# ---------------------------------------------------------------------------
+def _fill_intake_step1_fields(page: Page, unique_sig: str, species_text: str = None):
+    """Fill all 8 required fields: Finder, WINC Case, Species, Condition,
+    Days in Care, Egg Collection Method, Intake Circumstances, and Intake Date.
+    Intake Date is left at default. Species defaults to first option if not specified."""
+    # Finder / Turtle Name
+    page.locator("input[aria-label='Finder']").fill(unique_sig)
+    # WINC Case #
+    page.locator("input[aria-label='WINC Case #']").fill(unique_sig)
+
+    # Species — selectbox
+    species_sel = page.locator("[data-testid='stSelectbox']:has-text('Species')")
+    species_sel.click()
+    page.wait_for_timeout(500)
+    if species_text:
+        page.locator(f"[data-testid='stSelectboxVirtualDropdown'] li:has-text('{species_text}')").first.click()
+    else:
+        page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
+    page.wait_for_timeout(300)
+
+    # Intake Date — leave default, skip
+
+    # Condition — selectbox (l_col2 area)
+    condition_opts = page.locator("[data-testid='stSelectbox']:has-text('Condition')")
+    if condition_opts.count() > 0:
+        condition_opts.first.click()
+        page.wait_for_timeout(500)
+        page.locator("[data-testid='stSelectboxVirtualDropdown'] li:has-text('Alive')").first.click()
+        page.wait_for_timeout(300)
+
+    # Days in Care — text input (l_col1 area)
+    days_inputs = page.locator("input[aria-label='Days in Care']").all()
+    if days_inputs:
+        days_inputs[0].fill("3")
+
+    # Egg Collection Method — selectbox
+    egg_method_opts = page.locator("[data-testid='stSelectbox']:has-text('Egg Collection Method')")
+    if egg_method_opts.count() > 0:
+        egg_method_opts.first.click()
+        page.wait_for_timeout(500)
+        page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
+        page.wait_for_timeout(300)
+
+    # Intake Circumstances — textarea
+    circumstances_inputs = page.locator("textarea").all()
+    if circumstances_inputs:
+        circumstances_inputs[0].fill("Roadside — clinical test")
+
+    # Mother weight (if present)
+    weight_inputs = page.locator("input[aria-label*='Weight']").all()
+    if weight_inputs:
+        weight_inputs[0].fill("350")
+
+
+# ---------------------------------------------------------------------------
 # TC-INT-01: Full intake with all optional fields + bin nomenclature
 # ---------------------------------------------------------------------------
 def test_intake_full_fields_and_bin_nomenclature(page: Page, login):
@@ -27,30 +83,11 @@ def test_intake_full_fields_and_bin_nomenclature(page: Page, login):
 
     unique_sig = f"TC-INT-01-{int(time.time())}"
 
-    # --- Step 1: Mother Turtle Info ---
-    # Finder / Turtle Name
-    page.locator("input[aria-label='Finder']").fill(unique_sig)
-    # WINC Case #
-    page.locator("input[aria-label='WINC Case #']").fill(unique_sig)
-
-    # Species — select first available option (not default blank)
-    species_box = page.locator("[data-testid='stSelectbox']").first
-    species_box.click()
-    page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
-
-    # Mother weight (if present)
-    weight_inputs = page.locator("input[aria-label*='Weight']").all()
-    if weight_inputs:
-        weight_inputs[0].fill("350")
-
-    # Intake circumstances / notes
-    circumstances_inputs = page.locator("textarea").all()
-    if circumstances_inputs:
-        circumstances_inputs[0].fill("Roadside — clinical test TC-INT-01")
+    # --- Step 1: Fill all required Mother Turtle Info fields ---
+    _fill_intake_step1_fields(page, unique_sig)
 
     # --- Step 2: Bin / Egg Info (data_editor has 1 default row) ---
-    # Accept default bin row (1 egg, default weight)
-    # Just verify the bin editor is present
+    # Verify the bin editor is present after Step 1 fields are complete
     expect(page.locator("[data-testid='stDataEditor']").first).to_be_visible(timeout=10000)
 
     # --- Step 3: SAVE ---
@@ -103,17 +140,16 @@ def test_intake_multiple_eggs(page: Page, login):
 
     unique_sig = f"TC-INT-02-{int(time.time())}"
 
-    page.locator("input[aria-label='Finder']").fill(unique_sig)
-    page.locator("input[aria-label='WINC Case #']").fill(unique_sig)
+    # --- Step 1: Fill all required Mother Turtle Info fields ---
+    _fill_intake_step1_fields(page, unique_sig)
 
-    # Find the egg count cell in the data_editor and set to 5
-    # The data editor row has a numeric column for egg count
-    # Streamlit data_editor renders as a table with input cells
+    # --- Step 2: Find the egg count cell in the data_editor and set to 5 ---
     egg_count_cells = page.locator("[data-testid='stDataEditor'] input[type='number']").all()
     if egg_count_cells:
         egg_count_cells[0].triple_click()
         egg_count_cells[0].fill("5")
 
+    # --- Step 3: SAVE ---
     page.get_by_role("button", name="SAVE").click()
     expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
@@ -174,8 +210,7 @@ def test_supplemental_intake_full_save(page: Page, login):
 
     # First: create a primary intake so we have a case to supplement
     primary_sig = f"TC-SUP-PRIMARY-{int(time.time())}"
-    page.locator("input[aria-label='Finder']").fill(primary_sig)
-    page.locator("input[aria-label='WINC Case #']").fill(primary_sig)
+    _fill_intake_step1_fields(page, primary_sig)
     page.get_by_role("button", name="SAVE").click()
     expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
 
