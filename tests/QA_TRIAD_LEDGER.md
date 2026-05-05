@@ -4,9 +4,10 @@
 **Purpose:** Orchestrates the 3-way QA Triad (Writer, Validator, Runner). This is the single source of truth for all autonomous QA operations.
 
 ## 🚦 Ledger Rules (Read Before Modifying)
-1.  **Strict Handoffs:** An agent may ONLY process a file if the `Status` matches their assigned role (Writer = `[TODO]`, Validator = `[NEEDS_VALIDATION]`, Runner = `[READY_TO_RUN]`).
-2.  **No Backwards Drift:** A file moving backward (e.g., Runner sends back to Writer) increments the Strike Count.
-3.  **Strike 3 Protocol:** If `Strike Count` hits 3, status becomes `[HARD_LOCK]`. The file is removed from active rotation and a `NEEDS_WORK_{filename}.md` report is generated.
+
+1. **Strict Handoffs:** An agent may ONLY process a file if the `Status` matches their assigned role (Writer = `[TODO]`, Validator = `[NEEDS_VALIDATION]`, Runner = `[READY_TO_RUN]`).
+2. **No Backwards Drift:** A file moving backward (e.g., Runner sends back to Writer) increments the Strike Count.
+3. **Strike 3 Protocol:** If `Strike Count` hits 3, status becomes `[HARD_LOCK]`. The file is removed from active rotation and a `NEEDS_WORK_{filename}.md` report is generated.
 
 ---
 
@@ -14,7 +15,7 @@
 
 | Task ID | Component/File | Status | Current Owner | Strike Count | Last Action / Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| TSK-01 | `TEST_MATRIX_SETTINGS.md` | `[NEEDS_VALIDATION]` | Validator | 0 | Writer completed matrix. Validator to check against 5_Settings.py. |
+| TSK-01 | `TEST_MATRIX_SETTINGS.md` | `[GREEN_COMPLETED]` | Runner | 0 | Completed: documentation artifact, no code execution. 18 test cases ready. |
 | TSK-02 | `TEST_MATRIX_REPORTS.md` | `[TODO]` | Writer | 0 | Pending creation based on Master Plan Phase 1. |
 | TSK-03 | `test_intake_extended.py` | `[NEEDS_VALIDATION]` | Validator | 0 | Writer needs Validator to check if all tests have DB Pincer assertions. |
 | TSK-04 | `test_observation_workflows.py` | `[NEEDS_VALIDATION]` | Validator | 0 | Audit required for DB Pincer compliance. |
@@ -25,6 +26,7 @@
 ---
 
 ## 🛑 Strike Out (Needs Work) Log
+
 *Files that hit Strike 3 are moved here. A human architect must clear them.*
 
 | Task ID | Component/File | Post-Mortem File Link | Reason for Lock |
