@@ -16,9 +16,9 @@
 | Task ID | Component/File | Status | Current Owner | Strike Count | Last Action / Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | TSK-01 | `TEST_MATRIX_SETTINGS.md` | `[GREEN_COMPLETED]` | Runner | 0 | Completed: documentation artifact, no code execution. 18 test cases ready. |
-| TSK-02 | `TEST_MATRIX_REPORTS.md` | `[TODO]` | Writer | 0 | Pending creation based on Master Plan Phase 1. |
-| TSK-03 | `test_intake_extended.py` | `[NEEDS_VALIDATION]` | Validator | 1 | Runner fix: added _fill_intake_step1_fields helper. 3 of 4 tests failed due to incomplete form fills. |
-| TSK-04 | `test_observation_workflows.py` | `[NEEDS_VALIDATION]` | Validator | 1 | Runner fix: added required Intake field fills to _setup_intake_and_unlock_grid. All 7 tests failed due to missing Species/Condition/etc. fields. |
+| TSK-02 | `TEST_MATRIX_REPORTS.md` | `[GREEN_COMPLETED]` | Runner | 0 | Completed: documentation artifact, no code execution. 14 test cases verified. |
+| TSK-03 | `test_intake_extended.py` | `[READY_TO_RUN]` | Runner | 1 | Re-validated: _fill_intake_step1_fields fills 8 required fields; DB Pincer assertions present. |
+| TSK-04 | `test_observation_workflows.py` | `[READY_TO_RUN]` | Runner | 1 | Re-validated: required Intake field fills added to _setup_intake_and_unlock_grid; DB Pincer assertions present in all 7 tests. |
 | TSK-05 | `test_adversarial_intake.py` | `[TODO]` | Writer | 0 | Awaiting Writer to draft hostile payload tests. |
 | TSK-06 | `test_adversarial_observations.py` | `[TODO]` | Writer | 0 | Awaiting Writer to draft hostile payload tests. |
 | TSK-07 | `test_phase5_scalability_loop.py` | `[TODO]` | Writer | 0 | Awaiting Writer to draft the 50x execution loop. |
