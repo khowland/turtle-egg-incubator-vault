@@ -29,6 +29,40 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
     page.locator("input[aria-label='Finder']").fill(sig)
     page.locator("input[aria-label='WINC Case #']").fill(sig)
 
+    # Fill required Step 1 fields (Species, Condition, Days in Care, Egg Collection Method, Circumstances)
+    species_sel = page.locator("[data-testid='stSelectbox']:has-text('Species')")
+    if species_sel.count() > 0:
+        species_sel.first.click()
+        page.wait_for_timeout(500)
+        page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
+        page.wait_for_timeout(300)
+
+    condition_sel = page.locator("[data-testid='stSelectbox']:has-text('Condition')")
+    if condition_sel.count() > 0:
+        condition_sel.first.click()
+        page.wait_for_timeout(500)
+        page.locator("[data-testid='stSelectboxVirtualDropdown'] li:has-text('Alive')").first.click()
+        page.wait_for_timeout(300)
+
+    days_inputs = page.locator("input[aria-label='Days in Care']").all()
+    if days_inputs:
+        days_inputs[0].fill("3")
+
+    egg_method_opts = page.locator("[data-testid='stSelectbox']:has-text('Egg Collection Method')")
+    if egg_method_opts.count() > 0:
+        egg_method_opts.first.click()
+        page.wait_for_timeout(500)
+        page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
+        page.wait_for_timeout(300)
+
+    circumstances_inputs = page.locator("textarea").all()
+    if circumstances_inputs:
+        circumstances_inputs[0].fill("Roadside — clinical test")
+
+    weight_inputs = page.locator("input[aria-label*='Weight']").all()
+    if weight_inputs:
+        weight_inputs[0].fill("350")
+
     # Set egg count in data_editor
     cells = page.locator("[data-testid='stDataEditor'] input[type='number']").all()
     if cells:
