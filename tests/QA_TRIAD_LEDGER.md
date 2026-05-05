@@ -14,7 +14,7 @@
 
 | Task ID | Component/File | Status | Current Owner | Strike Count | Last Action / Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| TSK-01 | `TEST_MATRIX_SETTINGS.md` | `[TODO]` | Writer | 0 | Pending creation based on Master Plan Phase 1. |
+| TSK-01 | `TEST_MATRIX_SETTINGS.md` | `[NEEDS_VALIDATION]` | Validator | 0 | Writer completed matrix. Validator to check against 5_Settings.py. |
 | TSK-02 | `TEST_MATRIX_REPORTS.md` | `[TODO]` | Writer | 0 | Pending creation based on Master Plan Phase 1. |
 | TSK-03 | `test_intake_extended.py` | `[NEEDS_VALIDATION]` | Validator | 0 | Writer needs Validator to check if all tests have DB Pincer assertions. |
 | TSK-04 | `test_observation_workflows.py` | `[NEEDS_VALIDATION]` | Validator | 0 | Audit required for DB Pincer compliance. |
