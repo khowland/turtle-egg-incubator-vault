@@ -17,8 +17,8 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | TSK-01 | `TEST_MATRIX_SETTINGS.md` | `[GREEN_COMPLETED]` | Runner | 0 | Completed: documentation artifact, no code execution. 18 test cases ready. |
 | TSK-02 | `TEST_MATRIX_REPORTS.md` | `[GREEN_COMPLETED]` | Runner | 0 | Completed: documentation artifact, no code execution. 14 test cases verified. |
-| TSK-03 | `test_intake_extended.py` | `[READY_TO_RUN]` | Runner | 1 | Re-validated: _fill_intake_step1_fields fills 8 required fields; DB Pincer assertions present. |
-| TSK-04 | `test_observation_workflows.py` | `[READY_TO_RUN]` | Runner | 1 | Re-validated: required Intake field fills added to _setup_intake_and_unlock_grid; DB Pincer assertions present in all 7 tests. |
+| TSK-03 | `test_intake_extended.py` | `[NEEDS_VALIDATION]` | Validator | 2 | Runner Strike 2: data_editor locator stale per Bug-E2E-002; applied get_by_role textbox fixes + Streamlit rerender waits per EXTRAS solution. |
+| TSK-04 | `test_observation_workflows.py` | `[NEEDS_VALIDATION]` | Validator | 2 | Runner Strike 2: same root cause as TSK-03 (stale data_editor locator, strict mode violations in _setup_intake_and_unlock_grid). Applied get_by_role textbox fixes + Streamlit waits. |
 | TSK-05 | `test_adversarial_intake.py` | `[TODO]` | Writer | 0 | Awaiting Writer to draft hostile payload tests. |
 | TSK-06 | `test_adversarial_observations.py` | `[TODO]` | Writer | 0 | Awaiting Writer to draft hostile payload tests. |
 | TSK-07 | `test_phase5_scalability_loop.py` | `[TODO]` | Writer | 0 | Awaiting Writer to draft the 50x execution loop. |

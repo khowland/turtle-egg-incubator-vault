@@ -24,9 +24,9 @@ def _fill_intake_step1_fields(page: Page, unique_sig: str, species_text: str = N
     Days in Care, Egg Collection Method, Intake Circumstances, and Intake Date.
     Intake Date is left at default. Species defaults to first option if not specified."""
     # Finder / Turtle Name
-    page.locator("input[aria-label='Finder']").fill(unique_sig)
+    page.get_by_role("textbox", name="Finder").fill(unique_sig)
     # WINC Case #
-    page.locator("input[aria-label='WINC Case #']").fill(unique_sig)
+    page.get_by_role("textbox", name="WINC Case #").fill(unique_sig)
 
     # Species — selectbox
     species_sel = page.locator("[data-testid='stSelectbox']:has-text('Species')")
@@ -37,6 +37,9 @@ def _fill_intake_step1_fields(page: Page, unique_sig: str, species_text: str = N
     else:
         page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
     page.wait_for_timeout(300)
+
+    # Wait for Streamlit rerender after species selection
+    page.wait_for_timeout(1500)
 
     # Intake Date — leave default, skip
 
@@ -62,14 +65,23 @@ def _fill_intake_step1_fields(page: Page, unique_sig: str, species_text: str = N
         page.wait_for_timeout(300)
 
     # Intake Circumstances — textarea
-    circumstances_inputs = page.locator("textarea").all()
-    if circumstances_inputs:
-        circumstances_inputs[0].fill("Roadside — clinical test")
+    # Intake Circumstances — use get_by_role for strict mode compatibility
+    circumstances_input = page.get_by_role("textbox", name="Intake Circumstances")
+    if circumstances_input.count() > 0:
+        circumstances_input.first.fill("Roadside — clinical test")
+    else:
+        # Fallback: try textarea locator
+        circumstances_inputs = page.locator("textarea").all()
+        if circumstances_inputs:
+            circumstances_inputs[0].fill("Roadside — clinical test")
 
     # Mother weight (if present)
     weight_inputs = page.locator("input[aria-label*='Weight']").all()
     if weight_inputs:
         weight_inputs[0].fill("350")
+
+    # Final stabilization wait for all fields to be registered by Streamlit
+    page.wait_for_timeout(1000)
 
 
 # ---------------------------------------------------------------------------
