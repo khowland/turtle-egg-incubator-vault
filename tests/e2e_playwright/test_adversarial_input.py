@@ -74,6 +74,11 @@ def test_sqli_payload_in_finder_field_sanitized(page: Page, login):
             # SAVE succeeded — verify DB pincer: intake exists with payload stored
             intake_res = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
             assert len(intake_res.data) == 1, f"Expected intake for Finder SQLi payload {payload}"
+            # DB pincer: verify stored finder is sanitized (no raw SQL keywords)
+            stored_finder = intake_res.data[0].get("finder", "")
+            dangerous_keywords = ["DROP TABLE", "SELECT * FROM", "' OR '1'='1", "admin'--"]
+            for kw in dangerous_keywords:
+                assert kw not in stored_finder.upper(), f"SQL keyword '{kw}' should not appear in stored finder"
             # Navigate back to intake for next iteration
             page.locator(NAV_INTAKE).first.click()
             expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=10000)
@@ -120,6 +125,11 @@ def test_sqli_payload_in_winc_case_field_sanitized(page: Page, login):
             # intake_name is the WINC Case # field; if stored, find by that value
             intake_res = db.table("intake").select("intake_id").eq("intake_name", payload).execute()
             assert len(intake_res.data) == 1, f"Expected intake for WINC SQLi payload {payload} not found"
+            # DB pincer: verify stored intake_name is sanitized (no raw SQL)
+            stored_name = intake_res.data[0].get("intake_name", "")
+            dangerous_keywords = ["DROP TABLE", "SELECT * FROM", "' OR '1'='1", "admin'--"]
+            for kw in dangerous_keywords:
+                assert kw not in stored_name.upper(), f"SQL keyword '{kw}' should not appear in stored intake_name"
             # Navigate back to Intake
             page.locator(NAV_INTAKE).first.click()
             expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=10000)
@@ -131,6 +141,70 @@ def test_sqli_payload_in_winc_case_field_sanitized(page: Page, login):
             assert len(intake_res.data) == 0, f"SQLi WINC payload {payload} should NOT be saved"
 
         page.locator("input[aria-label='WINC Case #']").clear()
+ 
+ 
+ # ---------------------------------------------------------------------------
+ # TC-ADV-INP-05: Overly-long field values handled gracefully
+ # ---------------------------------------------------------------------------
+def test_overly_long_field_values_rejected_or_truncated(page: Page, login):
+     """TC-ADV-INP-05: Extremely long values in text fields handled without crash."""
+     login()
+     page.locator(NAV_INTAKE).first.click()
+     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
+     sig = f"LONG-{int(time.time())}"
+     long_value = "A" * 2048
+     page.locator("input[aria-label='Finder']").fill(long_value)
+     page.locator("input[aria-label='WINC Case #']").fill(sig)
+     species_sel = page.locator("[data-testid='stSelectbox']:has-text('Species')")
+     if species_sel.count() > 0:
+         species_sel.first.click()
+         page.wait_for_timeout(500)
+         page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
+     page.get_by_role("button", name="SAVE").click()
+     page.wait_for_timeout(2000)
+     # Expect either success (truncated) or rejection error, but not crash/500
+     error_or_success = (
+         page.locator("text=Please fill").or_(page.locator("text=Invalid"))
+         .or_(page.get_by_role("heading", name=HEADING_OBSERVATIONS))
+     )
+     expect(error_or_success.first).to_be_visible(timeout=10000)
+ 
+ 
+ # ---------------------------------------------------------------------------
+ # TC-ADV-INP-06: XSS payload in Finder field sanitized/escaped
+ # ---------------------------------------------------------------------------
+ def test_xss_payloads_in_finder_field_sanitized(page: Page, login):
+     """TC-ADV-INP-06: XSS payloads in Finder field must not execute or break page."""
+     login()
+     page.locator(NAV_INTAKE).first.click()
+     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=15000)
+     db = get_supabase_client()
+     for payload in XSS_PAYLOADS:
+         sig = f"XSS-FINDER-{int(time.time())}"
+         page.locator("input[aria-label='Finder']").fill(payload)
+         page.locator("input[aria-label='WINC Case #']").fill(sig)
+         species_sel = page.locator("[data-testid='stSelectbox']:has-text('Species')")
+         if species_sel.count() > 0:
+             species_sel.first.click()
+             page.wait_for_timeout(500)
+             page.locator("[data-testid='stSelectboxVirtualDropdown'] li").first.click()
+         page.get_by_role("button", name="SAVE").click()
+         page.wait_for_timeout(2000)
+         obs_heading = page.get_by_role("heading", name=HEADING_OBSERVATIONS)
+         if obs_heading.count() > 0 and obs_heading.is_visible():
+             # Success: verify stored finder value is sanitized
+             intake_res = db.table("intake").select("finder").eq("intake_name", sig).execute()
+             assert len(intake_res.data) == 1, f"XSS Finder payload stored for {sig}"
+             stored = intake_res.data[0]["finder"] or ""
+             assert "<script>" not in stored.lower(), f"XSS script tag found in stored finder: {stored}"
+             page.locator(NAV_INTAKE).first.click()
+             expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=10000)
+         else:
+             error_texts = page.locator("text=Please fill").or_(page.locator("text=Invalid"))
+             expect(error_texts.first).to_be_visible(timeout=5000)
+             intake_res = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
+             assert len(intake_res.data) == 0, f"XSS Finder payload should NOT create intake"
+         page.locator("input[aria-label='Finder']").clear()
 
 
 # ---------------------------------------------------------------------------

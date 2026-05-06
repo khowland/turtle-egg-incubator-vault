@@ -241,3 +241,45 @@ def test_surgical_resurrection_bypass(page: Page, login):
     page.wait_for_timeout(500)
 
     expect(error_locator).to_be_visible(timeout=10000)
+ 
+ 
+ # ---------------------------------------------------------------------------
+ # TC-ADV-OBS-05: MIXED stage enforcement (multi-bin non-sequential jump)
+ # ---------------------------------------------------------------------------
+def test_mixed_stage_enforcement(page: Page, login):
+     """TC-ADV-OBS-05: MULTI-BIN enforcement — all bins at S2, non-sequential
+     S2→S4 blocked with Biological Integrity Violation + DB pincer verification."""
+     setup = _setup_intake_and_navigate_to_observations(page, login, egg_count=3)
+ 
+     # Advance all to S2 (sequential, allowed)
+     stage_sel = page.locator(SELECTBOX_STAGE).first
+     stage_sel.click()
+     page.wait_for_timeout(300)
+     page.locator(SELECTBOX_DROPDOWN_OPTION.format(option="S2")).first.click()
+     page.wait_for_timeout(500)
+ 
+     # Save to persist S2 state for all bins
+     save_btn = page.get_by_role("button", name="SAVE")
+     save_btn.last.click()
+     page.wait_for_timeout(2000)
+ 
+     # Attempt non-sequential S2→S4 jump
+     stage_sel.click()
+     page.wait_for_timeout(300)
+     page.locator(SELECTBOX_DROPDOWN_OPTION.format(option="S4")).first.click()
+     page.wait_for_timeout(500)
+ 
+     # Error must be shown
+     error_msg = page.locator("text=Biological Integrity Violation")
+     expect(error_msg).to_be_visible(timeout=10000)
+     expect(page.locator("text=S2 → S4")).to_be_visible(timeout=5000)
+ 
+     # DB Pincer: all bins must still be at S2 (blocked SAVE)
+     db = get_supabase_client()
+     intake_res = db.table("intake").select("intake_id").eq("intake_name", setup["sig"]).execute()
+     assert len(intake_res.data) == 1, "Expected one intake record"
+     intake_id = intake_res.data[0]["intake_id"]
+     obs_res = db.table("observation").select("stage").eq("intake_id", intake_id).execute()
+     assert len(obs_res.data) == 3, f"Expected 3 observations, got {len(obs_res.data)}"
+     assert all(row["stage"] == "S2" for row in obs_res.data), \
+         f"Bins must stay at S2 after blocked jump: {[r['stage'] for r in obs_res.data]}"
