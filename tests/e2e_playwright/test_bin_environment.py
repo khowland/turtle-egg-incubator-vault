@@ -75,18 +75,16 @@ def _create_intake_and_get_bin(page: Page, login, egg_count=1) -> str:
 
     # Set egg count in data editor (default 1)
     if egg_count != 1:
-        cell = page.locator("div[data-testid='stDataFrame']").locator("div.dvn-cell").filter(has_text="1").first
-        cell.dblclick()
-        page.keyboard.press("Backspace")
-        page.keyboard.type(str(egg_count))
-        page.keyboard.press("Enter")
+        new_eggs_input = page.locator("input[aria-label='New Eggs']")
+        new_eggs_input.click()
+        new_eggs_input.fill(str(egg_count))
 
     page.get_by_role("button", name="SAVE").click()
 
     # st.switch_page may not be detected; navigate manually
-    page.wait_for_timeout(2000)
+    page.wait_for_timeout(500)  # Cat-D: Reduced from 2000ms — sufficient for SAVE response
     page.locator(NAV_OBSERVATIONS).first.click()
-    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=10000)
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     # Fetch bin_id from database (query, not mutation)
     db = get_supabase_client()

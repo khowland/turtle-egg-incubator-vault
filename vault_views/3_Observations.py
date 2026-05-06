@@ -551,10 +551,11 @@ with track_view_performance("Observations"):
                     curr_idx = stage_opts.index(matrix_stage)
                     next_idx = stage_opts.index(new_stage)
                     if abs(next_idx - curr_idx) > 1:
-                        ac1.warning(
-                            f"⚠️ Unusual biological jump: {matrix_stage} → {new_stage}. "
-                            "Ensure this is medically intended."
+                        st.error(
+                            f"❌ Biological Integrity Violation: {matrix_stage} → {new_stage} "
+                            f"is not a valid sequential transition. Eggs must advance one stage at a time."
                         )
+                        st.stop()
 
                 # §3.5 Expansion: Status Selection (Active, Transferred, Dead)
                 # Mixed status logic

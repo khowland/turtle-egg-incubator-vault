@@ -17,10 +17,10 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | TSK-01 | `TEST_MATRIX_SETTINGS.md` | `[GREEN_COMPLETED]` | Runner | 0 | Completed: documentation artifact. 18 test cases verified. |
 | TSK-02 | `TEST_MATRIX_REPORTS.md` | `[GREEN_COMPLETED]` | Runner | 0 | Completed: documentation artifact. 14 test cases verified. |
-| TSK-03 | `test_intake_extended.py` | `[HARD_LOCK]` | N/A | 3 | STRIKE 3: data_editor/dvn-cell issues. See tests/resolved_bugs/NEEDS_WORK_TSK-03.md. |
+| TSK-03 | `test_intake_extended.py` | `[TODO]` | Writer | 0 | Reopened: st.data_editor eliminated per CR-P1-01. Rewrite tests for st.number_input selector. Previous Strike count reset. |
 | TSK-04 | `test_observation_workflows.py` | `[READY_TO_RUN]` | Runner | 2 | Validator PASS: dvn-cell fix applied. Bug-E2E-002 resolved (TSK-05 confirmed 7/7 pass). Awaiting Runner execution. |
 | TSK-05 | `test_adversarial_intake.py` | `[GREEN_COMPLETED]` | Runner | 0 | Completed: 7/7 adversarial tests passed. Bug-E2E-002 dvn-cell fix validated. All DB Pincer assertions pass. |
-| TSK-06 | `test_adversarial_observations.py` | `[HARD_LOCK_DISCREPANCY]` | N/A | 0 | DISCREPANCY: Stage jump validation missing per implied_system_objective.md §3. See tests/resolved_bugs/DISCREPANCY_TSK-06.md. |
+| TSK-06 | `test_adversarial_observations.py` | `[TODO]` | Writer | 0 | Reopened: Stage jump validation enforced per CR-P2-01. Write adversarial tests validating enforcement + surgical_resurrection flag. |
 | TSK-07 | `test_phase5_scalability_loop.py` | `[READY_TO_RUN]` | Runner | 0 | Validator PASS: DB Pincers, e2e_selectors, comment standards all verified. Greenlet runtime error is environmental, not code defect. |
 
 ---
@@ -32,3 +32,4 @@
 | Task ID | Component/File | Post-Mortem File Link | Reason for Lock |
 | :--- | :--- | :--- | :--- |
 | *None* | *None* | *None* | *System Clean* |
+| TSK-03 | `test_intake_extended.py` | tests/resolved_bugs/NEEDS_WORK_TSK-03.md | STRIKE 3: data_editor/dvn-cell issues. **CLEARED 2026-05-05** — st.data_editor eliminated by CR-P1-01. Task reopened to [TODO]. |

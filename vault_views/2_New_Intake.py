@@ -55,16 +55,24 @@ with track_view_performance("Intake"):
     )
 
     # --- DATA FETCHING ---
-    species_res = (
-        supabase.table("species")
-        .select("species_id, species_code, common_name, intake_count")
-        .execute()
-    )
-    species_data_map = {
-        f"{s['species_code']} - {s['common_name']}"
-        + (" (Stinkpot)" if s["species_code"] == "MK" else ""): s
-        for s in species_res.data
-    }
+    # CR-P3-01: Cached species list fetch — eliminates ~130ms DB round-trip on every rerender
+    @st.cache_data(ttl=300)
+    def _get_species_data_map():
+        """Fetch species list with 5-minute cache to reduce redundant DB calls."""
+        from utils.db import get_supabase
+        supabase = get_supabase()
+        species_res = (
+            supabase.table("species")
+            .select("species_id, species_code, common_name, intake_count")
+            .execute()
+        )
+        return {
+            f"{s['species_code']} - {s['common_name']}"
+            + (" (Stinkpot)" if s["species_code"] == "MK" else ""): s
+            for s in species_res.data
+        }
+
+    species_data_map = _get_species_data_map()
 
     # --- STATE ---
     if "bin_rows" not in st.session_state:
@@ -278,29 +286,32 @@ with track_view_performance("Intake"):
                     st.rerun()
 
         # CR-20260429-210932: Conditional num_rows -- fixed for supplemental, dynamic for new intake
-        _num_rows = "fixed" if intake_mode == "Add Eggs or Bins to Existing Intake" else "dynamic"
-        edited_df = st.data_editor(
-            df,
-            num_rows=_num_rows,
-            use_container_width=True,
-            column_config={  # CR-20260430-194500: Redesigned for v2 intake workflow
-                "bin_code_preview": st.column_config.TextColumn("Bin Code (Auto)", disabled=True),  # CR-20260501-1800: Renamed from bin_id_preview
-                "bin_num": st.column_config.NumberColumn("Bin #", disabled=True),
-                "current_egg_count": st.column_config.NumberColumn("Current Eggs", disabled=True),
-                "new_egg_count": st.column_config.NumberColumn("New Eggs", min_value=0, max_value=99, required=True),
-                # CR-20260426 Ac-1: Shelf Location and Substrate hidden from UI view
-                "shelf": None,
-                "substrate": None,
-                "notes": st.column_config.TextColumn("Setup Notes"),
-            },
-            key="bin_data_editor"
-        )
-
-        # Synchronize back to session state
-        st.session_state.bin_rows = edited_df.to_dict("records")
-        # Ensure bin_num remains sequential after any native row additions/deletions
-        for idx, r in enumerate(st.session_state.bin_rows):
-            r["bin_num"] = idx + 1
+        # CR-20260505: Split intake modes — data_editor for supplemental, simple input for primary
+        if intake_mode == "Add Eggs or Bins to Existing Intake":
+            # CR-20260505: Supplemental intake — simplified row inputs eliminate dvn-cell locator (Bug-E2E-002)
+            for idx, row in enumerate(st.session_state.bin_rows):
+                row["bin_num"] = idx + 1
+                bc = row.get("bin_code_preview", "PENDING")
+                col_bc, col_eg = st.columns([3, 1])
+                with col_bc:
+                    st.text_input("Bin Code (Auto)", value=bc, disabled=True, key=f"supp_bin_code_{idx}")
+                with col_eg:
+                    row["new_egg_count"] = st.number_input(
+                        "New Eggs", min_value=0, max_value=99,
+                        value=int(row.get("new_egg_count", 1)),
+                        key=f"supp_new_eggs_{idx}"
+                    )
+        else:
+            # CR-20260505: Primary intake — simple row display eliminates dvn-cell locator (Bug-E2E-002)
+            row = st.session_state.bin_rows[0] if st.session_state.bin_rows else {"bin_num": 1, "current_egg_count": 0, "new_egg_count": 1, "bin_code_preview": "PENDING", "notes": "Initial Intake", "substrate": "Vermiculite", "shelf": ""}
+            bin_code = row.get("bin_code_preview", "PENDING")
+            col_bc, col_eg = st.columns([3, 1])
+            with col_bc:
+                st.text_input("Bin Code (Auto)", value=bin_code, disabled=True, key="primary_bin_code_display")
+            with col_eg:
+                new_eggs = st.number_input("New Eggs", min_value=0, max_value=99, value=int(row.get("new_egg_count", 1)), key="primary_new_egg_count")
+            st.session_state.bin_rows[0]["new_egg_count"] = new_eggs
+            st.session_state.bin_rows[0]["bin_code_preview"] = bin_code
 
         # --- ATOMIC COMMIT ---
 
