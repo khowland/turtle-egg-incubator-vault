@@ -10,7 +10,7 @@ TC-INT-03: CANCEL button aborts intake, no DB rows created
 # TC-SUP-01: Supplemental intake full save → new bin + eggs added to existing case
 """
 from e2e_selectors import HEADING_OBSERVATIONS, NAV_INTAKE
-
+from e2e_selectors import HEADING_OBSERVATIONS, NAV_INTAKE, NAV_OBSERVATIONS
 import time
 import uuid
 from playwright.sync_api import Page, expect
@@ -81,7 +81,7 @@ def _fill_intake_step1_fields(page: Page, unique_sig: str, species_text: str = N
         weight_inputs[0].fill("350")
 
     # Final stabilization wait for all fields to be registered by Streamlit
-    page.wait_for_timeout(1000)
+    page.wait_for_timeout(2000)  # CR-20260505: Allow Streamlit Species rerender before Step 2 renders
 
 
 # ---------------------------------------------------------------------------
@@ -99,14 +99,16 @@ def test_intake_full_fields_and_bin_nomenclature(page: Page, login):
     _fill_intake_step1_fields(page, unique_sig)
 
     # --- Step 2: Bin / Egg Info (data_editor has 1 default row) ---
-    # Verify the bin editor is present after Step 1 fields are complete
-    expect(page.locator("[data-testid='stDataEditor']").first).to_be_visible(timeout=10000)
+    # CR-20260505: Primary intake uses st.number_input, not data_editor
+    expect(page.locator("input[aria-label='New Eggs']")).to_be_visible(timeout=10000)
 
     # --- Step 3: SAVE ---
     page.get_by_role("button", name="SAVE").click()
 
     # Verify redirect to Observations (success indicator)
-    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
+    page.wait_for_timeout(500)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     # --- Backend DB verification ---
     db = get_supabase_client()
@@ -119,15 +121,16 @@ def test_intake_full_fields_and_bin_nomenclature(page: Page, login):
     bin_res = db.table("bin").select("*").eq("intake_id", intake_id).execute()
     assert len(bin_res.data) >= 1, "DB FAILURE: No bin row created for intake"
     bin_row = bin_res.data[0]
-    bin_id = bin_row["bin_id"]
+    bin_id = bin_row["bin_id"]  # CR-20260501-1800: bin_id is now BIGINT (integer)
+    bin_code = bin_row.get("bin_code", "")
 
-    # Bin nomenclature: must match pattern {SpeciesCode}{N}-{CleanFinder}-{BinNum}
-    assert bin_id and "-" in bin_id, (
-        f"DB FAILURE: bin_id '{bin_id}' does not follow {{SpeciesCode}}{{N}}-{{Finder}}-{{BinNum}} nomenclature"
+    # CR-20260501-1800: Bin nomenclature check on bin_code (text), not bin_id (BIGINT)
+    assert bin_code and "-" in bin_code, (
+        f"DB FAILURE: bin_code '{bin_code}' does not follow {{SpeciesCode}}{{N}}-{{Finder}}-{{BinNum}} nomenclature"
     )
-    parts = bin_id.split("-")
+    parts = bin_code.split("-")
     assert len(parts) >= 2, (
-        f"DB FAILURE: bin_id '{bin_id}' missing required segments"
+        f"DB FAILURE: bin_code '{bin_code}' missing required segments"
     )
 
     egg_res = db.table("egg").select("*").eq("bin_id", bin_id).execute()
@@ -156,14 +159,16 @@ def test_intake_multiple_eggs(page: Page, login):
     _fill_intake_step1_fields(page, unique_sig)
 
     # --- Step 2: Find the egg count cell in the data_editor and set to 5 ---
-    egg_count_cells = page.locator("[data-testid='stDataEditor'] input[type='number']").all()
-    if egg_count_cells:
-        egg_count_cells[0].triple_click()
-        egg_count_cells[0].fill("5")
+    # CR-20260505: Primary intake uses st.number_input — simple fill replaces dvn-cell interaction
+    new_eggs_input = page.locator("input[aria-label='New Eggs']")
+    new_eggs_input.click()
+    new_eggs_input.fill("5")
 
     # --- Step 3: SAVE ---
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
+    page.wait_for_timeout(500)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     # DB verification
     db = get_supabase_client()
@@ -224,7 +229,9 @@ def test_supplemental_intake_full_save(page: Page, login):
     primary_sig = f"TC-SUP-PRIMARY-{int(time.time())}"
     _fill_intake_step1_fields(page, primary_sig)
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
+    page.wait_for_timeout(500)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     # Navigate back to Intake → switch to Supplemental mode
     page.locator(NAV_INTAKE).first.click()
@@ -238,10 +245,22 @@ def test_supplemental_intake_full_save(page: Page, login):
     mother_select.click()
     # Pick option containing our primary_sig
     page.locator(f"[data-testid='stSelectboxVirtualDropdown'] li:has-text('{primary_sig}')").first.click()
-
+    # Open Add Bin expander and add a new bin
+    page.wait_for_timeout(500)
+    page.locator("details:has(summary:has-text('Add Bin to Intake'))").first.click()
+    page.wait_for_timeout(500)
+    page.get_by_role("button", name="Add This Bin").click()
+    page.wait_for_timeout(1500)  # Allow st.rerun()
+    # Fill New Eggs count for the new bin row
+    new_eggs_input = page.locator("input[aria-label='New Eggs']")
+    new_eggs_input.click()
+    new_eggs_input.fill("1")
+    page.wait_for_timeout(300)
     # SAVE the supplemental intake
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
+    page.wait_for_timeout(500)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     # DB verification: primary intake should now have 2 bins
     db = get_supabase_client()

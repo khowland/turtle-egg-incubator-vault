@@ -333,7 +333,7 @@ with tabs[3]:
                 ghost_count = orphan_map.get(rb["bin_id"], 0)
                 with st.container(border=True):
                     c1, c2 = st.columns([3, 1])
-                    c1.write(f"**Bin Code: {rb['bin_id']}**")
+                    c1.write(f"**Bin Code: {rb.get('bin_code', str(rb['bin_id']))}**")
                     if ghost_count > 0:
                         c1.error(f"⚠️ **GHOST DATA DETECTED**: {ghost_count} 'Active' eggs are trapped in this deleted bin.")
                     c1.caption(f"Reason: {rb['bin_notes'] or 'No notes'}")

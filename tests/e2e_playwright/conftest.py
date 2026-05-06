@@ -47,7 +47,6 @@ def wipe_transactional_tables():
     print("[FIXTURE] Starting transactional table soft-delete...")
     # Tables WITH is_deleted column → soft-delete via UPDATE
     soft_delete_tables = [
-        "hatchling_ledger",
         "egg_observation",
         "bin_observation",
         "egg",
@@ -55,19 +54,19 @@ def wipe_transactional_tables():
         "intake",
     ]
     # Tables WITHOUT is_deleted → SKIP (preserve audit trail forever)
-    skip_tables = ["system_log", "session_log"]
+    skip_tables = ["system_log", "session_log", "hatchling_ledger"]
     for table in soft_delete_tables:
         try:
-                    id_map = {
-            "hatchling_ledger": "hatchling_ledger_id",
-            "egg_observation": "egg_observation_id",
-            "bin_observation": "bin_observation_id",
-            "egg": "egg_id",
-            "bin": "bin_id",
-            "intake": "intake_id",
-        }
-        id_col = id_map[table]
-        resp = supabase.table(table).update({"is_deleted": True}).neq(id_col, 0).execute()
+            id_map = {
+                "hatchling_ledger": "hatchling_ledger_id",
+                "egg_observation": "egg_observation_id",
+                "bin_observation": "bin_observation_id",
+                "egg": "egg_id",
+                "bin": "bin_id",
+                "intake": "intake_id",
+            }
+            id_col = id_map[table]
+            resp = supabase.table(table).update({"is_deleted": True}).neq(id_col, 0).execute()
             count = len(resp.data) if resp.data else 0
             print(f"  [FIXTURE] Soft-deleted {table}: {count} rows marked is_deleted=true.")
         except Exception as e:

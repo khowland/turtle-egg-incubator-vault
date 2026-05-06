@@ -17,7 +17,8 @@ import uuid
 import datetime
 from utils.db import get_supabase
 
-# No caching for version to ensure live environment sync
+# CR-P3-01: Cached version fetch (300s TTL) — reduces redundant DB calls; version changes are deployment-level events
+@st.cache_data(ttl=300)
 def get_app_version():
     """Fetches the application version from the system_config table."""
     try:

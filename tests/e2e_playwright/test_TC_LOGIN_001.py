@@ -6,6 +6,7 @@ import db_verify_TC_LOGIN_001
 @pytest.mark.e2e
 def test_login_splash_to_dashboard(login, verify_version, page, e2e_base_url):
     # Already on dashboard after successful login (login fixture handles START click)
+    login()
     # 1. Verify dashboard heading
     heading = page.get_by_role("heading", name="Today's Summary", exact=True)
     assert heading.is_visible(), "Dashboard heading 'Today's Summary' must be visible after login"

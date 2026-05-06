@@ -1,0 +1,81 @@
+=============================================================================
+Change Request: System-Wide bin_id → bin_code Display Replacement
+Date: 2026-05-05
+Requester: Kevin Howland (user directive via Agent Zero)
+Priority: High
+Version Target: v9.2.1
+Related CRs: CR-20260501-1800 (PK Migration), CR-20260503 (bincode display)
+=============================================================================
+
+## Principle
+
+**bin_id is an internal system-generated PK (BIGINT). It must NEVER be shown to users.**
+**bin_code is the sole user-facing bin identifier.** Users refer to bins in the field
+using bin_code (e.g., "BL-1", "WT-3", "SN-12"). All backend wiring uses bin_id for
+PK/FK communication; all UI output uses bin_code.
+
+## Problem Statement
+
+CR-20260503 partially addressed this by fixing the Dashboard "Remove Empty Bins"
+dropdown, but several visual leaks remain across the system:
+
+1. **Observations (3_Observations.py)**: The multiselect (line 110) and focus
+   selectbox (line 131) use raw bin_id as option values. While `format_func` masks
+the display, the underlying value path still carries bin_id. If any error message
+or diagnostic output references the raw value, users see numeric IDs.
+
+2. **Settings (5_Settings.py)**: Resurrection Vault at line 336 displays
+   `c1.write(f"**Bin Code: {rb['bin_id']}**")` — this shows the numeric bin_id
+   under the label "Bin Code", which is confusing and incorrect.
+
+3. **Intake (2_New_Intake.py)**: The data_editor grid shows bin_code_preview
+   correctly, but any simplification to a row-based array input should ensure
+   bin_code remains the first visible column.
+
+4. **Reports (6_Reports.py)**: Export line 239 includes both bin_id and bin_code.
+   bin_id should be removed from user-facing exports or clearly labeled as internal.
+
+## Scope
+
+### File-by-File Audit
+
+| File | Line(s) | Current State | Required Fix |
+|:---|:---|:---|:---|
+| `vault_views/5_Settings.py` | 336 | `f"**Bin Code: {rb['bin_id']}**"` | Replace with `rb.get('bin_code', str(rb['bin_id']))` |
+| `vault_views/5_Settings.py` | 340, 344 | Button keys/DB queries use `rb['bin_id']` | Internal — keep as-is |
+| `vault_views/3_Observations.py` | 76 | `bin_options = sorted([b["bin_id"] ...])` | Options should use bin_code, map back to bin_id internally |
+| `vault_views/3_Observations.py` | 110-117 | Multiselect uses bin_options (bin_id) | Build display-to-id map; show bin_code to user |
+| `vault_views/3_Observations.py` | 131 | Focus selectbox uses raw bin_id | Same display map pattern |
+| `vault_views/6_Reports.py` | 239 | Export includes `"bin_id": bid` | Keep for internal use; also include `"bin_code"` alongside |
+| `vault_views/2_New_Intake.py` | 287 | `bin_code_preview` is first column ✅ | Preserve this ordering in any simplification |
+
+### Design Principle for UI Changes
+
+1. **All selectboxes, multiselects, and data tables showing bins must display bin_code**
+2. **Any label reading "Bin ID" or "Bin Code" must show the actual bin_code value**
+3. **Internal DB queries continue using bin_id — only the display layer changes**
+4. **Build `bin_code_to_id` lookup maps where selectboxes need to return bin_id**
+5. **bin_code must be the first element in any bin row display (Intake grid, Reports, etc.)**
+
+## Implementation Plan
+
+### Phase 1: Fix Visual Leaks
+1. Settings.py line 336: Replace `rb['bin_id']` with `rb.get('bin_code', str(rb['bin_id']))`
+2. Observations.py: Already has bin_code_map — verify format_func covers all display paths
+3. Reports.py: Add bin_code column alongside bin_id in exports; label bin_id as "Internal ID"
+
+### Phase 2: Intake Simplification (Related)
+When replacing st.data_editor with row-based number_inputs, ensure:
+- First column shown is bin_code (read-only, auto-generated)
+- No bin_id column visible
+- Internal state continues using bin_id for DB operations
+
+## Acceptance Criteria
+
+- [ ] No bin_id value appears in any user-facing UI label, selectbox option, or data display
+- [ ] Settings Resurrection Vault shows actual bin_code, not bin_id
+- [ ] Observations workbench and focus selectboxes display bin_code
+- [ ] Reports exports use bin_code for user-facing columns
+- [ ] All internal DB operations continue functioning with bin_id
+
+=============================================================================

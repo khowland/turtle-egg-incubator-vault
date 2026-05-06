@@ -74,10 +74,12 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 1):
 
     db = get_supabase_client()
     intake = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
-    bin_row = db.table("bin").select("bin_id").eq(
+    bin_row = db.table("bin").select("bin_id, bin_code").eq(
         "intake_id", intake.data[0]["intake_id"]
     ).execute()
-    bin_id = bin_row.data[0]["bin_id"]
+    bin_data = bin_row.data[0]
+    bin_id = bin_data["bin_id"]
+    bin_code = bin_data.get("bin_code", str(bin_id))
     eggs = db.table("egg").select("egg_id").eq("bin_id", bin_id).execute()
     egg_ids = [e["egg_id"] for e in eggs.data]
 
@@ -87,7 +89,7 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 1):
     workbench = page.locator("[data-testid='stMultiSelect']").first
     workbench.click()
     page.locator(
-        f"[data-testid='stMultiSelectDropdown'] li:has-text('{bin_id}')"
+        f"[data-testid='stMultiSelectDropdown'] li:has-text('{bin_code}')"
     ).first.click()
     page.keyboard.press("Escape")
     time.sleep(1)

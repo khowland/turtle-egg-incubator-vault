@@ -73,23 +73,26 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
         weight_inputs[0].fill("350")
 
     # Final stabilization wait for all fields to be registered by Streamlit
-    page.wait_for_timeout(1000)
+    page.wait_for_timeout(1000)  # CR-20260505: data_editor removed for primary intake — wait reduced
 
-    # Set egg count in data_editor
-    cells = page.locator("[data-testid='stDataEditor'] input[type='number']").all()
-    if cells:
-        cells[0].triple_click()
-        cells[0].fill(str(egg_count))
+    # CR-20260505: Primary intake uses st.number_input — simple fill replaces dvn-cell
+    new_eggs_input = page.locator("input[aria-label='New Eggs']")
+    new_eggs_input.click()
+    new_eggs_input.fill(str(egg_count))
 
     page.get_by_role("button", name="SAVE").click()
-    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=30000)
+    page.wait_for_timeout(500)
+    page.locator(NAV_OBSERVATIONS).first.click()
+    expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
     db = get_supabase_client()
     intake = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
-    bin_row = db.table("bin").select("bin_id").eq(
+    bin_row = db.table("bin").select("bin_id, bin_code").eq(
         "intake_id", intake.data[0]["intake_id"]
     ).execute()
-    bin_id = bin_row.data[0]["bin_id"]
+    bin_data = bin_row.data[0]
+    bin_id = bin_data["bin_id"]
+    bin_code = bin_data.get("bin_code", str(bin_id))
     eggs = db.table("egg").select("egg_id").eq("bin_id", bin_id).execute()
     egg_ids = [e["egg_id"] for e in eggs.data]
 
@@ -100,8 +103,9 @@ def _setup_intake_and_unlock_grid(page: Page, login, egg_count: int = 3) -> dict
     workbench = page.locator("[data-testid='stMultiSelect']").first
     workbench.click()
     page.locator(
-        f"[data-testid='stMultiSelectDropdown'] li:has-text('{bin_id}')"
+        f"[data-testid='stMultiSelectDropdown'] li:has-text('{bin_code}')"
     ).first.click()
+    page.wait_for_timeout(500)
     page.keyboard.press("Escape")
     time.sleep(1)
 

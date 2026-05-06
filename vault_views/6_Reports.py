@@ -237,6 +237,7 @@ with track_view_performance("Reports"):
                 bin_obs_sum = [
                     {
                         "bin_id": bid,  # CR-20260501-1800: Numeric bin_id kept for reference; bin_code also available in export
+                        "bin_code": bin_code_map.get(bid, str(bid)),  # CR-P2-02: User-facing bin identifier
                         "last_bin_weight_g": entry["bin_weight_g"],
                         "last_water_added_ml": entry["water_added_ml"],
                         "last_temp_f": entry["incubator_temp_f"],  # CR-20260429-053444: Lo-2 — use incubator_temp_f

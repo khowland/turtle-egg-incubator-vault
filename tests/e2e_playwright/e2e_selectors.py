@@ -40,6 +40,7 @@ INPUT_WEIGHT_GATE = {"selector": "[data-testid='stNumberInput'] input", "index":
 INPUT_WATER_ADDED = {"selector": "[data-testid='stNumberInput'] input", "index": 1}  # 2nd number input
 INPUT_INCUBATOR_TEMP = {"selector": "[data-testid='stNumberInput'] input", "index": 2}  # 3rd number input
 INPUT_EGG_COUNT = {"selector": "[data-testid='stDataEditor'] input[type='number']", "index": "first"}
+INPUT_EGG_COUNT_CELL = "div[data-testid='stDataFrame'] div.dvn-cell"  # v9.2.0 Streamlit dvn-cell pattern
 INPUT_BACKDATE_OBS = {"selector": "[data-testid='stDateInput'] input", "index": "first"}
 INPUT_OBS_NOTES = {"selector": "[data-testid='stTextArea'] textarea", "index": "first"}
 
@@ -74,3 +75,20 @@ TOGGLE_CORRECTION_FALLBACK = "[data-testid='stToggle']"
 # ---------------------------------------------------------------------------
 TEXT_BIOLOGICAL_GRID = "Biological Grid"
 CHECKBOX_EGG_TEMPLATE = "[data-testid='stCheckbox']:has-text('{egg_id}')"
+
+# ---------------------------------------------------------------------------
+# Aggregator Dicts for convenience imports (used by conftest.py and tests)
+# ---------------------------------------------------------------------------
+HEADINGS = {
+    "dashboard": HEADING_DASHBOARD,
+    "intake": HEADING_INTAKE,
+    "observations": HEADING_OBSERVATIONS,
+    "settings": HEADING_SETTINGS,
+    "reports": HEADING_REPORTS,
+}
+
+BUTTONS = {
+    "login_start": BTN_LOGIN_START,
+    "save": BTN_SAVE,
+    "start_all_eggs": BTN_START_ALL_EGGS,
+}

@@ -21,6 +21,7 @@ from e2e_selectors import (
     SELECTBOX_DROPDOWN_OPTION,
     BTN_SAVE,
 )
+from utils.db import get_supabase_client
 
 
 def _setup_intake_and_navigate_to_observations(page: Page, login, egg_count: int = 3) -> dict:
@@ -133,7 +134,7 @@ def test_non_sequential_stage_jump_blocked(page: Page, login):
 # ---------------------------------------------------------------------------
 def test_sequential_stage_transition_allowed(page: Page, login):
     """TC-ADV-OBS-02: S1→S2 should be allowed (sequential), SAVE proceeds."""
-    _setup_intake_and_navigate_to_observations(page, login, egg_count=3)
+    setup = _setup_intake_and_navigate_to_observations(page, login, egg_count=3)
 
     # Select S2 (sequential, should be allowed)
     stage_sel = page.locator(SELECTBOX_STAGE).first
@@ -150,6 +151,18 @@ def test_sequential_stage_transition_allowed(page: Page, login):
     save_btn = page.get_by_role("button", name="SAVE")
     # Use .last for matrix save
     expect(save_btn.last).to_be_visible(timeout=5000)
+    save_btn.last.click()
+    page.wait_for_timeout(2000)
+
+    # DB Pincer: verify all observations advanced to S2
+    db = get_supabase_client()
+    intake_res = db.table("intake").select("intake_id").eq("intake_name", setup["sig"]).execute()
+    assert len(intake_res.data) == 1, "Expected one intake record"
+    intake_id = intake_res.data[0]["intake_id"]
+    obs_res = db.table("observation").select("stage").eq("intake_id", intake_id).execute()
+    assert len(obs_res.data) == 3, f"Expected 3 observations, got {len(obs_res.data)}"
+    assert all(row["stage"] == "S2" for row in obs_res.data), \
+        f"Not all observations advanced to S2: {[r['stage'] for r in obs_res.data]}"
 
 
 # ---------------------------------------------------------------------------
@@ -181,17 +194,50 @@ def test_backward_stage_jump_blocked(page: Page, login):
 
 
 # ---------------------------------------------------------------------------
-# TC-ADV-OBS-04: MIXED stage skips enforcement
+# TC-ADV-OBS-04: Surgical Resurrection bypass
 # ---------------------------------------------------------------------------
-def test_mixed_stage_skips_jump_enforcement(page: Page, login):
-    """TC-ADV-OBS-04: When selected eggs have different stages (MIXED), enforcement is skipped."""
-    _setup_intake_and_navigate_to_observations(page, login, egg_count=3)
+def test_surgical_resurrection_bypass(page: Page, login):
+    """TC-ADV-OBS-04: Toggle surgical resurrection → non-sequential jump allowed, SAVE success.
+    After untoggle, enforcement reactivates."""
+    setup = _setup_intake_and_navigate_to_observations(page, login, egg_count=3)
 
-    # With 3 eggs all at S1, the stage should show as S1 (not MIXED)
-    # MIXED only appears when selecting eggs at different stages — out of scope for this test
-    # This test validates that the enforcement logic doesn't crash when stage is non-MIXED
-    stage_options = page.locator("[data-testid='stSelectbox']").first
-    expect(stage_options).to_be_visible(timeout=10000)
+    # Toggle surgical resurrection ON
+    toggle = page.locator("label").filter(has_text="Surgical Resurrection").locator("input[type='checkbox']")
+    toggle.check()
+    page.wait_for_timeout(500)
 
-    # The selectbox should contain stage options (S1 default)
-    expect(page.locator("text=S1")).to_be_visible(timeout=5000)
+    # Attempt non-sequential jump S1→S4 (should be allowed)
+    stage_sel = page.locator(SELECTBOX_STAGE).first
+    stage_sel.click()
+    page.wait_for_timeout(300)
+    page.locator(SELECTBOX_DROPDOWN_OPTION.format(option="S4")).first.click()
+    page.wait_for_timeout(500)
+
+    # No error should appear
+    error_locator = page.locator("text=Biological Integrity Violation")
+    expect(error_locator).to_have_count(0, timeout=5000)
+
+    # SAVE should succeed
+    save_btn = page.get_by_role("button", name="SAVE")
+    save_btn.last.click()
+    page.wait_for_timeout(2000)
+
+    # DB Pincer: observations should be at S4
+    db = get_supabase_client()
+    intake_res = db.table("intake").select("intake_id").eq("intake_name", setup["sig"]).execute()
+    intake_id = intake_res.data[0]["intake_id"]
+    obs_res = db.table("observation").select("stage").eq("intake_id", intake_id).execute()
+    assert all(row["stage"] == "S4" for row in obs_res.data), \
+        f"Observations not bypassed to S4: {[r['stage'] for r in obs_res.data]}"
+
+    # Now untoggle surgical resurrection and verify enforcement returns
+    toggle.uncheck()
+    page.wait_for_timeout(500)
+
+    # Attempt another non-sequential jump S4→S7 (jump +3)
+    stage_sel.click()
+    page.wait_for_timeout(300)
+    page.locator(SELECTBOX_DROPDOWN_OPTION.format(option="S7")).first.click()
+    page.wait_for_timeout(500)
+
+    expect(error_locator).to_be_visible(timeout=10000)
