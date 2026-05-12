@@ -22,6 +22,16 @@ Before attempting any execution or generation, you must securely establish your 
 2.  **Tool Validation:** Verify that `Crawl4AI` (or the `Browser-use` accessibility tree module) is active in your context. Verify that your testing actuators (e.g., Playwright) are available. Do not proceed if E2E actuators are missing.
 3.  **Establish Persistence:** You must explicitly invoke the Obsidian integration skills (e.g., `ag skill install awesome-skills/obsidian-rag`). Create an `Obsidian` vault directory at `tests/resolved_bugs/` and connect your RAG pipeline to it. **Schema Mandate:** Every Markdown file you write here MUST include YAML frontmatter containing `component: str`, `issue_type: str`, and `resolved: bool`.
 
+### 🛡️ THE STREAMLIT SETTLE PROTOCOL (ANTI-FLICKER)
+Streamlit's reactive architecture causes frequent redraws and element detachment. To ensure "Zero Defect" execution, all agents must adhere to the following:
+1. **Spinner Detection**: Never capture landmarks or perform clicks while the Streamlit "Running" spinner (top-right) is active.
+2. **The 1-Second Idle Rule**: After the spinner disappears, wait exactly 1000ms for the DOM to settle and backend hooks to attach.
+3. **Double-Screenshot Verification**: Capture two screenshots 500ms apart. If they are not pixel-identical, wait and repeat until the UI is static.
+
+### 🎯 THE ZERO-DOM MANDATE
+- **The Law**: Interaction with the UI must be performed via (x,y) coordinates ONLY. Use of `page.locator`, `css=`, or `#id` selectors is a CRITICAL VIOLATION.
+- **Workflow**: Verify Viewport → Capture Static Screenshot → Gemini 3.1 Flash Landmark Analysis → Scaling Math → `page.mouse.click(x, y)`.
+
 ### Phase 1: Pre-Flight Static Analysis & Test Generation
 Your first objective is to build the deterministic boundaries of reality (The Test Suite) without spinning up a live environment.
 1.  **Targeted Retrieval:** Do not read the entire codebase. Use `codebase_search` or `grep_search` to parse `requirements.md` and locate only the relevant `st.session_state` mutators, database schemas, and callback functions in the Python files.
@@ -41,6 +51,7 @@ Once Phase 1 is approved, you are cleared to execute the tests and patch the cod
     *   **Post-Mortem Requirements:** You must explicitly list: (A) Approach 1 and why it failed. (B) Approach 2 and why it failed. (C) Approach 3 and why it failed. (D) A request for Human Architect intervention.
 5.  **Persistent Output & Version Control:** If you succeed *before* 3 strikes, you MUST write a discrete summary file to `tests/resolved_bugs/Bug-{ID}_resolution.md` enforcing the YAML schema from Phase 0. 
 6.  **Git Commit:** Immediately after saving the Markdown log, you MUST commit the codebase changes to Git using the semantic format: `git commit -m "fix(component): resolved Bug-{ID} [short description]"`. 
+6.  **Token Weight Reporting:** After every model interaction (Vision Analysis or Script Writing), you MUST invoke `python tests/token_tracker.py [model] [input] [output] [task_id]` to update the session ledger.
 7.  **Write-Only Master Log:** You must maintain a single, timestamped chronological log of all executions by appending to it blindly using standard terminal commands.
 
 **Final Mandate:** Accountability is non-negotiable. Your success is measured mathematically by passing deterministic tests. If you hit 3 strikes, fail gracefully with documentation. Execute Phase 1 now.

@@ -1,0 +1,252 @@
+"""
+TSK-06: Adversarial Stage Jump Tests (AppTest E2E)
+
+PURE AppTest - NO mocking, NO direct DB writes.
+Every test creates intake via UI (2_New_Intake.py), then runs
+Observations page (3_Observations.py) to test stage enforcement,
+Surgical Resurrection bypass, and DB pincer verification.
+
+Tests:
+- TC-ADV-OBS-01: Non-sequential jump BLOCKED (S1→S4 error, DB unchanged)
+- TC-ADV-OBS-02: Sequential transition ALLOWED (S1→S2 succeeds, DB S2)
+- TC-ADV-OBS-03: Forward jump BLOCKED (S2→S6 blocked, DB still at S2)
+- TC-ADV-OBS-04: Surgical Resurrection bypass (toggle ON→S1→S4 allowed,
+  SAVE, toggle OFF→S4→S6 blocked)
+- TC-ADV-OBS-05: MIXED stage enforcement (all at S2, S2→S4 blocked, DB unchanged)
+"""
+
+import time, pytest
+import os
+from streamlit.testing.v1 import AppTest
+from utils.db import get_supabase_client
+
+INTAKE = "vault_views/2_New_Intake.py"
+OBS = "vault_views/3_Observations.py"
+
+
+# -- shared helpers ---------------------------------------------------------
+
+def _mk_intake(sig, egg_count=3):
+    """Create intake via AppTest UI, return {intake_id, bin_id, egg_ids}."""
+    at = AppTest.from_file(INTAKE)
+    at.session_state["authenticated"] = True
+    at.session_state["username"] = "AdvTester"
+    at.session_state["observer_name"] = "AdvTester"
+    at.session_state["observer_id"] = "ebe72de7-345d-4335-94f3-63b2b64c7857"
+    at.session_state["session_id"] = "clinical-test-1777685415"
+    at.session_state["is_submitting"] = False
+    at.run(timeout=120)
+
+    # Species (key=intake_species)
+    for sb in at.selectbox:
+        if sb.key == "intake_species": sb.select(sb.options[0]); break
+    at.run(timeout=10)
+    # WINC Case # (key=intake_name)
+    for ti in at.text_input:
+        if ti.key == "intake_name": ti.set_value(sig); break
+    # Finder (key=intake_finder)
+    for ti in at.text_input:
+        if ti.key == "intake_finder": ti.set_value(sig); break
+    # Condition (key=intake_condition)
+    for sb in at.selectbox:
+        if sb.key == "intake_condition": sb.select("Alive"); break
+    # Egg Collection Method
+    for sb in at.selectbox:
+        if sb.label and "Collection" in sb.label: sb.select(sb.options[0]); break
+    # Days in Care
+    for ni in at.number_input:
+        if ni.label and "Days" in ni.label: ni.set_value(3); break
+    # Intake Circumstances
+    for ti in at.text_input:
+        if ti.label and "Circumstances" in ti.label: ti.set_value("Adversarial test"); break
+    # Mother Weight
+    for ni in at.number_input:
+        if ni.label and "Weight" in ni.label: ni.set_value(350); break
+    # New Eggs (key=primary_new_egg_count)
+    for ni in at.number_input:
+        if ni.key == "primary_new_egg_count": ni.set_value(egg_count); break
+    at.run(timeout=15)
+
+    # SAVE
+    btns = [b for b in at.button if b.key == "intake_save"]
+    assert btns, "SAVE button not found"
+    try: btns[0].click(); at.run(timeout=15)
+    except Exception: pass  # st.switch_page raises in AppTest
+
+    # DB read-only verification
+    db = get_supabase_client()
+    r = db.table("intake").select("intake_id").eq("intake_name", sig).order("created_at", desc=True).limit(1).execute()
+    assert r.data, f"Intake not created: {sig}"
+    iid = r.data[0]["intake_id"]
+    r = db.table("bin").select("bin_id").eq("intake_id", iid).eq("is_deleted", False).execute()
+    assert r.data, f"No bin for intake {iid}"
+    bid = r.data[0]["bin_id"]
+    r = db.table("egg").select("egg_id").eq("bin_id", bid).eq("is_deleted", False).order("egg_id").execute()
+    assert len(r.data) == egg_count, f"Expected {egg_count} eggs, got {len(r.data)}"
+    eids = [e["egg_id"] for e in r.data]
+    return {"intake_id": iid, "bin_id": bid, "egg_ids": eids}
+
+
+def _obs(iid, bid, surgical=False, **extra):
+    """Run 3_Observations.py with test_mode=1 and pre-seeded session."""
+    at = AppTest.from_file(OBS)
+    at.session_state["authenticated"] = True
+    at.session_state["username"] = "AdvTester"
+    at.session_state["observer_name"] = "AdvTester"
+    at.session_state["observer_id"] = "ebe72de7-345d-4335-94f3-63b2b64c7857"
+    at.session_state["session_id"] = "clinical-test-1777685415"
+    at.session_state["is_submitting"] = False
+    at.session_state["workbench_bins"] = {bid}
+    at.session_state["active_case_id"] = iid
+    at.session_state["active_bin_id"] = bid
+    at.session_state["env_gate_synced"] = {bid: True}
+    at.session_state["surgical_resurrection"] = surgical
+    for k, v in extra.items():
+        at.session_state[k] = v
+    at.session_state["test_mode"] = True
+    os.environ["_A0_DEBUG"] = "1"
+    at.run(timeout=120)
+    return at
+
+
+def _stage_sb(at):
+    return [s for s in at.selectbox if s.key == "matrix_stage"]
+
+def _save_btn(at):
+    return [b for b in at.button if b.key == "obs_matrix_save"]
+
+
+# -- TC-ADV-OBS-01: Non-sequential S1→S4 BLOCKED --------------------------
+def test_non_sequential_stage_jump_blocked():
+    """S1→S4 shows Biological Integrity Violation, DB unchanged."""
+    ctx = _mk_intake(f"ADV01-{int(time.time())}", 3)
+    at = _obs(ctx["intake_id"], ctx["bin_id"])
+
+    sbs = _stage_sb(at); assert sbs, "Stage selectbox not found"
+    if "S4" in sbs[0].options:
+        sbs[0].select("S4"); at.run(timeout=15)
+
+    errors = [e.value for e in (at.error or []) if hasattr(e, "value")]
+    has_violation = any("Biological Integrity" in e or "not a valid sequential" in e for e in errors)
+    assert has_violation, f"No violation shown for S1→S4. Errors: {errors}"
+
+    db = get_supabase_client()
+    for eid in ctx["egg_ids"]:
+        egg = db.table("egg").select("current_stage").eq("egg_id", eid).execute()
+        assert egg.data[0]["current_stage"] == "S1", f"Egg {eid} changed after blocked jump"
+
+
+# -- TC-ADV-OBS-02: Sequential S1→S2 ALLOWED ------------------------------
+def test_sequential_stage_transition_allowed():
+    """S1→S2 allowed (sequential), SAVE success, DB S2."""
+    ctx = _mk_intake(f"ADV02-{int(time.time())}", 3)
+    at = _obs(ctx["intake_id"], ctx["bin_id"])
+
+    sbs = _stage_sb(at); assert sbs, "Stage not found"
+    sbs[0].select("S2"); at.run(timeout=15)
+
+    errors = [e.value for e in (at.error or []) if hasattr(e, "value")]
+    has_violation = any("Biological Integrity" in e for e in errors)
+    assert not has_violation, f"False violation detected: {errors}"
+
+    btn = _save_btn(at); assert btn, "SAVE not found"
+    btn[0].click(); at.run(timeout=15)
+    time.sleep(1)
+
+    db = get_supabase_client()
+    for eid in ctx["egg_ids"]:
+        egg = db.table("egg").select("current_stage").eq("egg_id", eid).execute()
+        assert egg.data[0]["current_stage"] == "S2", f"Egg {eid} not S2"
+        obs = db.table("egg_observation").select("*").eq(
+            "egg_id", eid
+        ).eq("is_deleted", False).order("egg_observation_id", desc=True).limit(1).execute()
+        assert obs.data[0]["stage_at_observation"] == "S2", f"Obs for {eid} not S2"
+
+
+# -- TC-ADV-OBS-03: Forward jump S2→S6 BLOCKED ---------------------------
+def test_forward_jump_blocked():
+    """S2→S6 blocked (delta=4), DB still at S2."""
+    ctx = _mk_intake(f"ADV03-{int(time.time())}", 3)
+    # First advance to S2
+    at = _obs(ctx["intake_id"], ctx["bin_id"])
+    sbs = _stage_sb(at); assert sbs, "Stage not found"
+    sbs[0].select("S2"); at.run(timeout=15)
+    btn = _save_btn(at); assert btn; btn[0].click(); at.run(timeout=15)
+
+    # Try S2→S6 (non-sequential forward)
+    at = _obs(ctx["intake_id"], ctx["bin_id"])
+    sbs = _stage_sb(at); assert sbs, "Stage not found"
+    if "S6" in sbs[0].options:
+        sbs[0].select("S6"); at.run(timeout=15)
+
+    errors = [e.value for e in (at.error or []) if hasattr(e, "value")]
+    has_violation = any("Biological Integrity" in e or "not a valid sequential" in e for e in errors)
+    assert has_violation, f"No violation for S2→S6. Errors: {errors}"
+
+    db = get_supabase_client()
+    for eid in ctx["egg_ids"]:
+        egg = db.table("egg").select("current_stage").eq("egg_id", eid).execute()
+        assert egg.data[0]["current_stage"] == "S2", f"Egg {eid} changed after blocked S2→S6"
+
+
+# -- TC-ADV-OBS-04: Surgical Resurrection bypass --------------------------
+def test_surgical_resurrection_bypass():
+    """Toggle ON → S1→S4 allowed → SAVE S4 → toggle OFF → S4→S6 blocked."""
+    ctx = _mk_intake(f"ADV04-{int(time.time())}", 3)
+
+    # Run with surgical_resurrection=True
+    at = _obs(ctx["intake_id"], ctx["bin_id"], surgical=True)
+
+    sbs = _stage_sb(at); assert sbs, "Stage not found"
+    if "S4" in sbs[0].options:
+        sbs[0].select("S4"); at.run(timeout=15)
+
+    errors = [e.value for e in (at.error or []) if hasattr(e, "value")]
+    has_violation = any("Biological Integrity" in e for e in errors)
+    assert not has_violation, f"False violation with surgical: {errors}"
+
+    btn = _save_btn(at); assert btn, "SAVE not found"
+    btn[0].click(); at.run(timeout=15)
+    time.sleep(1)
+
+    db = get_supabase_client()
+    for eid in ctx["egg_ids"]:
+        egg = db.table("egg").select("current_stage").eq("egg_id", eid).execute()
+        assert egg.data[0]["current_stage"] == "S4", f"Egg {eid} not S4 after bypass"
+
+    # Now run with surgical OFF, try S4→S6 (delta=2, blocked)
+    at2 = _obs(ctx["intake_id"], ctx["bin_id"], surgical=False)
+    sbs2 = _stage_sb(at2); assert sbs2, "Stage not found"
+    if "S6" in sbs2[0].options:
+        sbs2[0].select("S6"); at2.run(timeout=15)
+
+    errors2 = [e.value for e in (at2.error or []) if hasattr(e, "value")]
+    has_violation2 = any("Biological Integrity" in e or "not a valid sequential" in e for e in errors2)
+    assert has_violation2, f"No violation after surgical OFF. Errors: {errors2}"
+
+
+# -- TC-ADV-OBS-05: MIXED stage enforcement --------------------------------
+def test_mixed_stage_enforcement():
+    """All bins at S2 → S2→S4 blocked → DB unchanged."""
+    ctx = _mk_intake(f"ADV05-{int(time.time())}", 3)
+    # Advance to S2
+    at = _obs(ctx["intake_id"], ctx["bin_id"])
+    sbs = _stage_sb(at); assert sbs, "Stage not found"
+    sbs[0].select("S2"); at.run(timeout=15)
+    btn = _save_btn(at); assert btn; btn[0].click(); at.run(timeout=15)
+
+    # Try S2→S4 (non-sequential)
+    at = _obs(ctx["intake_id"], ctx["bin_id"])
+    sbs = _stage_sb(at); assert sbs, "Stage not found"
+    if "S4" in sbs[0].options:
+        sbs[0].select("S4"); at.run(timeout=15)
+
+    errors = [e.value for e in (at.error or []) if hasattr(e, "value")]
+    has_violation = any("Biological Integrity" in e or "not a valid sequential" in e for e in errors)
+    assert has_violation, f"No violation for S2→S4. Errors: {errors}"
+
+    # DB pincer: all eggs still S2
+    db = get_supabase_client()
+    for eid in ctx["egg_ids"]:
+        egg = db.table("egg").select("current_stage").eq("egg_id", eid).execute()
+        assert egg.data[0]["current_stage"] == "S2", f"Egg {eid} changed after blocked S2→S4"

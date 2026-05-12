@@ -13,6 +13,23 @@ If the Streamlit application consists of 50 files and 20,000 lines of code, pass
 
 **The Optimized Protocol:**
 *   **Targeted Retrieval Instead of Bulk Ingestion:** The Phase 1 Planning Agent MUST be prohibited from bulk file reading. Instead, it must be constrained to use Semantic Search (`codebase_search`), AST parsing, or `grep_search`. 
+
+## 🛡️ The Streamlit Settle Protocol (Anti-Flicker)
+Streamlit's reactive architecture causes frequent redraws and element detachment. To ensure "Zero Defect" execution on Streamlit-based UIs, all agents must adhere to the following:
+
+1. **Spinner Detection**: Never capture landmarks or perform clicks while the Streamlit "Running" spinner (top-right) is active.
+2. **The 1-Second Idle Rule**: After the spinner disappears, wait exactly 1000ms for the DOM to settle and backend hooks to attach.
+3. **Double-Screenshot Verification**: In high-volatility areas, capture two screenshots 500ms apart. If the images are not identical, wait and repeat until the UI is static.
+4. **Coordinate Mapping**: Coordinates must only be calculated from a verified "Static" screenshot.
+
+## 🎯 Coordinate-Based Execution (Zero-DOM)
+- **Law**: Interaction with the UI must be performed via (x,y) coordinates.
+- **Workflow**: 
+    1. Verify Viewport (Width/Height).
+    2. Capture Static Screenshot (Settle Protocol).
+    3. Gemini 3.1 Flash Landmark Analysis (Normalized 0-1000).
+    4. Scaling Math (Pixel = Normalized * Viewport / 1000).
+    5. Execution via `page.mouse.click(x, y)`.
 *   **Workflow:** 
     1.  Agent reads `requirements.md`.
     2.  Agent performs a `grep` for `st.session_state` and `st.button` specifically to map the active state mutations.

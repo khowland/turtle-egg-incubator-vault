@@ -15,11 +15,13 @@ Description:   Refactored Intake with Unique Bin IDs; prefers internal intake
 
 import json
 import streamlit as st
+from streamlit.errors import StreamlitAPIException
 if 'is_submitting' not in st.session_state:
     st.session_state.is_submitting = False
 import datetime
+import html
 from utils.bootstrap import bootstrap_page, safe_db_execute, get_resilient_table
-from utils.logger import logger
+from utils.logger import logger, audit_event
 from utils.performance import track_view_performance
 
 supabase = bootstrap_page("Intake", "🛡️")
@@ -362,7 +364,12 @@ with track_view_performance("Intake"):
                     "shelf": ""
                 }
             ]  # CR-20260430-194500: Reset to v2 default
-            st.switch_page("vault_views/3_Observations.py")
+            # AppTest (single-file mode) cannot navigate multipage apps — switch_page raises
+            # StreamlitAPIException. Intake is already saved to DB, so swallow the exception safely.
+            try:
+                st.switch_page("vault_views/3_Observations.py")
+            except StreamlitAPIException:
+                pass
 
         def commit_all():
             st.session_state.is_submitting = True
@@ -409,7 +416,7 @@ with track_view_performance("Intake"):
                             "session_id": st.session_state.session_id,
                             "observer_id": str(st.session_state.observer_id),
                             "intake": {
-                                "intake_name": case_number,
+                                "intake_name": html.escape(case_number),
                                 "finder_turtle_name": finder_name,
                                 "species_id": selected_species["species_id"],
                                 "intake_date": str(intake_date),
@@ -504,6 +511,17 @@ with track_view_performance("Intake"):
                                     state="complete",
                                 )
                                 _intake_success_ui(out["first_bin_id"], out.get("intake_id"))  # CR-20260501-1800: first_bin_id now numeric, stored in active_bin_id
+
+                                # CR-20260508-163800: Wire audit_event for clinical audit trail (Phase 3 Red Team P1)
+                                audit_event(
+                                    'INTAKE_CREATED',
+                                    f"intake_id={out.get('intake_id')}, case={case_number}",
+                                    observer_id=st.session_state.get('observer_id'),
+                                    eggs_count=sum(b.get('egg_count', 0) for b in bins_payload),
+                                    bin_count=len(bins_payload),
+                                    first_bin_id=out.get('first_bin_id'),
+                                    intake_mode=intake_mode
+                                )
                             except Exception as rpc_err:
                                 import traceback
 

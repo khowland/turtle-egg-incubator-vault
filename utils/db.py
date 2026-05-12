@@ -16,7 +16,7 @@ import os
 import streamlit as st
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from utils.logger import logger
+from utils.logger import logger, log_exceptions
 
 # Load environment variables from .env file
 load_dotenv()
@@ -28,6 +28,7 @@ load_dotenv()
 # =============================================================================
 
 
+@log_exceptions
 @st.cache_resource
 def get_supabase_client() -> Client:
     """Initializes and returns a cached Supabase client instance."""
@@ -70,6 +71,7 @@ def get_supabase_client() -> Client:
 # =============================================================================
 
 
+@log_exceptions
 def clear_vault_cache():
     """Clears Streamlit's data cache to force fresh reads from Supabase."""
     logger.warning("🧹 Autonomous Sync: Clearing data cache for fresh reads.")
@@ -81,6 +83,7 @@ def clear_vault_cache():
 # Description: Pings Supabase to verify connectivity on startup or refresh.
 # Returns: bool — True if connection is live
 # -----------------------------------------------------------------------------
+@log_exceptions
 def check_connection(supabase: Client) -> bool:
     """Verifies connectivity to the Supabase backend with Auto-Wake (Plan B)."""
     try:

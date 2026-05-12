@@ -53,7 +53,7 @@ MULTISELECT_DROPDOWN_OPTION = "[data-testid='stMultiSelectDropdown'] li:has-text
 # ---------------------------------------------------------------------------
 # Selectboxes — label patterns and dropdown option template
 # ---------------------------------------------------------------------------
-SELECTBOX_STAGE = "[data-testid='stSelectbox']:has-text('Stage')"
+SELECTBOX_STAGE = "[data-testid='stSelectbox'] >> label:has-text('Stage')"
 SELECTBOX_STATUS = "[data-testid='stSelectbox']:has-text('Status')"
 SELECTBOX_CHALKING = "[data-testid='stSelectbox']:has-text('Chalking')"
 SELECTBOX_MOLDING = "[data-testid='stSelectbox']:has-text('Molding')"

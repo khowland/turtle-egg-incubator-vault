@@ -1,0 +1,22 @@
+{
+  "total_weight": 0,
+  "total_cost": 0.0,
+  "entries": [
+    {
+      "timestamp": "2026-05-12T10:31:42.779928",
+      "task_id": "system-init",
+      "model": "initial-check",
+      "input": 0,
+      "output": 0,
+      "cost": 0.0
+    },
+    {
+      "timestamp": "2026-05-12T10:31:52.843632",
+      "task_id": "system-init",
+      "model": "initial-check",
+      "input": 0,
+      "output": 0,
+      "cost": 0.0
+    }
+  ]
+}

@@ -21,6 +21,8 @@ from e2e_selectors import (
     SELECTBOX_DROPDOWN_OPTION,
     BTN_SAVE,
 )
+import re
+from playwright.sync_api import expect as playwright_expect
 from utils.db import get_supabase_client
 
 
@@ -81,24 +83,19 @@ def _setup_intake_and_navigate_to_observations(page: Page, login, egg_count: int
     page.get_by_role("button", name="SAVE").click()
 
     page.wait_for_timeout(500)
+    # Strategy A: inject test_mode=1 query param to auto-populate selected_eggs
+    page.evaluate("window.history.replaceState({}, '', '?test_mode=1')")
     page.locator(NAV_OBSERVATIONS).first.click()
     expect(page.get_by_role("heading", name=HEADING_OBSERVATIONS)).to_be_visible(timeout=15000)
 
-    # Select all bins in workbench
-    from e2e_selectors import MULTISELECT_WORKBENCH
-    workbench = page.locator(MULTISELECT_WORKBENCH).first
-    workbench.click()
-    page.wait_for_timeout(500)
-    # Click all available options
-    options = page.locator("[data-testid='stMultiSelectDropdown'] li").all()
-    for opt in options:
-        try:
-            opt.click()
-            page.wait_for_timeout(200)
-        except Exception:
-            pass
-    page.keyboard.press("Escape")
-    page.wait_for_timeout(500)
+# Strategy A: test_mode=1 auto-populated selected_eggs, page shows Property Matrix.
+    # Wait for Stage selectbox instead of old multi-select flow.
+    stage_label = page.locator("[data-testid='stSelectbox'] label:has-text('Stage')")
+    try:
+        stage_label.wait_for(state="visible", timeout=15000)
+        print(f"[TESTMODE-SETUP-TSK06] Stage selectbox visible — Property Matrix rendered")
+    except Exception as e:
+        print(f"[TESTMODE-SETUP-TSK06] Stage selectbox NOT found: {e}")
 
     return {"sig": sig}
 

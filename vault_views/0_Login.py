@@ -30,4 +30,6 @@ st.markdown(
 )
 
 with track_view_performance("Login/Splash"):
+    if st.session_state.get("observer_id"):
+        st.switch_page("vault_views/1_Dashboard.py")
     show_splash_screen()

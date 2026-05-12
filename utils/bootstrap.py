@@ -16,9 +16,12 @@ import streamlit as st
 import uuid
 import datetime
 from utils.db import get_supabase
+from utils.logger import logger, log_exceptions, log_context, log_timing
+ 
 
 # CR-P3-01: Cached version fetch (300s TTL) — reduces redundant DB calls; version changes are deployment-level events
 @st.cache_data(ttl=300)
+@log_exceptions
 def get_app_version():
     """Fetches the application version from the system_config table."""
     try:
@@ -34,6 +37,7 @@ def get_app_version():
 
 
 
+@log_exceptions
 def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
     """
     Standardized page initialization.
@@ -42,6 +46,13 @@ def bootstrap_page(title="Incubator Vault", icon="🐢", render_sidebar=True):
     # 1. Ensure Global Session ID for Audit Trace
     if "session_id" not in st.session_state:
         st.session_state.session_id = str(uuid.uuid4())
+        # Wire logging context for request traceability
+        log_context.set(
+            session_id=st.session_state.get("session_id", ""),
+            observer_id=st.session_state.get("observer_id", ""),
+            page_name=st.session_state.get("current_page", "bootstrap"),
+        )
+
 
     # 2. Check Identity (Note: app.py handles the router, so we don't stop here)
     if not st.session_state.get("observer_id"):
@@ -312,6 +323,7 @@ def render_custom_sidebar():
         st.rerun()
 
 @st.cache_resource(ttl=3600)
+@log_exceptions
 def get_last_bin_weight(bin_id):
     """
     Hydration Gate Optimization (§35.5).
@@ -352,11 +364,13 @@ def get_last_bin_weight(bin_id):
     return {"bin_weight_g": 0.0, "timestamp": None}
 
 
+@log_exceptions
 def get_resilient_table(supabase, table_name):
     """Standard §35: Direct Table Access."""
     return supabase.table(table_name)
 
 
+@log_exceptions
 def safe_db_execute(operation_name, func, success_message=None, *args, **kwargs):
     """
     Atomic Transactions (§36.2): Unified Result Wrapper.

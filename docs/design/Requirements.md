@@ -7,7 +7,7 @@
 The **WINC Incubator System** is a high-integrity records system designed for the Wildlife In Need Center (WINC). It adheres to **Industry Best Practices** for enterprise software engineering, focusing on data durability, system transparency, and biological accuracy.
 
 * **Human-First Design**: The system must be intuitive enough for a volunteer with zero technical training to operate ("5th-Grader Standard").
-* **Architecture Standard**: Single-user-at-a-time shift model. Supports multiple observers for forensic accountability, but permits only one active clinical context at a time.
+* **Architecture Standard**: Single-user-at-a-time shift model. Supports multiple observers for forensic accountability, but enforces **Global Data Visibility**—all active incubator records are visible to all authenticated observers.
 * **Infrastructure Standard**: Hosted on **Google Cloud Platform (GCP)** with a **Supabase (PostgreSQL)** backend, utilizing containerized Streamlit for maximum availability.
 
 ---
@@ -53,6 +53,7 @@ graph LR
 * **Session Persistence (§36)**: Implements a 1-hour **global** resumption window: a new login within one hour of the last activity adopts the existing shift session ID. Sessions older than 1 hour require re-authentication.
 * **Bin Weight Check**: A mandatory weight check blocks access to the grid until the bin's mass is recorded.
 * **Unified Identity Cluster**: User identity (Name + Version) and the **SHIFT END** session termination control must be grouped in a consolidated sidebar cluster.
+* **Global Clinical Visibility (§2.4)**: The WINC Incubator is a **Single-User, Global Visibility system.** All active bins and eggs are sovereign to the incubator facility, not the individual observer. Clinical views (Dashboard, Observations, Intake) must display all active incubator data globally. Filtering by `observer_id` or `created_by_id` is strictly prohibited for clinical visibility and is reserved exclusively for forensic auditing and log reporting.
 
 ---
 
