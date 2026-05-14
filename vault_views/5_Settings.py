@@ -400,6 +400,7 @@ with tabs[4]:
         supabase.table("system_log")
         .select("timestamp, event_type, event_message")
         .order("timestamp", desc=True)
+        .limit(500)
         .execute()
         .data
     )

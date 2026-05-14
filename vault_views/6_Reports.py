@@ -317,12 +317,6 @@ with track_view_performance("Reports"):
 
 
     def load_analytical_data():
-        eggs_data = (
-            supabase_client.table("egg")
-            .select("current_stage, status, bin_id")
-            .execute()
-            .data
-        )
         active_bins = (
             supabase_client.table("bin")
             .select("bin_id")
@@ -331,10 +325,18 @@ with track_view_performance("Reports"):
             .data
             or []
         )
-        active_bin_set = {b["bin_id"] for b in active_bins}
-        eggs_filtered = [e for e in (eggs_data or []) if e.get("bin_id") in active_bin_set]
+        active_bin_ids = [b["bin_id"] for b in active_bins]
+        eggs_data = (
+            supabase_client.table("egg")
+            .select("current_stage, status, bin_id")
+            .eq("is_deleted", False)
+            .in_("bin_id", active_bin_ids)
+            .execute()
+            .data
+        )
+        eggs_filtered = eggs_data or []
         hatchlings_data = (
-            supabase_client.table("hatchling_ledger").select("*").eq("is_deleted", False).execute().data
+            supabase_client.table("hatchling_ledger").select("*").eq("is_deleted", False).limit(2000).execute().data
         )
         return pd.DataFrame(eggs_filtered), pd.DataFrame(hatchlings_data or [])
 

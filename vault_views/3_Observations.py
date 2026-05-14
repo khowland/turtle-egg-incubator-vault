@@ -93,7 +93,20 @@ with track_view_performance("Observations"):
     # A bin ID containing invalid chars (e.g. '/' in legacy records like Snapper_Val_0/16)
     # breaks the Supabase REST URL path and returns a non-data object, causing AttributeError.
     bin_stats = {}
-    for b_id in bin_options:
+    # PERF: Only query bins currently in the workbench (not ALL bins in DB)
+    # Prevents 81s load times when DB has 1000+ bins
+    import os
+    from utils.logger import logger as obs_logger
+    if os.getenv("TEST_MODE"):
+        obs_logger.debug(f"Observations: TEST_MODE active — stats loop constrained to {len(st.session_state.get('workbench_bins', set()))} workbench bins")
+    relevant_bins = set(st.session_state.get('workbench_bins', set()))
+    active_bin = st.session_state.get("active_bin_id")
+    if active_bin:
+        relevant_bins.add(active_bin)
+    slim_bin_options = [b for b in bin_options if b in relevant_bins]
+    if slim_bin_options:
+        obs_logger.debug(f"Observations: Stats loop — querying {len(slim_bin_options)} workbench bins (skipped {len(bin_options) - len(slim_bin_options)} other bins)")
+    for b_id in slim_bin_options:
         try:
             eggs = supabase.table("egg").select("egg_id").eq("bin_id", b_id).eq("is_deleted", False).execute().data
             obs = supabase.table("egg_observation").select("egg_id").in_("egg_id", [e["egg_id"] for e in eggs]).eq("is_deleted", False).eq("session_id", st.session_state.session_id).execute().data if eggs else []
@@ -199,7 +212,7 @@ with track_view_performance("Observations"):
                 col_w1, col_w2 = st.columns(2)
                 col_w1.metric(
                     "Last Recorded Weight",
-                    f"{last_weight}g" if last_weight > 0 else "New Bin",
+                    f"{last_weight}g" if (last_weight or 0) > 0 else "New Bin",
                 )
                 curr_w = col_w2.number_input(
                     "Current Total Mass (g)",
@@ -674,31 +687,7 @@ with track_view_performance("Observations"):
                         st.error("Ledger write failed. Check logs.")
                         return
 
-                    obs_payload = []
-                    for rid in selected_real_ids:
-                        payload = {
-                                "session_id": st.session_state.session_id,
-                                "egg_id": rid,
-                                "bin_id": active_bin_id,
-                                "observer_id": st.session_state.observer_id,
-                                "created_by_id": st.session_state.observer_id,
-                                "modified_by_id": st.session_state.observer_id,
-                                "chalking": new_chalk,
-                                "vascularity": v,
-                                "molding": m_val,
-                                "leaking": l_val,
-                                "dented": d_val,
-                                "stage_at_observation": new_stage,
-                                "observation_notes": observation_notes,
-                                "is_deleted": False,
-                            }
-                        # §4: Clinical Audit Parity - Honor Backdating
-                        if st.session_state.get("backdate_obs"):
-                            payload["timestamp"] = st.session_state.backdate_obs.isoformat()
-                        
-                        obs_payload.append(payload)
-
-                    # Ledger already committed the observation above; payload kept for S6 processing
+                    # Observation committed by record_observations() above; S6 hatchling_ledger logic follows
 
                     if new_stage == "S6":
                         hatch_date = datetime.date.today()

@@ -2,6 +2,8 @@
 ## For MSI Stealth Automated Client [Ac]
 
 **Status**: READY FOR AUTONOMOUS EXECUTION
+**STATUS: ⛔ DEPRECATED — MSI Stealth/A2A removed from stack 2026-05-13. Use built-in browser tool + vision_load instead.**
+**Final recommendation**: Option A from subordinate analysis — browser tool + vision_load + deepseek_pro MCP.
 **Date**: 2026-05-09
 **Target**: MSI Stealth (64GB RAM, 16GB VRAM)
 **Pre-existing**: Agent Zero framework ✓ | Ollama ✓ | Streamlit app accessible ✓

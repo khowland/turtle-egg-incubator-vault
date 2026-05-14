@@ -13,23 +13,7 @@ import streamlit as st
 import datetime
 from utils.db import get_supabase
 from utils.logger import logger, audit_event
-
-def get_active_observer():
-    """
-    Centralized Identity Provider.
-    Ensures a valid observer session is active, handling QA bypasses.
-    """
-    if 'observer_id' not in st.session_state:
-        # Fallback to Kevin Standard (Verified DB UUID)
-        st.session_state.observer_id = 'ebe72de7-345d-4335-94f3-63b2b64c7857'
-        st.session_state.observer_name = 'Kevin Howland'
-        logger.info("Identity Provider: Initialized Kevin Standard Bypass")
-        
-    return {
-        "id": st.session_state.observer_id,
-        "name": st.session_state.observer_name,
-        "session_id": st.session_state.get('session_id', 'SYSTEM_BYPASS')
-    }
+from utils.identity import get_active_observer
 
 def record_observations(egg_ids, metrics, backdate=None):
     """
@@ -67,10 +51,10 @@ def record_observations(egg_ids, metrics, backdate=None):
         entry = {
             "egg_id": egg_id,
             "bin_id": metrics.get("bin_id"),
-            "observer_id": observer["id"],
+            "observer_id": observer["observer_id"],
             "session_id": observer["session_id"],
-            "created_by_id": observer["id"],
-            "modified_by_id": observer["id"],
+            "created_by_id": observer["observer_id"],
+            "modified_by_id": observer["observer_id"],
             "stage_at_observation": metrics.get("stage_id"),
             "vascularity": metrics.get("is_vascular"),
             "chalking": metrics.get("chalking_id"),
@@ -111,9 +95,9 @@ def record_observations(egg_ids, metrics, backdate=None):
         
         # 3. THE SQL PINCER: Verify the Landing
         if res.data:
-            verify = supabase.table("egg_observation").select("egg_observation_id").eq("session_id", observer["session_id"]).limit(1).execute()
-            if verify.data:
-                audit_event("OBSERVATION_COMMITTED", f"Eggs: {len(egg_ids)}, Observer: {observer['name']}")
+            verify = supabase.table("egg_observation").select("egg_observation_id").eq("session_id", observer["session_id"]).in_("egg_id", egg_ids).execute()
+            if verify.data and len(verify.data) == len(egg_ids):
+                audit_event("OBSERVATION_COMMITTED", f"Eggs: {len(egg_ids)}, Observer: {observer['observer_name']}")
                 return True
         
         return False
