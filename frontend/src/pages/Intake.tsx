@@ -398,7 +398,11 @@ export default function Intake() {
     `${s.species_code} - ${s.common_name}${s.species_code === 'MK' ? ' (Stinkpot)' : ''}`
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <div className="intake-container">
+      <header>
+        <h1>New Intake</h1>
+      </header>
+      <form onSubmit={handleSubmit} noValidate>
 
       {/* Intake Mode toggle */}
       <div className="card" style={{ marginBottom: 20 }}>
@@ -618,5 +622,6 @@ export default function Intake() {
       </div>
 
     </form>
+    </div>
   )
 }
