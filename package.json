@@ -1,0 +1,27 @@
+{
+  "name": "turtle-db",
+  "version": "1.0.0",
+  "description": "The **Turtle Egg Incubator Vault** is a specialized mission-critical system designed for the **Wildlife In Need Center (WINC)**. Our mission is centered on the delicate process of preserving the next generation of local turtle populations through high-precision conservation.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://khowland: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@github.com/khowland/turtle-egg-incubator-vault.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khowland/turtle-egg-incubator-vault/issues"
+  },
+  "homepage": "https://github.com/khowland/turtle-egg-incubator-vault#readme",
+  "devDependencies": {
+    "supabase": "^2.98.2"
+  }
+}

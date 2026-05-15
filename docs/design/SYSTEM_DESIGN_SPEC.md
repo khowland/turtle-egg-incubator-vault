@@ -1,7 +1,9 @@
 # 🐢 WINC Incubator System: System Design Specification (v8.1.3)
+
 **Technical Architecture, Database Dictionary, and System Parts List**
 
 ## 1. System Architecture Matrix
+
 This diagram depicts the zero-deviation flow of biological data from high-mobility field tablets through the Streamlit application layer and into the hardened Supabase PostgreSQL database.
 
 ```mermaid
@@ -31,6 +33,7 @@ graph TD
 ---
 
 ## 2. Module Dependency Hierarchy
+
 The "Nervous System" of the application. This hierarchy governs how scripts inherit identity and connectivity.
 
 ```mermaid
@@ -57,6 +60,7 @@ graph LR
 ---
 
 ## 3. Biological State Machine
+
 Individual eggs progress through the database according to the following state logic. "Correction Mode" permits manual state reversal while maintaining the audit trail.
 
 ```mermaid
@@ -78,6 +82,7 @@ stateDiagram-v2
 ---
 
 ## 4. Shift Continuity Timeline
+
 The System unifies multi-observer activity during a 4-hour clinical window to ensure a coherent "Shift Folder" for forensics.
 
 ```mermaid
@@ -100,38 +105,46 @@ sequenceDiagram
 ## 5. Database Dictionary (The Incubator Records)
 
 ### A. Audit Header Standard (§6.59)
+
 Every transactional table in the records contains the following mandatory columns:
-*   **`session_id`** (TEXT): The unique shift/session identifier.
-*   **`created_at`** (TIMESTAMPTZ): Automatic record creation timestamp.
-*   **`modified_at`** (TIMESTAMPTZ): Automatic last-edit timestamp.
-*   **`created_by_id`** (UUID): FK to `observer.observer_id`.
-*   **`modified_by_id`** (UUID): FK to `observer.observer_id`.
-*   **`is_deleted`** (BOOLEAN): Soft-delete flag for clinical preservation.
+
+* **`session_id`** (TEXT): The unique shift/session identifier.
+* **`created_at`** (TIMESTAMPTZ): Automatic record creation timestamp.
+* **`modified_at`** (TIMESTAMPTZ): Automatic last-edit timestamp.
+* **`created_by_id`** (UUID): FK to `observer.observer_id`.
+* **`modified_by_id`** (UUID): FK to `observer.observer_id`.
+* **`is_deleted`** (BOOLEAN): Soft-delete flag for clinical preservation.
 
 ### B. Session Continuity Protocol (§36)
+
 The implementation utilizes a **Global Resumption** mechanism:
-1.  **Persistence**: Browsing sessions are validated against the `session_log`.
-2.  **Resumption**: Any new authentication within 4 hours of the *global* last activity adopts the existing `session_id`.
-3.  **Traceability**: Session adoption unifies the "Shift Folder" in reporting while identifying multiple observers in shared shifts.
+
+1. **Persistence**: Browsing sessions are validated against the `session_log`.
+2. **Resumption**: Any new authentication within 4 hours of the *global* last activity adopts the existing `session_id`.
+3. **Traceability**: Session adoption unifies the "Shift Folder" in reporting while identifying multiple observers in shared shifts.
 
 ### C. Unified Vocabulary (v8.1.3 Standard)
+
 The system mandates the following button labeling for cross-module consistency:
-*   **`SAVE`**: Primary database commit action (Green).
-*   **`CANCEL`**: Transaction abort/exit action (Red/Secondary).
-*   **`ADD`**: Row or record creation (Blue).
-*   **`REMOVE`**: Soft-delete or row removal action.
-*   **`START` / `START WORKING`**: Gateway or check-in completion.
+
+* **`SAVE`**: Primary database commit action (Green).
+* **`CANCEL`**: Transaction abort/exit action (Red/Secondary).
+* **`ADD`**: Row or record creation (Blue).
+* **`REMOVE`**: Soft-delete or row removal action.
+* **`START` / `START WORKING`**: Gateway or check-in completion.
 
 ---
 
 ---
 
 ## 4. Hardware and Environment Specification
+
 - **Incubator Topology**: SINGLE Physical Unit.
-- **Organization**: Multiple "Bins" (Containers) per Incubator.
-- **Terminology**: The word "Incubator" is reserved for the machine; "Bin" is used for the plastic egg boxes.
+* **Organization**: Multiple "Bins" (Containers) per Incubator.
+* **Terminology**: The word "Incubator" is reserved for the machine; "Bin" is used for the plastic egg boxes.
 
 ### 🎨 Biological Visual Identity
+
 The system utilizes high-definition SVG assets for biological triage. Developers must maintain this visual parity:
 
 | S1: Healthy | S2: Vascular | S3: Chalking | S5: Pipping | S6: Hatched |
@@ -143,17 +156,19 @@ The system utilizes high-definition SVG assets for biological triage. Developers
 ## 5. Software Bill of Materials (SBOM)
 
 ### Core Frameworks
-*   **Streamlit (1.35+)**: Frontend user interface and navigation routing.
-*   **Supabase (2.4+)**: Secure communication with the PostgreSQL backend.
-*   **Pandas**: Analytical data processing.
-*   **Plotly**: Interactive visualization.
+
+* **Streamlit (1.35+)**: Frontend user interface and navigation routing.
+* **Supabase (2.4+)**: Secure communication with the PostgreSQL backend.
+* **Pandas**: Analytical data processing.
+* **Plotly**: Interactive visualization.
 
 ---
 
 ## 6. Maintenance Protocol
-*   **Heartbeat**: `scripts/heartbeat_ping.py` must be executed via Cron every 24 hours.
-*   **Atomic Intake**: All clutches must be committed via `vault_finalize_intake` RPC to ensure parity.
-*   **Temporal Precision**: Eggs use `intake_timestamp` (TIMESTAMPTZ) for sub-second audit forensic tracking.
+
+* **Heartbeat**: `scripts/heartbeat_ping.py` must be executed via Cron every 24 hours.
+* **Atomic Intake**: All clutches must be committed via `vault_finalize_intake` RPC to ensure parity.
+* **Temporal Precision**: Eggs use `intake_timestamp` (TIMESTAMPTZ) for sub-second audit forensic tracking.
 
 ---
 *Verified for v8.1.3 Production Release (2026 Season)*
