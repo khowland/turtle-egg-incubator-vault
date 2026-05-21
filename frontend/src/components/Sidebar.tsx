@@ -24,6 +24,12 @@ export default function Sidebar() {
         <NavLink to="/reports" className={({ isActive }) => isActive ? 'active' : ''}>
           📈 Reports
         </NavLink>
+        <NavLink to="/system-check" className={({ isActive }) => isActive ? 'active' : ''}>
+          🩺 System Check
+        </NavLink>
+        <NavLink to="/help" className={({ isActive }) => isActive ? 'active' : ''}>
+          📚 Help
+        </NavLink>
         <NavLink to="/settings" className={({ isActive }) => isActive ? 'active' : ''}>
           ⚙️ Settings
         </NavLink>
@@ -34,9 +40,13 @@ export default function Sidebar() {
           <p>{observer?.observer_name}</p>
           <span>Expert Herpetologist</span>
         </div>
-        {/* Terminal Placeholder */}
+        
+        <button className="btn btn-danger btn-shift-end" onClick={() => window.location.reload()}>
+          SHIFT END
+        </button>
+
         <div className="sidebar-terminal-trigger">
-          >_ Forensic Echo
+          {'>'}_ Forensic Echo
         </div>
       </div>
     </aside>

@@ -77,7 +77,6 @@ Not every turtle arrives in the same way. Use the flowchart below to decide whic
 
 > 📘 **NOTE — Intake Field Changes (May 2026)**: The **Mother's Weight** and **Temperature** fields have moved. Weight recording now happens during **Observations**, not Intake. Temperature is recorded **per-observation** (Incubator Temp °F), not per-bin.
 
-
 ### 2.2 Supplemental Intake: Add Eggs or Bins to Existing Intake
 
 Sometimes a turtle lays more eggs than will fit in one plastic bin.
@@ -89,7 +88,7 @@ Sometimes a turtle lays more eggs than will fit in one plastic bin.
 3. Choose the matching **Intake ID** and click **[ADD]**.
 
 > 📘 **NOTE — Sidebar Tools Relocated (May 2026)**: The **Add a Bin to a Case** and **Add Eggs to Existing Bin** functions previously found in the Daily Checks sidebar have moved to the **New Intake** screen. Use the New Intake screen for all egg/bin addition workflows.
-4. **Result**: The system links both bins to the same biological intake for seasonal tracking.
+1. **Result**: The system links both bins to the same biological intake for seasonal tracking.
 
 > 🛑 **IMPORTANT: INTAKE ID VERIFICATION**: Before clicking **[SAVE]**, look at the physical tag on the turtle (See Figure 5). Ensure it matches the **Intake ID** you selected in the app. Choosing the wrong ID will link your 30 eggs to the wrong biological parent in the permanent cloud records.
 

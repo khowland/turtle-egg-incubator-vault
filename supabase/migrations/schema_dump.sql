@@ -27,7 +27,8 @@ CREATE TABLE public.bin (
     CONSTRAINT bin_observer_fkey FOREIGN KEY (created_by_id) REFERENCES observer(observer_id),
     CONSTRAINT bin_pkey PRIMARY KEY (bin_id),
     CONSTRAINT bin_session_fkey FOREIGN KEY (session_id) REFERENCES session_log(session_id),
-    CONSTRAINT bin_total_eggs_check CHECK ((total_eggs <= 300))
+    CONSTRAINT bin_total_eggs_check CHECK ((total_eggs <= 300)),
+    CONSTRAINT unique_bin_code UNIQUE (bin_code)
 );
 
 -- Table: bin_observation
@@ -143,6 +144,7 @@ CREATE TABLE public.egg_observation (
     created_by_id bigint,
     modified_by_id bigint,
     observer_id bigint,
+    CONSTRAINT check_no_future_dates CHECK ((date(egg_observation_date) <= CURRENT_DATE)),
     CONSTRAINT egg_obs_bin_fkey FOREIGN KEY (bin_id) REFERENCES bin(bin_id),
     CONSTRAINT egg_obs_egg_fkey FOREIGN KEY (egg_id) REFERENCES egg(egg_id),
     CONSTRAINT egg_obs_observer_fkey FOREIGN KEY (observer_id) REFERENCES observer(observer_id),
@@ -185,7 +187,7 @@ CREATE TABLE public.intake (
     intake_condition text,
     extraction_method text,
     discovery_location text,
-    mother_weight_g numeric,
+    mother_weight_g numeric NOT NULL,
     clinical_metadata jsonb DEFAULT '{}'::jsonb,
     days_in_care numeric,
     intake_number integer,

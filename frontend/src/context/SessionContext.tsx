@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import React, { createContext, useContext, useState } from 'react'
 import type { Observer } from '../lib/identity'
 
 interface SessionContextType {
@@ -20,7 +19,7 @@ const DEFAULT_OBSERVER: Observer = {
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [observer, setObserver] = useState<Observer | null>(DEFAULT_OBSERVER)
-  const [loading, setLoading] = useState(false)
+  const [loading] = useState(false)
 
   return (
     <SessionContext.Provider value={{ observer, setObserver, loading }}>

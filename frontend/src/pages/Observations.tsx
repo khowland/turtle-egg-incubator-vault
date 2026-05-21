@@ -27,20 +27,22 @@ export default function Observations() {
   // Form State
   const [matrixStage, setMatrixStage] = useState('S1')
   const [matrixStatus, setMatrixStatus] = useState('Active')
-  const [matrixChalking, setMatrixChalking] = useState(0)
+  const [matrixChalking] = useState(0)
   const [matrixMolding, setMatrixMolding] = useState(0)
   const [matrixLeaking, setMatrixLeaking] = useState(0)
-  const [matrixDenting, setMatrixDenting] = useState(0)
+  const [matrixDenting] = useState(0)
 
   const fetchBins = useCallback(async () => {
-    const { data } = await supabase.table('bin').select('bin_id, bin_code').eq('is_deleted', false)
+    const sos = supabase as any
+    const { data } = await sos.table('bin').select('bin_id, bin_code').eq('is_deleted', false)
     setBins(data || [])
     if (data && data.length > 0 && !activeBinId) setActiveBinId(data[0].bin_id)
   }, [activeBinId])
 
   const fetchEggs = useCallback(async (binId: number) => {
     setLoading(true)
-    const { data } = await supabase.table('egg')
+    const sos = supabase as any
+    const { data } = await sos.table('egg')
       .select('egg_id, bin_id, current_stage, status, last_chalk, last_vasc')
       .eq('bin_id', binId)
       .eq('status', 'Active')
@@ -60,9 +62,10 @@ export default function Observations() {
     if (selectedEggIds.length === 0) return
     
     // Batch commit logic (simplified for v9.6.6 React core)
+    const sos = supabase as any
     const promises = selectedEggIds.map(async (eggId) => {
       // 1. Create Observation
-      await supabase.table('egg_observation').insert({
+      await sos.table('egg_observation').insert({
         egg_id: eggId,
         bin_id: activeBinId,
         session_id: observer?.session_id ?? 'SYSTEM',
@@ -76,7 +79,7 @@ export default function Observations() {
       })
 
       // 2. Update Egg State
-      await supabase.table('egg').update({
+      await sos.table('egg').update({
         current_stage: matrixStage,
         status: matrixStatus,
         last_chalk: matrixChalking,

@@ -5,6 +5,8 @@ import Sidebar from './components/Sidebar'
 import Dashboard from './pages/Dashboard'
 import Intake from './pages/Intake'
 import Observations from './pages/Observations'
+import SystemCheck from './pages/SystemCheck'
+import Help from './pages/Help'
 import Settings from './pages/Settings'
 import Reports from './pages/Reports'
 
@@ -19,6 +21,8 @@ const App: React.FC = () => {
               <Route path="/" element={<Dashboard />} />
               <Route path="/intake" element={<Intake />} />
               <Route path="/observations" element={<Observations />} />
+              <Route path="/system-check" element={<SystemCheck />} />
+              <Route path="/help" element={<Help />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="*" element={<Navigate to="/" replace />} />

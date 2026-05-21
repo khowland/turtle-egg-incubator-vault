@@ -12,27 +12,26 @@ interface KPI {
 export default function Dashboard() {
   const { observer } = useSession()
   const [kpis, setKpis] = useState<KPI>({ activeCount: 0, hatchedCount: 0, deadCount: 0, alertCount: 0 })
-  const [loading, setLoading] = useState(true)
 
   async function fetchKPIs() {
+    const sos = supabase as any
     try {
       // Get active bins
-      const { data: bins } = await supabase.table('bin').select('bin_id').eq('is_deleted', false)
-      const activeBinIds = bins?.map(b => b.bin_id) || []
+      const { data: bins } = await sos.table('bin').select('bin_id').eq('is_deleted', false)
+      const activeBinIds = bins?.map((b: any) => b.bin_id) || []
 
       if (activeBinIds.length === 0) {
         setKpis({ activeCount: 0, hatchedCount: 0, deadCount: 0, alertCount: 0 })
-        setLoading(false)
         return
       }
 
       // Counts
-      const { count: active } = await supabase.table('egg').select('*', { count: 'exact', head: true }).eq('status', 'Active').eq('is_deleted', false).in('bin_id', activeBinIds)
-      const { count: hatched } = await supabase.table('egg').select('*', { count: 'exact', head: true }).eq('status', 'Transferred').eq('is_deleted', false).in('bin_id', activeBinIds)
-      const { count: dead } = await supabase.table('egg').select('*', { count: 'exact', head: true }).eq('status', 'Dead').eq('is_deleted', false).in('bin_id', activeBinIds)
+      const { count: active } = await sos.table('egg').select('*', { count: 'exact', head: true }).eq('status', 'Active').eq('is_deleted', false).in('bin_id', activeBinIds)
+      const { count: hatched } = await sos.table('egg').select('*', { count: 'exact', head: true }).eq('status', 'Transferred').eq('is_deleted', false).in('bin_id', activeBinIds)
+      const { count: dead } = await sos.table('egg').select('*', { count: 'exact', head: true }).eq('status', 'Dead').eq('is_deleted', false).in('bin_id', activeBinIds)
       
       // Alerts (molding > 0 or leaking > 0)
-      const { count: alerts } = await supabase.table('egg_observation').select('*', { count: 'exact', head: true }).in('bin_id', activeBinIds).or('molding.gt.0,leaking.gt.0')
+      const { count: alerts } = await sos.table('egg_observation').select('*', { count: 'exact', head: true }).in('bin_id', activeBinIds).or('molding.gt.0,leaking.gt.0')
 
       setKpis({
         activeCount: active || 0,
@@ -42,8 +41,6 @@ export default function Dashboard() {
       })
     } catch (err) {
       console.error('KPI fetch error:', err)
-    } finally {
-      setLoading(false)
     }
   }
 

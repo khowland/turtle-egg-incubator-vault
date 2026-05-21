@@ -289,3 +289,12 @@ h1 {
   border-top: 2px solid var(--accent);
 }
 
+
+.btn-shift-end {
+  width: 100%;
+  margin-top: 16px;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  padding: 8px;
+}
+
