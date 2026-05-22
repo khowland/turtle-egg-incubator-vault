@@ -9,7 +9,7 @@ DECLARE
     v_obs jsonb;
     v_egg_id text;
     v_session_id text;
-    v_observer_id uuid;
+    v_observer_id bigint;
     v_bin_id text;
     v_stage text;
     v_hatch_date date;
@@ -20,7 +20,7 @@ DECLARE
     v_obs_date date;
 BEGIN
     v_session_id := p_payload->>'session_id';
-    v_observer_id := (p_payload->>'observer_id')::uuid;
+    v_observer_id := (p_payload->>'observer_id')::bigint;
     v_stage := p_payload->>'stage';
     v_vitality := COALESCE(p_payload->>'vitality', 'pending_field_assessment');
     v_obs_date := COALESCE((p_payload->>'egg_observation_date')::date, CURRENT_DATE);
