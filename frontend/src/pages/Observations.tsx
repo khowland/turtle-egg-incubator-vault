@@ -27,10 +27,11 @@ export default function Observations() {
   // Form State
   const [matrixStage, setMatrixStage] = useState('S1')
   const [matrixStatus, setMatrixStatus] = useState('Active')
-  const [matrixChalking] = useState(0)
+  const [matrixChalking, setMatrixChalking] = useState(0)
   const [matrixMolding, setMatrixMolding] = useState(0)
   const [matrixLeaking, setMatrixLeaking] = useState(0)
-  const [matrixDenting] = useState(0)
+  const [matrixDenting, setMatrixDenting] = useState(0)
+  const [matrixVascularity, setMatrixVascularity] = useState(false)
 
   const fetchBins = useCallback(async () => {
     
@@ -75,6 +76,7 @@ export default function Observations() {
         molding: matrixMolding,
         leaking: matrixLeaking,
         denting: matrixDenting,
+        vascularity: matrixVascularity,
         status_at_observation: matrixStatus
       })
 
@@ -85,7 +87,8 @@ export default function Observations() {
         last_chalk: matrixChalking,
         last_molding: matrixMolding,
         last_leaking: matrixLeaking,
-        last_dented: matrixDenting
+        last_dented: matrixDenting,
+        last_vasc: matrixVascularity
       }).eq('egg_id', eggId)
     })
 
@@ -142,7 +145,12 @@ export default function Observations() {
             </div>
           </div>
           <div className="matrix-scales">
-            {/* Scales for Chalking, Molding, etc. */}
+            <div>
+              <label className="field-label">Chalking (0-2)</label>
+              <select value={matrixChalking} onChange={e => setMatrixChalking(Number(e.target.value))}>
+                {[0, 1, 2].map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
             <div>
               <label className="field-label">Molding (0-3)</label>
               <select value={matrixMolding} onChange={e => setMatrixMolding(Number(e.target.value))}>
@@ -153,6 +161,19 @@ export default function Observations() {
               <label className="field-label">Leaking (0-3)</label>
               <select value={matrixLeaking} onChange={e => setMatrixLeaking(Number(e.target.value))}>
                 {[0, 1, 2, 3].map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="field-label">Denting (0-3)</label>
+              <select value={matrixDenting} onChange={e => setMatrixDenting(Number(e.target.value))}>
+                {[0, 1, 2, 3].map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="field-label">Vascularity</label>
+              <select value={matrixVascularity ? 'Yes' : 'No'} onChange={e => setMatrixVascularity(e.target.value === 'Yes')}>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
               </select>
             </div>
           </div>
