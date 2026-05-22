@@ -90,11 +90,9 @@ export default function Observations() {
       if (error) throw error
       setSelectedEggIds([])
       if (activeBinId) fetchEggs(activeBinId)
-      alert(`✅ Atomic batch save complete — ${selectedEggIds.length} observations recorded.`)
     } catch (err: any) {
       console.error("Batch save failed:", err)
       setSaveError(err.message || "Batch save failed. No data was written.")
-      alert(`❌ Save failed: ${err.message || "Unknown error"}. No data was written (atomic transaction).`)
     } finally {
       setSaving(false)
     }
@@ -179,8 +177,9 @@ export default function Observations() {
               </select>
             </div>
           </div>
-          <button className="btn btn-primary" style={{ width: '100%', marginTop: 20 }} onClick={handleSave}>
-            SAVE OBSERVATIONS
+          {saveError && <div className="save-error-banner" style={{ color: 'red', padding: '8px 12px', background: '#fff0f0', borderRadius: 6, marginBottom: 8 }}>{saveError}</div>}
+          <button className="btn btn-primary" style={{ width: '100%', marginTop: 20 }} onClick={handleSave} disabled={saving || selectedEggIds.length === 0}>
+            {saving ? 'Saving...' : 'SAVE OBSERVATIONS'}
           </button>
         </section>
       )}
