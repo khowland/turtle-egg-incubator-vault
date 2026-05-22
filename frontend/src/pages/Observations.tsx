@@ -23,6 +23,8 @@ export default function Observations() {
   const [eggs, setEggs] = useState<Egg[]>([])
   const [selectedEggIds, setSelectedEggIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   // Form State
   const [matrixStage, setMatrixStage] = useState('S1')
@@ -61,43 +63,43 @@ export default function Observations() {
 
   const handleSave = async () => {
     if (selectedEggIds.length === 0) return
-    
-    // Batch commit logic (simplified for v9.6.6 React core)
-    
-    const promises = selectedEggIds.map(async (eggId) => {
-      // 1. Create Observation
-      await supabase.from('egg_observation').insert({
-        egg_id: eggId,
-        bin_id: activeBinId,
-        session_id: observer?.session_id ?? 'SYSTEM',
-        observer_id: observer?.observer_id ?? null,
-        stage_at_observation: matrixStage,
-        chalking: matrixChalking,
-        molding: matrixMolding,
-        leaking: matrixLeaking,
-        denting: matrixDenting,
-        vascularity: matrixVascularity,
-        status_at_observation: matrixStatus
-      })
+    setSaving(true)
+    setSaveError(null)
 
-      // 2. Update Egg State
-      await supabase.from('egg').update({
-        current_stage: matrixStage,
-        status: matrixStatus,
-        last_chalk: matrixChalking,
-        last_molding: matrixMolding,
-        last_leaking: matrixLeaking,
-        last_dented: matrixDenting,
-        last_vasc: matrixVascularity
-      }).eq('egg_id', eggId)
-    })
+    // Atomic batch save via RPC per §1.3
+    const observations = selectedEggIds.map(eggId => ({
+      egg_id: eggId,
+      bin_id: activeBinId,
+      chalking: matrixChalking,
+      vascularity: matrixVascularity,
+      molding: matrixMolding,
+      leaking: matrixLeaking,
+      dented: matrixDenting
+    }))
 
-    await Promise.all(promises)
-    setSelectedEggIds([])
-    if (activeBinId) fetchEggs(activeBinId)
-    alert(`Successfully saved ${selectedEggIds.length} observations.`)
-  }
+    const rpcPayload = {
+      session_id: observer?.session_id ?? "SYSTEM",
+      observer_id: observer?.observer_id ?? null,
+      stage: matrixStage,
+      vitality: "pending_field_assessment",
+      observations: observations
+    }
 
+    try {
+      const { error } = await supabase.rpc("vault_finalize_batch_observation", { p_payload: rpcPayload })
+      if (error) throw error
+      setSelectedEggIds([])
+      if (activeBinId) fetchEggs(activeBinId)
+      alert(`✅ Atomic batch save complete — ${selectedEggIds.length} observations recorded.`)
+    } catch (err: any) {
+      console.error("Batch save failed:", err)
+      setSaveError(err.message || "Batch save failed. No data was written.")
+      alert(`❌ Save failed: ${err.message || "Unknown error"}. No data was written (atomic transaction).`)
+    } finally {
+      setSaving(false)
+    }
+
+}
   return (
     <div className="observations-container">
       <header>

@@ -3,7 +3,7 @@ import { useVersion } from '../hooks/useVersion'
 import { useSession } from '../context/SessionContext'
 import { supabase } from '../lib/supabase'
 
-function handleShiftEnd(observer: { observer_id: number; observer_name: string; session_id: bigint } | null, navigate: ReturnType<typeof useNavigate>) {
+function handleShiftEnd(observer: { observer_id: string; observer_name: string; session_id: bigint } | null, navigate: ReturnType<typeof useNavigate>) {
   // Log forensic SHIFT END event to system_log per §4
   if (observer) {
     supabase.from('system_log').insert({
@@ -60,8 +60,8 @@ export default function Sidebar() {
 
       <div className="sidebar-footer">
         <div className="observer-info">
-          <p>{observer?.observer_name}</p>
-          <span>Expert Herpetologist</span>
+          <p>{observer?.observer_name || 'Unknown Observer'}</p>
+          <span>{observer ? `ID: ${observer.observer_id.slice(0, 8)}...` : 'Not logged in'}</span>
         </div>
         
         <button className="btn btn-danger btn-shift-end" onClick={() => handleShiftEnd(observer, navigate)}>

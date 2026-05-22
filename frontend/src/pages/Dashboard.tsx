@@ -9,12 +9,28 @@ interface KPI {
   alertCount: number
 }
 
+interface StageOutcome {
+  stage: string
+  active: number
+  dead: number
+  transferred: number
+  total: number
+}
+
+interface LogEntry {
+  system_log_id: number
+  timestamp: string
+  event_type: string
+  event_message: string
+}
+
 export default function Dashboard() {
   const { observer } = useSession()
   const [kpis, setKpis] = useState<KPI>({ activeCount: 0, hatchedCount: 0, deadCount: 0, alertCount: 0 })
+  const [stageOutcomes, setStageOutcomes] = useState<StageOutcome[]>([])
+  const [activityFeed, setActivityFeed] = useState<LogEntry[]>([])
 
   async function fetchKPIs() {
-    
     try {
       // Get active bins
       const { data: bins } = await supabase.from('bin').select('bin_id').eq('is_deleted', false)
@@ -29,7 +45,7 @@ export default function Dashboard() {
       const { count: active } = await supabase.from('egg').select('*', { count: 'exact', head: true }).eq('status', 'Active').eq('is_deleted', false).in('bin_id', activeBinIds)
       const { count: hatched } = await supabase.from('egg').select('*', { count: 'exact', head: true }).eq('status', 'Transferred').eq('is_deleted', false).in('bin_id', activeBinIds)
       const { count: dead } = await supabase.from('egg').select('*', { count: 'exact', head: true }).eq('status', 'Dead').eq('is_deleted', false).in('bin_id', activeBinIds)
-      
+
       // Alerts (molding > 0 or leaking > 0)
       const { count: alerts } = await supabase.from('egg_observation').select('*', { count: 'exact', head: true }).in('bin_id', activeBinIds).or('molding.gt.0,leaking.gt.0')
 
@@ -44,8 +60,99 @@ export default function Dashboard() {
     }
   }
 
+  async function fetchStageOutcomes() {
+    try {
+      const { data, error } = await supabase
+        .from('egg')
+        .select('current_stage, status')
+        .eq('is_deleted', false)
+
+      if (error) {
+        console.error('Stage fetch error:', error)
+        return
+      }
+
+      if (!data || data.length === 0) {
+        setStageOutcomes([])
+        return
+      }
+
+      // Aggregate by stage
+      const stageMap: Record<string, { active: number; dead: number; transferred: number }> = {}
+      ;(data as any[]).forEach((egg) => {
+        const stage = egg.current_stage || 'Unknown'
+        if (!stageMap[stage]) {
+          stageMap[stage] = { active: 0, dead: 0, transferred: 0 }
+        }
+        const status = egg.status?.toLowerCase()
+        if (status === 'active') {
+          stageMap[stage].active++
+        } else if (status === 'dead') {
+          stageMap[stage].dead++
+        } else if (status === 'transferred') {
+          stageMap[stage].transferred++
+        }
+      })
+
+      const outcomes: StageOutcome[] = Object.entries(stageMap).map(([stage, counts]) => ({
+        stage,
+        active: counts.active,
+        dead: counts.dead,
+        transferred: counts.transferred,
+        total: counts.active + counts.dead + counts.transferred
+      }))
+
+      // Sort by stage
+      outcomes.sort((a, b) => a.stage.localeCompare(b.stage))
+
+      setStageOutcomes(outcomes)
+    } catch (err) {
+      console.error('Stage outcome fetch error:', err)
+    }
+  }
+
+  async function fetchActivityFeed() {
+    try {
+      const { data, error } = await supabase
+        .from('system_log')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(8)
+
+      if (error) {
+        console.error('Activity feed error:', error)
+        return
+      }
+
+      if (!data || data.length === 0) {
+        setActivityFeed([])
+        return
+      }
+
+      setActivityFeed(data as LogEntry[])
+    } catch (err) {
+      console.error('Activity feed fetch error:', err)
+    }
+  }
+
+  function formatTimestamp(ts: string): string {
+    try {
+      const d = new Date(ts)
+      return d.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch {
+      return ts
+    }
+  }
+
   useEffect(() => {
     fetchKPIs()
+    fetchStageOutcomes()
+    fetchActivityFeed()
   }, [])
 
   return (
@@ -82,15 +189,61 @@ export default function Dashboard() {
         <section className="chart-section">
           <h2>🔥 Mortality Heatmap (§5.47)</h2>
           <div className="chart-placeholder">
-            {/* Recharts implementation would go here */}
-            {kpis.deadCount === 0 ? <p className="success-text">No mortalities recorded this season!</p> : <p>Loading mortality data...</p>}
+            {stageOutcomes.length === 0 ? (
+              <p className="info-text">No egg data available — mortality heatmap will populate after intake.</p>
+            ) : (
+              <table className="heatmap-table">
+                <thead>
+                  <tr>
+                    <th>Stage</th>
+                    <th>Active</th>
+                    <th>Dead</th>
+                    <th>Transferred</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stageOutcomes.map((row) => (
+                    <tr key={row.stage} className={row.dead > 0 ? 'has-mortality' : ''}>
+                      <td>{row.stage}</td>
+                      <td>{row.active}</td>
+                      <td className={row.dead > 0 ? 'text-danger' : ''}>{row.dead}</td>
+                      <td>{row.transferred}</td>
+                      <td><strong>{row.total}</strong></td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>{stageOutcomes.reduce((sum, r) => sum + r.active, 0)}</strong></td>
+                    <td className={stageOutcomes.reduce((sum, r) => sum + r.dead, 0) > 0 ? 'text-danger' : ''}>
+                      <strong>{stageOutcomes.reduce((sum, r) => sum + r.dead, 0)}</strong>
+                    </td>
+                    <td><strong>{stageOutcomes.reduce((sum, r) => sum + r.transferred, 0)}</strong></td>
+                    <td><strong>{stageOutcomes.reduce((sum, r) => sum + r.total, 0)}</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            )}
           </div>
         </section>
 
         <section className="activity-section">
           <h2>📜 Recent Vault Activity</h2>
-          {/* Add Activity List component */}
-          <p className="info-text">system_log monitoring active...</p>
+          {activityFeed.length === 0 ? (
+            <p className="info-text">No recent activity</p>
+          ) : (
+            <ul className="activity-feed">
+              {activityFeed.map((entry) => (
+                <li key={entry.system_log_id} className="activity-entry">
+                  <span className="activity-time">{formatTimestamp(entry.timestamp)}</span>
+                  <span className="activity-type">{entry.event_type}</span>
+                  <span className="activity-message">{entry.event_message}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       </div>
     </div>
