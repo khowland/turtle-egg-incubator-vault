@@ -15,7 +15,7 @@ async function fetchVersion(): Promise<string> {
   if (fetchPromise) return fetchPromise
 
   fetchPromise = (async () => {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('system_config')
       .select('config_value')
       .eq('config_name', 'APP_VERSION')
