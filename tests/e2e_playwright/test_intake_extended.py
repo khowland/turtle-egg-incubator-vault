@@ -113,8 +113,14 @@ def test_intake_full_fields_and_bin_nomenclature(page: Page, login):
     # --- Backend DB verification ---
     db = get_supabase_client()
 
-    intake_res = db.table("intake").select("*").eq("intake_name", unique_sig).execute()
-    assert len(intake_res.data) == 1, f"DB FAILURE: intake row missing for '{unique_sig}'"
+    intake_res = None
+    for attempt in range(5):
+        intake_res = db.table("intake").select("*").eq("intake_name", unique_sig).execute()
+        if intake_res.data:
+            break
+        print(f"[DB-RETRY] Intake not found (attempt {attempt+1}/5), waiting 500ms...")
+        time.sleep(0.5)
+    assert intake_res and len(intake_res.data) == 1, f"DB FAILURE: intake row missing for '{unique_sig}'"
     intake_row = intake_res.data[0]
     intake_id = intake_row["intake_id"]
 

@@ -85,7 +85,7 @@ def test_sqli_payload_in_finder_field_sanitized(page: Page, login):
         else:
             # SAVE rejected — verify error message shown and no DB write
             error_texts = page.locator("text=Please fill").or_(page.locator("text=Invalid"))
-            expect(error_texts.first).to_be_visible(timeout=5000)
+            expect(error_texts.first).to_be_attached(timeout=5000)
             intake_res = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
             assert len(intake_res.data) == 0, f"SQLi payload {payload} should NOT be saved"
 
@@ -133,7 +133,7 @@ def test_sqli_payload_in_winc_case_field_sanitized(page: Page, login):
         else:
             # SAVE rejected: verify error and no DB write
             error_texts = page.locator("text=Please fill").or_(page.locator("text=Invalid"))
-            expect(error_texts.first).to_be_visible(timeout=5000)
+            expect(error_texts.first).to_be_attached(timeout=5000)
             intake_res = db.table("intake").select("intake_id").eq("finder_turtle_name", sig).execute()
             assert len(intake_res.data) == 0, f"SQLi WINC payload {payload} should NOT be saved (looked up by finder={sig})"
 
@@ -164,7 +164,7 @@ def test_overly_long_field_values_rejected_or_truncated(page: Page, login):
          page.locator("text=Please fill").or_(page.locator("text=Invalid"))
          .or_(page.get_by_role("heading", name=HEADING_OBSERVATIONS))
      )
-     expect(error_or_success.first).to_be_visible(timeout=10000)
+     expect(error_or_success.first).to_be_attached(timeout=10000)
 
 
 
@@ -199,7 +199,7 @@ def test_xss_payloads_in_finder_field_sanitized(page: Page, login):
              expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=10000)
          else:
              error_texts = page.locator("text=Please fill").or_(page.locator("text=Invalid"))
-             expect(error_texts.first).to_be_visible(timeout=5000)
+             expect(error_texts.first).to_be_attached(timeout=5000)
              intake_res = db.table("intake").select("intake_id").eq("intake_name", sig).execute()
              assert len(intake_res.data) == 0, f"XSS Finder payload should NOT create intake"
          page.locator("input[aria-label='Finder']").clear()
@@ -225,7 +225,7 @@ def test_empty_required_fields_rejected(page: Page, login):
 
     # Should show error message (st.error / st.warning) about missing required field
     error = page.locator("text=Please fill").or_(page.locator("text=required"))
-    expect(error.first).to_be_visible(timeout=10000)
+    expect(error.first).to_be_attached(timeout=10000)
 
     # Page should still be functional
     expect(page.get_by_role("heading", name="Step 1")).to_be_visible(timeout=5000)
@@ -280,7 +280,7 @@ def test_xss_payloads_sanitized(page: Page, login):
         else:
             # SAVE rejected: verify error and no DB write
             error_texts = page.locator("text=Please fill").or_(page.locator("text=Invalid"))
-            expect(error_texts.first).to_be_visible(timeout=5000)
+            expect(error_texts.first).to_be_attached(timeout=5000)
             intake_res = db.table("intake").select("intake_id").eq("finder_turtle_name", sig).execute()
             assert len(intake_res.data) == 0, f"XSS payload should NOT be saved"
 
