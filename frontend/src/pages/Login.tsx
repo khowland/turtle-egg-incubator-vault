@@ -64,6 +64,13 @@ const Login: React.FC = () => {
                 return;
             }
 
+            // Sign in anonymously to get authenticated JWT (satisfies RLS v9.8.1)
+            const { error: authError } = await supabase.auth.signInAnonymously();
+            if (authError) {
+                setError('Authentication failed. Please try again.');
+                return;
+            }
+
             // Create session_log entry
             const { data: sessionData, error: sessionError } = await supabase
                 .from('session_log')
