@@ -67,7 +67,7 @@ export default function Sidebar() {
         <button className="btn btn-danger btn-shift-end" onClick={() => handleShiftEnd(observer, navigate)}>
           SHIFT END
         </button>
-
+          <span>{observer ? `ID: ${String(observer.observer_id).slice(0, 8)}...` : 'Not logged in'}</span>
         <div className="sidebar-terminal-trigger">
           {'>'}_ Forensic Echo
         </div>

@@ -11,7 +11,7 @@ def test_react_app_is_sovereign(page: Page):
     1. Verify React app is listening on port 5173.
     2. Verify 'Today's Summary' heading exists (Dashboard).
     3. Verify Sidebar contains clinical navigation.
-    4. Verify Version 'v9.6.6' is present.
+    4. Verify Version 'v9.7.0' is present (dynamic from system_config).
     """
     # 1. Navigate
     print(f"\n[QA] Navigating to {REACT_URL}...")
@@ -31,9 +31,14 @@ def test_react_app_is_sovereign(page: Page):
     expect(intake_link).to_be_visible()
     
     # 4. Check Version
-    print("[QA] Verifying System Version (v9.6.6)...")
+    print("[QA] Verifying System Version (v9.7.0 from system_config)...")
     version = page.locator(".version-tag")
-    expect(version).to_have_text("v9.6.6")
+    # Wait for version to resolve from fallback v0.0.0 (loading) to actual DB value
+    page.wait_for_function(
+        "document.querySelector('.version-tag')?.textContent !== 'v0.0.0'",
+        timeout=10000
+    )
+    expect(version).to_have_text("v9.7.0")
     
     # 5. Check KPI Metric (Still Incubating)
     print("[QA] Verifying KPI Metric Rendering...")

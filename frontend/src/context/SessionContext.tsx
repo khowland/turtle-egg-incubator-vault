@@ -49,7 +49,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
 
         const observers: Observer[] = data.map((row: any) => ({
-          observer_id: row.observer_id,
+          observer_id: String(row.observer_id),
           observer_name: row.display_name,
           session_id: BigInt(Date.now()), // TODO: replace with real session_log insert when login flow exists
           login_timestamp: new Date().toISOString()
