@@ -1,63 +1,89 @@
-# 🍞 BREADCRUMB — Session State for Next Chat
+# 🍞 Breadcrumb — Fresh Chat Resume Point
 
-**Date:** 2026-05-15 02:20 CT  
-**Version:** v9.6.6 (Sovereign React)
+**Date:** 2026-05-22 13:16 CT
 **Branch:** `feature/react-resurrection`
-**Chat Context:** React Core Resurrection & Documentation Hardening
+**Last Commit:** `e8b384f` — `feat(admin): lookup table CRUD with mid-season lockout and soft-delete [v9.7.2]`
 
 ---
 
-## 📊 CURRENT ARCHITECTURAL STATUS
+## 📋 Current State
 
-| Component | Status | Notes |
-|:---|:---|:---|
-| **React Core** | ✅ RECOVERED | App.tsx, main.tsx, Router, Context all active. |
-| **Dashboard** | ✅ PORTED | Live KPIs and activity monitoring active. |
-| **Intake** | ✅ VERIFIED | Atomic RPC transactions for new/supp intake. |
-| **Observations** | ✅ PORTED | Biological Grid + Property Matrix UI functional. |
-| **Documentation** | ✅ MODERNIZED | Specs/Requirements aligned with v9.6.6 React stack. |
-| **Git Tracking** | ✅ SECURED | Committed all frontend files to new feature branch. |
+### What's Done (Sprint 6)
+| Commit | Description |
+|--------|-------------|
+| `2d18a46` | C1 — Key rotation: SERVICE_ROLE → anon key |
+| `6e08962` | H1/M5/M7/M8 — Atomic observations, real observer from DB, live dashboard |
+| `b5be8cb` | React hydration crash fix (observer_id bigint→string) |
+| `5f0f236` | TypeScript build fix (unused saving/saveError variables) |
+| `4609cbc` | Test hardening (retry loops, to_be_attached) |
+| `5050b72` | Governance — Ledger update + Obsidian Sprint 6 log |
+| `e8b384f` | **LOOKUP TABLE CRUD** — Settings.tsx tabs for Species, Stages, Bio-Props, Observers |
 
----
+### What's Pending (NEXT TASK)
+**🔐 AUTHENTICATION GATE — Prevent unauthorized public access**
 
-## 🟥 RESOLVED BLOCKER: Missing Frontend Shell
-The React migration was previously untracked and files were missing. I have manually re-ported the core logic from Streamlit views to React components.
+The user asked:
+> "How does it handle user login now? It was hard coded to me during testing. What is best way to prevent unauth public from using the system?"
 
----
+Current login is **wide open** — no login screen, the `SessionContext` loads observers from DB (falls back to `Kevin (Audit Override)` if DB is empty). Anyone who reaches the URL can use the app.
 
-## 💡 NEXT APPROACHES
+**Recommended approach (user agreed):**
+1. **Create `Login.tsx` page** — PIN entry (4-6 digit PIN stored in `system_config` as `AUTH_PIN`)
+2. **Observer selection** — after PIN validation, user selects observer from DB list
+3. **Session logging** — log to `session_log` per §4 forensic auditing
+4. **Remove KEVIN_BYPASS in production** — only in dev mode
+5. **Tighten RLS policies** — require `auth.role() = 'authenticated'` on clinical tables
 
-### 1. RLS Hardening Sprint
-Now that the UI is sovereign and documented, we can begin re-enabling Row Level Security (RLS) in Supabase. This will be the final step in the "Hardening" phase.
-
-### 2. Forensic Terminal Implementation
-The Sidebar has a placeholder for the "Forensic Echo" terminal. This should be implemented as a global component to allow Expert Biologists to add notes from any screen.
-
----
-
-## 📁 KEY FILES CHANGED THIS SESSION
-
-| File | What Changed | Status |
-|:---|:---|:---|
-| `frontend/src/` | Entire React shell rebuilt | ✅ |
-| `docs/design/` | Modernized SPEC and Requirements | ✅ |
-| `PHASE_STATUS.md` | Updated Phase 3 roadmap | ✅ |
-| `obsidian/` | Created REFACTOR_LOG_20260515_RESURRECTION | ✅ |
+**User's security concern:** "Token is required to be exposed during front end execution?? Can we assign a variable so public can't hack it?"
+- The anon key IS publicly visible by design — Supabase uses RLS for security, not key secrecy
+- Service role key already rotated to anon (C1 commit). Security comes from RLS + login gate.
 
 ---
 
-## 🔧 ENVIRONMENT
-- **Frontend URL**: <http://localhost:5173>
-- **Supabase**: <https://kxfkfeuhkdopgmkpdimo.supabase.co>
-- **Vite Server**: Active on port 5173
-- **Branch**: `feature/react-resurrection`
+## 🔗 Key Paths
+
+| What | Path |
+|------|------|
+| React frontend source | `/a0/usr/workdir/frontend/src/` |
+| Settings (CRUD admin) | `/a0/usr/workdir/frontend/src/pages/Settings.tsx` (704 lines) |
+| Session context | `/a0/usr/workdir/frontend/src/context/SessionContext.tsx` |
+| Supabase client | `/a0/usr/workdir/frontend/src/lib/supabase.ts` |
+| Version hook | `/a0/usr/workdir/frontend/src/hooks/useVersion.ts` |
+| Database migrations | `/a0/usr/workdir/supabase_db/migrations/` |
+| QA Triad Ledger | `/a0/usr/workdir/tests/QA_TRIAD_LEDGER.md` |
+| Sprint 6 obsidian log | `/a0/usr/workdir/obsidian/Sprint_6_Completion_20260522.md` |
+| Latest migration (v9.7.2) | `/a0/usr/workdir/supabase_db/migrations/v9_7_2_LOOKUP_SOFT_DELETE.sql` |
+| Requirements | `/a0/usr/workdir/docs/design/Requirements.md` |
+| Implied objective | `/a0/usr/workdir/docs/implied_system_objective.md` |
+| Frontend .env | `/a0/usr/workdir/frontend/.env` |
+| Production build | `/a0/usr/workdir/frontend/dist/` |
+| Vite dev server | Running on `172.18.0.3:5173` (--host 0.0.0.0) |
+| Streamlit | Running on `127.0.0.1:8599` (deprecated) |
 
 ---
 
-## 🎯 IMMEDIATE NEXT STEPS
-1. **Complete Porting**: Observations is partially ported (Grid + Matrix); finish logic for S6 Hatchling Ledger.
-2. **RLS Migration**: Deploy security policies to `intake` and `egg` tables.
-3. **QA Matrix**: Execute the full 100+ test case matrix against the new React UI.
+## 🚨 Gotchas for Fresh Agent
+
+1. **Streamlit is DEPRECATED** — React is the sole target. All Streamlit tests marked `[DEPRECATED_STREAMLIT]` in Ledger.
+2. **observer_id is BIGINT in DB** — must convert to string before `.slice()` in Sidebar, or React crashes silently.
+3. **All deletes are SOFT DELETES** — use `UPDATE SET is_deleted=true`. Never call `.delete()`.
+4. **Mid-season lockout** — Settings CRUD page queries active egg count; disables edits if >0.
+5. **Version sovereignty** — version comes from `system_config.APP_VERSION` (currently v9.7.2). Update test when version changes.
+6. **Use sub-agents for complex tasks** — per orchestration rules in `subagent.promptinclude.md`.
+7. **Log bugs to Obsidian** — per QA Methodology in `qa.promptinclude.md`.
 
 ---
-*Verified for the 2026 Turtle Season.*
+
+## 🚦 Next Step for Fresh Agent
+
+**Implement Login Gate (Auth System):**
+1. Create `Login.tsx` page with PIN entry
+2. Add `AUTH_PIN` to `system_config` table
+3. Update `SessionContext` to require authentication
+4. Route to login page by default; redirect to Dashboard on success
+5. Log sessions to `session_log`
+6. Remove hardcoded KEVIN_BYPASS in production (keep for dev mode)
+7. Verify RLS policies on clinical tables
+8. Run `npm run build` to verify zero TS errors
+
+**The user wants to switch to a fresh chat. They are waiting for confirmation that I'm ready.**
