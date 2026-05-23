@@ -75,14 +75,21 @@ const Login: React.FC = () => {
             const { data: sessionData, error: sessionError } = await supabase
                 .from('session_log')
                 .insert({
-                    user_name: observer.observer_name,
+                    observer_name: observer.observer_name,
                     user_agent: navigator.userAgent,
                     login_timestamp: new Date().toISOString()
                 })
                 .select('session_id')
                 .single();
 
-            if (sessionError || !sessionData) {
+            if (sessionError) {
+                console.error('[Login] session_log INSERT failed:', sessionError);
+                setError('Failed to create session. Please try again.');
+                return;
+            }
+
+            if (!sessionData) {
+                console.error('[Login] session_log INSERT returned no data');
                 setError('Failed to create session. Please try again.');
                 return;
             }

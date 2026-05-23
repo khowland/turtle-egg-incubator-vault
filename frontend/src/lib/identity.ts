@@ -33,7 +33,7 @@ export async function ensureSessionPersisted(
   const { data: inserted, error: insertError } = await supabase
     .from('session_log')
     .insert({
-      user_name: observer.observer_name,
+      observer_name: observer.observer_name,
       login_timestamp: observer.login_timestamp,
       user_agent: navigator.userAgent,
     })

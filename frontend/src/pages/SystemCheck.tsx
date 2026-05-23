@@ -19,6 +19,12 @@ export default function SystemCheck() {
     migrationCount: 0,
     tableCount: 0
   })
+  const migrationHistory: Array<{ version: string; description: string }> = [
+    { version: 'v9.7.0', description: 'Enable RLS on all clinical tables' },
+    { version: 'v9.6.6', description: 'React frontend resurrection' },
+    { version: 'v9.1.x', description: 'Numeric PK migration' },
+    { version: 'v8.x',   description: 'Enterprise schema consolidation' }
+  ];
 
   useEffect(() => {
     async function checkHealth() {
@@ -42,14 +48,16 @@ export default function SystemCheck() {
           .from('system_config')
           .select('config_key')
 
+        // Roll up status
         setStatus({
           version: configData?.config_value || version,
           dbConnected: true,
           dbResponseTime: responseTime,
-          migrationCount: 1, // placeholder
+          migrationCount: migrationHistory.length,
           tableCount: tables?.length || 0
         })
-      } catch {
+      } catch (err: unknown) {
+        console.error('[SystemCheck] Health check failed:', err instanceof Error ? err.message : String(err))
         setStatus(s => ({ ...s, dbConnected: false, dbResponseTime: null }))
       }
     }
