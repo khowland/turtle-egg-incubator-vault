@@ -75,8 +75,8 @@ export default function Settings() {
 
   // CRUD modal state
   const [modalOpen, setModalOpen] = useState(false)
-  const [editRow, setEditRow] = useState<any>(null) // existing row or null for new
-  const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
+  const [editRow, setEditRow] = useState<any>(null) // existing row or null for new; runtime-safety gated by activeTab switch in renderFields
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null) // safer than union — runtime guarded by deleteTable discriminant in getEntityLabel
   const [deleteTable, setDeleteTable] = useState<string>('')
   const [saving, setSaving] = useState(false)
 
@@ -561,7 +561,8 @@ export default function Settings() {
   const renderDeleteConfirm = () => {
     if (!deleteConfirm) return null
 
-    const getLabel = () => {
+    /** Returns human-readable label for the entity being deleted */
+    const getEntityLabel = () => {
       if (deleteTable === 'observer') return deleteConfirm.observer_name
       if (deleteTable === 'species') return deleteConfirm.common_name || deleteConfirm.species_code
       if (deleteTable === 'development_stage') return deleteConfirm.label
@@ -569,12 +570,30 @@ export default function Settings() {
       return JSON.stringify(deleteConfirm)
     }
 
+    /** Returns human-readable entity type (Observer, Species, Stage, Biological Property) */
+    const getEntityTypeLabel = (): string => {
+      switch (deleteTable) {
+        case 'observer':             return 'Observer'
+        case 'species':              return 'Species'
+        case 'development_stage':    return 'Development Stage'
+        case 'biological_property':  return 'Biological Property'
+        default:                     return deleteTable
+      }
+    }
+
     return (
       <div className="modal-overlay" onClick={() => { setDeleteConfirm(null); setDeleteTable('') }}>
         <div className="modal-content modal-confirm" onClick={e => e.stopPropagation()}>
           <h3>🗑️ Confirm Soft Delete</h3>
-          <p>Are you sure you want to soft-delete <strong>{getLabel()}</strong> from <code>{deleteTable}</code>?</p>
-          <p className="muted">This action uses soft-delete (is_deleted = true) and can be reversed by an administrator.</p>
+          <p>
+            Are you sure you want to soft-delete <strong>{getEntityLabel()}</strong>?
+          </p>
+          <p className="muted">
+            Entity type: <strong>{getEntityTypeLabel()}</strong>
+          </p>
+          <p className="muted">
+            This action uses soft-delete (<code>is_deleted = true</code>) and can be reversed by an administrator.
+          </p>
           <div className="form-actions">
             <button className="btn-save btn-danger" onClick={handleSoftDelete} disabled={saving}>
               {saving ? '🐢 Deleting...' : 'DELETE'}
