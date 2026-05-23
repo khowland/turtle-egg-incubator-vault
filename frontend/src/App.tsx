@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { SessionProvider, useSession } from './context/SessionContext'
 import Sidebar from './components/Sidebar'
@@ -10,6 +10,40 @@ import Help from './pages/Help'
 import Settings from './pages/Settings'
 import Reports from './pages/Reports'
 import Login from './pages/Login'
+
+// ---------------------------------------------------------------------------
+// Error Boundary — catastrophic UI failure catches render-time exceptions
+// ---------------------------------------------------------------------------
+interface ErrorBoundaryProps { children: React.ReactNode }
+interface ErrorBoundaryState { hasError: boolean; error: Error | null }
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('[ErrorBoundary] Uncaught render error:', error, info.componentStack)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="app-loading" style={{ color: 'red', padding: '2rem', textAlign: 'center' }}>
+          <h2>Something went wrong.</h2>
+          <p>{this.state.error?.message}</p>
+          <button onClick={() => window.location.reload()}>Reload Application</button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 const AppInner: React.FC = () => {
     const { loading, isAuthenticated } = useSession();
@@ -47,11 +81,13 @@ const AppInner: React.FC = () => {
 
 const App: React.FC = () => {
     return (
-        <SessionProvider>
-            <BrowserRouter>
-                <AppInner />
-            </BrowserRouter>
-        </SessionProvider>
+        <ErrorBoundary>
+            <SessionProvider>
+                <BrowserRouter>
+                    <AppInner />
+                </BrowserRouter>
+            </SessionProvider>
+        </ErrorBoundary>
     );
 };
 

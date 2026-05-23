@@ -41,9 +41,9 @@ VALUES
     ('S4-Term', 'Late Development — Terminal', 'Full term embryo; yolk sac external but reducing', NULL, 4, 'Term', NOW(), NOW()),
     ('S4-Motion', 'Late Development — Motion', 'Embryo moving inside egg; imminent hatch expected', NULL, 4, 'Motion', NOW(), NOW()),
     ('S5', 'Hatching', 'Pipping or actively emerging from shell', NULL, 5, NULL, NOW(), NOW()),
-    ('S6-YA1', 'Hatchling — Yearling Age 1', 'Post-hatch; external yolk sac absorbed; umbilical healed', NULL, 6, 'YA1', NOW(), NOW()),
-    ('S6-YA2', 'Hatchling — Yearling Age 2', '6-12 months; feeding independently; rapid growth phase', NULL, 6, 'YA2', NOW(), NOW()),
-    ('S6-YA3', 'Hatchling — Yearling Age 3', '12+ months; ready for release or transfer; biosecurity gate for WormD export', NULL, 6, 'YA3', NOW(), NOW()),
+    ('S6-YSA1', 'Hatchling — Yearling Age 1', 'Post-hatch; external yolk sac absorbed; umbilical healed', NULL, 6, 'YSA1', NOW(), NOW()),
+    ('S6-YSA2', 'Hatchling — Yearling Age 2', '6-12 months; feeding independently; rapid growth phase', NULL, 6, 'YSA2', NOW(), NOW()),
+    ('S6-YSA3', 'Hatchling — Yearling Age 3', '12+ months; ready for release or transfer; biosecurity gate for WormD export', NULL, 6, 'YSA3', NOW(), NOW()),
     ('SX', 'Non-Viable', 'Egg failed to develop; determined non-viable', NULL, 99, NULL, NOW(), NOW()),
     ('SD', 'Deceased', 'Embryo or hatchling died', NULL, 98, NULL, NOW(), NOW())
 ON CONFLICT (stage_id) DO NOTHING;

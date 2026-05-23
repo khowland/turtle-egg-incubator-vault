@@ -266,7 +266,7 @@ export default function Intake() {
     setStatusMsg({ type: 'info', text: 'Saving records…' })
 
     try {
-      let currentSessionId = observer?.session_id ?? 0n
+      let currentSessionId: string | bigint = observer?.session_id ?? 'SYSTEM'
       if (observer) {
         currentSessionId = await ensureSessionPersisted(observer, supabase)
         observer.session_id = currentSessionId
@@ -588,7 +588,10 @@ export default function Intake() {
                   onFocus={e => e.target.select()}
                   onChange={e => {
                     const val = Number(e.target.value)
-                    setBinRows(prev => prev.map((r, i) => i === idx ? { ...r, new_egg_count: val } : r))
+                    // Guard against NaN from invalid paste (e.g. letters in number input)
+                    if (!Number.isNaN(val)) {
+                      setBinRows(prev => prev.map((r, i) => i === idx ? { ...r, new_egg_count: val } : r))
+                    }
                   }} />
               </div>
               {row.is_new_bin && !row.existing_bin_id && mode === 'supplemental' && (

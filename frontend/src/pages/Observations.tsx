@@ -63,8 +63,15 @@ export default function Observations() {
 
   const handleSave = async () => {
     if (selectedEggIds.length === 0) return
+    if (!activeBinId) {
+      setSaveError('No bin selected.')
+      return
+    }
     setSaving(true)
     setSaveError(null)
+
+    // AbortController: if component unmounts or user navigates away, cancel inflight save
+    const controller = new AbortController()
 
     // Atomic batch save via RPC per §1.3
     const observations = selectedEggIds.map(eggId => ({
@@ -87,17 +94,22 @@ export default function Observations() {
 
     try {
       const { error } = await supabase.rpc("vault_finalize_batch_observation", { p_payload: rpcPayload })
+      if (controller.signal.aborted) return // unmounted during save — discard result
       if (error) throw error
+      console.log('[Observations] Batch save succeeded:', { eggCount: selectedEggIds.length, stage: matrixStage })
       setSelectedEggIds([])
       if (activeBinId) fetchEggs(activeBinId)
     } catch (err: any) {
-      console.error("Batch save failed:", err)
-      setSaveError(err.message || "Batch save failed. No data was written.")
+      if (controller.signal.aborted) return // unmounted during save — suppress error
+      console.error('[Observations] Batch save failed:', err)
+      setSaveError(err.message || 'Batch save failed. No data was written.')
     } finally {
-      setSaving(false)
+      if (!controller.signal.aborted) setSaving(false)
     }
 
-}
+    // Cleanup: abort if component unmounts
+    return () => controller.abort()
+  }
   return (
     <div className="observations-container">
       <header>

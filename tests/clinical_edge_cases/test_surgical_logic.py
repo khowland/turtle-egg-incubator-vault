@@ -24,7 +24,7 @@ def test_surgical_resurrection_allows_viewing_and_restoring_deleted_obs():
         m = MagicMock()
         if name == "observer":
             m.select.return_value.execute.return_value.data = [
-                {"observer_id": "uuid-1", "display_name": "Kevin", "is_active": True}
+                {"observer_id": "uuid-1", "observer_name": "Kevin", "is_active": True}
             ]
         elif name == "species":
             m.select.return_value.execute.return_value.data = [
