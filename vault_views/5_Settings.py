@@ -98,7 +98,7 @@ with tabs[0]:
         )
     res_users = (
         supabase.table("observer")
-        .select("observer_id, display_name, is_active")
+        .select("observer_id, observer_name, is_active")
         .execute()
     )
 
@@ -107,7 +107,7 @@ with tabs[0]:
         pd.DataFrame(res_users.data),
         column_config={
             "observer_id": None,  # Physically hides the ID from rendering
-            "display_name": st.column_config.TextColumn("Display Name", required=True),
+            "observer_name": st.column_config.TextColumn("Observer Name", required=True),
             "is_active": st.column_config.CheckboxColumn(
                 "Login Allowed",
                 default=True,
@@ -140,7 +140,7 @@ with tabs[0]:
                     to_upsert.append(
                         {
                             "observer_id": uid,
-                            "display_name": row["display_name"],
+                            "observer_name": row["observer_name"],
                             "is_active": row["is_active"],
                         }
                     )

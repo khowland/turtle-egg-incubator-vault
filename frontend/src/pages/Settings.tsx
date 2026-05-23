@@ -40,7 +40,7 @@ interface BioPropRow {
 
 interface ObserverRow {
   observer_id: number
-  display_name: string
+  observer_name: string
   is_active: boolean
 }
 
@@ -156,7 +156,7 @@ export default function Settings() {
             .from('observer')
             .select('*')
             .eq('is_active', true)
-            .order('display_name')
+            .order('observer_name')
           setObserverRows(data || [])
           break
         }
@@ -273,7 +273,7 @@ export default function Settings() {
         }
         case 'observers': {
           const payload = {
-            display_name: formData.display_name,
+            observer_name: formData.observer_name,
             modified_at: new Date().toISOString(),
           }
           if (editRow) {
@@ -377,7 +377,7 @@ export default function Settings() {
         case 'observers':
           return observerRows.map(row => (
             <tr key={row.observer_id}>
-              <td>{row.display_name}</td>
+              <td>{row.observer_name}</td>
               <td>{row.is_active ? '✅ Active' : '❌ Inactive'}</td>
               <td className="actions-cell">
                 <button className="btn-icon" onClick={() => openEdit(row)} disabled={isLocked} title="Edit">✏️</button>
@@ -516,7 +516,7 @@ export default function Settings() {
         case 'observers':
           return (
             <>
-              <label>Display Name <input name="display_name" defaultValue={editRow?.display_name || ''} required /></label>
+              <label>Observer Name <input name="observer_name" defaultValue={editRow?.observer_name || ''} required /></label>
             </>
           )
       }
@@ -562,7 +562,7 @@ export default function Settings() {
     if (!deleteConfirm) return null
 
     const getLabel = () => {
-      if (deleteTable === 'observer') return deleteConfirm.display_name
+      if (deleteTable === 'observer') return deleteConfirm.observer_name
       if (deleteTable === 'species') return deleteConfirm.common_name || deleteConfirm.species_code
       if (deleteTable === 'development_stage') return deleteConfirm.label
       if (deleteTable === 'biological_property') return deleteConfirm.property_label

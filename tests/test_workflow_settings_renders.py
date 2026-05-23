@@ -17,7 +17,7 @@ def _make_settings_mock():
         m = MagicMock()
         if name == "observer":
             m.select.return_value.execute.return_value.data = [
-                {"observer_id": "uuid-1", "display_name": "Kevin Howland", "is_active": True}
+                {"observer_id": "uuid-1", "observer_name": "Kevin Howland", "is_active": True}
             ]
         elif name == "species":
             m.select.return_value.execute.return_value.data = [

@@ -14,7 +14,7 @@ def mock_supabase():
     mock_client = MagicMock()
     # Mock observers for splash screen
     mock_client.table.return_value.select.return_value.eq.return_value.execute.return_value.data = [
-        {"observer_id": "test-id", "display_name": "Test Biologist", "is_active": True}
+        {"observer_id": "test-id", "observer_name": "Test Biologist", "is_active": True}
     ]
     # Mock system_log/session_log
     mock_client.table.return_value.insert.return_value.execute.return_value = MagicMock()

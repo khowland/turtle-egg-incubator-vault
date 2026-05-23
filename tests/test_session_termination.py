@@ -35,7 +35,7 @@ def test_session_expiry_creates_new_id(mock_supabase):
     ]
     # Mock: active observers
     mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = [
-        {"observer_id": "O1", "display_name": "Kevin", "is_active": True}
+        {"observer_id": "O1", "observer_name": "Kevin", "is_active": True}
     ]
     # Mock: no TERMINATE event for the stale session
     mock_supabase.table.return_value.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = []
@@ -122,9 +122,9 @@ def test_terminated_session_not_resumed(mock_supabase):
     ]
     # Mock: active observers
     mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = [
-        {"observer_id": "O1", "display_name": "Kevin", "is_active": True}
+        {"observer_id": "O1", "observer_name": "Kevin", "is_active": True}
     ]
-    # Mock: system_log HAS a TERMINATE event for this session
+    # Mock: system_log HAS a TERMINATE event
     mock_supabase.table.return_value.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = [
         {"id": "log-001"}  # Non-empty = terminated
     ]

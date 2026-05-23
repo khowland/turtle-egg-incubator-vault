@@ -40,7 +40,7 @@ def fetch_active_observers():
         supabase_client = get_supabase()
         response = (
             supabase_client.table("observer")
-            .select("observer_id, display_name, is_active")
+            .select("observer_id, observer_name, is_active")
             .eq("is_active", True)
             .execute()
         )
@@ -82,7 +82,7 @@ def show_splash_screen():
         columns = st.columns([1, 2, 1])
         with columns[1]:
             with st.form("login_form"):
-                observer_options = {f"{o['display_name']}": o["observer_id"] for o in active_observers}
+                observer_options = {f"{o['observer_name']}": o["observer_id"] for o in active_observers}
                 names_list = list(observer_options.keys())
                 selected_observer = st.selectbox("Select Your Name", options=names_list)
 

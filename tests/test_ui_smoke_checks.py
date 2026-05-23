@@ -26,7 +26,7 @@ def mock_supabase():
         
         # Mock observers for login
         client.table("observer").select().eq().execute.return_value.data = [
-            {"observer_id": "test-id", "display_name": "Test User", "is_active": True}
+            {"observer_id": "test-id", "observer_name": "Test User", "is_active": True}
         ]
         
         # Mock version

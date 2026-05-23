@@ -28,9 +28,9 @@ const Login: React.FC = () => {
             // PIN correct — fetch observers
             const { data: obsData, error: obsError } = await supabase
                 .from('observer')
-                .select('observer_id, display_name')
+                .select('observer_id, observer_name')
                 .eq('is_active', true)
-                .order('display_name');
+                .order('observer_name');
 
             if (obsError || !obsData || obsData.length === 0) {
                 setError('No active observers found in the system.');
@@ -39,7 +39,7 @@ const Login: React.FC = () => {
 
             const mapped: Observer[] = obsData.map((row: any) => ({
                 observer_id: String(row.observer_id),
-                observer_name: row.display_name,
+                observer_name: row.observer_name,
                 session_id: 0n,
                 login_timestamp: new Date().toISOString()
             }));

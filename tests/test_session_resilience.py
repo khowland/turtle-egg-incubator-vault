@@ -19,7 +19,7 @@ def test_session_recovery_boundary_valid():
     table_data = {
         "session_log": [{"session_id": old_active_session, "login_timestamp": recent_time, "user_name": "Kevin"}],
         "system_log": [],
-        "observer": [{"observer_id": "O1", "display_name": "Kevin", "is_active": True}]
+        "observer": [{"observer_id": "O1", "observer_name": "Kevin", "is_active": True}]
     }
     mock_sb, tables = build_table_aware_mock(table_data)
 

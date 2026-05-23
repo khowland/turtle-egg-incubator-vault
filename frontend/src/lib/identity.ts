@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface Observer {
   observer_id: string  // UUID from observer table (was number, now UUID)
-  observer_name: string  // mapped from display_name in observer table
+  observer_name: string  // matches observer.observer_name column
   session_id: bigint
   login_timestamp: string
 }
