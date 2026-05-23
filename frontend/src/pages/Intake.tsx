@@ -266,7 +266,11 @@ export default function Intake() {
     setStatusMsg({ type: 'info', text: 'Saving records…' })
 
     try {
-      if (observer) await ensureSessionPersisted(observer, supabase)
+      let currentSessionId = observer?.session_id ?? 0n
+      if (observer) {
+        currentSessionId = await ensureSessionPersisted(observer, supabase)
+        observer.session_id = currentSessionId
+      }
       const now = new Date()
       const intakeTimestamp = new Date(`${intakeDate}T${now.toTimeString().slice(0, 8)}`).toISOString()
       const binsPayload = syncedBinRows.map(row => ({
